@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="300" viewBox="0 0 360 300" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">森野自然岛</title>
+  <desc id="desc">层叠绿色树冠守护着漂浮的森林小岛，蘑菇屋、蓝色池塘、小花和木桥组成一个温暖的小小自然世界。</desc>
+  <defs>
+    <linearGradient id="land" x1="158" y1="180" x2="193" y2="267" gradientUnits="userSpaceOnUse"><stop stop-color="#F6D7A5"/><stop offset="1" stop-color="#BB9270"/></linearGradient>
+    <linearGradient id="grass" x1="93" y1="143" x2="257" y2="220" gradientUnits="userSpaceOnUse"><stop stop-color="#C9ECAF"/><stop offset="1" stop-color="#7AC49E"/></linearGradient>
+    <linearGradient id="leaf" x1="98" y1="54" x2="178" y2="149" gradientUnits="userSpaceOnUse"><stop stop-color="#B9E6AD"/><stop offset="1" stop-color="#4CA889"/></linearGradient>
+    <linearGradient id="water" x1="213" y1="166" x2="228" y2="211" gradientUnits="userSpaceOnUse"><stop stop-color="#8DDDDC"/><stop offset="1" stop-color="#53B0C8"/></linearGradient>
+    <linearGradient id="cap" x1="223" y1="101" x2="261" y2="148" gradientUnits="userSpaceOnUse"><stop stop-color="#FFCE9B"/><stop offset="1" stop-color="#EFA079"/></linearGradient>
+    <filter id="shadow" x="-25%" y="-25%" width="150%" height="160%"><feDropShadow dx="0" dy="5" stdDeviation="3" flood-color="#466F5C" flood-opacity=".14"/></filter>
+  </defs>
+  <ellipse cx="180" cy="274" rx="91" ry="10" fill="#4D776A" opacity=".10"/>
+  <path d="M51 188c30-25 228-28 259 1l-21 39-27 16-27-2-27 24-29-8-24 6-30-22-24-1-25-21Z" fill="url(#land)"/>
+  <path d="m79 213 24 18 26 0 29 23 20-7 31 8 26-25 25 3 29-21-5 20-24 14-25-2-27 24-29-8-24 6-30-22-24-1-25-21Z" fill="#A57E61" opacity=".23"/>
+  <path d="m130 218 7 24 14 13m76-41-10 25-13 15m-102-46 11 18 14 4" stroke="#EAC796" stroke-width="5" stroke-linecap="round"/>
+  <ellipse cx="180" cy="187" rx="130" ry="43" fill="#66AA87"/>
+  <ellipse cx="180" cy="180" rx="130" ry="43" fill="url(#grass)"/>
+  <path d="M76 163c33-24 89-31 134-23" stroke="#E9F5C3" stroke-width="5" stroke-linecap="round" opacity=".75"/>
+  <path d="M168 180c10-18 59-24 84-13 22 10 12 33-11 39-18 5-47 3-64-5-11-5-14-14-9-21Z" fill="#D7E8AE"/>
+  <path d="M175 181c9-14 52-20 73-11 20 9 9 25-10 31-18 5-41 1-56-4-9-4-11-10-7-16Z" fill="url(#water)"/>
+  <path d="M184 179c18-8 43-10 58-5m-43 17 28-1" stroke="#D2FAEB" stroke-width="3" stroke-linecap="round"/>
+  <ellipse cx="241" cy="190" rx="9" ry="4" fill="#68B197"/><path d="m241 190 6-4-1 6Z" fill="#8DCBAD"/>
+  <path d="M161 175c-9 8-14 17-12 25" stroke="#D8C391" stroke-width="18"/>
+  <path d="m151 181 12 6m-16 1 12 7m-14 0 12 7" stroke="#AF986F" stroke-width="2" stroke-linecap="round"/>
+  <g filter="url(#shadow)">
+    <ellipse cx="133" cy="173" rx="35" ry="10" fill="#509B7C" opacity=".17"/>
+    <path d="m126 169 7-77 13 1-1 74 12 7-22 4-20-5Z" fill="#B48D69"/>
+    <path d="m135 150 1-52m3 34 18-20m-23 12-17-18" stroke="#D1B081" stroke-width="5" stroke-linecap="round"/>
+    <path d="M103 130c-35-1-47-24-30-43-4-22 14-37 34-32 16-32 49-30 62-4 32-4 53 28 35 51 8 25-16 39-41 34-20 14-46 12-60-6Z" fill="url(#leaf)"/>
+    <ellipse cx="124" cy="64" rx="31" ry="21" transform="rotate(-24 124 64)" fill="#C4ECAF"/>
+    <ellipse cx="177" cy="85" rx="22" ry="28" transform="rotate(-32 177 85)" fill="#8AD0A0"/>
+    <path d="M87 95c-3-9 3-18 14-21m40-23c9 0 14 6 17 12" stroke="#E2F5BF" stroke-width="6" stroke-linecap="round"/>
+    <path d="M106 117c4 7 11 10 19 10m30-12c8 5 17 4 23 0" stroke="#509C7D" stroke-width="3" stroke-linecap="round" opacity=".6"/>
+    <circle cx="109" cy="102" r="5" fill="#FFD688"/><circle cx="163" cy="85" r="5" fill="#FFD688"/>
+  </g>
+  <g filter="url(#shadow)">
+    <path d="M225 128h31l4 28c-8 12-37 12-43 1Z" fill="#FFF2CF"/>
+    <path d="M207 130c-1-14 10-36 31-38 23-1 41 21 40 36-13 13-56 15-71 2Z" fill="url(#cap)"/>
+    <ellipse cx="242" cy="132" rx="34" ry="9" fill="#E9B08B"/>
+    <ellipse cx="224" cy="111" rx="7" ry="5" transform="rotate(-27 224 111)" fill="#FFF3D2"/>
+    <ellipse cx="251" cy="110" rx="7" ry="5" transform="rotate(22 251 110)" fill="#FFF3D2"/>
+    <ellipse cx="238" cy="99" rx="5" ry="3" fill="#FFF3D2"/>
+    <path d="M232 163v-17a8 8 0 0 1 16 0v17" fill="#B49472"/>
+    <path d="M237 161v-15a3 3 0 0 1 6 0v15" fill="#E1BE90"/>
+  </g>
+  <g transform="translate(91 186)"><path d="M0 6V-5m-4 3-3-4m9 3 4-4" stroke="#659477" stroke-width="3" stroke-linecap="round"/><circle cy="-9" r="6" fill="#FFF0BB"/><circle cy="-9" r="2" fill="#EFB36F"/></g>
+  <g transform="translate(274 190)"><path d="M0 4V-9" stroke="#659477" stroke-width="3" stroke-linecap="round"/><circle cy="-12" r="5" fill="#FFD3BD"/><circle cy="-12" r="2" fill="#EFAF6F"/></g>
+  <path d="m108 202 2-10 4 9m-2-3 8-3" stroke="#5B997C" stroke-width="3" stroke-linecap="round"/>
+  <g transform="translate(212 61)"><path d="M0 0c-19-22-26 6-3 6m3-6c19-22 26 6 3 6" fill="#FFD187"/><path d="M0 0v10" stroke="#9D946F" stroke-width="2" stroke-linecap="round"/></g>
+  <path d="M66 120c-8-9-11-1-5 5m5-5c7-10 13-2 6 4" fill="#F2B99F"/>
+  <path d="m68 242 8-4 8 5-3 8-11 0Z" fill="#DCBB90"/><path d="m282 247 7-4 7 4-2 8-9 2Z" fill="#DAB897"/>
+  <circle cx="46" cy="168" r="3" fill="#A6D2B1"/><circle cx="301" cy="139" r="3" fill="#EABD87"/>
+</svg>

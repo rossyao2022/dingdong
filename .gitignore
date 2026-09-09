@@ -1,0 +1,31 @@
+# Local dependencies and editor files
+node_modules/
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Environment and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Local validation output and exports
+qa/*.json
+qa/*.png
+qa/*.jpg
+qa/*.jpeg
+qa/*.webp
+qa/*.mp4
+qa/*.webm
+qa/*.zip
+__pycache__/
+*.pyc
+playwright-report/
+test-results/
+
+# Generated packages
+*.zip
+*.log
