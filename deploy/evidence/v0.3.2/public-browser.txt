@@ -1,0 +1,26 @@
+
+Running 20 tests using 1 worker
+
+  ✓   1 [desktop] › deployment-tests/admin-login.spec.js:3:1 › admin login submits with CSRF validation on HTTP (1.4s)
+  ✓   2 [desktop] › deployment-tests/http-profile.spec.js:3:1 › public HTTP login, child profile and activity survive missing randomUUID (3.1s)
+  ✓   3 [desktop] › deployment-tests/ops-public.spec.js:73:3 › 运营后台（公网） › 登录失败有提示，成功进入工作首页，退出后无法直接访问 (2.5s)
+  ✓   4 [desktop] › deployment-tests/ops-public.spec.js:93:3 › 运营后台（公网） › 家庭按称呼查询并进入儿童详情，一页聚合真实业务数据 (2.4s)
+  ✓   5 [desktop] › deployment-tests/ops-public.spec.js:121:3 › 运营后台（公网） › 题库：可视化新建草稿→校验→发布→复制新版本 (4.4s)
+  ✓   6 [desktop] › deployment-tests/ops-public.spec.js:170:3 › 运营后台（公网） › 活动：维护材料与步骤后发布 (3.9s)
+  ✓   7 [desktop] › deployment-tests/ops-public.spec.js:215:3 › 运营后台（公网） › 报告：查看已生成内容，失败任务用业务语言说明并可重试 (3.0s)
+  ✓   8 [desktop] › deployment-tests/ops-public.spec.js:248:3 › 运营后台（公网） › 服务事项：筛选→详情→处理→历史留痕完整闭环 (2.1s)
+  ✓   9 [desktop] › deployment-tests/ops-public.spec.js:274:3 › 运营后台（公网） › 越权拦截：普通运营看不到技术页，也不能执行技术动作 (1.7s)
+  ✓  10 [desktop] › deployment-tests/ops-public.spec.js:302:3 › 运营后台（公网） › 窄屏下导航与列表基本可用 (1.8s)
+  ✓  11 [mobile] › deployment-tests/admin-login.spec.js:3:1 › admin login submits with CSRF validation on HTTP (1.3s)
+  ✓  12 [mobile] › deployment-tests/http-profile.spec.js:3:1 › public HTTP login, child profile and activity survive missing randomUUID (4.6s)
+  ✓  13 [mobile] › deployment-tests/ops-public.spec.js:73:3 › 运营后台（公网） › 登录失败有提示，成功进入工作首页，退出后无法直接访问 (2.8s)
+  ✓  14 [mobile] › deployment-tests/ops-public.spec.js:93:3 › 运营后台（公网） › 家庭按称呼查询并进入儿童详情，一页聚合真实业务数据 (2.5s)
+  -  15 [mobile] › deployment-tests/ops-public.spec.js:121:3 › 运营后台（公网） › 题库：可视化新建草稿→校验→发布→复制新版本
+  -  16 [mobile] › deployment-tests/ops-public.spec.js:170:3 › 运营后台（公网） › 活动：维护材料与步骤后发布
+  -  17 [mobile] › deployment-tests/ops-public.spec.js:215:3 › 运营后台（公网） › 报告：查看已生成内容，失败任务用业务语言说明并可重试
+  -  18 [mobile] › deployment-tests/ops-public.spec.js:248:3 › 运营后台（公网） › 服务事项：筛选→详情→处理→历史留痕完整闭环
+  ✓  19 [mobile] › deployment-tests/ops-public.spec.js:274:3 › 运营后台（公网） › 越权拦截：普通运营看不到技术页，也不能执行技术动作 (1.7s)
+  ✓  20 [mobile] › deployment-tests/ops-public.spec.js:302:3 › 运营后台（公网） › 窄屏下导航与列表基本可用 (2.0s)
+
+  4 skipped
+  16 passed (43.6s)

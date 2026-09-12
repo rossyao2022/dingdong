@@ -1,0 +1,25 @@
+# 公网入口核验 · v0.3.2 · 2026-09-12 18:59 CST
+
+## 版本与入口
+```
+$ curl -s http://110.42.225.196/dingdong/version.txt
+0.3.2
+
+/dingdong/                      200
+/ops/                           302
+/ops/login/                     200
+/admin/                         302
+/api/v1/runtime                 200
+/static/ops/ops.css             200
+/static/core/question_editor.js 200
+$ curl -s http://110.42.225.196/api/v1/runtime
+{"environment":"demo","sms_mode":"fixed_code","data_source":"database_fixture","fixture_dataset":null}
+```
+
+## 原站未被占用路径影响
+```
+/               200 1011
+/buddy/         200 5599
+/dinoworld/     200 4189
+/works/         403 153
+```

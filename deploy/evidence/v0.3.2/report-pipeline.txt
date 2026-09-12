@@ -1,0 +1,29 @@
+# 报告流水线真实产出（公网演示库）· 2026-09-12 18:59 CST
+
+数据来源：真实家长端 API 建档 → 授权 → 机器人输入注入 → 关联核验；
+之后由 Beat/Worker 真实跑出同步、阶段画像与报告任务。未直接插入成品报告。
+
+```
+  ObservationBatch 2
+  ProfileSnapshot 2
+  ReportVersion 2
+== jobs ==
+  (('sync', 'succeeded'), 8)
+  (('stage_profile', 'succeeded'), 2)
+  (('report', 'succeeded'), 1)
+  (('report', 'pending'), 1)
+== checkpoints ==
+  enabled 2026-09-12 11:01:07.863018+00:00 err= None child= ab304ed2-ba12-4a1d-8b55-5cebf1ed589a
+  enabled 2026-09-12 11:04:07.879443+00:00 err= None child= 2c83d7f2-ec8c-4637-b7fa-37ec119ed933
+== fixtures ==
+  identity 58c6416b-4008-50e0-937f-e9cf940610a3 {'family_id': 'c6f180f9-2297-51c4-aea4-e224b6c43565', 'expires_at': '2026-09-13T consumed= None
+  observation 58c6416b-4008-50e0-937f-e9cf940610a3 {'metrics': [{'code': 'test_observation', 'unit': 'count', 'label': '合成观察次数', 'v consumed= None
+  initial_result 58c6416b-4008-50e0-937f-e9cf940610a3 {'metrics': [{'code': 'test_professional_result', 'unit': '', 'label': '专业测评结果（尚 consumed= None
+  fault 58c6416b-4008-50e0-937f-e9cf940610a3 {'scenario': 'report_failure', 'remaining': 5} consumed= None
+  observation ab304ed2-ba12-4a1d-8b55-5cebf1ed589a {'metrics': [{'code': 'test_observation', 'unit': 'count', 'label': '合成观察次数', 'v consumed= None
+  initial_result ab304ed2-ba12-4a1d-8b55-5cebf1ed589a {'metrics': [{'code': 'test_professional_result', 'unit': '', 'label': '专业测评结果（尚 consumed= None
+  identity ab304ed2-ba12-4a1d-8b55-5cebf1ed589a {'family_id': '7a725602-5beb-4cf7-a563-e8933d954fc8', 'expires_at': '2026-09-13T consumed= 2026-09-12 10:39:04.484565+00:00
+  observation 2c83d7f2-ec8c-4637-b7fa-37ec119ed933 {'metrics': [{'code': 'test_observation', 'unit': 'count', 'label': '合成观察次数', 'v consumed= None
+  identity 2c83d7f2-ec8c-4637-b7fa-37ec119ed933 {'family_id': '100f92cd-3349-4835-a307-bbc909f54587', 'expires_at': '2026-09-13T consumed= 2026-09-12 10:42:57.066513+00:00
+  fault ab304ed2-ba12-4a1d-8b55-5cebf1ed589a {'scenario': 'report_failure', 'remaining': 1} consumed= None
+```

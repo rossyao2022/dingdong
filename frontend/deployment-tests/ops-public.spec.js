@@ -50,6 +50,14 @@ async function promptDialog(page, label, value) {
   await dialog.getByRole("button", { name: label, exact: true }).click();
 }
 
+async function logout(page) {
+  // 窄屏下侧栏默认移出视口，退出登录在抽屉里，要先展开导航
+  const toggle = page.getByRole("button", { name: "展开导航" });
+  if (await toggle.isVisible().catch(() => false)) await toggle.click();
+  await page.getByRole("button", { name: "退出登录", exact: true }).click();
+  await expect(page).toHaveURL(/\/ops\/login\//);
+}
+
 test.describe("运营后台（公网）", () => {
   let scriptErrors = [];
 
@@ -77,8 +85,7 @@ test.describe("运营后台（公网）", () => {
     await expect(page.getByRole("heading", { name: "快捷入口" })).toBeVisible();
     await expect(page.getByText("待处理服务事项")).toBeVisible();
 
-    await page.getByRole("button", { name: "退出登录", exact: true }).click();
-    await expect(page).toHaveURL(/\/ops\/login\//);
+    await logout(page);
     await page.goto("/ops/families/");
     await expect(page).toHaveURL(/\/ops\/login\//);
   });

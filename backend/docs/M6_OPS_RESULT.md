@@ -54,14 +54,15 @@
 
 | 项目 | 结果 |
 | --- | --- |
-| 后端测试 | **170 项通过**（原 98 项 + 本次新增 72 项） |
+| 后端测试 | **173 项通过**（原 98 项 + 运营后台 72 项 + 部署/角色回归 3 项） |
 | 后端覆盖率 | **90%**（3344 语句 / 330 未覆盖） |
-| 真实 Chrome 浏览器验收 | **18 项通过**（运营后台 8 + 家长端 8 + 后台题库 1 + 全页面走查 1） |
+| 真实 Chrome 浏览器验收（本地源码） | **18 项通过**（运营后台 8 + 家长端 8 + 后台题库 1 + 全页面走查 1） |
+| 真实 Chrome 浏览器验收（公网部署） | **16 项通过**（桌面 10 + 窄屏 6，4 项写操作按设计跳过），见 [公网交付与验收](../../deploy/OPS_CONSOLE_DEPLOYMENT_20260912.md) |
 | 运营后台全页面走查 | 21 个页面全部可打开、无脚本异常，截图留档在 `frontend/docs/ops/` |
 | `ruff check` | All checks passed |
 | `ruff format --check` | 107 files already formatted |
 | `makemigrations --check` | No changes detected |
-| 部署配置测试 | 6 项通过 |
+| 部署配置测试 | 8 项通过（含 nginx 路由守卫） |
 
 原始记录：[后端测试](evidence-ops/backend-green.txt)、[浏览器验收](evidence-ops/browser-green.txt)。
 
@@ -90,6 +91,22 @@
 
 缺陷 6 和 9 是**功能性**的：前者让一条必须留存的家长凭据无法查看，后者让审计页对运营不可用。两者都由"逐页打开每个页面"的走查发现，单页 happy-path 测试不会覆盖。
 
+### 2.3.1 部署到公网后又发现的三个问题（v0.3.1 / v0.3.2）
+
+上面这些验收都在本地源码服务上做，**绕过了 Docker 容器 nginx，也没有只用单角色账号登录**。真正部署到公网、用真实浏览器从 http://110.42.225.196/ops/ 点一遍，又暴露出三个问题。它们不是"少写页面"，而是"写了但用不了"：
+
+| # | 缺陷 | 为什么本地验收没发现 | 修复 |
+| --- | --- | --- | --- |
+| 10 | 运营后台在 Docker 部署下打不开：容器 nginx 白名单漏了 `ops/`，`/ops/` 直接 404 | 本地跑源码 `runserver` 绕过了容器 nginx；本地 Docker 演示环境没有针对 `/ops/` 的断言 | v0.3.1 白名单补 `ops/`；新增 `deploy/tests/test_nginx_routes.py` 从 urls.py 解析前缀逐条断言 |
+| 11 | 管理员的"发布""重试该任务"点了报 403"角色不允许此操作" | v0.3.0 的浏览器用例给题库用的是 `content` 账号、给重试用的是 `technical` 账号，正好绕开"只有 account_admin 角色"这条路径 | v0.3.2 让复用接口把 `account_admin` 视为满足任一 staff 角色；新增 `test_ops_admin_role.py` 三项回归 |
+| 12 | `≤560px` 面包屑被 `display:none`，手机上退不回详情页 | 本地移动视口用例只点了导航和家庭列表，没测详情页返回 | v0.3.2 改为换行展示，不再隐藏 |
+
+缺陷 11 是这三者里最值得记住的：**页面按一套权限模型显示按钮，动作却按另一套模型放行**，单看任何一侧的测试都是绿的。修复时同时加了"没有匹配角色的工作人员仍然被拒"的用例，避免把门开成人人可发。
+
+### 2.3.2 运营后台对外入口是根路径 `/ops/`
+
+Django 生成根绝对地址（重定向、`{% url %}`），带前缀剥离的 `/dingdong/` 入口只能撑住第一次请求，页面一渲染链接就跳到根路径。所以对外只提供 http://110.42.225.196/ops/ ，与既有的 `/admin/`、`/static/`、`/api/v1/` 同一模式。详见 [部署说明](../../deploy/README.md)。
+
 同时给浏览器测试加了兜底：收集 `pageerror`，任何脚本异常都会让用例失败，而不是变成模糊的超时。
 
 为防止回归，新增了 4 类自动守卫：
@@ -109,7 +126,7 @@
 | 伙伴数据同步 | 完整实现凭据核验、CA 主动同步、修订去重、授权撤回 | 数据来源为数据库 fixture，不是真实供应商联调 |
 | 指纹采集 | 五张确定性合成 PNG，有界内存处理 | 不采集、不留存真实指纹 |
 | 报告专业结论 | 初始报告展示真实答卷选择与题库来源 | 专业量表、评分解释待甲方确认，当前明确标注"未提供" |
-| 公网浏览器验收 | 已用本地真实 Chrome 完成全量验收 | 远端浏览器控制工具超时，公网 UI 验收以 HTTP 接口 + 本地同源页面为准 |
+| 公网浏览器验收 | 已用真实 Chrome 完成公网全量验收（16 项） | 后续新增用例仍需要演示库里有可处理的待办事项，数据准备方式见公网验收文档 |
 
 ### 2.5 未做（不在本次范围）
 
@@ -131,8 +148,9 @@
 | 统计与查询 | `ops/services.py` |
 | 模板（29 个） | `ops/templates/ops/` |
 | 样式与脚本 | `ops/static/ops/` |
-| 后端测试 | `backend/tests/test_ops_{console,content,reports,services}.py` |
+| 后端测试 | `backend/tests/test_ops_{console,content,reports,services}.py`、`test_ops_admin_role.py` |
 | 浏览器验收 | `frontend/tests/ops-console.spec.js` |
+| 公网浏览器验收 | `frontend/deployment-tests/ops-public.spec.js` |
 | 全页面走查与截图 | `frontend/tests/ops-screenshots.spec.js`、`frontend/docs/ops/` |
 | 共享测试工具 | `frontend/tests/support.js` |
 | 运营手册 | [OPS_MANUAL.md](OPS_MANUAL.md) |
