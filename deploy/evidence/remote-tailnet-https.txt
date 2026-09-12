@@ -1,0 +1,1 @@
+PASS: tailnet HTTPS IP 100.115.66.119, valid TLS, version 0.2.0, demo runtime, SMS challenge, login, Secure/HttpOnly refresh cookie, Secure CSRF cookie, refresh, logout, admin login page
