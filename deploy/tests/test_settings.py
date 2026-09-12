@@ -27,3 +27,19 @@ def test_invalid_origin():
 
 def test_missing_secret():
     assert run_settings(DJANGO_SECRET_KEY="").returncode != 0
+
+
+def test_additional_origin():
+    r = run_settings(PUBLIC_ORIGIN="http://110.42.225.196",
+                     ADDITIONAL_ORIGINS="http://100.115.66.119:18080")
+    assert r.returncode == 0, r.stderr
+    assert "['110.42.225.196', '100.115.66.119']" in r.stdout
+    assert "['http://110.42.225.196', 'http://100.115.66.119:18080']" in r.stdout
+
+
+def test_invalid_additional_origin():
+    assert run_settings(ADDITIONAL_ORIGINS="https://example.com/path").returncode != 0
+
+
+def test_mixed_scheme_origin():
+    assert run_settings(ADDITIONAL_ORIGINS="http://example.com").returncode != 0

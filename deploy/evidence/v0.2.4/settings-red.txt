@@ -1,0 +1,36 @@
+...FFF                                                                   [100%]
+=================================== FAILURES ===================================
+____________________________ test_additional_origin ____________________________
+
+    def test_additional_origin():
+        r = run_settings(PUBLIC_ORIGIN="http://110.42.225.196",
+                         ADDITIONAL_ORIGINS="http://100.115.66.119:18080")
+        assert r.returncode == 0, r.stderr
+>       assert "['110.42.225.196', '100.115.66.119']" in r.stdout
+E       assert "['110.42.225.196', '100.115.66.119']" in "False ['110.42.225.196'] ['http://110.42.225.196'] False\n"
+E        +  where "False ['110.42.225.196'] ['http://110.42.225.196'] False\n" = CompletedProcess(args=['/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/bin/python3', '-c', 'from django.conf import se...GINS, s.COOKIE_SECURE)'], returncode=0, stdout="False ['110.42.225.196'] ['http://110.42.225.196'] False\n", stderr='').stdout
+
+../deploy/tests/test_settings.py:36: AssertionError
+________________________ test_invalid_additional_origin ________________________
+
+    def test_invalid_additional_origin():
+>       assert run_settings(ADDITIONAL_ORIGINS="https://example.com/path").returncode != 0
+E       assert 0 != 0
+E        +  where 0 = CompletedProcess(args=['/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/bin/python3', '-c', 'from django.conf import se..., s.COOKIE_SECURE)'], returncode=0, stdout="False ['demo.example.com'] ['https://demo.example.com'] True\n", stderr='').returncode
+E        +    where CompletedProcess(args=['/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/bin/python3', '-c', 'from django.conf import se..., s.COOKIE_SECURE)'], returncode=0, stdout="False ['demo.example.com'] ['https://demo.example.com'] True\n", stderr='') = run_settings(ADDITIONAL_ORIGINS='https://example.com/path')
+
+../deploy/tests/test_settings.py:41: AssertionError
+___________________________ test_mixed_scheme_origin ___________________________
+
+    def test_mixed_scheme_origin():
+>       assert run_settings(ADDITIONAL_ORIGINS="http://example.com").returncode != 0
+E       assert 0 != 0
+E        +  where 0 = CompletedProcess(args=['/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/bin/python3', '-c', 'from django.conf import se..., s.COOKIE_SECURE)'], returncode=0, stdout="False ['demo.example.com'] ['https://demo.example.com'] True\n", stderr='').returncode
+E        +    where CompletedProcess(args=['/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/bin/python3', '-c', 'from django.conf import se..., s.COOKIE_SECURE)'], returncode=0, stdout="False ['demo.example.com'] ['https://demo.example.com'] True\n", stderr='') = run_settings(ADDITIONAL_ORIGINS='http://example.com')
+
+../deploy/tests/test_settings.py:45: AssertionError
+=========================== short test summary info ============================
+FAILED ../deploy/tests/test_settings.py::test_additional_origin - assert "['1...
+FAILED ../deploy/tests/test_settings.py::test_invalid_additional_origin - ass...
+FAILED ../deploy/tests/test_settings.py::test_mixed_scheme_origin - assert 0 ...
+3 failed, 3 passed in 0.74s

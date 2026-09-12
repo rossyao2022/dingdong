@@ -9,6 +9,7 @@ x-app: &app
     APP_ENV: demo
     DJANGO_SETTINGS_MODULE: config.settings.deployment
     PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:?set PUBLIC_ORIGIN}
+    ADDITIONAL_ORIGINS: ${ADDITIONAL_ORIGINS:-}
     DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:?set secret}
     JWT_SIGNING_KEY: ${JWT_SIGNING_KEY:?set secret}
     DATABASE_URL: postgres://dingdong:${POSTGRES_PASSWORD:?set password}@postgres:5432/dingdong
