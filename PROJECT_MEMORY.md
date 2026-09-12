@@ -1,6 +1,6 @@
 # 叮咚项目记忆与会话交接
 
-最后更新：2026-09-12 15:05，Asia/Shanghai。适用于本目录中的后续会话。本文记录已核对事实，不代替代码和最新用户指令。
+最后更新：2026-09-12 15:29，Asia/Shanghai。适用于本目录中的后续会话。本文记录已核对事实，不代替代码和最新用户指令。
 
 ## 当前结论与最近工作
 
@@ -122,3 +122,12 @@ npm --prefix frontend run dev
 已部署0.2.3，分支codex/release-v0.2.3，标签v0.2.3，发布提交b3fda83。包dist/dingdong-v0.2.3.tar.gz附SHA256，tigery目录/home/tigery/services/dingdong/releases/dingdong-v0.2.3。公网地址仍为http://110.42.225.196/dingdong/。
 
 本轮真实Chrome公网复现红灯后，新版桌面和390×844移动视口的登录→保存档案→刷新恢复→开始活动共2项通过（9.7秒），明确处于非安全HTTP上下文且没有randomUUID。单元测试3项和语法检查通过；未重复后端整套回归。本轮使用项目Playwright/Chrome测试命令完成真实浏览器验收，早先CUA工具超时不再代表缺少本次浏览器验证。详见[修复报告](deploy/HTTP_UUID_FIX_20260912.md)。新增npm --prefix frontend run test:unit和test:public；public访问演示站并生成合成测试档案。
+
+
+## 最新修复：v0.2.4 双入口登录（2026-09-12）
+
+用户截图确认Tailscale地址登录报“服务返回了无法识别的响应”。实际复核runtime返回400，后端日志为DisallowedHost：公网切换后ALLOWED_HOSTS仅有上海IP，遗漏原TailscaleIP。部署设置新增ADDITIONAL_ORIGINS，配置精确Host和CSRF Origin；保持与PUBLIC_ORIGIN同协议。
+
+已部署v0.2.4，分支codex/release-v0.2.4，标签v0.2.4，源码提交e653ef2。Docker包dist/dingdong-v0.2.4.tar.gz附SHA256，远端校验成功，目录/home/tigery/services/dingdong/releases/dingdong-v0.2.4。主机设置ADDITIONAL_ORIGINS=http://100.115.66.119:18080，PUBLIC_ORIGIN保持http://110.42.225.196。原数据卷和密钥沿用。
+
+内网http://100.115.66.119:18080/与公网http://110.42.225.196/dingdong/均通过真实Chrome桌面与移动视口登录→保存合成档案→刷新恢复→开始活动，共4项通过。公网访问者仍无需Tailscale。部署设置测试先3失败后6通过，远端Django check无问题、API/数据库健康；本轮未重复全部后端业务测试。证据：[配置测试](deploy/evidence/v0.2.4/settings-green.txt)、[内网浏览器](deploy/evidence/v0.2.4/tailscale-browser.txt)、[公网浏览器](deploy/evidence/v0.2.4/public-browser.txt)。
