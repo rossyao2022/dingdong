@@ -5,7 +5,7 @@ server {
     client_max_body_size 2m;
     access_log off;
     add_header X-Content-Type-Options nosniff always;
-    add_header Referrer-Policy no-referrer always;
+    add_header Referrer-Policy same-origin always;
     location / { try_files $uri $uri/ =404; }
     location ~ ^/(api/|admin/|static/) {
         proxy_pass http://api:8000;
