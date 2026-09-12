@@ -7,7 +7,10 @@ server {
     add_header X-Content-Type-Options nosniff always;
     add_header Referrer-Policy same-origin always;
     location / { try_files $uri $uri/ =404; }
-    location ~ ^/(api/|admin/|static/) {
+    # Every Django-served prefix must be listed here; anything missing falls
+    # through to the static try_files below and returns an nginx 404.
+    # Keep this list in sync with backend/config/urls.py (see deploy/tests).
+    location ~ ^/(api/|admin/|ops/|static/) {
         proxy_pass http://api:8000;
         proxy_set_header Host $http_host;
         proxy_set_header X-Forwarded-Proto ${PUBLIC_SCHEME};

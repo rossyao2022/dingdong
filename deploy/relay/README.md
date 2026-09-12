@@ -6,11 +6,11 @@
 
 ## 配置
 
-- 将nginx-location.conf放到上海服务器/etc/nginx/dingdong-location.conf，在已有game-lobby.conf的公网IP HTTP server块中include此文件（仅一次），nginx -t后reload。现有首页保留；/dingdong/、/api/v1/、/admin/、/static/由叮咚使用，已确认这些路径没有原站业务处理器或目录。旧nginx.conf是18080方案，已停用，不要同时部署。
+- 将nginx-location.conf放到上海服务器/etc/nginx/dingdong-location.conf，在已有game-lobby.conf的公网IP HTTP server块中include此文件（仅一次），nginx -t后reload。现有首页保留；/dingdong/、/api/v1/、/admin/、/static/、/ops/由叮咚使用，已确认这些路径没有原站业务处理器或目录。旧nginx.conf是18080方案，已停用，不要同时部署。
 - 将dingdong-relay.service放到tigery的~/.config/systemd/user/，执行systemctl --user daemon-reload和systemctl --user enable --now dingdong-relay。tigery已启用Linger，用户未登录时服务也运行。
 - tigery的~/.ssh/dingdong-relay为独立隧道私钥；known-hosts使用已验证的上海服务器主机公钥。二者不进入发布包。
 - 上海服务器authorized_keys仅追加独立隧道公钥，限制为：restrict,port-forwarding,permitlisten="127.0.0.1:18473",permitopen="127.0.0.1:1",command="/bin/false"。只允许指定反向端口，不提供命令或终端会话。
-- Docker配置PUBLIC_ORIGIN=http://110.42.225.196、PUBLIC_SCHEME=http、BIND_ADDRESS=100.115.66.119、HTTP_PORT=18080；沿用已有数据库和密钥，升级时只改 `deploy/.env` 里的 `APP_VERSION`（当前 0.3.0）。
+- Docker配置PUBLIC_ORIGIN=http://110.42.225.196、PUBLIC_SCHEME=http、BIND_ADDRESS=100.115.66.119、HTTP_PORT=18080；沿用已有数据库和密钥，升级时只改 `deploy/.env` 里的 `APP_VERSION`（当前 0.3.1）。
 
 ## 验收
 
@@ -19,7 +19,7 @@ curl --noproxy '*' http://110.42.225.196/dingdong/version.txt
 curl --noproxy '*' http://110.42.225.196/api/v1/runtime
 ```
 
-版本应为0.2.3、runtime为demo。需验证真实验证码挑战、登录、刷新、退出和后台入口；Cookie按HTTP入口配置。当前固定验证码和fixture集成仍是演示模式。
+版本应与当前 `VERSION` 一致、runtime为demo。需验证真实验证码挑战、登录、刷新、退出和后台入口；运营后台 `/dingdong/ops/` 应返回 302 跳转登录页而不是 404。Cookie按HTTP入口配置。当前固定验证码和fixture集成仍是演示模式。
 
 ## 故障与回退
 

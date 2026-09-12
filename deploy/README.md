@@ -1,10 +1,20 @@
-# tigery Docker 演示部署 · v0.3.0
+# tigery Docker 演示部署 · v0.3.1
 
 当前公网入口：**http://110.42.225.196/dingdong/**，使用上海服务器已开放80端口，访问者无需Tailscale。运营后台：http://110.42.225.196/dingdong/ops/ ，Django 后台：http://110.42.225.196/admin/。
 
-部署转发配置、启动与回退见 [上海公网入口](relay/README.md)，回滚步骤见 [回滚说明](ROLLBACK.md)。APP_VERSION=0.3.0，PUBLIC_ORIGIN=http://110.42.225.196。分支codex/release-v0.3.0和标签v0.3.0对应此发布。
+部署转发配置、启动与回退见 [上海公网入口](relay/README.md)，回滚步骤见 [回滚说明](ROLLBACK.md)。APP_VERSION=0.3.1，PUBLIC_ORIGIN=http://110.42.225.196。分支codex/release-v0.3.1和标签v0.3.1对应此发布。
 
 发布包内的RELEASE.json记录精确Git提交；密钥和数据库不进包。tigery沿用已有.env密钥和数据卷，仅修改版本和公共Origin。首次部署可使用 `python3 deploy/configure.py http://110.42.225.196 --bind 100.115.66.119`。容器启动：`docker compose --env-file deploy/.env -f deploy/compose.yml up -d --build --wait`。
+
+## v0.3.1 变更
+
+**修复：运营后台在 Docker 部署下打不开（nginx 404）。**
+
+`deploy/nginx.conf.template` 里的代理白名单只列了 `api/|admin/|static/`，漏了 v0.3.0 新增的 `ops/`。结果是：Django 容器内 `/ops/` 正常（`/static/ops/*` 也能取到），但请求在容器 nginx 层就被 `try_files` 判为静态文件、返回 nginx 404，公网与本地 Docker 演示环境都进不去运营后台。
+
+- 修复：白名单补上 `ops/`。
+- 防回归：新增 `deploy/tests/test_nginx_routes.py`，从 `backend/config/urls.py` 解析所有顶层前缀，断言 nginx 模板逐条转发；再加一条显式断言 `ops` 在列。以后新增 Django 顶层前缀而忘记改 nginx，测试会直接失败。
+- 本版本无代码逻辑变更、无数据库迁移变更。
 
 ## v0.3.0 变更
 

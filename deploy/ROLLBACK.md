@@ -1,4 +1,4 @@
-# 回滚说明 · 叮咚运营后台 v0.3.0
+# 回滚说明 · 叮咚运营后台 v0.3.1
 
 本文件说明如何在 tigery 演示环境回退到上一版本，以及各层需要同时还原什么。
 
@@ -6,14 +6,17 @@
 
 ---
 
-## 0. 本次发布（v0.3.0）引入了什么
+## 0. 本次发布（v0.3.1 / v0.3.0）引入了什么
 
 | 类别 | 内容 | 回滚影响 |
 | --- | --- | --- |
 | 代码 | 新增 `dingdong_ca.ops` 应用、29 个模板、静态资源 | 回滚后 `/ops/` 路径整体消失 |
+| 配置 | `deploy/nginx.conf.template` 代理白名单补上 `ops/`（v0.3.1 修复） | **回滚 v0.3.1 会让 `/ops/` 再次变成 nginx 404**，即使后端代码还在 |
 | 数据库迁移 | `0006_auditevent_detail_auditevent_target_label_and_more` | **只增不删**：给 `AuditEvent` 加两个可空字段与索引，不删列、不改既有数据 |
 | 配置 | `INSTALLED_APPS` 增加 `dingdong_ca.ops`；新增 `LOGIN_URL` / `LOGIN_REDIRECT_URL`；`config/urls.py` 新增 `/ops/` 路由与按前缀分流的 403/404 处理 | 回滚代码后这些配置一并回退 |
 | 家长端 | **未改动**认证与权限逻辑 | 无影响 |
+
+> v0.3.1 与 v0.3.0 的差别只有 `nginx.conf.template` 一行白名单和一个防回归测试。v0.3.0 的运营后台在 Docker 部署里因这行缺失而不可达，**不要把回滚目标设成 v0.3.0**。
 
 **迁移可安全保留**：`0006` 只加列和索引，旧版本代码不会读到这两列，回滚到 v0.2.5 镜像后迁移记录仍留在数据库里也不会报错。不需要反向迁移。
 
@@ -104,7 +107,8 @@ curl --noproxy '*' -s http://110.42.225.196/api/v1/runtime
 
 | 版本 | 分支 / 标签 | 说明 |
 | --- | --- | --- |
-| v0.3.0 | `codex/release-v0.3.0` | 运营后台 |
+| v0.3.1 | `codex/release-v0.3.1` | 修复运营后台在 Docker 下的 nginx 404 |
+| v0.3.0 | `codex/release-v0.3.0` | 运营后台（**Docker 部署下 `/ops/` 不可达，不要回滚到此版**） |
 | v0.2.5 | `codex/release-v0.2.5` | 后台 CSRF 修复 |
 | v0.2.4 | `codex/release-v0.2.4` | 双入口登录 |
 | v0.2.3 | `codex/release-v0.2.3` | HTTP 请求编号修复 |
