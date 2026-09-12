@@ -1,0 +1,17 @@
+
+> dingdong-parent@0.2.5 test:public
+> playwright test --config=playwright.public.config.js
+
+
+Running 4 tests using 1 worker
+
+(node:45724) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › deployment-tests/admin-login.spec.js:3:1 › admin login submits with CSRF validation on HTTP (1.6s)
+  ✓  2 [desktop] › deployment-tests/http-profile.spec.js:3:1 › public HTTP login, child profile and activity survive missing randomUUID (3.8s)
+(node:45803) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 [mobile] › deployment-tests/admin-login.spec.js:3:1 › admin login submits with CSRF validation on HTTP (1.3s)
+  ✓  4 [mobile] › deployment-tests/http-profile.spec.js:3:1 › public HTTP login, child profile and activity survive missing randomUUID (4.3s)
+
+  4 passed (12.5s)

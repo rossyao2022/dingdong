@@ -1,6 +1,6 @@
 # 叮咚项目记忆与会话交接
 
-最后更新：2026-09-12 15:29，Asia/Shanghai。适用于本目录中的后续会话。本文记录已核对事实，不代替代码和最新用户指令。
+最后更新：2026-09-12 16:25，Asia/Shanghai。适用于本目录中的后续会话。本文记录已核对事实，不代替代码和最新用户指令。
 
 ## 当前结论与最近工作
 
@@ -136,3 +136,10 @@ npm --prefix frontend run dev
 ## 后台管理员开通（2026-09-12）
 
 用户授权后，已在tigery当前部署数据库创建专用后台超级管理员；此前核查无staff账号。通过Django认证及后台首页HTTP 200验证。凭据仅在当前会话交付，未写入仓库或部署包。后台入口http://110.42.225.196/admin/。此操作仅新增管理员，不修改镜像或版本。
+
+
+## 最新修复：v0.2.5 后台CSRF（2026-09-12）
+
+后台HTTP登录403的原因是nginx追加no-referrer策略，浏览器表单Origin变为null。已改为same-origin，保留CSRF验证。发布分支codex/release-v0.2.5、标签v0.2.5、源码提交b92282d，部署包及SHA256已远端校验，目录/home/tigery/services/dingdong/releases/dingdong-v0.2.5。
+
+真实Chrome先复现桌面/移动两项403红灯；部署后公网后台CSRF表单测试与家长登录档案活动回归共4项通过。另用实际管理员通过公网及Tailscale两个入口完整浏览器登录，均到达/admin/并出现退出表单。凭据不入测试代码和证据文件。此前Django Client.login不覆盖浏览器CSRF流程，不能再作为完整登录验收。详见[后台修复](deploy/ADMIN_CSRF_FIX_20260912.md)及[浏览器日志](deploy/evidence/v0.2.5/public-green.txt)。
