@@ -45,6 +45,12 @@ def authenticate_parent(request):
     request.login_grant = grant
 
 
+# 运营后台把 account_admin 定义为"全部权限"（见 dingdong_ca/ops/permissions.py）。
+# 这里复用的旧 staff 接口按具体角色放行，所以必须把 account_admin 视为满足任一角色；
+# 否则管理员在运营后台看得到按钮，点下去却拿到"角色不允许此操作"。
+STAFF_ADMIN_ROLE = "account_admin"
+
+
 def family_for(user):
     row = (
         FamilyMembership.objects.select_related("family")
@@ -75,7 +81,9 @@ def endpoint(methods, *, anonymous=False, csrf=False, parsers=None, staff_roles=
                         raise ApiError("PERMISSION_DENIED", 403, "需要工作人员登录")
                     if (
                         not user.is_superuser
-                        and not user.groups.filter(name__in=staff_roles).exists()
+                        and not user.groups.filter(
+                            name__in=[*staff_roles, STAFF_ADMIN_ROLE]
+                        ).exists()
                     ):
                         raise ApiError("PERMISSION_DENIED", 403, "角色不允许此操作")
                 elif not anonymous:

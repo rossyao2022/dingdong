@@ -1,10 +1,25 @@
-# tigery Docker 演示部署 · v0.3.1
+# tigery Docker 演示部署 · v0.3.2
 
-当前公网入口：**http://110.42.225.196/dingdong/**，使用上海服务器已开放80端口，访问者无需Tailscale。运营后台：http://110.42.225.196/dingdong/ops/ ，Django 后台：http://110.42.225.196/admin/。
+当前公网入口：**http://110.42.225.196/dingdong/**（家长端），运营后台 **http://110.42.225.196/ops/**，Django 后台 http://110.42.225.196/admin/ 。使用上海服务器已开放80端口，访问者无需Tailscale。
 
-部署转发配置、启动与回退见 [上海公网入口](relay/README.md)，回滚步骤见 [回滚说明](ROLLBACK.md)。APP_VERSION=0.3.1，PUBLIC_ORIGIN=http://110.42.225.196。分支codex/release-v0.3.1和标签v0.3.1对应此发布。
+部署转发配置、启动与回退见 [上海公网入口](relay/README.md)，回滚步骤见 [回滚说明](ROLLBACK.md)。APP_VERSION=0.3.2，PUBLIC_ORIGIN=http://110.42.225.196。分支codex/release-v0.3.2和标签v0.3.2对应此发布。
 
 发布包内的RELEASE.json记录精确Git提交；密钥和数据库不进包。tigery沿用已有.env密钥和数据卷，仅修改版本和公共Origin。首次部署可使用 `python3 deploy/configure.py http://110.42.225.196 --bind 100.115.66.119`。容器启动：`docker compose --env-file deploy/.env -f deploy/compose.yml up -d --build --wait`。
+
+## 为什么运营后台在根路径 `/ops/` 而不是 `/dingdong/ops/`
+
+Django 生成的是根绝对地址（重定向、`{% url %}`），带前缀剥离的 `/dingdong/` 入口只能撑住第一次请求：页面一渲染，链接和重定向就跳到根路径。这和已有的 `/admin/`、`/static/`、`/api/v1/` 是同一模式——上海 nginx 把运营后台自己的根路径转发给隧道。`/dingdong/ops/` 仍能打开首屏，但后续导航会跳到 `/ops/`，所以对外只说 `/ops/`。
+
+占用根 `/ops/` 前已核对：上海站点 `/www/wwwroot/game` 没有 `ops` 目录，其 index.html 与 JS 资源也没有 `/ops` 引用，该路径此前只会返回原站的 SPA 兜底页。
+
+## v0.3.2 变更
+
+公网浏览器验收暴露了两个只有真正跑起来才会出现的缺陷：
+
+1. **管理员按钮点了没用。** 运营后台把 `account_admin` 定义为"全部权限"，页面因此对管理员显示"发布""重试该任务"；但这些动作复用的是 `/api/v1/staff/*`，那里按具体角色放行（发布要 `content`、重试要 `technical`），管理员点下去拿到 403"角色不允许此操作"。修复：复用接口的角色判定把 `account_admin` 视为满足任一角色。新增 `backend/tests/test_ops_admin_role.py` 三项回归，其中一项守住"不能顺手把门开大"。
+2. **窄屏把返回路径藏了。** `≤560px` 时 `.ops-crumb` 被 `display:none`，运营在手机上从儿童详情、报告详情退不回去，只能靠抽屉导航绕。修复：改为换行展示，不再隐藏。
+
+另新增 `frontend/deployment-tests/ops-public.spec.js`：面向公网入口的真实 Chrome 验收，覆盖登录退出、家庭查询、儿童详情、题库草稿到发布、活动维护、报告查看与异常处理、服务事项闭环、越权拦截与窄屏。
 
 ## v0.3.1 变更
 

@@ -292,6 +292,12 @@ dialog.ops-dialog::backdrop { background: rgba(24, 40, 45, 0.42); }
 
 @media (max-width: 560px) {
   .grid-4 { grid-template-columns: minmax(0, 1fr); }
+  .ops-topbar { flex-wrap: wrap; row-gap: 4px; }
   .ops-topbar h1 { font-size: 15px; }
-  .ops-topbar .ops-crumb { display: none; }
+  /* 窄屏保留返回路径：这里原来直接 display:none，把"返回家庭""返回报告列表"
+     整条面包屑藏掉，运营在手机上只能靠抽屉导航绕回去。改成换行展示。 */
+  .ops-menu-toggle { order: 1; }
+  .ops-topbar-actions { order: 2; }
+  .ops-topbar > div:not(.ops-topbar-actions) { order: 3; flex: 1 1 100%; }
+  .ops-topbar .ops-crumb { font-size: 12px; line-height: 1.5; }
 }
