@@ -1,0 +1,1 @@
+PASS: PUBLIC IP 110.42.225.196:80 -> Shanghai SSH tunnel -> tigery, version 0.2.1, demo runtime, SMS challenge, login, HttpOnly refresh cookie, HTTP-compatible cookies, refresh, logout, admin login page

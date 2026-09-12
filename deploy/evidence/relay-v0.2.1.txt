@@ -1,0 +1,1 @@
+PASS: relay loopback 18080 -> SSH tunnel -> tigery, version 0.2.1, demo runtime, SMS challenge, login, HttpOnly refresh cookie, HTTP-compatible cookies, refresh, logout, admin login page
