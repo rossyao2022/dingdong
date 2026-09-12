@@ -131,3 +131,8 @@ npm --prefix frontend run dev
 已部署v0.2.4，分支codex/release-v0.2.4，标签v0.2.4，源码提交e653ef2。Docker包dist/dingdong-v0.2.4.tar.gz附SHA256，远端校验成功，目录/home/tigery/services/dingdong/releases/dingdong-v0.2.4。主机设置ADDITIONAL_ORIGINS=http://100.115.66.119:18080，PUBLIC_ORIGIN保持http://110.42.225.196。原数据卷和密钥沿用。
 
 内网http://100.115.66.119:18080/与公网http://110.42.225.196/dingdong/均通过真实Chrome桌面与移动视口登录→保存合成档案→刷新恢复→开始活动，共4项通过。公网访问者仍无需Tailscale。部署设置测试先3失败后6通过，远端Django check无问题、API/数据库健康；本轮未重复全部后端业务测试。证据：[配置测试](deploy/evidence/v0.2.4/settings-green.txt)、[内网浏览器](deploy/evidence/v0.2.4/tailscale-browser.txt)、[公网浏览器](deploy/evidence/v0.2.4/public-browser.txt)。
+
+
+## 后台管理员开通（2026-09-12）
+
+用户授权后，已在tigery当前部署数据库创建专用后台超级管理员；此前核查无staff账号。通过Django认证及后台首页HTTP 200验证。凭据仅在当前会话交付，未写入仓库或部署包。后台入口http://110.42.225.196/admin/。此操作仅新增管理员，不修改镜像或版本。
