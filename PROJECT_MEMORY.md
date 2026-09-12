@@ -1,10 +1,10 @@
 # 叮咚项目记忆与会话交接
 
-最后更新：2026-09-12 14:54，Asia/Shanghai。适用于本目录中的后续会话。本文记录已核对事实，不代替代码和最新用户指令。
+最后更新：2026-09-12 15:05，Asia/Shanghai。适用于本目录中的后续会话。本文记录已核对事实，不代替代码和最新用户指令。
 
 ## 当前结论与最近工作
 
-项目已完成 M1–M5 自有业务实现，以及启动后的界面功能复验、文档整理。最近用户要求将关键信息写入项目记忆，以便新会话接续。当前已按新用户指令完成v0.2.2的Docker公网演示部署，最终入口及验收见本文末尾；不扩展为真实业务生产或供应商接入。
+项目已完成 M1–M5 自有业务实现，以及启动后的界面功能复验、文档整理。最近用户要求将关键信息写入项目记忆，以便新会话接续。当前已完成v0.2.3的Docker公网演示部署和HTTP档案提交兼容修复，最终入口及验收见本文末尾；不扩展为真实业务生产或供应商接入。
 
 最新验证记录：后端98项通过、覆盖率92%；真实Google Chrome共9个场景通过，最新启动复验约1.4分钟。桌面及390×844移动视口已测，不能称为真实手机硬件验收。这些是已有测试记录，本次记忆更新没有重新跑整套业务测试。
 
@@ -114,3 +114,11 @@ npm --prefix frontend run dev
 上海服务器本机SSH别名mmcloud，IP110.42.225.196。tigery的user systemd服务dingdong-relay维护受限SSH反向隧道到上海localhost:18473，enabled/active，Linger已开启。已验证隧道重启后公网恢复。旧公网18080监听已停用；临时探测监听已退出；Funnel保持关闭，上海中继偏好保留。
 
 真实公网IP80入口已通过版本、runtime、验证码挑战、登录、刷新、退出、后台登录页验收，API/数据库健康。公网浏览器控制工具仍超时，不声称完整远端UI验收通过。本轮部署设置3项测试通过，业务代码未变；历史98项后端和Chrome回归见之前记录。详情与证据：[公网部署验收](deploy/PUBLIC_DEPLOYMENT_20260912.md)、[公网认证结果](deploy/evidence/public-v0.2.2.txt)、[配置说明](deploy/relay/README.md)。
+
+## 最新修复：v0.2.3 HTTP请求编号（2026-09-12 15:05）
+
+用户反馈登录填写档案后crypto.randomUUID is not a function。根因是公网HTTP缺少该API，childForm在绑定提交事件前异常；localhost安全上下文测试漏掉此问题。已在api.js提供createRequestId：原生randomUUID优先，HTTP回退getRandomValues生成v4 UUID；app.js所有requestKey改用此入口，原请求去重机制不变。
+
+已部署0.2.3，分支codex/release-v0.2.3，标签v0.2.3，发布提交b3fda83。包dist/dingdong-v0.2.3.tar.gz附SHA256，tigery目录/home/tigery/services/dingdong/releases/dingdong-v0.2.3。公网地址仍为http://110.42.225.196/dingdong/。
+
+本轮真实Chrome公网复现红灯后，新版桌面和390×844移动视口的登录→保存档案→刷新恢复→开始活动共2项通过（9.7秒），明确处于非安全HTTP上下文且没有randomUUID。单元测试3项和语法检查通过；未重复后端整套回归。本轮使用项目Playwright/Chrome测试命令完成真实浏览器验收，早先CUA工具超时不再代表缺少本次浏览器验证。详见[修复报告](deploy/HTTP_UUID_FIX_20260912.md)。新增npm --prefix frontend run test:unit和test:public；public访问演示站并生成合成测试档案。
