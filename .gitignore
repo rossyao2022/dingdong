@@ -1,5 +1,6 @@
 .DS_Store
 .workbuddy-ai/
+.workbuddy/
 dist/
 deploy/.env
 *.tar.gz
