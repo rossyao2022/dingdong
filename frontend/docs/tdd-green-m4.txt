@@ -1,0 +1,18 @@
+
+> dingdong-parent@0.1.0 test
+> playwright test
+
+
+Running 5 tests using 1 worker
+
+(node:31876) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/flows.spec.js:57:1 › 真实登录、活动完成、刷新恢复、退出清理 (7.7s)
+
+  ✓  2 tests/flows.spec.js:89:1 › 用途授权、22题、合成输入、真实初始报告 (27.0s)
+
+  ✓  3 tests/flows.spec.js:126:1 › 机器人关联、阶段报告、撤回同步授权 (9.1s)
+  ✓  4 tests/flows.spec.js:157:1 › 移动端布局、儿童切换与跨页退出 (5.0s)
+  ✓  5 tests/flows.spec.js:193:1 › 家长提交删除、后台实际处理、无儿童时查看回执 (4.7s)
+
+  5 passed (54.4s)

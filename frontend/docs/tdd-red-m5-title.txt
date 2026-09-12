@@ -1,0 +1,47 @@
+
+> dingdong-parent@0.1.0 test
+> playwright test --grep 后台可视化
+
+
+Running 1 test using 1 worker
+
+(node:59880) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/questionnaire-admin.spec.js:22:1 › 后台可视化创建、预览、发布、复制新版本 (12.3s)
+
+
+  1) tests/questionnaire-admin.spec.js:22:1 › 后台可视化创建、预览、发布、复制新版本 ──────────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: '一起观察叶子（体验测试）<b>文案</b>60d68 · 查看选择', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('button', { name: '一起观察叶子（体验测试）<b>文案</b>60d68 · 查看选择', exact: true }) with timeout 5000ms
+      - waiting for getByRole('button', { name: '一起观察叶子（体验测试）<b>文案</b>60d68 · 查看选择', exact: true })
+
+
+      140 |     ).toBeVisible();
+      141 |     await parent.goto("http://127.0.0.1:4173/#reports");
+    > 142 |     await expect(parent.getByRole("button", {name:title + " · 查看选择", exact:true})).toBeVisible();
+          |                                                                                    ^
+      143 |     await parent
+      144 |       .locator("section.panel")
+      145 |       .filter({
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/questionnaire-admin.spec.js:142:84
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/questionnaire-admin-后台可视化创建、预览、发布、复制新版本/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/questionnaire-admin-后台可视化创建、预览、发布、复制新版本/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/questionnaire-admin-后台可视化创建、预览、发布、复制新版本/error-context.md
+
+  1 failed
+    tests/questionnaire-admin.spec.js:22:1 › 后台可视化创建、预览、发布、复制新版本 ───────────────────────────────────

@@ -1,0 +1,32 @@
+# 叮咚机器人项目资料
+
+新会话先读 [项目记忆与交接](PROJECT_MEMORY.md)，本仓库工作指引见 [AGENTS.md](AGENTS.md)。
+
+先看 [文档索引](文档/文档索引.md)：当前运行说明、历史设计和原始材料已分开整理。[文档完整性与链接校验](文档/文档处理记录_20260912.md)。
+
+M5 已加入后台可视化题库、探索/测评用途区分、可读测试内容与真实浏览器验收；98 项后端测试、9 个真实 Chrome 场景通过，当前 50 个 API 操作。家长端本地入口 http://127.0.0.1:4173 ，[前端启动说明](frontend/README.md)。[运行说明](/Users/yihu/Documents/ChatGPT/叮咚/backend/README.md)、[测试用例计划](/Users/yihu/Documents/ChatGPT/叮咚/backend/docs/TDD_CASES.md)、[最新验收记录](/Users/yihu/Documents/ChatGPT/叮咚/backend/docs/M5_RESULT.md)。
+
+前后端接口契约：[交互规范、OpenAPI 与初始化测试数据](/Users/yihu/Documents/ChatGPT/叮咚/设计/API/前后端交互规范_V0.1.md)。
+
+一期功能与联调：[后台/前端功能、API及业务闭环评估](/Users/yihu/Documents/ChatGPT/叮咚/设计/一期功能_API与业务闭环_V0.1.md)。
+
+数据库设计：[表结构 V0.1（字段、关联、约束与 ER 图）](/Users/yihu/Documents/ChatGPT/叮咚/设计/数据库表结构_V0.1.md)。
+
+历史后台设计：[V0.2：脚手架与一期菜单权限](/Users/yihu/Documents/ChatGPT/叮咚/设计/后台总体设计_V0.2.md)。
+
+从飞书“姚易【叮咚机器人】”归档，导出日期2026-09-09。
+
+历史参考需求依据：[一期核心需求与参考代码差距](/Users/yihu/Documents/ChatGPT/叮咚/需求/一期核心需求与代码差距_20260911.md)（2026-09-11，结合原讨论与最新仓库）。
+
+
+历史材料判断可看[项目分析](/Users/yihu/Documents/ChatGPT/叮咚/项目分析.md)，再查[材料清单](/Users/yihu/Documents/ChatGPT/叮咚/材料清单.md)。
+
+- `材料/附件/`：飞书中的3份Word、2份Excel原文件。
+- `材料/文档/`：飞书主文档的Markdown和Word导出。
+- `材料/可检索文本/`：Word全文、Excel全部11个工作表的文本与CSV，以及网页文字。
+- `材料/网页/`：公司介绍、TalentRadar项目及关联结果页的网页源码和资源快照。
+- `材料/原始数据/`：来源元数据、下载结果、网页清单、SHA-256校验清单。
+
+原始Office附件未改写，公式、格式等以原文件为准。文本/CSV供检索和分析，不能替代原始版式。网页快照是资料留档，并非完整可离线运行的网站；原始HTML中的外部地址保持原样，下载失败的装饰图片单列于材料清单。
+
+2026-09-09报告针对旧TalentRadar网页：其中指纹页随机生成天赋类型。最新仓库V3已改为手动观察，不沿用这一结果逻辑；正式五枚指纹采集与甲方算法接入仍未完成，详见2026-09-11需求分析。

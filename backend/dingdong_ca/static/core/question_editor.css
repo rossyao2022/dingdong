@@ -1,0 +1,29 @@
+.question-editor {
+  max-width: 850px;
+  width: 100%;
+}
+.question-editor fieldset {
+  padding: 16px !important;
+  border: 1px solid var(--border-color) !important;
+  margin: 12px 0 !important;
+}
+.question-editor label {
+  display: block !important;
+  float: none !important;
+  width: auto !important;
+  margin: 8px 0;
+}
+.question-editor input[type="text"] {
+  display: block;
+  width: 90%;
+  max-width: 650px;
+}
+.question-editor button {
+  margin: 5px;
+  padding: 8px;
+  cursor: pointer;
+}
+.question-preview {
+  padding: 20px;
+  background: var(--darkened-bg);
+}

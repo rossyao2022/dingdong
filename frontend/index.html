@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#eef6f5" />
+    <meta
+      name="description"
+      content="DingDong 家长成长空间：陪伴活动、儿童档案与成长观察。"
+    />
+    <title>DingDong · 成长空间</title>
+    <link rel="icon" href="assets/mark.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="playful.css" />
+    <link rel="stylesheet" href="client.css" />
+    <script src="playworld.js" defer></script>
+    <script src="app.js" type="module"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">跳到主要内容</a>
+    <aside class="sidebar" aria-label="主导航">
+      <a class="brand" href="#explore"
+        ><img src="assets/mark.svg" alt="" width="42" height="42" /><span
+          >DingDong<small>天赋成长伙伴</small></span
+        ></a
+      >
+      <div class="brand-partner">CAREER ACADEMY × DINGDONG</div>
+      <p class="nav-caption">一起，发现更多可能</p>
+      <nav id="main-nav"></nav>
+      <div class="sidebar-bottom">
+        <div class="parent-note">
+          <b>每一小步，都算数。</b>
+          <p>陪孩子探索，也把小小的发现留下来。</p>
+        </div>
+        <a href="#settings" class="settings-link">账户与关联</a>
+      </div>
+    </aside>
+    <div class="app-shell">
+      <header class="topbar">
+        <a href="#explore" class="mobile-brand"
+          ><img
+            src="assets/mark.svg"
+            alt=""
+            width="32"
+            height="32"
+          />DingDong</a
+        >
+        <div class="breadcrumb"><b id="page-label">成长空间</b></div>
+        <div class="top-actions">
+          <span id="environment" class="demo-pill">连接中</span
+          ><label class="child-switch" hidden
+            >当前儿童<select id="child-select" aria-label="切换儿童"></select
+          ></label>
+        </div>
+      </header>
+      <main id="main" tabindex="-1" aria-busy="true">
+        <div class="loading">正在连接成长空间…</div>
+      </main>
+      <footer class="page-footer">
+        <span>CA × DingDong · 每一小步，都算数。</span
+        ><span id="source-note"></span>
+      </footer>
+    </div>
+    <nav class="mobile-nav" id="mobile-nav" aria-label="移动端导航"></nav>
+    <dialog id="dialog" aria-labelledby="dialog-title">
+      <div id="dialog-content"></div>
+    </dialog>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>

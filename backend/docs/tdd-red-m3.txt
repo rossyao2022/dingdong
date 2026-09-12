@@ -1,0 +1,438 @@
+FFFFFFFFFFF                                                              [100%]
+=================================== FAILURES ===================================
+__________________ test_verify_and_sync_stage_report_contract __________________
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2044: in _parse_known_args2
+    namespace, args = self._parse_known_args(args, namespace, intermixed)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2295: in _parse_known_args
+    start_index = consume_optional(start_index)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2219: in consume_optional
+    take_action(action, args, option_string)
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2105: in take_action
+    argument_values = self._get_values(action, argument_strings)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2622: in _get_values
+    self._check_value(action, value)
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2693: in _check_value
+    raise ArgumentError(action, msg % args)
+E   argparse.ArgumentError: argument --scenario: invalid choice: 'sync_success' (choose from 'assessment_success', 'assessment_timeout', 'assessment_failure', 'report_failure')
+
+During handling of the above exception, another exception occurred:
+tests/test_m3.py:57: in test_verify_and_sync_stage_report_contract
+    child, _, association, data = setup_robot(client)
+                                  ^^^^^^^^^^^^^^^^^^^
+tests/test_m3.py:34: in setup_robot
+    call_command('inject_fixture', child_id=child['id'], scenario=scenario, stdout=out)
+.venv/lib/python3.14/site-packages/django/core/management/__init__.py:173: in call_command
+    defaults = parser.parse_args(args=parse_args)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/core/management/base.py:72: in parse_args
+    return super().parse_args(args, namespace)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2005: in parse_args
+    args, argv = self.parse_known_args(args, namespace)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2015: in parse_known_args
+    return self._parse_known_args2(args, namespace, intermixed=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2046: in _parse_known_args2
+    self.error(str(err))
+.venv/lib/python3.14/site-packages/django/core/management/base.py:78: in error
+    raise CommandError("Error: %s" % message)
+E   django.core.management.base.CommandError: Error: argument --scenario: invalid choice: 'sync_success' (choose from 'assessment_success', 'assessment_timeout', 'assessment_failure', 'report_failure')
+______ test_sync_revisions_and_cursor_are_atomic[sync_duplicate-1-3-None] ______
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2044: in _parse_known_args2
+    namespace, args = self._parse_known_args(args, namespace, intermixed)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2295: in _parse_known_args
+    start_index = consume_optional(start_index)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2219: in consume_optional
+    take_action(action, args, option_string)
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2105: in take_action
+    argument_values = self._get_values(action, argument_strings)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2622: in _get_values
+    self._check_value(action, value)
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2693: in _check_value
+    raise ArgumentError(action, msg % args)
+E   argparse.ArgumentError: argument --scenario: invalid choice: 'sync_duplicate' (choose from 'assessment_success', 'assessment_timeout', 'assessment_failure', 'report_failure')
+
+During handling of the above exception, another exception occurred:
+tests/test_m3.py:75: in test_sync_revisions_and_cursor_are_atomic
+    child,_,association,_ = setup_robot(client,scenario)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_m3.py:34: in setup_robot
+    call_command('inject_fixture', child_id=child['id'], scenario=scenario, stdout=out)
+.venv/lib/python3.14/site-packages/django/core/management/__init__.py:173: in call_command
+    defaults = parser.parse_args(args=parse_args)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/core/management/base.py:72: in parse_args
+    return super().parse_args(args, namespace)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2005: in parse_args
+    args, argv = self.parse_known_args(args, namespace)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2015: in parse_known_args
+    return self._parse_known_args2(args, namespace, intermixed=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2046: in _parse_known_args2
+    self.error(str(err))
+.venv/lib/python3.14/site-packages/django/core/management/base.py:78: in error
+    raise CommandError("Error: %s" % message)
+E   django.core.management.base.CommandError: Error: argument --scenario: invalid choice: 'sync_duplicate' (choose from 'assessment_success', 'assessment_timeout', 'assessment_failure', 'report_failure')
+_____ test_sync_revisions_and_cursor_are_atomic[sync_correction-2-5-None] ______
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2044: in _parse_known_args2
+    namespace, args = self._parse_known_args(args, namespace, intermixed)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2295: in _parse_known_args
+    start_index = consume_optional(start_index)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2219: in consume_optional
+    take_action(action, args, option_string)
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2105: in take_action
+    argument_values = self._get_values(action, argument_strings)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2622: in _get_values
+    self._check_value(action, value)
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2693: in _check_value
+    raise ArgumentError(action, msg % args)
+E   argparse.ArgumentError: argument --scenario: invalid choice: 'sync_correction' (choose from 'assessment_success', 'assessment_timeout', 'assessment_failure', 'report_failure')
+
+During handling of the above exception, another exception occurred:
+tests/test_m3.py:75: in test_sync_revisions_and_cursor_are_atomic
+    child,_,association,_ = setup_robot(client,scenario)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_m3.py:34: in setup_robot
+    call_command('inject_fixture', child_id=child['id'], scenario=scenario, stdout=out)
+.venv/lib/python3.14/site-packages/django/core/management/__init__.py:173: in call_command
+    defaults = parser.parse_args(args=parse_args)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/core/management/base.py:72: in parse_args
+    return super().parse_args(args, namespace)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2005: in parse_args
+    args, argv = self.parse_known_args(args, namespace)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2015: in parse_known_args
+    return self._parse_known_args2(args, namespace, intermixed=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2046: in _parse_known_args2
+    self.error(str(err))
+.venv/lib/python3.14/site-packages/django/core/management/base.py:78: in error
+    raise CommandError("Error: %s" % message)
+E   django.core.management.base.CommandError: Error: argument --scenario: invalid choice: 'sync_correction' (choose from 'assessment_success', 'assessment_timeout', 'assessment_failure', 'report_failure')
+_ test_sync_revisions_and_cursor_are_atomic[sync_conflict-1-3-SOURCE_CONFLICT] _
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2044: in _parse_known_args2
+    namespace, args = self._parse_known_args(args, namespace, intermixed)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2295: in _parse_known_args
+    start_index = consume_optional(start_index)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2219: in consume_optional
+    take_action(action, args, option_string)
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2105: in take_action
+    argument_values = self._get_values(action, argument_strings)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2622: in _get_values
+    self._check_value(action, value)
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2693: in _check_value
+    raise ArgumentError(action, msg % args)
+E   argparse.ArgumentError: argument --scenario: invalid choice: 'sync_conflict' (choose from 'assessment_success', 'assessment_timeout', 'assessment_failure', 'report_failure')
+
+During handling of the above exception, another exception occurred:
+tests/test_m3.py:75: in test_sync_revisions_and_cursor_are_atomic
+    child,_,association,_ = setup_robot(client,scenario)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_m3.py:34: in setup_robot
+    call_command('inject_fixture', child_id=child['id'], scenario=scenario, stdout=out)
+.venv/lib/python3.14/site-packages/django/core/management/__init__.py:173: in call_command
+    defaults = parser.parse_args(args=parse_args)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/core/management/base.py:72: in parse_args
+    return super().parse_args(args, namespace)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2005: in parse_args
+    args, argv = self.parse_known_args(args, namespace)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2015: in parse_known_args
+    return self._parse_known_args2(args, namespace, intermixed=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2046: in _parse_known_args2
+    self.error(str(err))
+.venv/lib/python3.14/site-packages/django/core/management/base.py:78: in error
+    raise CommandError("Error: %s" % message)
+E   django.core.management.base.CommandError: Error: argument --scenario: invalid choice: 'sync_conflict' (choose from 'assessment_success', 'assessment_timeout', 'assessment_failure', 'report_failure')
+_ test_sync_revisions_and_cursor_are_atomic[sync_failure-1-3-UPSTREAM_TIMEOUT] _
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2044: in _parse_known_args2
+    namespace, args = self._parse_known_args(args, namespace, intermixed)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2295: in _parse_known_args
+    start_index = consume_optional(start_index)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2219: in consume_optional
+    take_action(action, args, option_string)
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2105: in take_action
+    argument_values = self._get_values(action, argument_strings)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2622: in _get_values
+    self._check_value(action, value)
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2693: in _check_value
+    raise ArgumentError(action, msg % args)
+E   argparse.ArgumentError: argument --scenario: invalid choice: 'sync_failure' (choose from 'assessment_success', 'assessment_timeout', 'assessment_failure', 'report_failure')
+
+During handling of the above exception, another exception occurred:
+tests/test_m3.py:75: in test_sync_revisions_and_cursor_are_atomic
+    child,_,association,_ = setup_robot(client,scenario)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_m3.py:34: in setup_robot
+    call_command('inject_fixture', child_id=child['id'], scenario=scenario, stdout=out)
+.venv/lib/python3.14/site-packages/django/core/management/__init__.py:173: in call_command
+    defaults = parser.parse_args(args=parse_args)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/core/management/base.py:72: in parse_args
+    return super().parse_args(args, namespace)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2005: in parse_args
+    args, argv = self.parse_known_args(args, namespace)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2015: in parse_known_args
+    return self._parse_known_args2(args, namespace, intermixed=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2046: in _parse_known_args2
+    self.error(str(err))
+.venv/lib/python3.14/site-packages/django/core/management/base.py:78: in error
+    raise CommandError("Error: %s" % message)
+E   django.core.management.base.CommandError: Error: argument --scenario: invalid choice: 'sync_failure' (choose from 'assessment_success', 'assessment_timeout', 'assessment_failure', 'report_failure')
+_______________ test_revoked_consent_blocks_sync_and_new_results _______________
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2044: in _parse_known_args2
+    namespace, args = self._parse_known_args(args, namespace, intermixed)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2295: in _parse_known_args
+    start_index = consume_optional(start_index)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2219: in consume_optional
+    take_action(action, args, option_string)
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2105: in take_action
+    argument_values = self._get_values(action, argument_strings)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2622: in _get_values
+    self._check_value(action, value)
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2693: in _check_value
+    raise ArgumentError(action, msg % args)
+E   argparse.ArgumentError: argument --scenario: invalid choice: 'sync_success' (choose from 'assessment_success', 'assessment_timeout', 'assessment_failure', 'report_failure')
+
+During handling of the above exception, another exception occurred:
+tests/test_m3.py:89: in test_revoked_consent_blocks_sync_and_new_results
+    child, grant, _, _ = setup_robot(client)
+                         ^^^^^^^^^^^^^^^^^^^
+tests/test_m3.py:34: in setup_robot
+    call_command('inject_fixture', child_id=child['id'], scenario=scenario, stdout=out)
+.venv/lib/python3.14/site-packages/django/core/management/__init__.py:173: in call_command
+    defaults = parser.parse_args(args=parse_args)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/core/management/base.py:72: in parse_args
+    return super().parse_args(args, namespace)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2005: in parse_args
+    args, argv = self.parse_known_args(args, namespace)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2015: in parse_known_args
+    return self._parse_known_args2(args, namespace, intermixed=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2046: in _parse_known_args2
+    self.error(str(err))
+.venv/lib/python3.14/site-packages/django/core/management/base.py:78: in error
+    raise CommandError("Error: %s" % message)
+E   django.core.management.base.CommandError: Error: argument --scenario: invalid choice: 'sync_success' (choose from 'assessment_success', 'assessment_timeout', 'assessment_failure', 'report_failure')
+______________ test_bad_identity_proof_and_cross_family_rejected _______________
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2044: in _parse_known_args2
+    namespace, args = self._parse_known_args(args, namespace, intermixed)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2295: in _parse_known_args
+    start_index = consume_optional(start_index)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2219: in consume_optional
+    take_action(action, args, option_string)
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2105: in take_action
+    argument_values = self._get_values(action, argument_strings)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2622: in _get_values
+    self._check_value(action, value)
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2693: in _check_value
+    raise ArgumentError(action, msg % args)
+E   argparse.ArgumentError: argument --scenario: invalid choice: 'sync_success' (choose from 'assessment_success', 'assessment_timeout', 'assessment_failure', 'report_failure')
+
+During handling of the above exception, another exception occurred:
+tests/test_m3.py:97: in test_bad_identity_proof_and_cross_family_rejected
+    child, _, data = setup_robot(client, verify=False)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_m3.py:34: in setup_robot
+    call_command('inject_fixture', child_id=child['id'], scenario=scenario, stdout=out)
+.venv/lib/python3.14/site-packages/django/core/management/__init__.py:173: in call_command
+    defaults = parser.parse_args(args=parse_args)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/core/management/base.py:72: in parse_args
+    return super().parse_args(args, namespace)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2005: in parse_args
+    args, argv = self.parse_known_args(args, namespace)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2015: in parse_known_args
+    return self._parse_known_args2(args, namespace, intermixed=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2046: in _parse_known_args2
+    self.error(str(err))
+.venv/lib/python3.14/site-packages/django/core/management/base.py:78: in error
+    raise CommandError("Error: %s" % message)
+E   django.core.management.base.CommandError: Error: argument --scenario: invalid choice: 'sync_success' (choose from 'assessment_success', 'assessment_timeout', 'assessment_failure', 'report_failure')
+_______________ test_staff_csrf_roles_pause_resume_and_job_read ________________
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2044: in _parse_known_args2
+    namespace, args = self._parse_known_args(args, namespace, intermixed)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2295: in _parse_known_args
+    start_index = consume_optional(start_index)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2219: in consume_optional
+    take_action(action, args, option_string)
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2105: in take_action
+    argument_values = self._get_values(action, argument_strings)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2622: in _get_values
+    self._check_value(action, value)
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2693: in _check_value
+    raise ArgumentError(action, msg % args)
+E   argparse.ArgumentError: argument --scenario: invalid choice: 'sync_success' (choose from 'assessment_success', 'assessment_timeout', 'assessment_failure', 'report_failure')
+
+During handling of the above exception, another exception occurred:
+tests/test_m3.py:106: in test_staff_csrf_roles_pause_resume_and_job_read
+    _,_,association,_ = setup_robot(client)
+                        ^^^^^^^^^^^^^^^^^^^
+tests/test_m3.py:34: in setup_robot
+    call_command('inject_fixture', child_id=child['id'], scenario=scenario, stdout=out)
+.venv/lib/python3.14/site-packages/django/core/management/__init__.py:173: in call_command
+    defaults = parser.parse_args(args=parse_args)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/core/management/base.py:72: in parse_args
+    return super().parse_args(args, namespace)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2005: in parse_args
+    args, argv = self.parse_known_args(args, namespace)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2015: in parse_known_args
+    return self._parse_known_args2(args, namespace, intermixed=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2046: in _parse_known_args2
+    self.error(str(err))
+.venv/lib/python3.14/site-packages/django/core/management/base.py:78: in error
+    raise CommandError("Error: %s" % message)
+E   django.core.management.base.CommandError: Error: argument --scenario: invalid choice: 'sync_success' (choose from 'assessment_success', 'assessment_timeout', 'assessment_failure', 'report_failure')
+_________________ test_rule_missing_then_publish_resumes_stage _________________
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2044: in _parse_known_args2
+    namespace, args = self._parse_known_args(args, namespace, intermixed)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2295: in _parse_known_args
+    start_index = consume_optional(start_index)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2219: in consume_optional
+    take_action(action, args, option_string)
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2105: in take_action
+    argument_values = self._get_values(action, argument_strings)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2622: in _get_values
+    self._check_value(action, value)
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2693: in _check_value
+    raise ArgumentError(action, msg % args)
+E   argparse.ArgumentError: argument --scenario: invalid choice: 'rule_missing' (choose from 'assessment_success', 'assessment_timeout', 'assessment_failure', 'report_failure')
+
+During handling of the above exception, another exception occurred:
+tests/test_m3.py:121: in test_rule_missing_then_publish_resumes_stage
+    child,_,_,_ = setup_robot(client,'rule_missing')
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_m3.py:34: in setup_robot
+    call_command('inject_fixture', child_id=child['id'], scenario=scenario, stdout=out)
+.venv/lib/python3.14/site-packages/django/core/management/__init__.py:173: in call_command
+    defaults = parser.parse_args(args=parse_args)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/core/management/base.py:72: in parse_args
+    return super().parse_args(args, namespace)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2005: in parse_args
+    args, argv = self.parse_known_args(args, namespace)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2015: in parse_known_args
+    return self._parse_known_args2(args, namespace, intermixed=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2046: in _parse_known_args2
+    self.error(str(err))
+.venv/lib/python3.14/site-packages/django/core/management/base.py:78: in error
+    raise CommandError("Error: %s" % message)
+E   django.core.management.base.CommandError: Error: argument --scenario: invalid choice: 'rule_missing' (choose from 'assessment_success', 'assessment_timeout', 'assessment_failure', 'report_failure')
+___________________ test_staff_cannot_promote_self_or_parent ___________________
+tests/test_m3.py:137: in test_staff_cannot_promote_self_or_parent
+    assert admin.patch(url+str(u.pk)+'/roles',{'role_codes':['technical']},format='json').status_code == 403
+E   assert 404 == 403
+E    +  where 404 = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">.status_code
+E    +    where <HttpResponseNotFound status_code=404, "text/html; charset=utf-8"> = patch((('/api/v1/staff/users/' + 'ab5031ce-9021-42d0-ad59-820f50b4671d') + '/roles'), {'role_codes': ['technical']}, format='json')
+E    +      where patch = <rest_framework.test.APIClient object at 0x10e9499a0>.patch
+E    +      and   'ab5031ce-9021-42d0-ad59-820f50b4671d' = str(UUID('ab5031ce-9021-42d0-ad59-820f50b4671d'))
+E    +        where UUID('ab5031ce-9021-42d0-ad59-820f50b4671d') = <User: 56142989-2f45-4b4e-9235-aba57e45f02d>.pk
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/staff/users/ab5031ce-9021-42d0-ad59-820f50b4671d/roles
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/staff/users/ab5031ce-9021-42d0-ad59-820f50b4671d/roles
+__ test_delete_child_actually_cleans_business_data_and_keeps_private_receipt ___
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2044: in _parse_known_args2
+    namespace, args = self._parse_known_args(args, namespace, intermixed)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2295: in _parse_known_args
+    start_index = consume_optional(start_index)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2219: in consume_optional
+    take_action(action, args, option_string)
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2105: in take_action
+    argument_values = self._get_values(action, argument_strings)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2622: in _get_values
+    self._check_value(action, value)
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2693: in _check_value
+    raise ArgumentError(action, msg % args)
+E   argparse.ArgumentError: argument --scenario: invalid choice: 'sync_success' (choose from 'assessment_success', 'assessment_timeout', 'assessment_failure', 'report_failure')
+
+During handling of the above exception, another exception occurred:
+tests/test_m3.py:145: in test_delete_child_actually_cleans_business_data_and_keeps_private_receipt
+    child,_,_,_=setup_robot(client);run_jobs()
+                ^^^^^^^^^^^^^^^^^^^
+tests/test_m3.py:34: in setup_robot
+    call_command('inject_fixture', child_id=child['id'], scenario=scenario, stdout=out)
+.venv/lib/python3.14/site-packages/django/core/management/__init__.py:173: in call_command
+    defaults = parser.parse_args(args=parse_args)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/core/management/base.py:72: in parse_args
+    return super().parse_args(args, namespace)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2005: in parse_args
+    args, argv = self.parse_known_args(args, namespace)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2015: in parse_known_args
+    return self._parse_known_args2(args, namespace, intermixed=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py:2046: in _parse_known_args2
+    self.error(str(err))
+.venv/lib/python3.14/site-packages/django/core/management/base.py:78: in error
+    raise CommandError("Error: %s" % message)
+E   django.core.management.base.CommandError: Error: argument --scenario: invalid choice: 'sync_success' (choose from 'assessment_success', 'assessment_timeout', 'assessment_failure', 'report_failure')
+=========================== short test summary info ============================
+FAILED tests/test_m3.py::test_verify_and_sync_stage_report_contract - django....
+FAILED tests/test_m3.py::test_sync_revisions_and_cursor_are_atomic[sync_duplicate-1-3-None]
+FAILED tests/test_m3.py::test_sync_revisions_and_cursor_are_atomic[sync_correction-2-5-None]
+FAILED tests/test_m3.py::test_sync_revisions_and_cursor_are_atomic[sync_conflict-1-3-SOURCE_CONFLICT]
+FAILED tests/test_m3.py::test_sync_revisions_and_cursor_are_atomic[sync_failure-1-3-UPSTREAM_TIMEOUT]
+FAILED tests/test_m3.py::test_revoked_consent_blocks_sync_and_new_results - d...
+FAILED tests/test_m3.py::test_bad_identity_proof_and_cross_family_rejected - ...
+FAILED tests/test_m3.py::test_staff_csrf_roles_pause_resume_and_job_read - dj...
+FAILED tests/test_m3.py::test_rule_missing_then_publish_resumes_stage - djang...
+FAILED tests/test_m3.py::test_staff_cannot_promote_self_or_parent - assert 40...
+FAILED tests/test_m3.py::test_delete_child_actually_cleans_business_data_and_keeps_private_receipt
+11 failed in 3.55s

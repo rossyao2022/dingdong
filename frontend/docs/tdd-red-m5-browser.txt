@@ -1,0 +1,38 @@
+
+> dingdong-parent@0.1.0 test
+> playwright test --grep 探索四题
+
+
+Running 1 test using 1 worker
+
+(node:37849) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/flows.spec.js:284:1 › 探索四题、刷新恢复、返回修改、完成仅展示选择 (1.0m)
+
+
+  1) tests/flows.spec.js:284:1 › 探索四题、刷新恢复、返回修改、完成仅展示选择 ────────────────────────────────────────────
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: '开始探索体验', exact: true })
+
+
+      286 |   await child(page, '小禾（体验测试）');
+      287 |   await nav(page, '测评与报告');
+    > 288 |   await page.getByRole('button', {name:'开始探索体验', exact:true}).click();
+          |                                                               ^
+      289 |   await page.getByLabel('我已阅读并同意本次测评用途').check();
+      290 |   await page.getByRole('button', {name:'同意并开始', exact:true}).click();
+      291 |   await expect(page.getByText('第 1 / 4 题', {exact:false})).toBeVisible();
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/flows.spec.js:288:63
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/flows-探索四题、刷新恢复、返回修改、完成仅展示选择/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/flows-探索四题、刷新恢复、返回修改、完成仅展示选择/error-context.md
+
+  1 failed
+    tests/flows.spec.js:284:1 › 探索四题、刷新恢复、返回修改、完成仅展示选择 ─────────────────────────────────────────────

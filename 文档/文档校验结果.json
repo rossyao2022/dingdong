@@ -1,0 +1,174 @@
+{
+  "date": "2026-09-12",
+  "scope": "本地文档链接、原始归档哈希/ZIP、提取产物、OpenAPI 引用与 operationId/路径参数；不验证远端链接、Office 版式或真实供应商协议。",
+  "markdown_files": 39,
+  "local_links_checked": 162,
+  "archived_files_checked": 85,
+  "attachments": [
+    {
+      "name": "CA_DingDong_Functional_PRD_V3.0.docx",
+      "hash_and_size_match": true,
+      "zip_ok": true
+    },
+    {
+      "name": "CA_DingDong_双边天赋成长伙伴合作企划.docx",
+      "hash_and_size_match": true,
+      "zip_ok": true
+    },
+    {
+      "name": "CA_DingDong_天赋成长伙伴_项目开发预算与实施周期评估_V1.0.docx",
+      "hash_and_size_match": true,
+      "zip_ok": true
+    },
+    {
+      "name": "DingDong_CA_NFC_21天项目管理.xlsx",
+      "hash_and_size_match": true,
+      "zip_ok": true
+    },
+    {
+      "name": "DingDong_CA_接口协议与字段定义_CA侧.xlsx",
+      "hash_and_size_match": true,
+      "zip_ok": true
+    }
+  ],
+  "worksheets": [
+    {
+      "workbook": "DingDong_CA_NFC_21天项目管理.xlsx",
+      "sheet": "PM总览",
+      "csv_exists": true,
+      "dimensions_match": true
+    },
+    {
+      "workbook": "DingDong_CA_NFC_21天项目管理.xlsx",
+      "sheet": "架构设计",
+      "csv_exists": true,
+      "dimensions_match": true
+    },
+    {
+      "workbook": "DingDong_CA_NFC_21天项目管理.xlsx",
+      "sheet": "任务拆分",
+      "csv_exists": true,
+      "dimensions_match": true
+    },
+    {
+      "workbook": "DingDong_CA_NFC_21天项目管理.xlsx",
+      "sheet": "Gantt",
+      "csv_exists": true,
+      "dimensions_match": true
+    },
+    {
+      "workbook": "DingDong_CA_NFC_21天项目管理.xlsx",
+      "sheet": "风险与决策",
+      "csv_exists": true,
+      "dimensions_match": true
+    },
+    {
+      "workbook": "DingDong_CA_NFC_21天项目管理.xlsx",
+      "sheet": "数据接口清单",
+      "csv_exists": true,
+      "dimensions_match": true
+    },
+    {
+      "workbook": "DingDong_CA_接口协议与字段定义_CA侧.xlsx",
+      "sheet": "CA对接总览",
+      "csv_exists": true,
+      "dimensions_match": true
+    },
+    {
+      "workbook": "DingDong_CA_接口协议与字段定义_CA侧.xlsx",
+      "sheet": "API接口定义",
+      "csv_exists": true,
+      "dimensions_match": true
+    },
+    {
+      "workbook": "DingDong_CA_接口协议与字段定义_CA侧.xlsx",
+      "sheet": "字段字典",
+      "csv_exists": true,
+      "dimensions_match": true
+    },
+    {
+      "workbook": "DingDong_CA_接口协议与字段定义_CA侧.xlsx",
+      "sheet": "请求返回示例",
+      "csv_exists": true,
+      "dimensions_match": true
+    },
+    {
+      "workbook": "DingDong_CA_接口协议与字段定义_CA侧.xlsx",
+      "sheet": "错误码与验收",
+      "csv_exists": true,
+      "dimensions_match": true
+    }
+  ],
+  "extracted_texts": [
+    {
+      "source": "CA_DingDong_Functional_PRD_V3.0.docx",
+      "text_exists": true,
+      "word_text_segments": 710,
+      "missing_segments": 0
+    },
+    {
+      "source": "CA_DingDong_双边天赋成长伙伴合作企划.docx",
+      "text_exists": true,
+      "word_text_segments": 260,
+      "missing_segments": 0
+    },
+    {
+      "source": "CA_DingDong_天赋成长伙伴_项目开发预算与实施周期评估_V1.0.docx",
+      "text_exists": true,
+      "word_text_segments": 545,
+      "missing_segments": 0
+    },
+    {
+      "source": "DingDong_CA_NFC_21天项目管理.xlsx",
+      "text_exists": true
+    },
+    {
+      "source": "DingDong_CA_接口协议与字段定义_CA侧.xlsx",
+      "text_exists": true
+    }
+  ],
+  "operations": 50,
+  "schemas": 62,
+  "errors": [],
+  "documents": [
+    "README.md",
+    "材料清单.md",
+    "PROJECT_MEMORY.md",
+    "AGENTS.md",
+    "项目分析.md",
+    "frontend/README.md",
+    "文档/文档索引.md",
+    "文档/文档处理记录_20260912.md",
+    "backend/README.md",
+    "设计/一期功能_API与业务闭环_V0.1.md",
+    "设计/登录认证设计_V0.1.md",
+    "设计/数据库实际字段_M5.md",
+    "设计/后台总体设计_V0.2.md",
+    "设计/数据库表结构_V0.1.md",
+    "设计/后台总体设计_V0.1.md",
+    "需求/后台设计已确认约束.md",
+    "需求/一期核心需求与代码差距_20260911.md",
+    ".workbuddy-ai/memory/2026-09-11.md",
+    "设计/API/初始化数据与闭环测试_V0.1.md",
+    "设计/API/请求响应与字段字典_V0.1.md",
+    "设计/API/前后端交互规范_V0.1.md",
+    "backend/.pytest_cache/README.md",
+    "backend/docs/M5_RESULT.md",
+    "backend/docs/SCAFFOLD.md",
+    "backend/docs/M3_RESULT.md",
+    "backend/docs/TDD_CASES.md",
+    "backend/docs/M4_RESULT.md",
+    "backend/docs/M3_SCENARIOS.md",
+    "backend/docs/M5_GAPS.md",
+    "backend/docs/M2_RESULT.md",
+    "backend/docs/M1_RESULT.md",
+    "材料/可检索文本/CA_DingDong_天赋成长伙伴_项目开发预算与实施周期评估_V1.0.md",
+    "材料/可检索文本/CA_DingDong_Functional_PRD_V3.0.md",
+    "材料/可检索文本/DingDong_CA_NFC_21天项目管理.md",
+    "材料/可检索文本/CA_DingDong_双边天赋成长伙伴合作企划.md",
+    "材料/可检索文本/DingDong_CA_接口协议与字段定义_CA侧.md",
+    "材料/文档/姚易【叮咚机器人】.md",
+    "材料/讨论/梳理机器人需求_20260911.md",
+    "frontend/docs/UI_FUNCTIONAL_20260912.md"
+  ]
+}

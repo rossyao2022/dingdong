@@ -1,0 +1,20 @@
+
+> dingdong-parent@0.1.0 test
+> playwright test --grep-invert 后台可视化
+
+
+Running 7 tests using 1 worker
+
+(node:48177) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/flows.spec.js:57:1 › 真实登录、活动完成、刷新恢复、退出清理 (5.2s)
+
+  ✓  2 tests/flows.spec.js:89:1 › 用途授权、22题、合成输入、真实初始报告 (27.6s)
+
+  ✓  3 tests/flows.spec.js:126:1 › 机器人关联、阶段报告、撤回同步授权 (5.9s)
+  ✓  4 tests/flows.spec.js:157:1 › 移动端布局、儿童切换与跨页退出 (3.4s)
+  ✓  5 tests/flows.spec.js:193:1 › 家长提交删除、后台实际处理、无儿童时查看回执 (3.8s)
+  ✓  6 tests/flows.spec.js:271:1 › 登录后首页小岛出发与全部菜单可点击 (2.9s)
+  ✓  7 tests/flows.spec.js:284:1 › 探索四题、刷新恢复、返回修改、完成仅展示选择 (8.5s)
+
+  7 passed (58.2s)

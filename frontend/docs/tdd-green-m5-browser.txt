@@ -1,0 +1,12 @@
+
+> dingdong-parent@0.1.0 test
+> playwright test --grep 探索四题
+
+
+Running 1 test using 1 worker
+
+(node:39265) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/flows.spec.js:284:1 › 探索四题、刷新恢复、返回修改、完成仅展示选择 (8.6s)
+
+  1 passed (9.5s)

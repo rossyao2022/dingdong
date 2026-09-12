@@ -1,0 +1,12 @@
+
+> dingdong-parent@0.1.0 test
+> playwright test --grep 后台可视化
+
+
+Running 1 test using 1 worker
+
+(node:60289) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/questionnaire-admin.spec.js:22:1 › 后台可视化创建、预览、发布、复制新版本 (9.4s)
+
+  1 passed (10.9s)

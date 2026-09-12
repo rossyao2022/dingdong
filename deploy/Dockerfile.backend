@@ -1,0 +1,11 @@
+FROM ghcr.io/astral-sh/uv:0.10.11 AS uv
+FROM python:3.14-slim
+COPY --from=uv /uv /usr/local/bin/uv
+WORKDIR /app
+COPY backend/pyproject.toml backend/uv.lock ./
+RUN uv sync --frozen --no-dev
+COPY backend/ ./
+RUN .venv/bin/python manage.py collectstatic --noinput && useradd --uid 10001 --create-home app
+ENV PATH="/app/.venv/bin:$PATH" DJANGO_SETTINGS_MODULE=config.settings.deployment PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+USER app
+CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "2", "--timeout", "60", "--access-logfile", "/dev/null"]

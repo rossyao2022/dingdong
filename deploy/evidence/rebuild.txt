@@ -1,0 +1,48 @@
+time="2026-09-12T13:59:56+08:00" level=warning msg="buildx Docker CLI plugin not found: falling back to the classic builder. BuildKit-only build features (multi-arch, secrets, ssh, additional contexts, ...) will not be available"
+ Image dingdong-backend:0.2.0 Building 
+ Image dingdong-backend:0.2.0 Building 
+Sending build context to Docker daemon  524.4kBSending build context to Docker daemon  3.675MBSending build context to Docker daemon  6.297MBSending build context to Docker daemon   8.92MBSending build context to Docker daemon  9.506MB
+Step 1/12 : FROM ghcr.io/astral-sh/uv:0.10.11 AS uv
+ ---> 3472e43b4e73
+Step 2/12 : FROM python:3.14-slim
+ ---> cad9a2c87176
+Step 3/12 : COPY --from=uv /uv /usr/local/bin/uv
+ ---> Using cache
+ ---> 6a7b2482bf86
+Step 4/12 : WORKDIR /app
+ ---> Using cache
+ ---> f63c10b424ff
+Step 5/12 : COPY backend/pyproject.toml backend/uv.lock ./
+ ---> Using cache
+ ---> 23fee1e03f03
+Step 6/12 : RUN uv sync --frozen --no-dev
+ ---> Using cache
+ ---> e0c41ce0f980
+Step 7/12 : COPY backend/ ./
+ ---> 6205231ea7e4
+Step 8/12 : RUN .venv/bin/python manage.py collectstatic --noinput && useradd --uid 10001 --create-home app
+ ---> Running in c4c1d499c601
+
+160 static files copied to '/app/staticfiles'.
+ ---> Removed intermediate container c4c1d499c601
+ ---> e61af45807ea
+Step 9/12 : ENV PATH="/app/.venv/bin:$PATH" DJANGO_SETTINGS_MODULE=config.settings.deployment PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+ ---> Running in 9cedf91c91df
+ ---> Removed intermediate container 9cedf91c91df
+ ---> 3a439193dcc6
+Step 10/12 : USER app
+ ---> Running in b42a2e4da840
+ ---> Removed intermediate container b42a2e4da840
+ ---> efc2c8067a6d
+Step 11/12 : CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "2", "--timeout", "60", "--access-logfile", "/dev/null"]
+ ---> Running in f31359b9f0eb
+ ---> Removed intermediate container f31359b9f0eb
+ ---> 4fe9e95b80c3
+Step 12/12 : LABEL com.docker.compose.image.builder=classic
+ ---> Running in 46fbf8030656
+ ---> Removed intermediate container 46fbf8030656
+ ---> 16d53fcf5159
+Successfully built 16d53fcf5159
+Successfully tagged dingdong-backend:0.2.0
+ Image dingdong-backend:0.2.0 Built 
+ Image dingdong-backend:0.2.0 Built 

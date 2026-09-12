@@ -1,0 +1,85 @@
+name: dingdong-demo
+x-app: &app
+  image: dingdong-backend:${APP_VERSION:?set APP_VERSION}
+  build:
+    context: ..
+    dockerfile: deploy/Dockerfile.backend
+  restart: unless-stopped
+  environment: &env
+    APP_ENV: demo
+    DJANGO_SETTINGS_MODULE: config.settings.deployment
+    PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:?set PUBLIC_ORIGIN}
+    DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:?set secret}
+    JWT_SIGNING_KEY: ${JWT_SIGNING_KEY:?set secret}
+    DATABASE_URL: postgres://dingdong:${POSTGRES_PASSWORD:?set password}@postgres:5432/dingdong
+    CELERY_BROKER_URL: redis://redis:6379/0
+  depends_on:
+    postgres:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: dingdong
+      POSTGRES_USER: dingdong
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set password}
+    volumes: ["postgres_data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dingdong -d dingdong"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes: ["redis_data:/data"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  init:
+    <<: *app
+    restart: "no"
+    command: ["sh", "-c", "python manage.py migrate --noinput && python manage.py seed_base && python manage.py seed_mock --dataset phase1-v1 --mode cold"]
+  api:
+    <<: *app
+    depends_on:
+      init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "python", "-c", "import os,urllib.request; r=urllib.request.Request('http://127.0.0.1:8000/api/v1/runtime',headers={'Host':os.environ['PUBLIC_ORIGIN'].split('://')[1]}); urllib.request.urlopen(r,timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+  worker:
+    <<: *app
+    command: ["celery", "-A", "config", "worker", "--loglevel=WARNING", "--queues=dingdong-ca", "--concurrency=2"]
+    depends_on:
+      api:
+        condition: service_healthy
+  beat:
+    <<: *app
+    command: ["celery", "-A", "config", "beat", "--loglevel=WARNING", "--schedule=/tmp/celerybeat"]
+    depends_on:
+      api:
+        condition: service_healthy
+  web:
+    image: dingdong-web:${APP_VERSION:?set APP_VERSION}
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.web
+    restart: unless-stopped
+    environment:
+      PUBLIC_SCHEME: ${PUBLIC_SCHEME:?set PUBLIC_SCHEME}
+    ports: ["${BIND_ADDRESS:-127.0.0.1}:${HTTP_PORT:-18080}:8080"]
+    depends_on:
+      api:
+        condition: service_healthy
+volumes:
+  postgres_data:
+  redis_data:
