@@ -1,0 +1,328 @@
+{% extends "ops/base.html" %}
+{% load ops_labels %}
+{% block title %}儿童详情{% endblock %}
+{% block page_title %}{{ child.name }} · 儿童详情{% endblock %}
+{% block crumb %}
+  <a href="{% url 'ops:families' %}" data-nav>家庭与儿童</a> ·
+  <a href="{% url 'ops:family_detail' family.pk %}" data-nav>返回家庭</a>
+{% endblock %}
+
+{% block topbar_actions %}
+  {% if can_edit_child %}
+    <button type="button" class="btn btn-sm" id="edit-profile-open">更正档案</button>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <h2>基本信息</h2>
+    <dl class="kv">
+      <dt>称呼</dt><dd>{{ child.name }}</dd>
+      <dt>性别</dt><dd>{{ child.gender|label:"GENDER" }}</dd>
+      <dt>生日</dt><dd>{{ child.birth_date|date:"Y-m-d"|default:"未填写" }}</dd>
+      <dt>档案状态</dt><dd><span class="badge {{ child.status|tone }}">{{ child.status|label:"CHILD_STATUS" }}</span></dd>
+      <dt>所属家庭</dt>
+      <dd><a href="{% url 'ops:family_detail' family.pk %}" data-nav>查看家庭</a>
+        {% if member %} · 家长 {{ member.user|display_name:"未登记" }}（{{ member.user.phone|default:"未登记手机号" }}）{% endif %}
+      </dd>
+      <dt>创建时间</dt><dd>{{ child.created_at|date:"Y-m-d H:i" }}</dd>
+    </dl>
+  </section>
+
+  <section class="card">
+    <h2>活动记录（{{ activities|length }}）</h2>
+    {% if activities %}
+      <div class="table-wrap">
+        <table class="ops-table">
+          <thead><tr><th>活动</th><th>状态</th><th>进度</th><th>开始</th><th>结束</th><th>反馈</th></tr></thead>
+          <tbody>
+            {% for record in activities %}
+              <tr>
+                <td>
+                  {{ record.activity_version.title }}
+                  <div class="card-sub" style="margin:0">版本 {{ record.activity_version.version }} · {{ record.activity_version.status|label:"CONTENT_STATUS" }}</div>
+                </td>
+                <td><span class="badge {{ record.status|tone }}">{{ record.status|label:"ACTIVITY_RECORD_STATUS" }}</span></td>
+                <td>
+                  {% with total=record.activity_version.content.steps|length %}
+                    第 {{ record.step_index|add:1 }} / {{ total }} 步
+                  {% endwith %}
+                </td>
+                <td class="nowrap">{{ record.started_at|date:"Y-m-d H:i" }}</td>
+                <td class="nowrap">{{ record.finished_at|date:"Y-m-d H:i"|default:"—" }}</td>
+                <td>{{ record.feedback|default:"—" }}{% if record.note %}<div class="card-sub" style="margin:0">{{ record.note }}</div>{% endif %}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="table-empty">该儿童还没有活动记录。</p>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <h2>答卷（{{ sessions|length }}）</h2>
+    {% if sessions %}
+      {% for session, rows in sessions %}
+        <details class="question-card" {% if forloop.first %}open{% endif %}>
+          <summary style="cursor:pointer">
+            <b>{{ session.questionnaire_version.title }}</b>
+            <span class="badge {{ session.status|tone }}">{{ session.status|label:"ASSESSMENT_STATUS" }}</span>
+            <span class="card-sub">· {{ session.questionnaire_version.purpose|label:"QUESTIONNAIRE_PURPOSE" }}
+              · 版本 {{ session.questionnaire_version.version }}
+              · {{ session.created_at|date:"Y-m-d H:i" }}</span>
+          </summary>
+          <div style="margin-top:10px">
+            <p class="help">
+              题库版本固定为答卷创建时的版本；之后发布的题库不会改变这份答卷。
+              提交时间 {{ session.submitted_at|date:"Y-m-d H:i"|default:"未提交" }} ·
+              完成时间 {{ session.completed_at|date:"Y-m-d H:i"|default:"未完成" }}
+            </p>
+            <table class="ops-table">
+              <tbody>
+                {% for row in rows %}
+                  <tr>
+                    <th style="width:44%;background:transparent">{{ row.title }}</th>
+                    <td>{{ row.answers|join:"、" }}</td>
+                  </tr>
+                {% empty %}
+                  <tr><td class="table-empty">该答卷还没有答案。</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </details>
+      {% endfor %}
+    {% else %}
+      <p class="table-empty">该儿童还没有答卷。</p>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <h2>报告与画像</h2>
+    {% if can_view_reports %}
+      <h3 style="font-size:14px;margin:0 0 6px">已生成报告（{{ reports|length }}）</h3>
+      {% if reports %}
+        <div class="table-wrap">
+          <table class="ops-table">
+            <thead><tr><th>报告</th><th>画像类型</th><th>数据来源</th><th>生成时间</th><th></th></tr></thead>
+            <tbody>
+              {% for report in reports %}
+                <tr>
+                  <td>{{ report.template_version|version_name }}</td>
+                  <td>{{ report.profile.kind|label:"PROFILE_KIND" }}</td>
+                  <td>{{ report.data_origin|label:"DATA_ORIGIN" }}</td>
+                  <td class="nowrap">{{ report.generated_at|date:"Y-m-d H:i" }}</td>
+                  <td><a class="btn btn-sm" href="{% url 'ops:report_detail' report.pk %}" data-nav>查看报告</a></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="table-empty">还没有生成的报告。家长完成测评后由后台任务自动生成。</p>
+      {% endif %}
+
+      <h3 style="font-size:14px;margin:16px 0 6px">画像记录（{{ profiles|length }}）</h3>
+      {% if profiles %}
+        <div class="table-wrap">
+          <table class="ops-table">
+            <thead><tr><th>类型</th><th>数据来源</th><th>生成时间</th><th>指标数</th></tr></thead>
+            <tbody>
+              {% for profile in profiles %}
+                <tr>
+                  <td>{{ profile.kind|label:"PROFILE_KIND" }}</td>
+                  <td>{{ profile.data_origin|label:"DATA_ORIGIN" }}</td>
+                  <td class="nowrap">{{ profile.produced_at|date:"Y-m-d H:i" }}</td>
+                  <td class="num">{{ profile.result.metrics|length }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="table-empty">还没有画像记录。</p>
+      {% endif %}
+    {% else %}
+      <p class="table-empty">当前角色不能查看报告内容。</p>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <h2>伙伴关联与同步（{{ associations|length }}）</h2>
+    {% if associations %}
+      <div class="table-wrap">
+        <table class="ops-table">
+          <thead><tr><th>状态</th><th>核验时间</th><th>同步</th><th>最近成功</th><th></th></tr></thead>
+          <tbody>
+            {% for association, checkpoint in associations %}
+              <tr>
+                <td><span class="badge {{ association.status|tone }}">{{ association.status|label:"ASSOCIATION_STATUS" }}</span></td>
+                <td class="nowrap">{{ association.verified_at|date:"Y-m-d H:i" }}</td>
+                <td>{% if checkpoint %}<span class="badge {{ checkpoint.status|tone }}">{{ checkpoint.status|label:"CHECKPOINT_STATUS" }}</span>{% else %}—{% endif %}</td>
+                <td class="nowrap">{{ checkpoint.last_success_at|date:"Y-m-d H:i"|default:"—" }}</td>
+                <td class="nowrap">
+                  {% if can_manage_association and checkpoint %}
+                    {% if checkpoint.status == "enabled" %}
+                      <button type="button" class="btn btn-sm"
+                              data-ops-action="/api/v1/staff/associations/{{ association.pk }}/pause"
+                              data-ops-confirm-title="暂停数据同步"
+                              data-ops-confirm="暂停后不会再为该儿童拉取新的观察数据。"
+                              data-ops-confirm-impacts="已有数据保留|家长端不受影响|可随时恢复"
+                              data-ops-reload="1"
+                              data-ops-success="已暂停同步。">暂停同步</button>
+                    {% else %}
+                      <button type="button" class="btn btn-sm btn-primary"
+                              data-ops-action="/api/v1/staff/associations/{{ association.pk }}/resume"
+                              data-ops-confirm-title="恢复数据同步"
+                              data-ops-confirm="恢复后会立即安排一次同步。"
+                              data-ops-confirm-impacts="需要家长授权仍然有效"
+                              data-ops-reload="1"
+                              data-ops-success="已恢复同步。">恢复同步</button>
+                    {% endif %}
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="table-empty">该儿童还没有伙伴关联记录。关联需要家长授权后由系统核验。</p>
+    {% endif %}
+  </section>
+
+  <div class="grid grid-2">
+    <section class="card">
+      <h2>授权记录（{{ consents|length }}）</h2>
+      {% if consents %}
+        <div class="table-wrap">
+          <table class="ops-table">
+            <thead><tr><th>用途</th><th>状态</th><th>授权时间</th></tr></thead>
+            <tbody>
+              {% for consent in consents %}
+                <tr>
+                  <td>{{ consent.purpose|label:"CONSENT_PURPOSE" }}</td>
+                  <td>{% if consent.revoked_at %}<span class="badge badge-muted">已撤回</span>{% else %}<span class="badge badge-ok">有效</span>{% endif %}</td>
+                  <td class="nowrap">{{ consent.created_at|date:"Y-m-d H:i" }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="table-empty">没有授权记录。</p>
+      {% endif %}
+    </section>
+
+    <section class="card">
+      <h2>服务记录（{{ requests|length }}）</h2>
+      {% if requests and can_view_services %}
+        <div class="table-wrap">
+          <table class="ops-table">
+            <thead><tr><th>类型</th><th>状态</th><th>提交时间</th><th></th></tr></thead>
+            <tbody>
+              {% for item in requests %}
+                <tr>
+                  <td>{{ item.kind|label:"SERVICE_KIND" }}</td>
+                  <td><span class="badge {{ item.status|tone }}">{{ item.status|label:"SERVICE_STATUS" }}</span></td>
+                  <td class="nowrap">{{ item.created_at|date:"Y-m-d H:i" }}</td>
+                  <td><a class="btn btn-sm" href="{% url 'ops:service_detail' item.pk %}" data-nav>查看</a></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="table-empty">没有服务记录，或当前角色不能查看。</p>
+      {% endif %}
+    </section>
+  </div>
+
+  {% if audit_rows %}
+    <section class="card">
+      <h2>该档案的操作记录</h2>
+      <ul class="timeline">
+        {% for row in audit_rows %}
+          <li>
+            <div>{{ row.action|audit_action }} · {{ row.target_label|default:"—" }}</div>
+            <time>{{ row.created_at|date:"Y-m-d H:i" }} · {{ row.actor|display_name }}</time>
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+  {% endif %}
+
+  {% if can_edit_child %}
+    <dialog class="ops-dialog" id="edit-profile-dialog">
+      <form method="dialog" id="edit-profile-form">
+        <div class="ops-dialog-body">
+          <h2>更正儿童档案</h2>
+          <p>用于家长提出资料更正后的人工修改，修改会记录在操作审计中。</p>
+          <div class="form-row">
+            <label for="profile-name">称呼</label>
+            <input type="text" id="profile-name" value="{{ child.name }}" maxlength="80" required />
+          </div>
+          <div class="form-row">
+            <label for="profile-gender">性别</label>
+            <select id="profile-gender">
+              <option value="unknown" {% if child.gender == "unknown" %}selected{% endif %}>未填写</option>
+              <option value="male" {% if child.gender == "male" %}selected{% endif %}>男孩</option>
+              <option value="female" {% if child.gender == "female" %}selected{% endif %}>女孩</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="profile-birth">生日</label>
+            <input type="date" id="profile-birth" value="{{ child.birth_date|date:'Y-m-d' }}" />
+            <p class="help">留空表示不填写。项目不采集、不推算年级。</p>
+          </div>
+        </div>
+        <div class="ops-dialog-foot">
+          <button type="button" class="btn" id="edit-profile-cancel">取消</button>
+          <button type="submit" class="btn btn-primary" id="edit-profile-save">保存修改</button>
+        </div>
+      </form>
+    </dialog>
+  {% endif %}
+{% endblock %}
+
+{% block scripts %}
+  {% if can_edit_child %}
+    <script>
+      (function () {
+        const dialog = document.getElementById("edit-profile-dialog");
+        const open = document.getElementById("edit-profile-open");
+        const cancel = document.getElementById("edit-profile-cancel");
+        const form = document.getElementById("edit-profile-form");
+        if (!dialog || !open) return;
+        open.addEventListener("click", function () {
+          dialog.showModal();
+        });
+        cancel.addEventListener("click", function () {
+          dialog.close();
+        });
+        form.addEventListener("submit", async function (event) {
+          event.preventDefault();
+          const button = document.getElementById("edit-profile-save");
+          const data = await window.Ops.act({
+            url: "{% url 'ops:api_child_profile' child.pk %}",
+            body: {
+              name: document.getElementById("profile-name").value,
+              gender: document.getElementById("profile-gender").value,
+              birth_date: document.getElementById("profile-birth").value,
+            },
+            button: button,
+            success: "档案已更新。",
+          });
+          if (data) {
+            dialog.close();
+            window.setTimeout(function () {
+              window.location.reload();
+            }, 500);
+          }
+        });
+      })();
+    </script>
+  {% endif %}
+{% endblock %}

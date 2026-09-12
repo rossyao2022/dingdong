@@ -61,3 +61,18 @@ npm test
 “测评与报告”提供独立探索体验、测评流程测试与运营新发布题库入口。原参考四题已在后台维护，体验只展示本次选择，不生成天赋或能力结论。已发布版本固定，旧答卷不随新发布题干变化。可多选/选填、返回修改、从服务器恢复和读取冲突后的最新记录；已完成体验可从历史入口查看。
 
 手机账户页可进入伙伴引导与家长支持。后台实际编辑/发布/复制、家长端新旧版本隔离及桌面/移动验收见 `tests/questionnaire-admin.spec.js`、`tests/flows.spec.js` 与 `../backend/docs/M5_RESULT.md`。运行 `npm test` 使用真实 Chrome 和当前数据库，临时内容工作人员会停用，测试题库发布后在验收结束停用，不删除旧答卷。
+
+
+## M6 运营后台与共享测试工具
+
+家长端本身在 M6 未改动，认证与权限逻辑保持原样。M6 新增的是运营后台（`/ops/`，独立 Django 应用，模板与静态资源都在后端，不在本目录），以及本目录下的浏览器验收用例 `tests/ops-console.spec.js`（8 项真实 Chrome 场景）。
+
+三个 spec 共用 `tests/support.js`，其中 `uvBin()` 解析 `~/.local/bin/uv` 等绝对路径——Playwright 子进程的 PATH 不含 `~/.local/bin`，直接写 `uv` 会 `spawnSync uv ENOENT`。
+
+```sh
+npx playwright test tests/flows.spec.js tests/questionnaire-admin.spec.js tests/ops-console.spec.js --reporter=list
+```
+
+若 `frontend/test-results` 里堆了大量失败截图，Playwright 清理该目录可能被本地批量删除保护拦下，用 `--output=/tmp/dingdong-pw-out` 指定输出目录即可绕开。
+
+M6 浏览器验收共 17 项通过（家长端 8 + 后台题库 1 + 运营后台 8）。运营后台用例覆盖登录失败与退出、家庭查询与儿童详情、题库草稿到发布、活动维护、报告查看与生成异常重试、服务事项处理、越权拦截、窄屏可用性，并收集 `pageerror`：任何脚本异常都会让用例失败，而不是变成模糊超时。结果见 `../backend/docs/M6_OPS_RESULT.md` 与 `../backend/docs/evidence-ops/`。

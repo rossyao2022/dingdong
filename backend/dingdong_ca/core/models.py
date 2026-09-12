@@ -204,10 +204,16 @@ class AuditEvent(models.Model):
     action = models.CharField(max_length=64)
     target_kind = models.CharField(max_length=64)
     target_id = models.UUIDField(null=True)
+    target_label = models.CharField(max_length=200, blank=True, default="")
+    detail = models.JSONField(default=dict, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = "audit_event"
+        indexes = [
+            models.Index(fields=["created_at"]),
+            models.Index(fields=["action", "created_at"]),
+        ]
 
 
 # Register separated business models with Django's core app.

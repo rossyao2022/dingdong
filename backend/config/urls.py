@@ -1,5 +1,6 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
+from django.views import defaults
 
 from dingdong_ca.core.api import (
     accounts,
@@ -13,6 +14,25 @@ from dingdong_ca.core.api import (
     robots,
     staff,
 )
+
+
+def handler403(request, exception=None):
+    """运营后台走自己的"权限不足"页；其余路径保持 Django 默认行为。"""
+    if request.path.startswith("/ops/"):
+        from dingdong_ca.ops.responses import forbidden
+
+        return forbidden(request, "当前账号没有访问该功能的权限。")
+    return defaults.permission_denied(request, exception)
+
+
+def handler404(request, exception=None):
+    """运营后台走自己的"记录不存在"页；家长端 API 不受影响。"""
+    if request.path.startswith("/ops/"):
+        from dingdong_ca.ops.responses import not_found
+
+        return not_found(request, "记录不存在或已被删除，请返回列表重新选择。")
+    return defaults.page_not_found(request, exception)
+
 
 urlpatterns = [
     path("api/v1/children/<uuid:child_id>/associations/verify", robots.verify),
@@ -58,6 +78,7 @@ urlpatterns = [
     path("api/v1/children/<uuid:child_id>/reports", reports.reports),
     path("api/v1/reports/<uuid:report_id>", reports.detail),
     path("admin/", admin.site.urls),
+    path("ops/", include("dingdong_ca.ops.urls")),
     path("api/v1/runtime", accounts.runtime),
     path("api/v1/auth/csrf", accounts.csrf),
     path("api/v1/auth/sms", accounts.sms),

@@ -1,0 +1,55 @@
+{% extends "ops/base.html" %}
+{% block title %}新建账号{% endblock %}
+{% block page_title %}新建后台账号{% endblock %}
+{% block crumb %}<a href="{% url 'ops:accounts' %}" data-nav>← 返回账号列表</a>{% endblock %}
+
+{% block content %}
+  <div class="grid grid-side">
+    <section class="card">
+      <h2>账号信息</h2>
+      <p class="card-sub">创建后请通过安全渠道把初始密码告知本人，并要求首次登录后修改。</p>
+      <form method="post" novalidate>
+        {% csrf_token %}
+        {% for field in form %}
+          <div class="form-row">
+            {% if field.field.widget.input_type == "checkbox" %}
+              <label>{{ field.label }}</label>
+              <div class="checkbox-row">
+                {% for choice in field %}
+                  <label>{{ choice.tag }} {{ choice.choice_label }}</label>
+                {% endfor %}
+              </div>
+            {% else %}
+              <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {{ field }}
+            {% endif %}
+            {% if field.help_text %}<p class="help">{{ field.help_text }}</p>{% endif %}
+            {% if field.errors %}<ul class="errors">{% for error in field.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+          </div>
+        {% endfor %}
+        {% if form.non_field_errors %}
+          <div class="notice notice-danger">{% for error in form.non_field_errors %}{{ error }}{% endfor %}</div>
+        {% endif %}
+        <div class="sticky-actions">
+          <button type="submit" class="btn btn-primary">创建账号</button>
+          <a class="btn btn-ghost" href="{% url 'ops:accounts' %}" data-nav>取消</a>
+        </div>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>常用角色组合</h2>
+      <ul class="timeline">
+        {% for code, title, roles in presets %}
+          <li>
+            <div>{{ title }}</div>
+            <div class="card-sub" style="margin:0">勾选：{% for role in roles %}{{ role }} {% endfor %}</div>
+          </li>
+        {% endfor %}
+      </ul>
+      <p class="help">
+        运营日常使用建议“运营 + 内容运营”，可覆盖家庭查询、服务事项和题库活动维护。
+      </p>
+    </section>
+  </div>
+{% endblock %}

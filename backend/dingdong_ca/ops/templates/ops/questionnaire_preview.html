@@ -1,0 +1,51 @@
+{% extends "ops/base.html" %}
+{% load ops_labels %}
+{% block title %}预览 {{ row.title }}{% endblock %}
+{% block page_title %}预览：{{ row.title }}{% endblock %}
+{% block crumb %}
+  <a href="{% url 'ops:questionnaires' %}" data-nav>题库管理</a> ·
+  <a href="{% url 'ops:questionnaire_edit' row.pk %}" data-nav>返回编辑</a>
+{% endblock %}
+
+{% block topbar_actions %}
+  {% if row.status == "draft" %}
+    <button type="button" class="btn btn-sm btn-primary"
+            data-ops-action="/api/v1/staff/questionnaires/{{ row.pk }}/publish"
+            data-ops-confirm-title="发布题库版本"
+            data-ops-confirm="发布后家长端的新答卷将使用《{{ row.title }}》{{ row.version }}。"
+            data-ops-confirm-impacts="同一题库当前已发布的版本会被自动停用|历史答卷仍绑定各自创建时的版本|发布后该版本不可再编辑"
+            data-ops-confirm-label="确认发布"
+            data-ops-reload="1"
+            data-ops-success="题库版本已发布。">发布该版本</button>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <div class="notice">
+    <strong>这是运营视角的预览</strong>
+    预览内容与家长端展示一致：题库名称、用途说明、题干、选项与必填规则。
+    题目数量：{{ row.questions|length }} 题。
+  </div>
+
+  <section class="card">
+    <h2>{{ row.title }}</h2>
+    <p class="card-sub">{{ row.description }}</p>
+    <p class="help">{{ row.purpose|label:"QUESTIONNAIRE_PURPOSE" }} · 版本 {{ row.version }}</p>
+
+    {% for question in row.questions %}
+      <div class="preview-question">
+        <b>第 {{ forloop.counter }} 题 · {{ question.title }}</b>
+        <div class="help">
+          {{ question.type|label:"QUESTION_TYPE" }}
+          {% if question.required %}· 必填{% else %}· 选填{% endif %}
+          {% if question.type == "multiple_choice" %}· 最少选 {{ question.min_choices }} 项，最多选 {{ question.max_choices }} 项{% endif %}
+        </div>
+        {% for option in question.options %}
+          <span class="preview-option">{{ option.label }}</span>
+        {% endfor %}
+      </div>
+    {% empty %}
+      <p class="table-empty">该版本还没有题目。{% if row.status == "draft" %}回到编辑页添加题目后再发布。{% endif %}</p>
+    {% endfor %}
+  </section>
+{% endblock %}

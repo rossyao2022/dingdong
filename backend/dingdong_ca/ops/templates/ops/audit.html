@@ -1,0 +1,76 @@
+{% extends "ops/base.html" %}
+{% load ops_labels %}
+{% block title %}操作审计{% endblock %}
+{% block page_title %}操作审计{% endblock %}
+{% block crumb %}后台关键操作的完整记录{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <form class="filters" method="get">
+      <div class="field">
+        <label for="action">操作类型</label>
+        <select id="action" name="action">
+          <option value="">全部</option>
+          {% for code, text in action_choices %}
+            <option value="{{ code }}" {% if action == code %}selected{% endif %}>{{ text }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="field">
+        <label for="actor">操作人</label>
+        <input type="search" id="actor" name="actor" value="{{ actor }}" placeholder="账号或姓名" />
+      </div>
+      <div class="field">
+        <label for="start">开始日期</label>
+        <input type="date" id="start" name="start" value="{{ start }}" />
+      </div>
+      <div class="field">
+        <label for="end">结束日期</label>
+        <input type="date" id="end" name="end" value="{{ end }}" />
+      </div>
+      <button type="submit" class="btn btn-primary">筛选</button>
+      <a class="btn btn-ghost" href="{% url 'ops:audit' %}" data-nav>清空</a>
+    </form>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <div>
+        <h2>操作记录</h2>
+        <p class="card-sub" style="margin:0">共 {{ page.total }} 条，每页 20 条。时间按北京时间显示。</p>
+      </div>
+    </div>
+    {% if items %}
+      <div class="table-wrap">
+        <table class="ops-table">
+          <thead><tr><th>时间</th><th>操作人</th><th>操作</th><th>对象</th><th>说明</th></tr></thead>
+          <tbody>
+            {% for row in items %}
+              <tr>
+                <td class="nowrap">{{ row.created_at|date:"Y-m-d H:i:s" }}</td>
+                <td class="nowrap">{{ row.actor|display_name }}</td>
+                <td>{{ row.action|audit_action }}</td>
+                <td>
+                  {{ row.target_kind|label:"TARGET_KIND" }}
+                  {% if row.target_label %}
+                    <div class="card-sub" style="margin:0">{{ row.target_label }}</div>
+                  {% elif row.target_id %}
+                    <div class="card-sub" style="margin:0">{{ row.target_id|short_ref }}</div>
+                  {% endif %}
+                </td>
+                <td>
+                  {% for text in row.detail|audit_detail %}
+                    <span class="badge badge-muted">{{ text }}</span>
+                  {% empty %}—{% endfor %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% include "ops/_pagination.html" %}
+    {% else %}
+      <p class="table-empty">{{ empty_hint }}</p>
+    {% endif %}
+  </section>
+{% endblock %}

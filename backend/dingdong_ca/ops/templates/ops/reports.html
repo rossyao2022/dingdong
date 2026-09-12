@@ -1,0 +1,67 @@
+{% extends "ops/base.html" %}
+{% load ops_labels %}
+{% block title %}报告管理{% endblock %}
+{% block page_title %}报告管理{% endblock %}
+{% block crumb %}查询已生成的报告，查看内容与生成状态{% endblock %}
+
+{% block content %}
+  {% if failed_count %}
+    <div class="notice notice-danger">
+      <strong>有 {{ failed_count }} 个报告生成任务失败</strong>
+      失败任务不会自动重试，需要技术运维在任务详情页确认原因后重试。
+      <a href="{% url 'ops:jobs' %}?kind=report&amp;status=failed" data-nav>查看失败任务 →</a>
+    </div>
+  {% endif %}
+
+  <section class="card">
+    <form class="filters" method="get">
+      <div class="field" style="min-width:220px">
+        <label for="q">儿童称呼</label>
+        <input type="search" id="q" name="q" value="{{ keyword }}" placeholder="按儿童称呼查询报告" />
+      </div>
+      <div class="field">
+        <label for="origin">数据来源</label>
+        <select id="origin" name="origin">
+          <option value="">全部</option>
+          {% for code, text in labels.DATA_ORIGIN.items %}
+            <option value="{{ code }}" {% if origin == code %}selected{% endif %}>{{ text }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">查询</button>
+      <a class="btn btn-ghost" href="{% url 'ops:reports' %}" data-nav>清空</a>
+    </form>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <div>
+        <h2>已生成报告</h2>
+        <p class="card-sub" style="margin:0">共 {{ page.total }} 份，每页 20 条。</p>
+      </div>
+    </div>
+
+    {% if items %}
+      <div class="table-wrap">
+        <table class="ops-table">
+          <thead><tr><th>儿童</th><th>报告</th><th>画像类型</th><th>数据来源</th><th>生成时间</th><th></th></tr></thead>
+          <tbody>
+            {% for row in items %}
+              <tr>
+                <td><a href="{% url 'ops:child_detail' row.profile.child.pk %}" data-nav>{{ row.profile.child.name }}</a></td>
+                <td>{{ row.template_version|version_name }}</td>
+                <td>{{ row.profile.kind|label:"PROFILE_KIND" }}</td>
+                <td>{{ row.data_origin|label:"DATA_ORIGIN" }}</td>
+                <td class="nowrap">{{ row.generated_at|date:"Y-m-d H:i" }}</td>
+                <td><a class="btn btn-sm btn-primary" href="{% url 'ops:report_detail' row.pk %}" data-nav>查看内容</a></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% include "ops/_pagination.html" %}
+    {% else %}
+      <p class="table-empty">{{ empty_hint }}</p>
+    {% endif %}
+  </section>
+{% endblock %}

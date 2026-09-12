@@ -1,0 +1,68 @@
+{% extends "ops/base.html" %}
+{% block title %}新建活动草稿{% endblock %}
+{% block page_title %}新建活动草稿{% endblock %}
+{% block crumb %}<a href="{% url 'ops:activities' %}" data-nav>← 返回活动列表</a>{% endblock %}
+
+{% block content %}
+  <section class="card" style="max-width:720px">
+    <h2>第一步：填写活动基本信息</h2>
+    <p class="card-sub">创建后进入编辑器维护材料、目标和步骤。草稿不会出现在家长端。</p>
+
+    <div class="form-row">
+      <label for="new-code">活动标识</label>
+      <input type="text" id="new-code" placeholder="例如 leaf-observe" maxlength="64" />
+      <p class="help">用于区分不同活动，创建后不可修改。</p>
+    </div>
+    <div class="form-row">
+      <label for="new-version">版本号</label>
+      <input type="text" id="new-version" placeholder="例如 v1" maxlength="32" />
+    </div>
+    <div class="form-row">
+      <label for="new-title">活动标题</label>
+      <input type="text" id="new-title" placeholder="家长看到的标题" maxlength="120" />
+    </div>
+    <div class="form-row">
+      <label for="new-island">所属岛屿</label>
+      <input type="text" id="new-island" placeholder="例如 观察岛" maxlength="32" />
+    </div>
+    <div class="form-row">
+      <label for="new-mood">情绪标签</label>
+      <input type="text" id="new-mood" placeholder="例如 好奇" maxlength="32" />
+    </div>
+    <div class="form-row">
+      <label for="new-duration">时长（分钟）</label>
+      <input type="number" id="new-duration" min="1" max="600" value="15" />
+    </div>
+
+    <div class="sticky-actions">
+      <button type="button" class="btn btn-primary" id="create-submit">创建草稿并开始编辑</button>
+      <a class="btn btn-ghost" href="{% url 'ops:activities' %}" data-nav>取消</a>
+    </div>
+  </section>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    (function () {
+      const button = document.getElementById("create-submit");
+      button.addEventListener("click", async function () {
+        const data = await window.Ops.act({
+          url: "{% url 'ops:api_activity_create' %}",
+          body: {
+            code: document.getElementById("new-code").value,
+            version: document.getElementById("new-version").value,
+            title: document.getElementById("new-title").value,
+            island: document.getElementById("new-island").value,
+            mood: document.getElementById("new-mood").value,
+            duration_minutes: parseInt(document.getElementById("new-duration").value, 10),
+          },
+          button: button,
+          success: "草稿已创建。",
+        });
+        if (data && data.activity) {
+          window.location.href = "/ops/activities/" + data.activity.id + "/";
+        }
+      });
+    })();
+  </script>
+{% endblock %}

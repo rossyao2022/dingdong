@@ -21,6 +21,11 @@ from .data_requests import serialize_request
 from .inputs import StrictSerializer
 from .robots import serialize_association
 
+# 运营后台审计列表使用的中文名称；保持与后台展示一致。
+KIND_LABEL = {"report": "报告生成", "stage_profile": "阶段画像", "sync": "数据同步"}
+# 发布内容版本时用于审计说明，运营看到的是中文而不是内部集合名
+CONTENT_KIND_LABEL = {"questionnaires": "题库", "activities": "活动", "rules": "规则"}
+
 
 def serialize_job(job):
     return {
@@ -159,7 +164,13 @@ def publish(request, version_id, kind):
             row.published_at = timezone.now()
             row.published_by = request.user
             row.save()
-            audit(request.user, "content.publish", row)
+            audit(
+                request.user,
+                "content.publish",
+                row,
+                "",
+                {"kind": CONTENT_KIND_LABEL.get(kind, kind), "code": row.code},
+            )
             if kind == "rules":
                 # Queue the latest source revision only; do not rewrite older profiles.
                 for obs in m.ObservationBatch.objects.filter(supersedes__isnull=True):
@@ -252,6 +263,7 @@ def pause_resume(request, association_id, action):
 class ResolveInput(StrictSerializer):
     action = serializers.ChoiceField(choices=["resolve", "cancel", "execute_deletion"])
     resolution_code = serializers.ChoiceField(choices=["resolved", "cancelled", "deleted"])
+    note = serializers.CharField(required=False, allow_blank=True, max_length=500, default="")
 
     def validate(self, data):
         if (
@@ -294,9 +306,16 @@ def resolve(request, request_id):
             row.child = None
         row.status = "cancelled" if data["action"] == "cancel" else "completed"
         row.resolution_code = data["resolution_code"]
+        row.resolution_note = data.get("note", "")
         row.completed_at = timezone.now()
         row.save()
-        audit(request.user, "data_request." + data["action"], row)
+        audit(
+            request.user,
+            "data_request." + data["action"],
+            row,
+            f"事项 {row.pk}",
+            {"note": row.resolution_note, "resolution_code": row.resolution_code},
+        )
         return Response(serialize_request(row))
 
 
@@ -331,7 +350,13 @@ def staff_user(request, staff_id, action):
         else:
             user.is_active = data["is_active"]
             user.save(update_fields=["is_active"])
-        audit(request.user, "staff." + action, user)
+        audit(
+            request.user,
+            "staff." + action,
+            user,
+            user.name or user.username,
+            {"roles": data["role_codes"]} if action == "roles" else {"is_active": user.is_active},
+        )
         return Response(
             {
                 "id": str(user.pk),

@@ -121,3 +121,26 @@ M4 已加入独立家长端，见 [前端说明](../frontend/README.md) 和 [M4 
 GET assessment-config 支持 purpose=exploration|assessment 和可选 questionnaire_version_id，同时返回全部发布题库的目录。答卷包含用途、题库名称/说明/版本与完成后的选择摘要。POST assessments/{id}/complete-exploration 接收 revision，幂等完成探索，不创建画像或报告。正式测评流程仍用 multipart submit。
 
 探索题量 1–10、测评流程测试题量 20–30；这是本地暂定范围，专业规范待甲方确认。新初始报告从真实答卷生成选择摘要，专业结果暂无数据；不按测试答案编造能力分数。
+
+
+## M6 运营后台
+
+运营人员日常使用的后台管理系统，入口 `/ops/`（本地 `http://127.0.0.1:8017/ops/`）。它是独立应用 `dingdong_ca.ops`，不是 Django Admin 换皮：自有导航、自有模板（29 个）、自有视觉，列表与审计显示业务名称而不是 UUID，题库与活动是可视化编辑器，不需要运营写 JSON 或连数据库。
+
+```sh
+uv run --directory backend python manage.py migrate            # 需要 0006
+uv run --directory backend python manage.py collectstatic --noinput
+uv run --directory backend python manage.py runserver 127.0.0.1:8017
+```
+
+覆盖范围：工作首页真实待办与标注口径的统计、家庭与儿童聚合详情、题库与活动的草稿/预览/发布/复制/停用、报告与生成异常处理（业务语言失败原因 + 幂等重试）、服务事项处理闭环、账号角色与操作审计。
+
+角色分为 `operations`（运营）、`content`（内容运营）、`technical`（技术运维）、`account_admin`（管理员），18 个权限点，服务端在每个页面与每个动作上重新判定。家长账号 `account_kind=parent` 无法进入后台。
+
+后台的错误页通过 `config/urls.py` 中按 `/ops/` 前缀分流的 `handler403` / `handler404` 提供，非 `/ops/` 路径仍走 Django 默认行为，家长端 API 的错误契约未变。
+
+- 使用说明：[运营手册](docs/OPS_MANUAL.md)
+- 权限矩阵与排障：[权限说明](docs/OPS_PERMISSIONS.md)
+- 验收结果与发现缺陷：[M6 验收记录](docs/M6_OPS_RESULT.md)
+
+测试：`backend/tests/test_ops_{console,content,reports,services}.py` 共 62 项；真实 Chrome 场景见 `frontend/tests/ops-console.spec.js`。M6 后为 160 项后端测试通过、覆盖率 90%。

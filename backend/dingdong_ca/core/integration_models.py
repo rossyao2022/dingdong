@@ -132,6 +132,7 @@ class DataRequest(Entity):
     reason_code = models.CharField(max_length=32)
     status = models.CharField(max_length=16, default="open")
     resolution_code = models.CharField(max_length=32, null=True)
+    resolution_note = models.CharField(max_length=500, blank=True, default="")
     completed_at = models.DateTimeField(null=True)
 
     class Meta:

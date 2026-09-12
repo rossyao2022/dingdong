@@ -1,0 +1,31 @@
+{% extends "ops/base.html" %}
+{% block title %}权限不足{% endblock %}
+{% block page_title %}权限不足{% endblock %}
+{% block crumb %}当前账号不能访问该功能{% endblock %}
+
+{% block content %}
+  <section class="card" style="max-width:680px">
+    <h2>这个页面当前账号打不开</h2>
+    <p class="card-sub">
+      运营后台按角色分配功能，你的账号（{{ ops_role_labels|join:"、"|default:"未分配角色" }}）没有该页面的权限。
+    </p>
+    {% if reason %}<div class="notice notice-warn">{{ reason }}</div>{% endif %}
+    <ul class="timeline">
+      <li>
+        <div>如果你认为这是误判</div>
+        <div class="card-sub" style="margin:0">请联系管理员在“账号与权限”中为你补充对应角色。</div>
+      </li>
+      <li>
+        <div>可以先去哪里</div>
+        <div class="card-sub" style="margin:0">左侧菜单只显示你有权限的功能，点击“工作首页”回到起点。</div>
+      </li>
+    </ul>
+    <div class="filters">
+      <a class="btn btn-primary" href="{% url 'ops:dashboard' %}" data-nav>返回工作首页</a>
+      <form method="post" action="{% url 'ops:logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn">退出登录</button>
+      </form>
+    </div>
+  </section>
+{% endblock %}

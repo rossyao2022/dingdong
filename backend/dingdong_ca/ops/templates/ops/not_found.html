@@ -1,0 +1,18 @@
+{% extends "ops/base.html" %}
+{% block title %}记录不存在{% endblock %}
+{% block page_title %}记录不存在{% endblock %}
+{% block crumb %}没有找到对应的业务记录{% endblock %}
+
+{% block content %}
+  <section class="card" style="max-width:680px">
+    <h2>没有找到这条记录</h2>
+    <p class="card-sub">
+      记录可能已被删除，或者链接不正确。演示环境的数据会随测试流程变化。
+    </p>
+    {% if reason %}<div class="notice notice-warn">{{ reason }}</div>{% endif %}
+    <div class="filters">
+      <a class="btn btn-primary" href="{% url 'ops:families' %}" data-nav>去查家庭</a>
+      <a class="btn" href="{% url 'ops:services' %}" data-nav>去服务事项</a>
+    </div>
+  </section>
+{% endblock %}

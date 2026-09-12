@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
-const root = path.resolve(import.meta.dirname, "../..");
+import { root, uvBin } from "./support.js";
 const phone = () =>
   "138" + String(Math.floor(Math.random() * 1e8)).padStart(8, "0");
 async function login(page, number = phone()) {
@@ -30,7 +30,7 @@ async function child(page, name = "浏览器合成儿童") {
 }
 function inject(id, scenario) {
   execFileSync(
-    "uv",
+    uvBin(),
     [
       "run",
       "--no-sync",
@@ -217,7 +217,7 @@ test("家长提交删除、后台实际处理、无儿童时查看回执", async
   const password = crypto.randomUUID();
   const shell = (source) =>
     execFileSync(
-      "uv",
+      uvBin(),
       [
         "run",
         "--no-sync",

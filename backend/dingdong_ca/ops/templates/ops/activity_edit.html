@@ -1,0 +1,154 @@
+{% extends "ops/base.html" %}
+{% load static ops_labels %}
+{% block title %}{{ row.title }}{% endblock %}
+{% block page_title %}{{ row.title }}{% endblock %}
+{% block crumb %}
+  <a href="{% url 'ops:activities' %}" data-nav>← 返回活动列表</a>
+  · 版本 {{ row.version }} · <span class="badge {{ row.status|tone }}">{{ row.status|label:"CONTENT_STATUS" }}</span>
+{% endblock %}
+
+{% block topbar_actions %}
+  <a class="btn btn-sm" href="{% url 'ops:activity_preview' row.pk %}" data-nav>预览</a>
+{% endblock %}
+
+{% block content %}
+  {% if not can_edit %}
+    <div class="notice notice-warn">
+      <strong>该版本不可编辑</strong>
+      {% if row.status == "draft" %}
+        当前角色没有编辑活动的权限，你可以查看和预览。
+      {% else %}
+        已发布或已停用的版本不能原地修改。请使用“复制为新版本”创建可编辑的草稿。
+      {% endif %}
+    </div>
+  {% endif %}
+
+  <div id="activity-config"
+       data-status="{{ row.status }}"
+       data-editable="{% if can_edit %}1{% else %}0{% endif %}"
+       data-save-url="{% url 'ops:api_activity_save' row.pk %}"
+       data-check-url="{% url 'ops:api_activity_check' row.pk %}"
+       data-publish-url="/api/v1/staff/activities/{{ row.pk }}/publish"
+       data-copy-url="{% url 'ops:api_activity_copy' row.pk %}"
+       data-retire-url="{% url 'ops:api_activity_retire' row.pk %}"
+       data-list-url="{% url 'ops:activities' %}"></div>
+  <input type="hidden" id="preview-url" value="{% url 'ops:activity_preview' row.pk %}" />
+  {{ payload|json_script:"activity-data" }}
+
+  <div class="grid grid-side">
+    <div>
+      <section class="card">
+        <h2>活动信息</h2>
+        <div class="grid grid-2">
+          <div class="form-row">
+            <label for="a-title">活动标题</label>
+            <input type="text" id="a-title" value="{{ row.title }}" maxlength="120"
+                   {% if not can_edit %}disabled{% endif %} />
+          </div>
+          <div class="form-row">
+            <label for="a-duration">时长（分钟）</label>
+            <input type="number" id="a-duration" min="1" max="600" value="{{ row.duration_minutes }}"
+                   {% if not can_edit %}disabled{% endif %} />
+          </div>
+          <div class="form-row">
+            <label for="a-island">所属岛屿</label>
+            <input type="text" id="a-island" value="{{ row.island }}" maxlength="32"
+                   {% if not can_edit %}disabled{% endif %} />
+          </div>
+          <div class="form-row">
+            <label for="a-mood">情绪标签</label>
+            <input type="text" id="a-mood" value="{{ row.mood }}" maxlength="32"
+                   {% if not can_edit %}disabled{% endif %} />
+          </div>
+        </div>
+        <div class="form-row">
+          <label for="a-goal">活动目标</label>
+          <textarea id="a-goal" {% if not can_edit %}disabled{% endif %}>{{ row.content.goal }}</textarea>
+        </div>
+        <div class="form-row">
+          <label for="a-materials">材料说明</label>
+          <textarea id="a-materials" {% if not can_edit %}disabled{% endif %}>{{ row.content.materials }}</textarea>
+        </div>
+        <div class="form-row">
+          <label for="a-alternative">备选方案</label>
+          <textarea id="a-alternative" {% if not can_edit %}disabled{% endif %}>{{ row.content.alternative }}</textarea>
+        </div>
+        <div class="form-row">
+          <label>可展示风格</label>
+          <div class="checkbox-row">
+            {% for code, text in styles %}
+              <label><input type="checkbox" data-style="{{ code }}" {% if code in row.content.allowed_styles %}checked{% endif %} />{{ text }}</label>
+            {% endfor %}
+          </div>
+          <p class="help">家长端会按这些风格标签匹配活动，至少选择一种才能发布。</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <h2>活动步骤</h2>
+            <p class="card-sub" style="margin:0">步骤顺序就是家长端的执行顺序。</p>
+          </div>
+          <div class="card-actions">
+            {% if can_edit %}<button type="button" class="btn btn-sm btn-primary" id="add-step">添加步骤</button>{% endif %}
+          </div>
+        </div>
+        <div id="problems" hidden></div>
+        <div id="steps"></div>
+      </section>
+
+      <div class="sticky-actions">
+        {% if can_edit %}
+          <button type="button" class="btn btn-primary" id="save">保存草稿</button>
+          <button type="button" class="btn" id="preview">保存并预览</button>
+          <button type="button" class="btn" id="publish">发布</button>
+        {% else %}
+          <a class="btn btn-primary" href="{% url 'ops:activity_preview' row.pk %}" data-nav>查看预览</a>
+        {% endif %}
+        {% if can_manage and row.status != "retired" %}
+          <button type="button" class="btn" id="copy">复制为新版本</button>
+          <button type="button" class="btn btn-danger" id="retire">停用</button>
+        {% endif %}
+        <span class="dirty-flag" data-dirty-flag hidden>有未保存的修改</span>
+      </div>
+    </div>
+
+    <div>
+      <section class="card">
+        <h2>使用情况</h2>
+        <dl class="kv">
+          <dt>活动标识</dt><dd>{{ row.code }}</dd>
+          <dt>版本号</dt><dd>{{ row.version }}</dd>
+          <dt>进行中的记录</dt><dd>{{ active_records }} 条</dd>
+          <dt>历史记录总数</dt><dd>{{ total_records }} 条</dd>
+        </dl>
+        <p class="help">
+          记录在创建时固定使用当时的活动版本；修改内容请复制为新版本，已开始或已完成的记录不会被破坏。
+        </p>
+      </section>
+      <section class="card">
+        <h2>同活动的其他版本</h2>
+        {% if history %}
+          <ul class="timeline">
+            {% for item in history %}
+              <li>
+                <div>
+                  <a href="{% url 'ops:activity_edit' item.id %}" data-nav>{{ item.version }}</a>
+                  <span class="badge {{ item.status|tone }}">{{ item.status|label:"CONTENT_STATUS" }}</span>
+                </div>
+                <time>更新于 {{ item.updated_at|date:"Y-m-d H:i" }}</time>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="card-sub">暂无其他版本。</p>
+        {% endif %}
+      </section>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{% static 'ops/activity_editor.js' %}" defer></script>
+{% endblock %}

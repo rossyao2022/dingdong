@@ -1,0 +1,25 @@
+{% comment %}分页控件：保留当前筛选条件，页码连续显示。{% endcomment %}
+{% if page.pages > 1 %}
+  <nav class="pagination" aria-label="分页">
+    {% if page.has_previous %}
+      <a href="{{ page.previous_url }}" data-nav>上一页</a>
+    {% else %}
+      <span class="disabled">上一页</span>
+    {% endif %}
+    {% for number in pages %}
+      {% if number == page.page %}
+        <span class="current" aria-current="page">{{ number }}</span>
+      {% else %}
+        <a href="{{ page.base }}{% if page.base %}&amp;{% else %}?{% endif %}page={{ number }}" data-nav>{{ number }}</a>
+      {% endif %}
+    {% endfor %}
+    {% if page.has_next %}
+      <a href="{{ page.next_url }}" data-nav>下一页</a>
+    {% else %}
+      <span class="disabled">下一页</span>
+    {% endif %}
+    <span class="total">共 {{ page.total }} 条 · 第 {{ page.page }}/{{ page.pages }} 页</span>
+  </nav>
+{% elif page.total %}
+  <nav class="pagination" aria-label="分页"><span class="total">共 {{ page.total }} 条</span></nav>
+{% endif %}

@@ -1,23 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { execFileSync } from "node:child_process";
-import path from "node:path";
-const root = path.resolve(import.meta.dirname, "../..");
-const shell = (source) =>
-  execFileSync(
-    "uv",
-    [
-      "run",
-      "--no-sync",
-      "--directory",
-      path.join(root, "backend"),
-      "python",
-      "manage.py",
-      "shell",
-      "-c",
-      source,
-    ],
-    { cwd: root, stdio: "pipe" },
-  );
+import { shell } from "./support.js";
 
 test("后台可视化创建、预览、发布、复制新版本", async ({ page, browser }) => {
   const username = "question-editor-" + crypto.randomUUID(),

@@ -1,0 +1,53 @@
+{% load static %}<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>登录运营后台 · 叮咚</title>
+    <link rel="icon" href="{% static 'ops/mark.svg' %}" type="image/svg+xml" />
+    <link rel="stylesheet" href="{% static 'ops/ops.css' %}" />
+  </head>
+  <body>
+    <main class="login-shell">
+      <div class="login-card">
+        <div class="ops-brand">
+          <img src="{% static 'ops/mark.svg' %}" alt="" width="40" height="40" />
+          <span><b>叮咚运营后台</b><small>CAREER ACADEMY × DINGDONG</small></span>
+        </div>
+        <h1>登录</h1>
+        <p class="card-sub">
+          请使用管理员或运营账号登录。家长账号请从家长端进入。
+        </p>
+
+        {% if form.errors %}
+          <div class="notice notice-danger">
+            <strong>无法登录</strong>
+            {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+            {% for field in form %}{% for error in field.errors %}{{ error }}{% endfor %}{% endfor %}
+          </div>
+        {% endif %}
+
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <div class="form-row">
+            <label for="id_username">账号</label>
+            <input type="text" name="username" id="id_username" autocomplete="username"
+                   value="{{ form.username.value|default:'' }}" autofocus required />
+          </div>
+          <div class="form-row">
+            <label for="id_password">密码</label>
+            <input type="password" name="password" id="id_password"
+                   autocomplete="current-password" required />
+          </div>
+          <input type="hidden" name="next" value="{{ next }}" />
+          <button type="submit" class="btn btn-primary btn-block">登录</button>
+        </form>
+
+        <p class="help" style="margin-top:14px">
+          登录失败多次会被限制。忘记密码请联系管理员重置。
+        </p>
+      </div>
+    </main>
+    <script src="{% static 'ops/ops.js' %}" defer></script>
+  </body>
+</html>

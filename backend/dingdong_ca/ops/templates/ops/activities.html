@@ -1,0 +1,104 @@
+{% extends "ops/base.html" %}
+{% load ops_labels %}
+{% block title %}活动管理{% endblock %}
+{% block page_title %}活动管理{% endblock %}
+{% block crumb %}维护家长端的陪伴活动内容与展示状态{% endblock %}
+
+{% block topbar_actions %}
+  {% if can_edit %}<a class="btn btn-sm btn-primary" href="{% url 'ops:activity_new' %}" data-nav>新建活动草稿</a>{% endif %}
+{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <form class="filters" method="get">
+      <div class="field">
+        <label for="status">状态</label>
+        <select id="status" name="status">
+          <option value="">全部</option>
+          {% for code, text in labels.CONTENT_STATUS.items %}
+            <option value="{{ code }}" {% if status == code %}selected{% endif %}>{{ text }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="field" style="min-width:220px">
+        <label for="q">关键词</label>
+        <input type="search" id="q" name="q" value="{{ keyword }}" placeholder="活动标题、标识或版本号" />
+      </div>
+      <button type="submit" class="btn btn-primary">筛选</button>
+      <a class="btn btn-ghost" href="{% url 'ops:activities' %}" data-nav>清空</a>
+    </form>
+    <p class="help" style="margin-top:10px">
+      已发布和已停用的活动不能原地修改。修改内容请复制为新版本，已经开始或已完成的活动记录不会被影响。
+    </p>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <div>
+        <h2>活动版本</h2>
+        <p class="card-sub" style="margin:0">共 {{ page.total }} 条，每页 20 条。</p>
+      </div>
+    </div>
+
+    {% if items %}
+      <div class="table-wrap">
+        <table class="ops-table">
+          <thead>
+            <tr><th>活动标题</th><th>时长</th><th>版本</th><th>步骤数</th><th>状态</th><th>最近更新</th><th>操作</th></tr>
+          </thead>
+          <tbody>
+            {% for row in items %}
+              <tr>
+                <td>
+                  <a href="{% url 'ops:activity_edit' row.pk %}" data-nav>{{ row.title }}</a>
+                  <div class="card-sub" style="margin:0">{{ row.island }} · {{ row.mood }}</div>
+                </td>
+                <td class="nowrap">{{ row.duration_minutes }} 分钟</td>
+                <td class="nowrap">{{ row.version }}</td>
+                <td class="num">{{ row.content.steps|length }}</td>
+                <td><span class="badge {{ row.status|tone }}">{{ row.status|label:"CONTENT_STATUS" }}</span></td>
+                <td class="nowrap">{{ row.updated_at|date:"Y-m-d H:i" }}</td>
+                <td class="nowrap">
+                  <a class="btn btn-sm" href="{% url 'ops:activity_preview' row.pk %}" data-nav>预览</a>
+                  {% if can_edit and row.status == "draft" %}
+                    <button type="button" class="btn btn-sm btn-primary"
+                            data-ops-action="/api/v1/staff/activities/{{ row.pk }}/publish"
+                            data-ops-confirm-title="发布活动版本"
+                            data-ops-confirm="发布后家长端将展示《{{ row.title }}》{{ row.version }}。"
+                            data-ops-confirm-impacts="同一活动当前已发布的版本会被自动停用|已经开始或已完成的活动记录不受影响|发布后该版本不可再编辑"
+                            data-ops-confirm-label="确认发布"
+                            data-ops-reload="1"
+                            data-ops-success="活动版本已发布。">发布</button>
+                  {% endif %}
+                  {% if can_edit and row.status != "retired" %}
+                    <button type="button" class="btn btn-sm"
+                            data-ops-action="{% url 'ops:api_activity_copy' row.pk %}"
+                            data-ops-prompt-title="复制为新版本"
+                            data-ops-prompt-message="复制会创建一个可编辑的草稿，内容与当前版本一致。"
+                            data-ops-prompt-label="新版本号（留空自动生成）"
+                            data-ops-prompt-placeholder="例如 v3"
+                            data-ops-prompt-field="version"
+                            data-ops-prompt-confirm="复制"
+                            data-ops-success="已创建草稿。">复制为新版本</button>
+                    <button type="button" class="btn btn-sm"
+                            data-ops-action="{% url 'ops:api_activity_retire' row.pk %}"
+                            data-ops-confirm-title="停用活动版本"
+                            data-ops-confirm="停用后该版本不再作为新的活动内容。"
+                            data-ops-confirm-impacts="{% if row.status == 'published' %}该活动将没有已发布版本，家长端会暂时看不到对应活动{% else %}草稿停用后仍保留在列表中{% endif %}|已经开始或已完成的记录不受影响"
+                            data-ops-confirm-label="确认停用"
+                            data-ops-confirm-danger="1"
+                            data-ops-reload="1"
+                            data-ops-success="已停用。">停用</button>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% include "ops/_pagination.html" %}
+    {% else %}
+      <p class="table-empty">{{ empty_hint }}</p>
+    {% endif %}
+  </section>
+{% endblock %}

@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "dingdong_ca.users",
     "dingdong_ca.core",
+    "dingdong_ca.ops",
     "dingdong_ca.testsupport",
 ]
 MIDDLEWARE = [
@@ -66,6 +67,8 @@ TEMPLATES = [
     }
 ]
 AUTH_USER_MODEL = "users.User"
+LOGIN_URL = "/ops/login/"
+LOGIN_REDIRECT_URL = "/ops/"
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},

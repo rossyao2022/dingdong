@@ -1,6 +1,6 @@
-# 上海公网入口 · v0.2.3
+# 上海公网入口
 
-访问目标：`http://110.42.225.196/dingdong/`，后台 `/admin/`。访问者无需Tailscale。上海云服务器独立nginx入口 → localhost:18473 SSH反向隧道 → tigery的100.115.66.119:18080 Docker入口。现有DERP443和其他网站端口保留。
+访问目标：`http://110.42.225.196/dingdong/`（运营后台 `/ops/`），Django 后台 `/admin/`。访问者无需Tailscale。上海云服务器独立nginx入口 → localhost:18473 SSH反向隧道 → tigery的100.115.66.119:18080 Docker入口。现有DERP443和其他网站端口保留。该入口与版本无关，升级版本时不需要改这里的配置。
 
 服务器：上海中继110.42.225.196（本机SSH别名mmcloud），tigery100.115.66.119（别名dell）。云实例ins-lxkar1vt；公网使用已开放TCP80，无需新增安全组规则。主机nginx监听和反向隧道成功不代表云安全组已放行，必须从外网验收。
 
@@ -10,7 +10,7 @@
 - 将dingdong-relay.service放到tigery的~/.config/systemd/user/，执行systemctl --user daemon-reload和systemctl --user enable --now dingdong-relay。tigery已启用Linger，用户未登录时服务也运行。
 - tigery的~/.ssh/dingdong-relay为独立隧道私钥；known-hosts使用已验证的上海服务器主机公钥。二者不进入发布包。
 - 上海服务器authorized_keys仅追加独立隧道公钥，限制为：restrict,port-forwarding,permitlisten="127.0.0.1:18473",permitopen="127.0.0.1:1",command="/bin/false"。只允许指定反向端口，不提供命令或终端会话。
-- Docker配置PUBLIC_ORIGIN=http://110.42.225.196、PUBLIC_SCHEME=http、BIND_ADDRESS=100.115.66.119、HTTP_PORT=18080；沿用已有数据库和密钥，仅升级APP_VERSION=0.2.3。
+- Docker配置PUBLIC_ORIGIN=http://110.42.225.196、PUBLIC_SCHEME=http、BIND_ADDRESS=100.115.66.119、HTTP_PORT=18080；沿用已有数据库和密钥，升级时只改 `deploy/.env` 里的 `APP_VERSION`（当前 0.3.0）。
 
 ## 验收
 

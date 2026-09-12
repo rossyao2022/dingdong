@@ -1,0 +1,90 @@
+{% extends "ops/base.html" %}
+{% load ops_labels %}
+{% block title %}生成任务{% endblock %}
+{% block page_title %}生成任务{% endblock %}
+{% block crumb %}报告、阶段画像与数据同步的后台任务{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <form class="filters" method="get">
+      <div class="field">
+        <label for="kind">任务类型</label>
+        <select id="kind" name="kind">
+          <option value="">全部</option>
+          {% for code, text in labels.JOB_KIND.items %}
+            <option value="{{ code }}" {% if kind == code %}selected{% endif %}>{{ text }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="field">
+        <label for="status">状态</label>
+        <select id="status" name="status">
+          <option value="">全部</option>
+          {% for code, text in labels.JOB_STATUS.items %}
+            <option value="{{ code }}" {% if status == code %}selected{% endif %}>{{ text }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="field">
+        <label for="only_problem">只看问题</label>
+        <select id="only_problem" name="only_problem">
+          <option value="">否</option>
+          <option value="1" {% if only_problem %}selected{% endif %}>失败 / 等待依赖 / 状态不明</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">筛选</button>
+      <a class="btn btn-ghost" href="{% url 'ops:jobs' %}" data-nav>清空</a>
+    </form>
+    {% if not can_retry %}
+      <p class="help" style="margin-top:10px">当前角色可以查看任务，但重试需要技术运维或管理员角色。</p>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <div>
+        <h2>任务列表</h2>
+        <p class="card-sub" style="margin:0">共 {{ page.total }} 条，每页 20 条。</p>
+      </div>
+    </div>
+
+    {% if items %}
+      <div class="table-wrap">
+        <table class="ops-table">
+          <thead><tr><th>任务</th><th>状态</th><th>失败原因</th><th>尝试次数</th><th>最近更新</th><th>操作</th></tr></thead>
+          <tbody>
+            {% for item in items %}
+              <tr>
+                <td class="nowrap">{{ item.job.kind|label:"JOB_KIND" }}</td>
+                <td><span class="badge {{ item.job.status|tone }}">{{ item.job.status|label:"JOB_STATUS" }}</span></td>
+                <td>
+                  {% if item.job.status == "failed" or item.job.error_code %}
+                    {{ item.reason }}
+                  {% else %}—{% endif %}
+                </td>
+                <td class="num">{{ item.job.attempt_count }} / {{ item.job.max_attempts }}</td>
+                <td class="nowrap">{{ item.job.updated_at|date:"Y-m-d H:i" }}</td>
+                <td class="nowrap">
+                  <a class="btn btn-sm" href="{% url 'ops:job_detail' item.job.pk %}" data-nav>查看</a>
+                  {% if can_retry and item.job.status == "failed" and item.retryable %}
+                    <button type="button" class="btn btn-sm btn-primary"
+                            data-ops-action="/api/v1/staff/jobs/{{ item.job.pk }}/retry"
+                            data-ops-confirm-title="重试失败任务"
+                            data-ops-confirm="将重新排队执行该任务，并保留全部历史尝试记录。"
+                            data-ops-confirm-impacts="重复点击不会产生重复任务|每次重试都会记录操作人|如果依赖仍然缺失，任务会再次失败"
+                            data-ops-confirm-label="确认重试"
+                            data-ops-reload="1"
+                            data-ops-success="已重新排队。">重试</button>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% include "ops/_pagination.html" %}
+    {% else %}
+      <p class="table-empty">{{ empty_hint }}</p>
+    {% endif %}
+  </section>
+{% endblock %}

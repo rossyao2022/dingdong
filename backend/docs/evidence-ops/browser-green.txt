@@ -1,0 +1,31 @@
+# 运营后台真实 Chrome 验收（2026-09-12）
+
+命令：
+
+```sh
+npx playwright test tests/flows.spec.js tests/questionnaire-admin.spec.js \
+  tests/ops-console.spec.js tests/ops-screenshots.spec.js --reporter=list
+```
+
+结果：18 passed (1.8m)，真实 Google Chrome（channel=chrome），workers=1。
+
+运营后台 8 项（tests/ops-console.spec.js）：
+
+1. 登录失败有提示，成功进入工作首页，退出后无法直接访问
+2. 家庭查询与儿童详情聚合真实业务数据
+3. 题库：可视化新建草稿→校验→发布→复制新版本
+4. 活动：维护材料、目标、风格与步骤后发布
+5. 报告：查看已生成报告内容，并在任务页处理生成异常
+6. 服务事项：查看诉求并完成处理，历史与说明留痕
+7. 越权拦截：运营角色看不到技术页，也不能执行技术动作
+8. 窄屏下导航与表单基本可用
+
+运营后台全页面走查 1 项（tests/ops-screenshots.spec.js）：
+管理员账号逐页打开 21 个页面，全部无脚本异常、无 500，
+截图留档在 frontend/docs/ops/。
+
+家长端回归 8 项（tests/flows.spec.js）与后台题库 1 项
+（tests/questionnaire-admin.spec.js）全部通过。
+
+用例不拦截任何接口响应；登录走真实表单与 CSRF；
+每个用例收集 pageerror，任何脚本异常都会判失败。

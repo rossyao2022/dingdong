@@ -43,7 +43,10 @@ class Command(BaseCommand):
 
     @transaction.atomic
     def handle(self, *args, **options):
-        if settings.APP_ENV not in ["development", "test", "demo"] or options["dataset"] != "phase1-v1":
+        if (
+            settings.APP_ENV not in ["development", "test", "demo"]
+            or options["dataset"] != "phase1-v1"
+        ):
             raise CommandError("Only non-production phase1-v1 is supported")
         if not Child.objects.filter(pk=options["child_id"]).exists():
             raise CommandError("Child does not exist")

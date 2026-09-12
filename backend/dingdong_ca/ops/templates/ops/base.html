@@ -1,0 +1,79 @@
+{% load static %}{% load ops_labels %}<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f6f8fb" />
+    <title>{% block title %}运营后台{% endblock %} · 叮咚</title>
+    <link rel="icon" href="{% static 'ops/mark.svg' %}" type="image/svg+xml" />
+    <link rel="stylesheet" href="{% static 'ops/ops.css' %}" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">跳到主要内容</a>
+    <div hidden>{% csrf_token %}</div>
+
+    <aside class="ops-sidebar" aria-label="运营导航">
+      <a class="ops-brand" href="{% url 'ops:dashboard' %}" data-nav>
+        <img src="{% static 'ops/mark.svg' %}" alt="" width="34" height="34" />
+        <span><b>叮咚运营后台</b><small>日常运营与内容管理</small></span>
+      </a>
+      <div class="ops-partner">CAREER ACADEMY × DINGDONG</div>
+      <nav class="ops-nav">
+        {% regroup nav by group as groups %}
+        {% for group in groups %}
+          <div class="ops-nav-group">{{ group.grouper }}</div>
+          {% for item in group.list %}
+            <a href="{% url item.view %}" data-nav
+               {% if current == item.view|cut:"ops:" %}aria-current="page"{% endif %}>
+              {{ item.title }}
+            </a>
+          {% endfor %}
+        {% endfor %}
+      </nav>
+      <div class="ops-sidebar-foot">
+        <div class="ops-identity">
+          <b>{{ operator|display_name:"运营人员" }}</b>
+          <span>{{ ops_role_labels|join:"、" }}</span>
+        </div>
+        <a class="btn btn-sm btn-block" href="{% url 'ops:password' %}">修改密码</a>
+        <form method="post" action="{% url 'ops:logout' %}" style="margin-top:8px">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-sm btn-block">退出登录</button>
+        </form>
+      </div>
+    </aside>
+
+    <div class="ops-shell">
+      <header class="ops-topbar">
+        <button type="button" class="btn btn-sm ops-menu-toggle" aria-label="展开导航">菜单</button>
+        <div>
+          <h1>{% block page_title %}运营后台{% endblock %}</h1>
+          <div class="ops-crumb">{% block crumb %}{% endblock %}</div>
+        </div>
+        <div class="ops-topbar-actions">
+          {% block topbar_actions %}{% endblock %}
+          <span class="badge badge-muted" title="当前为演示环境：短信验证码固定，测评数据来自测试输入">演示环境</span>
+        </div>
+      </header>
+
+      <main id="main" class="ops-main">
+        {% if messages %}
+          <ul class="messages">
+            {% for message in messages %}
+              <li class="{{ message.tags }}">{{ message }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+        {% block content %}{% endblock %}
+      </main>
+
+      <footer class="ops-footer">
+        <span>CA × DingDong 运营后台 · 演示环境，未接入真实短信与专业算法</span>
+      </footer>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="{% static 'ops/ops.js' %}" defer></script>
+    {% block scripts %}{% endblock %}
+  </body>
+</html>

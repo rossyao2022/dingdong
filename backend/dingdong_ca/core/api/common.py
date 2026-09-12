@@ -155,9 +155,33 @@ def validate(serializer, data, **kwargs):
     return s.validated_data
 
 
-def audit(user, action, obj):
+def describe_target(obj):
+    """给审计记录一个人能读懂的对象名称，避免只留下 UUID。"""
+    for attr in ("title", "code", "username", "name"):
+        value = getattr(obj, attr, None)
+        if isinstance(value, str) and value.strip():
+            version = getattr(obj, "version", None)
+            return f"{value.strip()} · {version}" if version else value.strip()
+    # 自己没有名字的对象（答卷、授权、关联等）：借用关联对象的名字
+    for attr in ("child", "family", "user", "started_by", "actor"):
+        related = getattr(obj, attr, None)
+        if related is not None:
+            name = getattr(related, "name", "") or getattr(related, "username", "")
+            if name:
+                return f"{obj._meta.verbose_name}（{name}）"
+    # 最后的兜底也只给短编号：运营不需要看完整的内部 UUID。
+    # 对象类型由页面按 target_kind 显示中文，这里不重复带英文模型名。
+    return f"编号 {str(obj.pk)[:8]}"
+
+
+def audit(user, action, obj, label="", detail=None):
     AuditEvent.objects.create(
-        actor=user, action=action, target_kind=obj._meta.db_table, target_id=obj.pk
+        actor=user,
+        action=action,
+        target_kind=obj._meta.db_table,
+        target_id=obj.pk,
+        target_label=(label or describe_target(obj))[:200],
+        detail=detail or {},
     )
 
 
