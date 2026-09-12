@@ -1,10 +1,10 @@
 # 叮咚项目记忆与会话交接
 
-最后更新：2026-09-12 14:23，Asia/Shanghai。适用于本目录中的后续会话。本文记录已核对事实，不代替代码和最新用户指令。
+最后更新：2026-09-12 14:54，Asia/Shanghai。适用于本目录中的后续会话。本文记录已核对事实，不代替代码和最新用户指令。
 
 ## 当前结论与最近工作
 
-项目已完成 M1–M5 自有业务实现，以及启动后的界面功能复验、文档整理。最近用户要求将关键信息写入项目记忆，以便新会话接续。当前已按新用户指令完成v0.2.0的Docker演示部署，最终入口及验收见本文末尾；不扩展为真实业务生产或供应商接入。
+项目已完成 M1–M5 自有业务实现，以及启动后的界面功能复验、文档整理。最近用户要求将关键信息写入项目记忆，以便新会话接续。当前已按新用户指令完成v0.2.2的Docker公网演示部署，最终入口及验收见本文末尾；不扩展为真实业务生产或供应商接入。
 
 最新验证记录：后端98项通过、覆盖率92%；真实Google Chrome共9个场景通过，最新启动复验约1.4分钟。桌面及390×844移动视口已测，不能称为真实手机硬件验收。这些是已有测试记录，本次记忆更新没有重新跑整套业务测试。
 
@@ -104,3 +104,13 @@ npm --prefix frontend run dev
 部署包dist/dingdong-v0.2.0.tar.gz附SHA256并已远端校验。远端目录/home/tigery/services/dingdong/releases/dingdong-v0.2.0。远端密钥只在.env中，未进入版本库和发布包。真实IP入口的挑战/登录/刷新/退出、Cookie配置、后台登录页均通过；Django check无问题、Celery pong、服务运行正常。完整浏览器回归首次8过1断连，单项复验通过；远端浏览器工具超时，远端UI不声称已验收。[最终部署报告](deploy/DEPLOYMENT_20260912.md)、[远端IP验收](deploy/evidence/remote-ip.txt)。公网Funnel曾握手超时，按用户最终选择不再使用。
 
 旧文中“Git尚无提交”“不部署”的状态属于更早快照，以上发布事实优先。原始材料和独立参考仓库仍在本地未跟踪，未删除或打入发布包。
+
+## 最新有效状态：上海公网80端口（2026-09-12 14:54）
+
+用户明确要求**没有Tailscale的访问者也能使用**；此前“接受Tailscale IP访问”的理解有误，不应作为约束继续沿用。已改为 http://110.42.225.196/dingdong/ ，后台 http://110.42.225.196/admin/ ，通过上海服务器已有公网80端口转发至tigery，无需用户开新端口。原网站首页和上海DERP443保留。
+
+版本/镜像0.2.2，分支codex/release-v0.2.2，标签v0.2.2，发布提交4c5d0d3；发布包dist/dingdong-v0.2.2.tar.gz及SHA256，远端已校验。部署目录/home/tigery/services/dingdong/releases/dingdong-v0.2.2，沿用数据库和密钥。上海nginx配置/etc/nginx/dingdong-location.conf，通过既有game-lobby.conf的IP HTTP server include；占用/dingdong/、/api/v1/、/admin/、/static/路径。
+
+上海服务器本机SSH别名mmcloud，IP110.42.225.196。tigery的user systemd服务dingdong-relay维护受限SSH反向隧道到上海localhost:18473，enabled/active，Linger已开启。已验证隧道重启后公网恢复。旧公网18080监听已停用；临时探测监听已退出；Funnel保持关闭，上海中继偏好保留。
+
+真实公网IP80入口已通过版本、runtime、验证码挑战、登录、刷新、退出、后台登录页验收，API/数据库健康。公网浏览器控制工具仍超时，不声称完整远端UI验收通过。本轮部署设置3项测试通过，业务代码未变；历史98项后端和Chrome回归见之前记录。详情与证据：[公网部署验收](deploy/PUBLIC_DEPLOYMENT_20260912.md)、[公网认证结果](deploy/evidence/public-v0.2.2.txt)、[配置说明](deploy/relay/README.md)。
