@@ -1,0 +1,25 @@
+file:///Users/yihu/Documents/ChatGPT/%E5%8F%AE%E5%92%9A/frontend/unit/request-id.test.js:4
+import { createRequestId } from '../api.js';
+         ^^^^^^^^^^^^^^^
+SyntaxError: The requested module '../api.js' does not provide an export named 'createRequestId'
+    at #asyncInstantiate (node:internal/modules/esm/module_job:463:21)
+    at async ModuleJob.run (node:internal/modules/esm/module_job:561:5)
+    at async node:internal/modules/esm/loader:650:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v26.7.0
+✖ frontend/unit/request-id.test.js (31.950125ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 36.047291
+
+✖ failing tests:
+
+test at frontend/unit/request-id.test.js:1:1
+✖ frontend/unit/request-id.test.js (31.950125ms)
+  'test failed'

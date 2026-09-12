@@ -31,7 +31,7 @@ let viewEpoch = 0,
   childDraft = null;
 const keys = new Map();
 const requestKey = (k) => {
-  if (!keys.has(k)) keys.set(k, crypto.randomUUID());
+  if (!keys.has(k)) keys.set(k, API.createRequestId());
   return keys.get(k);
 };
 const formData = (form) => Object.fromEntries(new FormData(form));
