@@ -16,6 +16,9 @@ def serialize_child(row):
         "gender": row.gender,
         "birth_date": row.birth_date.isoformat() if row.birth_date else None,
         "status": row.status,
+        # 家长端需要这个修订号才能声明"我这次编辑基于哪一版"。也是运营后台
+        # 过期保存会被拒的依据。
+        "revision": row.revision,
         "created_at": row.created_at.isoformat(),
         "updated_at": row.updated_at.isoformat(),
     }
@@ -64,13 +67,31 @@ def children(request):
     return Response(serialize_child(row), status=201)
 
 
-@endpoint(["PATCH"])
+@endpoint(["GET", "PATCH"])
 def child_detail(request, child_id):
+    if request.method == "GET":
+        # 冲突恢复必须先能读到"服务端现在是什么"。旧页面保存被拒后，
+        # 家长端靠这一次读取拿到最新档案与最新修订号，而不是靠猜。
+        return Response(serialize_child(owned_child(request, child_id)))
     data = validate(ChildInput, request.data, partial=True)
+    expected = data.pop("revision", None)
+    if not data:
+        raise ApiError("VALIDATION_ERROR", 422, "至少提供一个可编辑字段")
     with transaction.atomic():
         row = owned_child(request, child_id, lock=True)
+        # 档案是一个整体：任何入口（家长端、运营后台、技术后台、内部任务）改过，
+        # 修订号就会前进。旧页面拿着过期修订号保存一律拒绝，而不是静默覆盖。
+        if expected is not None and row.revision != expected:
+            raise ApiError(
+                "EDIT_CONFLICT",
+                409,
+                "这份档案在你打开之后已被更正过，为避免覆盖最新内容，本次没有保存。"
+                "请刷新页面确认最新信息后再提交。",
+                [{"field": "revision"}],
+            )
         for k, v in data.items():
             setattr(row, k, v)
+        row.revision = row.revision + 1
         row.save()
-        audit(request.user, "child.update", row)
+        audit(request.user, "child.update", row, detail={"revision": row.revision})
     return Response(serialize_child(row))

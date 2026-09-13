@@ -1,0 +1,12 @@
+本地浏览器验收（部署前，地址 http://127.0.0.1:18473/，真实 Chrome，不拦截接口）
+
+- ops-p1-acceptance.spec.js：6 通过 / 0 失败（两个 P1 的跨入口冲突与内容身份）。
+- ops-public.spec.js：20 通过 / 1 失败 / 1 跳过。
+  - 失败项："报告：查看已生成内容，失败任务用业务语言说明并可重试"。
+    原因：本地演示库在 compose up 时重新执行 seed，ReportVersion 与 BackgroundJob 均为 0 条，
+    报告列表没有可查看的行。这是本地环境数据为空，不是产品缺陷；该项在公网环境（有真实报告
+    与真实失败任务）验收。
+  - 跳过项："服务事项"用例按设计需要 DD_OPS_SERVICE_QUERY 指定的隔离合成事项，本地未提供。
+- http-profile.spec.js：本地无法运行。该用例断言 window.isSecureContext === false，
+  而 Chromium 把 127.0.0.1 视为安全上下文，只有真实 HTTP 公网入口才成立。
+  该项在公网入口验收。

@@ -53,7 +53,10 @@ def parse_date_filter(raw, label):
             return datetime.date.fromisoformat(value), ""
         except ValueError:
             pass  # 2026-02-30、2026-13-01：格式像日期，但那天不存在。
-    return None, f"{label}“{value}”不是有效日期（应为 2026-09-12 这样的真实日期），本次未按日期筛选。"
+    return (
+        None,
+        f"{label}“{value}”不是有效日期（应为 2026-09-12 这样的真实日期），本次未按日期筛选。",
+    )
 
 
 def parse_date_range(start_raw, end_raw):
@@ -323,10 +326,16 @@ def dashboard_data(user=None):
         )
         if can_services
         else [],
-        "failed_job_items": [_job_row(j) for j in BackgroundJob.objects.filter(status="failed").order_by("-updated_at")[:5]]
+        "failed_job_items": [
+            _job_row(j)
+            for j in BackgroundJob.objects.filter(status="failed").order_by("-updated_at")[:5]
+        ]
         if can_jobs
         else [],
-        "waiting_job_items": [_job_row(j) for j in BackgroundJob.objects.filter(status="waiting").order_by("-updated_at")[:5]]
+        "waiting_job_items": [
+            _job_row(j)
+            for j in BackgroundJob.objects.filter(status="waiting").order_by("-updated_at")[:5]
+        ]
         if can_jobs
         else [],
         "draft_questionnaire_items": list(
@@ -335,9 +344,7 @@ def dashboard_data(user=None):
         if can_content
         else [],
         "recent_audit": list(
-            AuditEvent.objects.select_related("actor").order_by("-created_at")[
-                :RECENT_AUDIT_LIMIT
-            ]
+            AuditEvent.objects.select_related("actor").order_by("-created_at")[:RECENT_AUDIT_LIMIT]
         )
         if can_audit
         else [],

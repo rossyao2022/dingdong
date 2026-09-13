@@ -1,0 +1,81 @@
+# 原始只读输出（2026-09-13 18:55:31 CST）—— 未写入任何数据
+
+===== dd_hist_check.py =====
+38 objects imported automatically (use -v 2 for details).
+
+== 题库按 code 分组 ==
+exploration | versions=['readable-v2'] | status=['published'] | titles=1
+    - readable-v2 [published] '四个小情境：探索偏好体验' purpose=exploration origin=synthetic
+initial-assessment | versions=['readable-v2'] | status=['published'] | titles=1
+    - readable-v2 [published] '日常探索问卷（流程测试）' purpose=assessment origin=synthetic
+pub-mty9efvx | versions=['v1'] | status=['draft'] | titles=1
+    - v1 [draft] '公网验收题库 mty9eemw' purpose=exploration origin=synthetic
+pub-mty9ibwo | versions=['v1'] | status=['draft'] | titles=1
+    - v1 [draft] '公网验收题库 mty9ias6' purpose=exploration origin=synthetic
+pub-mty9rjac | versions=['v1', 'v2'] | status=['published', 'draft'] | titles=1
+    - v1 [published] '公网验收题库 mty9ri31' purpose=exploration origin=synthetic
+    - v2 [draft] '公网验收题库 mty9ri31' purpose=exploration origin=synthetic
+pub-mty9uoa0 | versions=['v1', 'v2'] | status=['published', 'draft'] | titles=1
+    - v1 [published] '公网验收题库 mty9un5u' purpose=exploration origin=synthetic
+    - v2 [draft] '公网验收题库 mty9un5u' purpose=exploration origin=synthetic
+qn-abc-mtzoqmm9 | versions=['v1', 'v2'] | status=['retired', 'retired'] | titles=2  <== 同一code多标题
+    - v1 [retired] 'ABC mtzoqmm9 观察' purpose=exploration origin=synthetic
+    - v2 [retired] 'ABC mtzoqmm9 绘画' purpose=exploration origin=synthetic
+qn-mtzfxsuh | versions=['v1', 'v2'] | status=['retired', 'retired'] | titles=1
+    - v1 [retired] '公网验收题库 mtzfxsuh' purpose=exploration origin=synthetic
+    - v2 [retired] '公网验收题库 mtzfxsuh' purpose=exploration origin=synthetic
+qn-mtzfxwjv | versions=['v1'] | status=['retired'] | titles=1
+    - v1 [retired] '公网验收冲突 mtzfxwjv-A已保存' purpose=exploration origin=synthetic
+review-mtya4y5n | versions=['v1'] | status=['retired'] | titles=1
+    - v1 [retired] '验收隔离草稿' purpose=exploration origin=synthetic
+review-mtzoqmm9 | versions=['v1'] | status=['retired'] | titles=1
+    - v1 [retired] '验收编辑A已保存' purpose=exploration origin=synthetic
+
+== 活动按 code 分组 ==
+act-mtzfy2dm | versions=['v1'] | status=['retired'] | titles=1
+    - v1 [retired] '公网验收活动 mtzfy2dm' origin=synthetic
+pub-act-mty9embw | versions=['v1'] | status=['draft'] | titles=1
+    - v1 [draft] '公网验收活动 mty9el60' origin=synthetic
+pub-act-mty9ii5y | versions=['v1'] | status=['draft'] | titles=1
+    - v1 [draft] '公网验收活动 mty9ih06' origin=synthetic
+pub-act-mty9rmn4 | versions=['v1'] | status=['published'] | titles=1
+    - v1 [published] '公网验收活动 mty9rljo' origin=synthetic
+pub-act-mty9urrd | versions=['v1'] | status=['published'] | titles=1
+    - v1 [published] '公网验收活动 mty9uqkn' origin=synthetic
+test-activity-0 | versions=['readable-v2'] | status=['published'] | titles=1
+    - readable-v2 [published] '[合成测试]纸桥' origin=synthetic
+test-activity-1 | versions=['readable-v2'] | status=['published'] | titles=1
+    - readable-v2 [published] '[合成测试]找形状' origin=synthetic
+test-activity-2 | versions=['readable-v2'] | status=['published'] | titles=1
+    - readable-v2 [published] '[合成测试]听声音' origin=synthetic
+test-activity-3 | versions=['readable-v2'] | status=['published'] | titles=1
+    - readable-v2 [published] '[合成测试]分类' origin=synthetic
+test-activity-4 | versions=['readable-v2'] | status=['published'] | titles=1
+    - readable-v2 [published] '[合成测试]云朵故事' origin=synthetic
+test-activity-5 | versions=['readable-v2'] | status=['published'] | titles=1
+    - readable-v2 [published] '[合成测试]新用途' origin=synthetic
+test-activity-6 | versions=['readable-v2'] | status=['published'] | titles=1
+    - readable-v2 [published] '[合成测试]小美好' origin=synthetic
+test-activity-7 | versions=['readable-v2'] | status=['published'] | titles=1
+    - readable-v2 [published] '[合成测试]观察叶子' origin=synthetic
+
+== 引用统计 ==
+activity refs: test-activity-0/readable-v2 -> 18
+
+== 每个 code 的 published 计数（应 <=1）==
+done
+
+===== dd_hist_refs.py =====
+38 objects imported automatically (use -v 2 for details).
+
+questionnaire_versions: 15
+activity_versions: 13
+assessment_sessions: 0
+sessions_with_version: 0
+activity_records: 18
+codes_with_multiple_published_qn: 0
+codes_with_multiple_published_act: 0
+codes_with_multiple_titles_qn:
+    {'code': 'qn-abc-mtzoqmm9', 'n': 2}
+codes_with_multiple_titles_act:
+done

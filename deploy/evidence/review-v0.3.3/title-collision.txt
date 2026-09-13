@@ -1,0 +1,25 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+________________ test_distinct_titles_do_not_retire_each_other _________________
+
+    def test_distinct_titles_do_not_retire_each_other():
+        client = ops_client(make_staff('content'))
+        ids = []
+        for title in ['ABC 观察', 'ABC 绘画']:
+            r=post_json(client,'/ops/api/questionnaires',{'title':title,'purpose':'exploration'})
+            assert r.status_code == 201
+            key=r.json()['questionnaire']['id']; ids.append(key)
+            assert post_json(client,f'/ops/api/questionnaires/{key}',{'title':title,'description':'隔离验收','questions':[question('Q1')]}).status_code == 200
+            assert client.post(f'/api/v1/staff/questionnaires/{key}/publish').status_code == 200
+        first=QuestionnaireVersion.objects.get(pk=ids[0])
+>       assert first.status == 'published', f'Unrelated first title was {first.status}'
+E       AssertionError: Unrelated first title was retired
+E       assert 'retired' == 'published'
+E         
+E         - published
+E         + retired
+
+tests/test_independent_title_recheck.py:17: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_independent_title_recheck.py::test_distinct_titles_do_not_retire_each_other
+1 failed in 1.27s

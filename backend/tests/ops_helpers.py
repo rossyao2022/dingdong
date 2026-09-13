@@ -156,9 +156,7 @@ def _lookup_revision(url):
 
     from dingdong_ca.core.models import ActivityContentVersion, Child, QuestionnaireVersion
 
-    match = re.fullmatch(
-        r"/ops/api/(questionnaires|activities|children)/([0-9a-fA-F-]{36})", url
-    )
+    match = re.fullmatch(r"/ops/api/(questionnaires|activities|children)/([0-9a-fA-F-]{36})", url)
     if not match:
         return None
     model = {

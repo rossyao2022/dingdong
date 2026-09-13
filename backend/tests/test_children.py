@@ -33,6 +33,32 @@ def test_child_create_update_idempotency_and_contract(client):
     assert_schema("Children", client.get("/api/v1/children").json())
 
 
+def test_child_detail_read_returns_revision(client):
+    """冲突恢复路径依赖"读一次最新档案"：这条接口必须存在且带回修订号。"""
+    sign_in(client)
+    child = create_child(client)
+    r = client.get("/api/v1/children/" + child["id"])
+    assert r.status_code == 200
+    body = r.json()
+    assert_schema("Child", body)
+    assert body["id"] == child["id"]
+    assert body["revision"] == child["revision"]
+
+    client.patch("/api/v1/children/" + child["id"], {"name": "新称呼"}, format="json")
+    refreshed = client.get("/api/v1/children/" + child["id"]).json()
+    assert refreshed["name"] == "新称呼"
+    assert refreshed["revision"] == child["revision"] + 1
+
+
+def test_child_detail_read_is_family_scoped_and_requires_login(client):
+    sign_in(client)
+    c = create_child(client)
+    other = APIClient(enforce_csrf_checks=True)
+    sign_in(other, "+8613800000003")
+    assert other.get("/api/v1/children/" + c["id"]).status_code == 404
+    assert APIClient().get("/api/v1/children/" + c["id"]).status_code == 401
+
+
 @pytest.mark.parametrize(
     "field,value",
     [

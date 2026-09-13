@@ -11,7 +11,6 @@
 4. 明确携带最新修订号时允许覆盖（用户看过差异后的显式选择）。
 """
 
-
 import pytest
 from ops_helpers import make_family, make_staff, ops_client, post_json
 
@@ -300,10 +299,13 @@ def test_family_status_conflict_when_page_is_stale():
     admin = ops_client(make_staff("account_admin"))
     operations = ops_client(make_staff("operations"))
 
-    assert admin.post(
-        f"/ops/api/families/{family.pk}/status",
-        {"status": "frozen", "expected_status": "active"},
-    ).status_code == 200
+    assert (
+        admin.post(
+            f"/ops/api/families/{family.pk}/status",
+            {"status": "frozen", "expected_status": "active"},
+        ).status_code
+        == 200
+    )
 
     stale = operations.post(
         f"/ops/api/families/{family.pk}/status",

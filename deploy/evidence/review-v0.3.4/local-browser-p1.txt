@@ -1,0 +1,11 @@
+
+Running 6 tests using 1 worker
+
+  ✓  1 [desktop] › deployment-tests/ops-p1-acceptance.spec.js:226:3 › P1 专项验收（公网） › P1-A 儿童档案：家长改档后，运营旧页面保存必须报冲突，加载最新后可保存 (5.2s)
+  ✓  2 [desktop] › deployment-tests/ops-p1-acceptance.spec.js:281:3 › P1 专项验收（公网） › P1-A 儿童档案：运营改档后，家长旧页面保存必须报冲突并保留输入 (4.4s)
+  ✓  3 [desktop] › deployment-tests/ops-p1-acceptance.spec.js:326:3 › P1 专项验收（公网） › P1-B 题库：标题相近的两份内容各自独立，发布一份不会停用另一份 (5.7s)
+  ✓  4 [desktop] › deployment-tests/ops-p1-acceptance.spec.js:354:3 › P1 专项验收（公网） › P1-B 题库：同名两次创建是两份独立内容，不互相停用 (5.8s)
+  ✓  5 [desktop] › deployment-tests/ops-p1-acceptance.spec.js:375:3 › P1 专项验收（公网） › P1-B 题库：复制为新版本并发布后，只替代同一题库的旧版本 (5.9s)
+  ✓  6 [desktop] › deployment-tests/ops-p1-acceptance.spec.js:410:3 › P1 专项验收（公网） › P1-B 活动：标题相近的两份内容各自独立，发布一份不会停用另一份 (5.9s)
+
+  6 passed (33.9s)

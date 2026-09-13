@@ -94,7 +94,8 @@ class Child(Entity):
     gender = models.CharField(max_length=16, default="unknown")
     birth_date = models.DateField(null=True, blank=True)
     status = models.CharField(max_length=16, default="active")
-    # 修订号：运营后台更正档案时用它做乐观并发控制，避免旧页面覆盖别人刚保存的修改。
+    # 修订号：任何入口（家长端、运营后台、技术后台、内部任务）更正档案时都前进，
+    # 旧页面据此被拒绝，避免静默覆盖别人刚保存的修改。
     revision = models.PositiveBigIntegerField(default=1, editable=False)
 
     class Meta:

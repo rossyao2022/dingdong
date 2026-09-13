@@ -64,9 +64,7 @@ def test_valid_boundary_dates_filter_correctly():
     client = audit_client()
     today = datetime.date.today()
     AuditEvent.objects.create(action="family.restore", target_kind="family", target_label="边界")
-    response = client.get(
-        "/ops/audit/", {"start": today.isoformat(), "end": today.isoformat()}
-    )
+    response = client.get("/ops/audit/", {"start": today.isoformat(), "end": today.isoformat()})
     assert response.status_code == 200
     assert response.context["filter_problems"] == []
     assert response.context["page"]["total"] >= 1

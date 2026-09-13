@@ -1,0 +1,4 @@
+
+> dingdong-parent@0.3.4 check
+> node --check app.js && node --check api.js && node --check playworld.js && node --check server.cjs
+

@@ -37,7 +37,7 @@ uv run python scripts/smoke_http.py
 
 pytest 使用 PostgreSQL 的 test_dingdong 数据库，测试结束清理测试库，不重置开发库。并发用例用独立线程/数据库连接验证锁和唯一约束。测试读取上级工作区设计/API/openapi.json 做响应契约校验，单独复制 backend 时也要携带契约文件或调整测试路径。
 
-## 当前接口（50 个操作，全部 OpenAPI 路由已实现）
+## 当前接口（51 个操作，全部 OpenAPI 路由已实现）
 
 - GET runtime、GET auth/csrf；POST auth/sms、auth/login、auth/refresh、auth/logout；GET me。
 - GET/POST children；PATCH children/{child_id}。

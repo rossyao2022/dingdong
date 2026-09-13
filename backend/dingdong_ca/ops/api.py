@@ -110,29 +110,67 @@ def request_key(data):
     try:
         return uuid.UUID(raw.strip())
     except ValueError:
-        raise OpsError(
-            "VALIDATION_ERROR", "提交标识格式不正确，请刷新页面后重试。", 422
-        ) from None
+        raise OpsError("VALIDATION_ERROR", "提交标识格式不正确，请刷新页面后重试。", 422) from None
 
 
 CODE_LIMIT = 48
+CODE_DIGEST_LEN = 12
+
+
+def _title_digest(title):
+    return hashlib.sha1(title.strip().encode("utf-8")).hexdigest()[:CODE_DIGEST_LEN]
+
+
+def _title_slug(title):
+    return re.sub(r"-{2,}", "-", slugify(title, allow_unicode=False)).strip("-")
+
+
+def _fit_code(prefix, slug, tail):
+    """拼出不超过 CODE_LIMIT 的标识，并保证 tail（含标题摘要）不被截断。
+
+    早期实现只在 slug 不足 3 个字符时才用摘要，长标题还会把摘要连同后缀一起截掉。
+    结果是"ABC 观察"和"ABC 绘画"都退化成 `qn-abc`，被误当成同一份题库的两个版本，
+    发布后一份会把另一份停用。摘要必须始终保留，slug 只在剩余空间里出现。
+    """
+    if slug:
+        room = CODE_LIMIT - len(prefix) - 2 - len(tail)
+        trimmed = slug[:room].strip("-") if room > 0 else ""
+        if trimmed:
+            return f"{prefix}-{trimmed}-{tail}"
+    return f"{prefix}-{tail}"[:CODE_LIMIT]
 
 
 def generated_code(title, prefix):
-    """由业务名称推出稳定的内部标识，运营不需要自己编英文短横线。
+    """由业务名称推出可读的内部标识候选（不含重名去重后缀）。
 
-    同一名称必然得到同一标识，因此"重名"会自然落成同一内容的新版本，
-    而不是产生两个看起来一样的题库/活动。
+    同一个标题总得到同一个候选；不同标题的候选一定不同，因为完整标题的摘要始终
+    保留。这让运营不需要理解技术标识，也让"标题不同"永远不会变成"同一份内容"。
     """
-    digest = hashlib.sha1(title.strip().encode("utf-8")).hexdigest()[:12]
-    slug = re.sub(r"-{2,}", "-", slugify(title, allow_unicode=False)).strip("-")
-    if len(slug) >= 3:
-        return f"{prefix}-{slug}"[:CODE_LIMIT]
-    return f"{prefix}-{digest}"
+    return _fit_code(prefix, _title_slug(title), _title_digest(title))
+
+
+def unique_code(model, kind, prefix, title):
+    """在内容咨询锁内取一个未被占用的标识。
+
+    新建即独立内容：候选标识已被占用时（同标题被不同人各建一份，或历史遗留标识
+    恰好相同），依次尝试 -2、-3…，而不是并入已有内容的版本序列。
+    """
+    slug = _title_slug(title)
+    digest = _title_digest(title)
+    code = generated_code(title, prefix)
+    attempt = 1
+    while True:
+        # 先取锁再判断：并发创建会被串行化到同一把咨询锁上，
+        # 后进来的那个一定看得到前一个刚提交的标识，不会先查后插留下竞争窗口。
+        lock_code(kind, code)
+        if not model.objects.filter(code=code).exists():
+            return code
+        attempt += 1
+        code = _fit_code(prefix, slug, f"{digest}-{attempt}")
 
 
 def next_version(model, code):
-    """同内容的下一个版本号：v1、v2……由系统递增，运营无需手工管理。"""
+    """同一内容的下一个版本号：v1、v2……由系统递增，运营无需手工管理。"""
     used = set(model.objects.filter(code=code).values_list("version", flat=True))
     number = 1
     while f"v{number}" in used:
@@ -414,8 +452,13 @@ def questionnaire_create(request, data):
         reused = reusable(QuestionnaireVersion, key)
         if reused is not None:
             return json_ok({"questionnaire": _content_payload(reused), "reused": True})
-        code = explicit_code or generated_code(title, "qn")
-        lock_code("questionnaire", code)
+        if explicit_code:
+            code = explicit_code
+            lock_code("questionnaire", code)
+        else:
+            # 新建永远是独立内容：标识由标题派生并保证唯一，不会并入已有题库的版本序列。
+            # 要产出"同一题库的新版本"，请在版本页使用"复制为新版本"。
+            code = unique_code(QuestionnaireVersion, "questionnaire", "qn", title)
         version = explicit_version or next_version(QuestionnaireVersion, code)
         if QuestionnaireVersion.objects.filter(code=code, version=version).exists():
             raise OpsError(
@@ -441,10 +484,10 @@ def questionnaire_create(request, data):
             "questionnaire.copy" if data.get("from_copy") else "questionnaire.create",
             row,
             f"{row.title} · {row.version}",
-            {"purpose": purpose},
+            {"purpose": purpose, "code": row.code},
         )
         notice = (
-            f"该名称已存在同名题库，已创建它的新版本 {row.version}，版本之间互不影响。"
+            f"已按指定标识 {code} 创建了它的新版本 {row.version}。"
             if is_new_version
             else "草稿已创建，可以开始添加题目。"
         )
@@ -602,8 +645,12 @@ def activity_create(request, data):
         reused = reusable(ActivityContentVersion, key)
         if reused is not None:
             return json_ok({"activity": _activity_payload(reused), "reused": True})
-        code = explicit_code or generated_code(title, "act")
-        lock_code("activity", code)
+        if explicit_code:
+            code = explicit_code
+            lock_code("activity", code)
+        else:
+            # 与题库一致：新建永远是独立内容，只有"复制为新版本"才关联到已有活动。
+            code = unique_code(ActivityContentVersion, "activity", "act", title)
         version = explicit_version or next_version(ActivityContentVersion, code)
         if ActivityContentVersion.objects.filter(code=code, version=version).exists():
             raise OpsError(
@@ -632,7 +679,7 @@ def activity_create(request, data):
         )
         ops_audit(request.user, "activity.create", row, f"{row.title} · {row.version}")
         notice = (
-            f"该名称已存在同名活动，已创建它的新版本 {row.version}，版本之间互不影响。"
+            f"已按指定标识 {code} 创建了它的新版本 {row.version}。"
             if is_new_version
             else "草稿已创建，可以开始维护步骤。"
         )
@@ -839,8 +886,9 @@ def child_profile(request, data, child_id):
         if child.revision != expected:
             raise OpsError(
                 "EDIT_CONFLICT",
-                "这份儿童档案在你编辑期间已被其他人更正过，为避免覆盖对方的修改，本次没有保存。"
-                "你填写的内容仍保留在弹窗中：可以先看一下最新档案，再决定是否重新提交。",
+                "这份儿童档案在你编辑期间已被更正过（可能是家长在家长端改的，也可能是另一位同事）。"
+                "为避免覆盖对方的修改，本次没有保存。你填写的内容仍保留在弹窗中："
+                "可以先看一下最新档案，再决定是否重新提交。",
                 409,
                 [{"field": "revision"}],
                 extra={"current": _child_payload(child)},

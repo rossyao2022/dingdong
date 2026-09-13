@@ -75,8 +75,14 @@ class DraftContentAdmin(ActionPanelMixin, admin.ModelAdmin):
         from django.db import transaction
 
         with transaction.atomic():
-            if change and type(obj).objects.select_for_update().get(pk=obj.pk).status != "draft":
-                raise PermissionDenied("发布内容请复制为新版本")
+            if change:
+                fresh = type(obj).objects.select_for_update().get(pk=obj.pk)
+                if fresh.status != "draft":
+                    raise PermissionDenied("发布内容请复制为新版本")
+                # 技术后台和运营后台改的是同一份草稿，必须共用同一个修订号：
+                # 这里推进修订号，运营旧页面拿着旧修订号保存才会被拒，而不是静默覆盖。
+                if any(field.name == "revision" for field in type(obj)._meta.get_fields()):
+                    obj.revision = fresh.revision + 1
             super().save_model(request, obj, form, change)
 
 

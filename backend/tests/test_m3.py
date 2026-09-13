@@ -568,7 +568,9 @@ def test_every_openapi_operation_has_a_real_view():
         for method in methods:
             assert method in view.cls.http_method_names, (method, path)
             operations += 1
-    assert operations == 50
+    # 操作数从 50 增到 51：v0.3.4 给 /children/{child_id} 补上 GET，
+    # 家长端在被 409 打回后需要读一次服务端最新档案与修订号（此前只有 PATCH）。
+    assert operations == 51
 
 
 def test_initial_fixture_tracks_current_questionnaire_and_can_target_fixed_old_session(client):

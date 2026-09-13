@@ -5,44 +5,51 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0006_auditevent_detail_auditevent_target_label_and_more'),
+        ("core", "0006_auditevent_detail_auditevent_target_label_and_more"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='activitycontentversion',
-            name='create_request_key',
+            model_name="activitycontentversion",
+            name="create_request_key",
             field=models.UUIDField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='activitycontentversion',
-            name='revision',
+            model_name="activitycontentversion",
+            name="revision",
             field=models.PositiveBigIntegerField(default=1),
         ),
         migrations.AddField(
-            model_name='child',
-            name='revision',
+            model_name="child",
+            name="revision",
             field=models.PositiveBigIntegerField(default=1, editable=False),
         ),
         migrations.AddField(
-            model_name='questionnaireversion',
-            name='create_request_key',
+            model_name="questionnaireversion",
+            name="create_request_key",
             field=models.UUIDField(blank=True, editable=False, null=True),
         ),
         migrations.AddField(
-            model_name='questionnaireversion',
-            name='revision',
+            model_name="questionnaireversion",
+            name="revision",
             field=models.PositiveBigIntegerField(default=1, editable=False),
         ),
         migrations.AddConstraint(
-            model_name='activitycontentversion',
-            constraint=models.UniqueConstraint(condition=models.Q(('create_request_key__isnull', False)), fields=('create_request_key',), name='activity_create_request_unique'),
+            model_name="activitycontentversion",
+            constraint=models.UniqueConstraint(
+                condition=models.Q(("create_request_key__isnull", False)),
+                fields=("create_request_key",),
+                name="activity_create_request_unique",
+            ),
         ),
         migrations.AddConstraint(
-            model_name='questionnaireversion',
-            constraint=models.UniqueConstraint(condition=models.Q(('create_request_key__isnull', False)), fields=('create_request_key',), name='questionnaire_create_request_unique'),
+            model_name="questionnaireversion",
+            constraint=models.UniqueConstraint(
+                condition=models.Q(("create_request_key__isnull", False)),
+                fields=("create_request_key",),
+                name="questionnaire_create_request_unique",
+            ),
         ),
     ]

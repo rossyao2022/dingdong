@@ -1,0 +1,30 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 [desktop] › deployment-tests/http-profile.spec.js:3:1 › public HTTP login, child profile and activity survive missing randomUUID (391ms)
+
+
+  1) [desktop] › deployment-tests/http-profile.spec.js:3:1 › public HTTP login, child profile and activity survive missing randomUUID 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      3 | test('public HTTP login, child profile and activity survive missing randomUUID', async ({ page }) => {
+      4 |   await page.goto('./');
+    > 5 |   expect(await page.evaluate(() => window.isSecureContext)).toBe(false);
+        |                                                             ^
+      6 |   expect(await page.evaluate(() => typeof crypto.randomUUID)).toBe('undefined');
+      7 |   await page.getByLabel('手机号', { exact: true }).fill('199' + String(Date.now()).slice(-8));
+      8 |   await page.getByRole('button', { name: '获取验证码', exact: true }).click();
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/deployment-tests/http-profile.spec.js:5:61
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/http-profile-public-HTTP-l-aa7cf--survive-missing-randomUUID-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/http-profile-public-HTTP-l-aa7cf--survive-missing-randomUUID-desktop/error-context.md
+
+  1 failed
+    [desktop] › deployment-tests/http-profile.spec.js:3:1 › public HTTP login, child profile and activity survive missing randomUUID 

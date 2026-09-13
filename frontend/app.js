@@ -730,8 +730,8 @@ async function linkRobot() {
     }, e.submitter);
   };
 }
-function editChild() {
-  const c = state.child;
+function editChild(target) {
+  const c = target || state.child;
   showDialog(
     "编辑儿童档案",
     `<form id="edit-child-form"><label class="field">姓名或称呼<input name="name" value="${esc(c.name)}" required maxlength="80"></label><label class="field">性别<select name="gender">${Object.entries(
@@ -749,10 +749,26 @@ function editChild() {
     e.preventDefault();
     act(async () => {
       const d = formData(e.target);
-      state.child = await API.request("/children/" + c.id, {
-        method: "PATCH",
-        body: { ...d, birth_date: d.birth_date || null },
-      });
+      try {
+        // 带上打开页面时读到的修订号：若期间有人（工作人员或其他标签页）更正过，
+        // 服务端会拒绝这次保存，而不是把对方的修改覆盖掉。
+        state.child = await API.request("/children/" + c.id, {
+          method: "PATCH",
+          body: { ...d, birth_date: d.birth_date || null, revision: c.revision },
+        });
+      } catch (err) {
+        if (err.status === 409) {
+          const latest = await API.request("/children/" + c.id);
+          state.child = latest;
+          editChild(latest);
+          const box = $("#dialog .form-error");
+          if (box)
+            box.innerHTML =
+              esc(errorMessage(err)) + "<p>已载入最新档案；你刚才填写的内容没有保存。</p>";
+          return;
+        }
+        throw err;
+      }
       await loadChildren();
       await render();
       toast("档案已更新。");

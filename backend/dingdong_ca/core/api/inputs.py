@@ -44,7 +44,7 @@ class LoginInput(StrictSerializer):
         return value
 
 
-class ChildInput(StrictSerializer):
+class ChildBaseInput(StrictSerializer):
     name = StrictString(max_length=80)
     gender = serializers.ChoiceField(choices=["unknown", "male", "female"], default="unknown")
     birth_date = serializers.DateField(allow_null=True, default=None)
@@ -55,7 +55,18 @@ class ChildInput(StrictSerializer):
         return value
 
 
-class ChildCreate(ChildInput):
+class ChildInput(ChildBaseInput):
+    """家长端编辑档案。
+
+    `revision` 是可选字段：新版客户端会带上"打开页面时读到的修订号"，服务端据此
+    判断是否有人（工作人员或其他标签页）在期间改过档案。不带也能用，以兼容已经
+    打开着的旧页面；但无论带不带，服务端都会推进修订号，让别人的旧页面失效。
+    """
+
+    revision = serializers.IntegerField(min_value=1, required=False)
+
+
+class ChildCreate(ChildBaseInput):
     request_id = serializers.UUIDField()
 
 

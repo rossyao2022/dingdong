@@ -1,6 +1,6 @@
 # 叮咚项目记忆与会话交接
 
-最后更新：2026-09-13 14:45，Asia/Shanghai。适用于本目录中的后续会话。本文记录已核对事实，不代替代码和最新用户指令。
+最后更新：2026-09-13 18:44，Asia/Shanghai。适用于本目录中的后续会话。本文记录已核对事实，不代替代码和最新用户指令。
 
 ## 当前结论与最近工作
 
@@ -43,7 +43,7 @@
 
 可读种子：backend/dingdong_ca/testsupport/question_content.py、activity_content.py。四题原文迁自参考仓库，22题涵盖日常探索、表达、观察、合作，八个活动有材料和可执行步骤。seed_mock对已知占位种子创建readable-v2，保留历史版本，不覆盖运营自行发布内容。warm仅是输入初始化兼容别名，不创建成品结果。没有reset_mock或dataset_run平台。
 
-当前OpenAPI：44条路径、50个操作、62个Schema。[交互规范](设计/API/前后端交互规范_V0.1.md)、[OpenAPI](设计/API/openapi.json)、[实际数据库字段](设计/数据库实际字段_M5.md)。题库目录通过GET assessment-config返回；支持purpose和questionnaire_version_id。探索完成用POST assessments/{id}/complete-exploration，测评测试仍用multipart submit。不要把内部契约当作DingDong已确认协议。
+当前OpenAPI：44条路径、51个操作、62个Schema。v0.3.4给 `/children/{child_id}` 补了 GET（家长端冲突恢复要读最新档案与修订号）。[交互规范](设计/API/前后端交互规范_V0.1.md)、[OpenAPI](设计/API/openapi.json)、[实际数据库字段](设计/数据库实际字段_M5.md)。题库目录通过GET assessment-config返回；支持purpose和questionnaire_version_id。探索完成用POST assessments/{id}/complete-exploration，测评测试仍用multipart submit。不要把内部契约当作DingDong已确认协议。
 
 ## 运行与续接
 
@@ -195,3 +195,12 @@ npm --prefix frontend run dev
 **剩余限制**：演示供应商边界未变（固定验证码 `00000`、fixture 集成、不接真实供应商、不采集真实指纹）；专业量表题量与评分解释仍待甲方确认；未做真实手机硬件验收；运营账号不做数据分片；未验证的外部条件与 v0.3.2 相同。
 
 **回滚**：见[回滚说明](deploy/ROLLBACK.md)。常规回滚目标是 **v0.3.2**（v0.3.3 之前的可用发布）；**不要回滚到 v0.3.0 或 v0.3.1**（前者 Docker 下 `/ops/` 打不开，后者管理员按钮 403）。`0006`/`0007` 迁移可安全保留，无需反向迁移。
+
+
+## v0.3.3 第二轮独立验收（2026-09-13）：暂不通过正式交付
+
+本轮源码HEAD 3aaeeb7、线上镜像0.3.3。已实测上轮题库双页面冲突、首页审计权限、日期错误提示和移除技术输入修复有效；公网只读真实Chrome8项通过，无重试，原有后端201项和部署8项重新通过。
+
+补查两项P1仍存在：家长PATCH儿童资料不递增revision，运营旧页面仍以旧revision保存成功覆盖家长修改；有英文前缀的不同中文标题生成相同code，误作同内容不同版本，隔离测试确认发布第二份使第一份retired。两项新增预期断言均失败，有原始复现脚本和日志。
+
+正式交付结论以本次[第二轮独立验收报告](deploy/OPS_INDEPENDENT_REVIEW_20260913.md)为准，不能继续引用上一节“全部修复”作为最新结论。本轮未改功能或部署；公网临时账号及隔离题库草稿已停用，草稿未发布，未修改既有家庭与服务数据。证据deploy/evidence/review-v0.3.3/。

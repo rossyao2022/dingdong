@@ -1,0 +1,25 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_______________ test_parent_edit_invalidates_ops_stale_revision ________________
+
+client = <rest_framework.test.APIClient object at 0x109173b60>
+
+    def test_parent_edit_invalidates_ops_stale_revision(client):
+        sign_in(client)
+        data = create_child(client)
+        child = Child.objects.get(pk=data['id'])
+        old_revision = child.revision
+        ops = ops_client(make_staff('operations'))
+        response = client.patch('/api/v1/children/' + str(child.pk), {'name': '家长刚刚更正'}, format='json')
+        assert response.status_code == 200
+        response = post_json(ops, '/ops/api/children/' + str(child.pk), {'name': '运营旧页面称呼', 'gender':'unknown', 'birth_date':''}, revision=old_revision)
+        child.refresh_from_db()
+>       assert response.status_code == 409, f'stale write returned {response.status_code}; persisted name={child.name}'
+E       AssertionError: stale write returned 200; persisted name=运营旧页面称呼
+E       assert 200 == 409
+E        +  where 200 = <JsonResponse status_code=200, "application/json">.status_code
+
+tests/test_independent_recheck.py:18: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_independent_recheck.py::test_parent_edit_invalidates_ops_stale_revision
+1 failed in 1.33s
