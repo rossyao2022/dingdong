@@ -37,7 +37,7 @@ from dingdong_ca.testsupport.robot import fetch_observation
 def publish_job(job_id):
     try:
         run_report_job.delay(job_id)
-    except OperationalError, ConnectionError, OSError:
+    except (OperationalError, ConnectionError, OSError):
         pass
 
 
@@ -201,7 +201,7 @@ def run_report_job(job_id):
                 raise FixtureFailure("JOB_KIND_INVALID")
         except FixtureFailure as e:
             error = e.code
-        except KeyError, TypeError, ValueError:
+        except (KeyError, TypeError, ValueError):
             error = "INPUT_SCHEMA_INVALID"
         with transaction.atomic():
             job, context = lock_job(job_id)

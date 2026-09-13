@@ -95,7 +95,7 @@ def records(request, child_id):
                     or start >= end
                 ):
                     raise ValueError
-            except ValueError, TypeError:
+            except (ValueError, TypeError):
                 raise ApiError("VALIDATION_ERROR", 422, "from/to 必须成对且带时区") from None
             qs = qs.filter(finished_at__gte=start, finished_at__lt=end)
         completed = qs.filter(status="completed")

@@ -208,7 +208,7 @@ def cookie_grant(request, lock=False):
         ):
             raise ValueError
         return grant
-    except TokenError, ValueError, KeyError, LoginGrant.DoesNotExist:
+    except (TokenError, ValueError, KeyError, LoginGrant.DoesNotExist):
         raise ApiError("LOGIN_REVOKED", 401, "请重新登录") from None
 
 

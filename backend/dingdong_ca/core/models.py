@@ -94,6 +94,8 @@ class Child(Entity):
     gender = models.CharField(max_length=16, default="unknown")
     birth_date = models.DateField(null=True, blank=True)
     status = models.CharField(max_length=16, default="active")
+    # 修订号：运营后台更正档案时用它做乐观并发控制，避免旧页面覆盖别人刚保存的修改。
+    revision = models.PositiveBigIntegerField(default=1, editable=False)
 
     class Meta:
         db_table = "child"
@@ -123,6 +125,9 @@ class ActivityContentVersion(Entity):
     data_origin = models.CharField(max_length=16)
     published_at = models.DateTimeField(null=True)
     published_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.PROTECT)
+    # 修订号：与题库一致，保存草稿时做乐观并发控制；防止旧页面静默覆盖。
+    revision = models.PositiveBigIntegerField(default=1)
+    create_request_key = models.UUIDField(null=True, blank=True)
 
     class Meta:
         db_table = "activity_content_version"
@@ -130,6 +135,11 @@ class ActivityContentVersion(Entity):
             models.UniqueConstraint(fields=["code", "version"], name="activity_version_unique"),
             models.UniqueConstraint(
                 fields=["code"], condition=Q(status="published"), name="activity_one_published"
+            ),
+            models.UniqueConstraint(
+                fields=["create_request_key"],
+                condition=Q(create_request_key__isnull=False),
+                name="activity_create_request_unique",
             ),
             models.CheckConstraint(
                 condition=Q(status__in=["draft", "published", "retired"]),

@@ -24,9 +24,12 @@
     </div>
   {% endif %}
 
+  <div id="conflict" hidden></div>
+
   <div id="questionnaire-config"
        data-status="{{ row.status }}"
        data-editable="{% if can_edit %}1{% else %}0{% endif %}"
+       data-revision="{{ row.revision }}"
        data-save-url="{% url 'ops:api_questionnaire_save' row.pk %}"
        data-check-url="{% url 'ops:api_questionnaire_check' row.pk %}"
        data-publish-url="/api/v1/staff/questionnaires/{{ row.pk }}/publish"
@@ -52,7 +55,7 @@
           <p class="help">说明这份问卷的用途和边界，例如“只记录本次选择，不作能力评价”。</p>
         </div>
         <dl class="kv">
-          <dt>题库标识</dt><dd>{{ row.code }}</dd>
+          <dt>系统编号</dt><dd>{{ row.code }}（自动生成，无需维护）</dd>
           <dt>版本号</dt><dd>{{ row.version }}</dd>
           <dt>用途</dt><dd>{{ row.purpose|label:"QUESTIONNAIRE_PURPOSE" }}</dd>
           <dt>题目数量要求</dt>

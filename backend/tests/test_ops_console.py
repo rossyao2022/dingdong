@@ -159,10 +159,16 @@ def test_dashboard_counters_come_from_database():
     response = client.get(reverse("ops:dashboard"))
     context = response.context
     assert context["counters"]["open_services"] == 1
-    assert context["counters"]["failed_jobs"] == 1
     families_metric = next(m for m in context["metrics"] if m["key"] == "families")
     assert families_metric["value"] == Family.objects.filter(status="active").count()
     assert "口径" in families_metric["scope"]
+
+    # 普通运营没有生成任务权限，首页就不该拿到任务计数
+    assert "failed_jobs" not in context["counters"]
+
+    technical = ops_client(make_staff("technical"))
+    tech_context = technical.get(reverse("ops:dashboard")).context
+    assert tech_context["counters"]["failed_jobs"] == 1
 
 
 def test_dashboard_failed_job_uses_business_language():
@@ -262,13 +268,19 @@ def test_child_profile_update_validates_and_audits():
 
     ok = client.post(
         reverse("ops:api_child_profile", args=[child.pk]),
-        {"name": "小叶", "gender": "female", "birth_date": "2019-05-04"},
+        {
+            "name": "小叶",
+            "gender": "female",
+            "birth_date": "2019-05-04",
+            "revision": child.revision,
+        },
     )
     assert ok.status_code == 200
     child.refresh_from_db()
     assert child.name == "小叶"
     assert child.gender == "female"
     assert str(child.birth_date) == "2019-05-04"
+    assert child.revision == 2
     assert AuditEvent.objects.filter(action="child.profile_update", target_id=child.pk).exists()
 
 

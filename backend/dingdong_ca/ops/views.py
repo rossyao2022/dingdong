@@ -44,6 +44,9 @@ from .services import (
     ops_audit,
     page_links,
     paginate,
+    parse_choice,
+    parse_date_range,
+    parse_keyword,
     window,
 )
 
@@ -124,7 +127,7 @@ QUICK_LINKS = [
 
 @ops_page("dashboard.view")
 def dashboard(request):
-    data = dashboard_data()
+    data = dashboard_data(request.user)
     return render(
         request,
         "ops/dashboard.html",
@@ -141,6 +144,7 @@ def dashboard(request):
                 "services": can(request, "service.view"),
                 "reports": can(request, "report.view"),
                 "questionnaires": can(request, "questionnaire.view"),
+                "audit": can(request, "audit.view"),
             },
             **data,
         ),
@@ -152,7 +156,7 @@ def dashboard(request):
 
 @ops_page("family.view")
 def families(request):
-    keyword = (request.GET.get("q") or "").strip()
+    keyword = parse_keyword(request.GET.get("q"))
     rows = family_queryset(keyword)
     page_obj = paginate(request, rows.order_by("-created_at"))
     items = [family_summary(family) for family in page_obj.object_list]
@@ -196,7 +200,8 @@ def family_detail(request, family_id):
 @ops_page("child.view")
 def child_detail(request, child_id):
     child = get_object_or_404(Child.objects.select_related("family"), pk=child_id)
-    bundle = child_bundle(child)
+    can_view_audit = can(request, "audit.view")
+    bundle = child_bundle(child, include_audit=can_view_audit)
     member = (
         child.family.familymembership_set.select_related("user")
         .filter(ended_at__isnull=True)
@@ -223,6 +228,7 @@ def child_detail(request, child_id):
             can_view_reports=can(request, "report.view"),
             can_view_services=can(request, "service.view"),
             can_manage_association=can(request, "association.manage"),
+            can_view_audit=can_view_audit,
             can_retry=can(request, "report.retry"),
         ),
     )
@@ -251,13 +257,15 @@ def answer_rows(session):
 
 @ops_page("questionnaire.view")
 def questionnaires(request):
-    status = request.GET.get("status") or ""
-    purpose = request.GET.get("purpose") or ""
-    keyword = (request.GET.get("q") or "").strip()
+    status, status_error = parse_choice(request.GET.get("status"), L.CONTENT_STATUS, "状态")
+    purpose, purpose_error = parse_choice(
+        request.GET.get("purpose"), L.QUESTIONNAIRE_PURPOSE, "用途"
+    )
+    keyword = parse_keyword(request.GET.get("q"))
     rows = QuestionnaireVersion.objects.all()
-    if status in L.CONTENT_STATUS:
+    if status:
         rows = rows.filter(status=status)
-    if purpose in L.QUESTIONNAIRE_PURPOSE:
+    if purpose:
         rows = rows.filter(purpose=purpose)
     if keyword:
         rows = rows.filter(
@@ -276,6 +284,7 @@ def questionnaires(request):
             status=status,
             purpose=purpose,
             keyword=keyword,
+            filter_problems=[e for e in (status_error, purpose_error) if e],
             can_edit=can(request, "questionnaire.edit"),
             empty_hint="没有匹配的题库版本。可以清空筛选条件，或新建一个草稿。",
         ),
@@ -340,10 +349,10 @@ def questionnaire_preview(request, version_id):
 
 @ops_page("activity.view")
 def activities(request):
-    status = request.GET.get("status") or ""
-    keyword = (request.GET.get("q") or "").strip()
+    status, status_error = parse_choice(request.GET.get("status"), L.CONTENT_STATUS, "状态")
+    keyword = parse_keyword(request.GET.get("q"))
     rows = ActivityContentVersion.objects.all()
-    if status in L.CONTENT_STATUS:
+    if status:
         rows = rows.filter(status=status)
     if keyword:
         rows = rows.filter(
@@ -361,6 +370,7 @@ def activities(request):
             pages=window(page_obj),
             status=status,
             keyword=keyword,
+            filter_problems=[e for e in (status_error,) if e],
             can_edit=can(request, "activity.edit"),
             empty_hint="没有匹配的活动版本。可以清空筛选条件，或新建一个草稿。",
         ),
@@ -424,12 +434,12 @@ def activity_preview(request, version_id):
 
 @ops_page("report.view")
 def reports(request):
-    keyword = (request.GET.get("q") or "").strip()
-    origin = request.GET.get("origin") or ""
+    keyword = parse_keyword(request.GET.get("q"))
+    origin, origin_error = parse_choice(request.GET.get("origin"), L.DATA_ORIGIN, "数据来源")
     rows = ReportVersion.objects.select_related("profile__child", "template_version")
     if keyword:
         rows = rows.filter(profile__child__name__icontains=keyword)
-    if origin in L.DATA_ORIGIN:
+    if origin:
         rows = rows.filter(data_origin=origin)
     page_obj = paginate(request, rows.order_by("-generated_at"))
     failed = BackgroundJob.objects.filter(kind="report", status="failed").count()
@@ -444,6 +454,7 @@ def reports(request):
             pages=window(page_obj),
             keyword=keyword,
             origin=origin,
+            filter_problems=[e for e in (origin_error,) if e],
             failed_count=failed,
             empty_hint="还没有生成的报告。报告由家长完成测评后由后台任务自动生成。",
         ),
@@ -475,12 +486,12 @@ def report_detail(request, report_id):
 
 @ops_page("job.view")
 def jobs(request):
-    status = request.GET.get("status") or ""
-    kind = request.GET.get("kind") or ""
+    status, status_error = parse_choice(request.GET.get("status"), L.JOB_STATUS, "状态")
+    kind, kind_error = parse_choice(request.GET.get("kind"), L.JOB_KIND, "任务类型")
     rows = BackgroundJob.objects.all()
-    if status in L.JOB_STATUS:
+    if status:
         rows = rows.filter(status=status)
-    if kind in L.JOB_KIND:
+    if kind:
         rows = rows.filter(kind=kind)
     if request.GET.get("only_problem") == "1":
         rows = rows.filter(status__in=["failed", "waiting", "unknown"])
@@ -500,6 +511,7 @@ def jobs(request):
             pages=window(page_obj),
             status=status,
             kind=kind,
+            filter_problems=[e for e in (status_error, kind_error) if e],
             only_problem=request.GET.get("only_problem") == "1",
             can_retry=can(request, "report.retry"),
             empty_hint="没有匹配的生成任务。",
@@ -532,7 +544,9 @@ def job_detail(request, job_id):
             can_retry=can(request, "report.retry"),
             audit_rows=AuditEvent.objects.filter(target_id=job.pk)
             .select_related("actor")
-            .order_by("-created_at")[:10],
+            .order_by("-created_at")[:10]
+            if can(request, "audit.view")
+            else [],
         ),
     )
 
@@ -542,13 +556,13 @@ def job_detail(request, job_id):
 
 @ops_page("service.view")
 def services(request):
-    status = request.GET.get("status") or ""
-    kind = request.GET.get("kind") or ""
-    keyword = (request.GET.get("q") or "").strip()
+    status, status_error = parse_choice(request.GET.get("status"), L.SERVICE_STATUS, "状态")
+    kind, kind_error = parse_choice(request.GET.get("kind"), L.SERVICE_KIND, "事项类型")
+    keyword = parse_keyword(request.GET.get("q"))
     rows = DataRequest.objects.select_related("child", "requester")
-    if status in L.SERVICE_STATUS:
+    if status:
         rows = rows.filter(status=status)
-    if kind in L.SERVICE_KIND:
+    if kind:
         rows = rows.filter(kind=kind)
     if keyword:
         rows = rows.filter(
@@ -571,6 +585,7 @@ def services(request):
             status=status,
             kind=kind,
             keyword=keyword,
+            filter_problems=[e for e in (status_error, kind_error) if e],
             counts=counts,
             can_handle=can(request, "service.handle"),
             empty_hint="没有匹配的服务事项。",
@@ -581,12 +596,15 @@ def services(request):
 @ops_page("service.view")
 def service_detail(request, request_id):
     row = get_object_or_404(DataRequest.objects.select_related("child", "requester"), pk=request_id)
+    can_view_audit = can(request, "audit.view")
     history = (
         AuditEvent.objects.filter(
             Q(target_id=row.pk) | Q(action="data_request.note", target_id=row.pk)
         )
         .select_related("actor")
         .order_by("-created_at")
+        if can_view_audit
+        else AuditEvent.objects.none()
     )
     return render(
         request,
@@ -598,6 +616,7 @@ def service_detail(request, request_id):
             history=history,
             can_handle=can(request, "service.handle"),
             can_delete=can(request, "service.delete"),
+            can_view_audit=can_view_audit,
             child_requests=DataRequest.objects.filter(child=row.child).order_by("-created_at")
             if row.child_id
             else [],
@@ -612,7 +631,7 @@ def service_detail(request, request_id):
 def accounts(request):
     from django.contrib.auth import get_user_model
 
-    keyword = (request.GET.get("q") or "").strip()
+    keyword = parse_keyword(request.GET.get("q"))
     rows = get_user_model().objects.filter(account_kind="staff", is_staff=True)
     if keyword:
         rows = rows.filter(Q(username__icontains=keyword) | Q(name__icontains=keyword))
@@ -692,13 +711,33 @@ def account_detail(request, user_id):
             return forbidden(request, "不能通过业务入口修改自己、超级管理员或其他管理员。")
         action = request.POST.get("action")
         if action == "roles":
+            current_key = "|".join(sorted(user.groups.values_list("name", flat=True)))
+            expected_key = (request.POST.get("expected_roles") or "").strip()
+            if expected_key and expected_key != current_key:
+                # 别人在你打开这一页之后改过角色：不能静默覆盖，要求刷新后重做。
+                messages.error(
+                    request,
+                    "该账号的角色刚刚已被其他管理员修改，本次没有保存。请刷新页面确认最新角色后再操作。",
+                )
+                return redirect("ops:account_detail", user_id=user.pk)
             codes = [c for c in request.POST.getlist("roles") if c in ROLE_LABELS]
+            if not codes:
+                messages.error(request, "请至少保留一个角色，否则该账号将无法使用后台。")
+                return redirect("ops:account_detail", user_id=user.pk)
             user.groups.set(Group.objects.filter(name__in=codes))
             ops_audit(
                 request.user, "staff.roles", user, user.name or user.username, {"roles": codes}
             )
             messages.success(request, "角色已更新，该账号下次请求即生效。")
         elif action == "status":
+            expected_active = request.POST.get("expected_active")
+            actual_active = "1" if user.is_active else "0"
+            if expected_active in ("0", "1") and expected_active != actual_active:
+                messages.error(
+                    request,
+                    "该账号的启用状态刚刚已被其他管理员修改，本次没有保存。请刷新页面确认后再操作。",
+                )
+                return redirect("ops:account_detail", user_id=user.pk)
             user.is_active = request.POST.get("is_active") == "1"
             user.save(update_fields=["is_active"])
             ops_audit(
@@ -720,9 +759,12 @@ def account_detail(request, user_id):
             editable=editable,
             assigned=sorted(user.groups.values_list("name", flat=True)),
             role_choices=[(code, ROLE_LABELS[code]) for code in ROLE_LABELS],
+            assigned_key="|".join(sorted(user.groups.values_list("name", flat=True))),
             audit_rows=AuditEvent.objects.filter(target_id=user.pk)
             .select_related("actor")
-            .order_by("-created_at")[:10],
+            .order_by("-created_at")[:10]
+            if can(request, "audit.view")
+            else [],
         ),
     )
 
@@ -750,15 +792,18 @@ def account_reset_password(request, user_id):
 
 @ops_page("audit.view")
 def audit_log(request):
-    action = request.GET.get("action") or ""
-    actor = (request.GET.get("actor") or "").strip()
+    action, action_error = parse_choice(request.GET.get("action"), L.AUDIT_ACTION, "动作")
+    actor = parse_keyword(request.GET.get("actor"))
+    start_raw = (request.GET.get("start") or "").strip()
+    end_raw = (request.GET.get("end") or "").strip()
+    start, end, date_errors = parse_date_range(start_raw, end_raw)
+    filter_problems = ([action_error] if action_error else []) + date_errors
+
     rows = AuditEvent.objects.select_related("actor")
     if action:
         rows = rows.filter(action=action)
     if actor:
         rows = rows.filter(Q(actor__username__icontains=actor) | Q(actor__name__icontains=actor))
-    start = request.GET.get("start") or ""
-    end = request.GET.get("end") or ""
     if start:
         rows = rows.filter(created_at__date__gte=start)
     if end:
@@ -775,8 +820,9 @@ def audit_log(request):
             pages=window(page_obj),
             action=action,
             actor=actor,
-            start=start,
-            end=end,
+            start=start_raw,
+            end=end_raw,
+            filter_problems=filter_problems,
             action_choices=sorted(L.AUDIT_ACTION.items()),
             empty_hint="没有匹配的操作记录。",
         ),

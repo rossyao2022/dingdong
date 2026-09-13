@@ -5,6 +5,7 @@
 {% block crumb %}报告、阶段画像与数据同步的后台任务{% endblock %}
 
 {% block content %}
+  {% include "ops/_filter_problems.html" %}
   <section class="card">
     <form class="filters" method="get">
       <div class="field">

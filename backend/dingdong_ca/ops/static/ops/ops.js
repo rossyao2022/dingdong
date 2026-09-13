@@ -3,11 +3,45 @@
 (function () {
   const Ops = {};
 
+  /* 就绪标记：脚本一旦执行就在 <html> 上留痕，页面初始化完成再打第二个标记。
+     验收脚本据此等待真实就绪，而不是靠固定睡眠。 */
+  document.documentElement.setAttribute("data-ops-script", "1");
+
   function csrfToken() {
     const match = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/);
     if (match) return decodeURIComponent(match[1]);
     const input = document.querySelector('input[name="csrfmiddlewaretoken"]');
     return input ? input.value : "";
+  }
+
+  /* 请求标识：公网后台走 HTTP，不是安全上下文，crypto.randomUUID 不存在。
+     这里保留原生实现优先，再退回 getRandomValues，最后还有非加密兜底。 */
+  function requestId() {
+    const c = window.crypto;
+    if (c && typeof c.randomUUID === "function") return c.randomUUID();
+    if (c && typeof c.getRandomValues === "function") {
+      const bytes = new Uint8Array(16);
+      c.getRandomValues(bytes);
+      bytes[6] = (bytes[6] & 0x0f) | 0x40;
+      bytes[8] = (bytes[8] & 0x3f) | 0x80;
+      const hex = Array.prototype.map
+        .call(bytes, function (b) {
+          return ("0" + b.toString(16)).slice(-2);
+        })
+        .join("");
+      return (
+        hex.slice(0, 8) +
+        "-" +
+        hex.slice(8, 12) +
+        "-" +
+        hex.slice(12, 16) +
+        "-" +
+        hex.slice(16, 20) +
+        "-" +
+        hex.slice(20)
+      );
+    }
+    return "ops-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
   }
 
   function toast(message, kind) {
@@ -28,6 +62,7 @@
         message: data.message || "操作失败，请稍后重试。",
         fields: data.field_errors || [],
         trace: data.trace_id || "",
+        current: data.current || null,
       };
     }
     if (data && data.code && !response.ok) {
@@ -36,6 +71,7 @@
         message: data.message || "操作失败，请稍后重试。",
         fields: data.field_errors || [],
         trace: data.trace_id || "",
+        current: data.current || null,
       };
     }
     return {
@@ -46,6 +82,7 @@
           : "服务暂时不可用，请稍后重试。",
       fields: [],
       trace: "",
+      current: null,
     };
   }
 
@@ -130,6 +167,7 @@
     }
     confirmBtn.textContent = opts.confirmLabel || "确定";
     confirmBtn.className = "btn " + (opts.danger ? "btn-danger" : "btn-primary");
+    cancelBtn.hidden = opts.single === true;
     return new Promise(function (resolve) {
       function finish(value) {
         node.close();
@@ -216,6 +254,60 @@
       node.showModal();
       input.focus();
       input.select();
+    });
+  }
+
+  /* 可复用的提示块：冲突、权限、校验结果都用同一种结构呈现，
+     带标题、说明、要点列表和零到多个操作按钮。 */
+  function notice(options) {
+    const opts = options || {};
+    const box = document.createElement("div");
+    box.className = "notice" + (opts.kind ? " notice-" + opts.kind : "");
+    if (opts.title) {
+      const strong = document.createElement("strong");
+      strong.textContent = opts.title;
+      box.appendChild(strong);
+    }
+    if (opts.message) {
+      const text = document.createElement("p");
+      text.style.margin = "6px 0";
+      text.textContent = opts.message;
+      box.appendChild(text);
+    }
+    if (opts.impacts && opts.impacts.length) {
+      const list = document.createElement("ul");
+      opts.impacts.forEach(function (item) {
+        const li = document.createElement("li");
+        li.textContent = item;
+        list.appendChild(li);
+      });
+      box.appendChild(list);
+    }
+    if (opts.actions && opts.actions.length) {
+      const row = document.createElement("div");
+      row.className = "filters";
+      row.style.marginTop = "8px";
+      opts.actions.forEach(function (action) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "btn btn-sm" + (action.primary ? " btn-primary" : "");
+        button.textContent = action.label;
+        button.addEventListener("click", action.onClick);
+        row.appendChild(button);
+      });
+      box.appendChild(row);
+    }
+    return box;
+  }
+
+  /* 只读提示：把要点讲清楚，用户点“知道了”即关闭。 */
+  function alertDialog(options) {
+    const opts = options || {};
+    return confirmDialog({
+      title: opts.title || "提示",
+      message: opts.message || "",
+      impacts: opts.impacts || [],
+      confirmLabel: opts.confirmLabel || "知道了",
     });
   }
 
@@ -386,6 +478,7 @@
       });
     });
     initActions();
+    document.documentElement.setAttribute("data-ops-ready", "1");
   }
 
   /* 先暴露 Ops 并注册初始化，避免个别辅助函数异常导致整个后台脚本失效。 */
@@ -396,8 +489,11 @@
   Ops.act = act;
   Ops.confirm = confirmDialog;
   Ops.prompt = promptDialog;
+  Ops.notice = notice;
+  Ops.alert = alertDialog;
   Ops.toast = toast;
   Ops.busy = busy;
+  Ops.requestId = requestId;
   Ops.markDirty = markDirty;
   Ops.markClean = markClean;
   Ops.initActions = initActions;

@@ -12,6 +12,10 @@
   content.allowed_styles = Array.isArray(content.allowed_styles) ? content.allowed_styles : [];
   const status = config.dataset.status;
   const editable = config.dataset.editable === "1";
+  /* 修订号：本页内容基于哪一版。保存时回传，服务端据此判断是否有人先改过。 */
+  let revision = parseInt(config.dataset.revision, 10);
+  if (isNaN(revision) || revision < 1) revision = 1;
+  let copyRequestKey = null;
   const endpoints = {
     save: config.dataset.saveUrl,
     check: config.dataset.checkUrl,
@@ -113,6 +117,7 @@
 
   function collect() {
     return {
+      revision: revision,
       title: document.getElementById("a-title").value,
       island: document.getElementById("a-island").value,
       mood: document.getElementById("a-mood").value,
@@ -145,6 +150,144 @@
     box.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }
 
+  /* ---------------------------------------------------------------- 保存冲突 */
+
+  const conflictBox = document.getElementById("conflict");
+
+  function diffAgainst(current) {
+    const local = collect();
+    const remote = current.content || {};
+    const rows = [];
+    if ((local.title || "") !== (current.title || "")) {
+      rows.push(
+        "活动标题：你填写的是「" +
+          (local.title || "（空）") +
+          "」，服务端最新是「" +
+          (current.title || "（空）") +
+          "」"
+      );
+    }
+    if ((local.island || "") !== (current.island || "")) rows.push("所属岛屿与服务端最新版本不同");
+    if ((local.mood || "") !== (current.mood || "")) rows.push("情绪标签与服务端最新版本不同");
+    if (local.duration_minutes !== current.duration_minutes) {
+      rows.push(
+        "时长：你填写 " + local.duration_minutes + " 分钟，服务端最新 " + current.duration_minutes + " 分钟"
+      );
+    }
+    if ((local.content.goal || "") !== (remote.goal || "")) rows.push("活动目标与服务端最新版本不同");
+    if ((local.content.materials || "") !== (remote.materials || "")) rows.push("材料说明与服务端最新版本不同");
+    if (
+      (local.content.alternative || "") !== (remote.alternative || "")
+    ) {
+      rows.push("备选方案与服务端最新版本不同");
+    }
+    const localSteps = local.content.steps.length;
+    const remoteSteps = (remote.steps || []).length;
+    if (localSteps !== remoteSteps) {
+      rows.push("步骤数量：你这边 " + localSteps + " 步，服务端最新 " + remoteSteps + " 步");
+    } else if (localSteps) {
+      let changed = 0;
+      local.content.steps.forEach(function (step, index) {
+        if ((step.instruction || "") !== ((remote.steps[index] || {}).instruction || "")) changed += 1;
+      });
+      if (changed) rows.push("有 " + changed + " 个步骤的家长指引与服务端最新版本不同");
+    }
+    return rows;
+  }
+
+  function applyLatest(current) {
+    document.getElementById("a-title").value = current.title || "";
+    document.getElementById("a-island").value = current.island || "";
+    document.getElementById("a-mood").value = current.mood || "";
+    document.getElementById("a-duration").value = current.duration_minutes || 1;
+    const remote = current.content || {};
+    document.getElementById("a-goal").value = remote.goal || "";
+    document.getElementById("a-materials").value = remote.materials || "";
+    document.getElementById("a-alternative").value = remote.alternative || "";
+    content.allowed_styles = (remote.allowed_styles || []).slice();
+    content.steps = JSON.parse(JSON.stringify(remote.steps || []));
+    document.querySelectorAll("[data-style]").forEach(function (input) {
+      input.checked = content.allowed_styles.indexOf(input.dataset.style) >= 0;
+    });
+    revision = current.revision;
+    conflictBox.hidden = true;
+    conflictBox.innerHTML = "";
+    window.Ops.markClean();
+    render();
+  }
+
+  async function overwriteWithLocal(current) {
+    revision = current.revision;
+    const result = await window.Ops.act({
+      url: endpoints.save,
+      body: collect(),
+      button: document.getElementById("save"),
+      success: "已按你的内容保存，服务端最新版本被覆盖。",
+    });
+    if (result && result.activity) {
+      revision = result.activity.revision;
+      conflictBox.hidden = true;
+      conflictBox.innerHTML = "";
+      window.Ops.markClean();
+    }
+    return result;
+  }
+
+  function showConflict(current) {
+    if (!conflictBox) return;
+    conflictBox.innerHTML = "";
+    conflictBox.hidden = false;
+    conflictBox.appendChild(
+      window.Ops.notice({
+        kind: "danger",
+        title: "保存冲突：这个活动在你编辑期间已被其他人保存",
+        message:
+          "为避免覆盖对方的修改，本次没有保存。你页面上的内容仍然保留，可以对比差异后再决定下一步。",
+        actions: [
+          {
+            label: "查看差异",
+            onClick: function () {
+              const rows = diffAgainst(current);
+              window.Ops.alert({
+                title: "你的修改与服务端最新版本的差异",
+                message: "下面是主要差异。完整内容可以用「加载最新版本」查看。",
+                impacts: rows.length ? rows : ["没有明显差异：对方可能修改了步骤顺序或引导语。"],
+              });
+            },
+          },
+          {
+            label: "加载最新版本（放弃我的修改）",
+            onClick: function () {
+              window.Ops.confirm({
+                title: "加载服务端最新版本",
+                message: "加载后你会丢失当前页面上尚未保存的内容，确定继续吗？",
+                confirmLabel: "加载最新版本",
+              }).then(function (agreed) {
+                if (agreed) applyLatest(current);
+              });
+            },
+          },
+          {
+            label: "用我的内容覆盖最新版本",
+            primary: true,
+            onClick: function () {
+              window.Ops.confirm({
+                title: "用我的内容覆盖",
+                message: "这会用你页面上的内容覆盖服务端最新版本，对方的修改会丢失。确定继续吗？",
+                impacts: ["仅在你确认自己的版本应该取代对方时才这样做"],
+                confirmLabel: "确认覆盖",
+                danger: true,
+              }).then(function (agreed) {
+                if (agreed) overwriteWithLocal(current);
+              });
+            },
+          },
+        ],
+      })
+    );
+    conflictBox.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }
+
   async function save(silent) {
     const button = document.getElementById("save");
     const result = await window.Ops.act({
@@ -152,8 +295,12 @@
       body: collect(),
       button: button,
       success: silent ? false : "草稿已保存。",
+      onError: function (error) {
+        if (error && error.code === "EDIT_CONFLICT") showConflict(error.current || {});
+      },
     });
-    if (result) {
+    if (result && result.activity) {
+      if (typeof result.activity.revision === "number") revision = result.activity.revision;
       window.Ops.markClean();
     }
     return result;
@@ -239,23 +386,31 @@
   const copyButton = document.getElementById("copy");
   if (copyButton) {
     copyButton.addEventListener("click", async function () {
-      const version = await window.Ops.prompt({
+      /* 版本号由系统递增，运营不需要手工管理技术编号。 */
+      const agreed = await window.Ops.confirm({
         title: "复制为新版本",
-        message: "复制会创建一个可编辑的草稿，内容与当前版本一致。",
-        label: "新版本号（留空自动生成）",
-        placeholder: "例如 v3",
+        message: "复制会创建一个可编辑的草稿，内容与当前版本一致，版本号由系统自动递增。",
+        impacts: [
+          "当前版本保持原样，已经开始或完成的活动记录仍绑定它",
+          "发布新版本时，该活动原有的已发布版本会自动停用",
+        ],
         confirmLabel: "复制",
       });
-      if (version === null) return;
-      await window.Ops.act({
+      if (!agreed) return;
+      if (!copyRequestKey) copyRequestKey = window.Ops.requestId();
+      const result = await window.Ops.act({
         url: endpoints.copy,
-        body: { version: version },
+        body: { request_key: copyRequestKey },
         button: copyButton,
-        success: "已创建草稿。",
-        after: function (data) {
-          window.location.href = data.redirect;
-        },
+        success: false,
       });
+      if (result && result.redirect) {
+        copyRequestKey = null;
+        window.Ops.toast("已创建草稿 " + (result.version || "") + "。", "ok");
+        window.setTimeout(function () {
+          window.location.href = result.redirect;
+        }, 700);
+      }
     });
   }
 

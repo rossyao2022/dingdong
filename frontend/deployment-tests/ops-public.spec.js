@@ -8,6 +8,7 @@
  * 凭据全部来自环境变量，不写入仓库、证据或日志：
  *   DD_OPS_ADMIN_USER / DD_OPS_ADMIN_PW        管理员（account_admin）
  *   DD_OPS_OPERATOR_USER / DD_OPS_OPERATOR_PW  普通运营（operations）
+ *   DD_OPS_CONTENT_USER / DD_OPS_CONTENT_PW    内容运营（content，无 audit.view）
  *   DD_OPS_SEARCH       用于家庭检索的儿童称呼（可选，默认「验收儿童」）
  *   DD_OPS_FAILED_JOB   已存在失败报告的生成任务 UUID（可选）
  */
@@ -21,32 +22,47 @@ const OPERATOR = {
   username: process.env.DD_OPS_OPERATOR_USER,
   password: process.env.DD_OPS_OPERATOR_PW,
 };
+const CONTENT = {
+  username: process.env.DD_OPS_CONTENT_USER,
+  password: process.env.DD_OPS_CONTENT_PW,
+};
 const SEARCH = process.env.DD_OPS_SEARCH || "验收儿童";
 const FAILED_JOB = process.env.DD_OPS_FAILED_JOB || "";
 
 const desktopOnly = (testInfo) =>
   test.skip(testInfo.project.name === "mobile", "写操作只在桌面视口验收");
 
-async function login(page, account) {
+/**
+ * 等待页面真正就绪：后台脚本加载完会给自己打上 data-ops-ready。
+ * v0.3.2 的首次失败就出在这里——登录跳转后立刻断言 window.Ops ，
+ * 偶尔拿到 undefined。这里改为等待真实就绪信号，不用固定长睡眠，
+ * 也不放宽断言：脚本真的没加载出来时依然会失败。
+ */
+async function waitOpsReady(page) {
+  await page.waitForFunction(
+    () => document.documentElement.dataset.opsReady === "1",
+    null,
+    { timeout: 20000 },
+  );
+  expect(await page.evaluate(() => typeof window.Ops)).toBe("object");
+}
+
+async function fillLogin(page, account) {
   await page.goto("/ops/login/");
   await page.locator("#id_username").fill(account.username);
   await page.locator("#id_password").fill(account.password);
   await page.getByRole("button", { name: "登录", exact: true }).click();
   await expect(page).toHaveURL(/\/ops\/$/);
-  // 后台脚本必须真正加载成功，否则页面按钮会静默失效
-  expect(await page.evaluate(() => typeof window.Ops)).toBe("object");
+  await waitOpsReady(page);
+}
+
+async function login(page, account) {
+  await fillLogin(page, account);
 }
 
 async function confirmDialog(page, label) {
   const dialog = page.locator("#ops-dialog");
   await expect(dialog).toBeVisible();
-  await dialog.getByRole("button", { name: label, exact: true }).click();
-}
-
-async function promptDialog(page, label, value) {
-  const dialog = page.locator("#ops-dialog");
-  await expect(dialog).toBeVisible();
-  await dialog.locator("#ops-prompt-input").fill(value);
   await dialog.getByRole("button", { name: label, exact: true }).click();
 }
 
@@ -56,6 +72,32 @@ async function logout(page) {
   if (await toggle.isVisible().catch(() => false)) await toggle.click();
   await page.getByRole("button", { name: "退出登录", exact: true }).click();
   await expect(page).toHaveURL(/\/ops\/login\//);
+}
+
+/** 建一个题库草稿，返回编辑页地址。走真实界面，不直接调接口。 */
+async function createQuestionnaireDraft(page, title) {
+  await page.goto("/ops/questionnaires/");
+  await page.getByRole("link", { name: "新建题库草稿" }).click();
+  await page.locator("#new-purpose").selectOption("exploration");
+  await page.locator("#new-title").fill(title);
+  await page
+    .locator("#new-description")
+    .fill("非正式体验，只记录本次选择，不作能力评价。");
+  await page.getByRole("button", { name: "创建草稿并开始编辑" }).click();
+  await expect(page).toHaveURL(/\/ops\/questionnaires\/[0-9a-f-]{36}\/$/);
+  await waitOpsReady(page);
+  await expect(page.locator("#q-title")).toHaveValue(title);
+  return page.url();
+}
+
+/** 在编辑器里补一道完整题目，让草稿达到可发布状态。 */
+async function addOneQuestion(page, prompt) {
+  await page.getByRole("button", { name: "添加题目", exact: true }).click();
+  const card = page.locator("#questions .question-card").first();
+  await card.locator("textarea").first().fill(prompt);
+  const options = card.locator(".option-row input[type=text]");
+  await options.nth(0).fill("先看一看");
+  await options.nth(1).fill("直接动手");
 }
 
 test.describe("运营后台（公网）", () => {
@@ -81,6 +123,7 @@ test.describe("运营后台（公网）", () => {
     await page.getByRole("button", { name: "登录", exact: true }).click();
 
     await expect(page.getByRole("heading", { name: "工作首页" })).toBeVisible();
+    await waitOpsReady(page);
     await expect(page.getByRole("heading", { name: "待办清单" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "快捷入口" })).toBeVisible();
     await expect(page.getByText("待处理服务事项")).toBeVisible();
@@ -118,15 +161,19 @@ test.describe("运营后台（公网）", () => {
     await expect(page.getByRole("heading", { name: "家庭信息" })).toBeVisible();
   });
 
-  test("题库：可视化新建草稿→校验→发布→复制新版本", async ({ page }, testInfo) => {
+  test("题库：可视化新建草稿→校验→发布→复制新版本（无需手填技术标识）", async ({
+    page,
+  }, testInfo) => {
     desktopOnly(testInfo);
     const title = `公网验收题库 ${Date.now().toString(36)}`;
     await login(page, ADMIN);
+
+    // 新建页不应再出现内部标识与版本号输入框
     await page.goto("/ops/questionnaires/");
     await page.getByRole("link", { name: "新建题库草稿" }).click();
+    await expect(page.locator("#new-code")).toHaveCount(0);
+    await expect(page.locator("#new-version")).toHaveCount(0);
 
-    await page.locator("#new-code").fill("pub-" + Date.now().toString(36));
-    await page.locator("#new-version").fill("v1");
     await page.locator("#new-purpose").selectOption("exploration");
     await page.locator("#new-title").fill(title);
     await page
@@ -135,17 +182,13 @@ test.describe("运营后台（公网）", () => {
     await page.getByRole("button", { name: "创建草稿并开始编辑" }).click();
 
     await expect(page).toHaveURL(/\/ops\/questionnaires\/[0-9a-f-]{36}\/$/);
+    await waitOpsReady(page);
     await expect(page.locator("#q-title")).toHaveValue(title);
 
     await page.getByRole("button", { name: "发布", exact: true }).click();
     await expect(page.getByText("还不能发布，请先处理以下问题：")).toBeVisible();
 
-    await page.getByRole("button", { name: "添加题目", exact: true }).click();
-    const card = page.locator("#questions .question-card").first();
-    await card.locator("textarea").first().fill("遇到没见过的玩具，你更想先做什么？");
-    const options = card.locator(".option-row input[type=text]");
-    await options.nth(0).fill("先看一看");
-    await options.nth(1).fill("直接动手");
+    await addOneQuestion(page, "遇到没见过的玩具，你更想先做什么？");
 
     await page.getByRole("button", { name: "保存草稿", exact: true }).click();
     await expect(page.getByText("草稿已保存")).toBeVisible();
@@ -161,10 +204,109 @@ test.describe("运营后台（公网）", () => {
     await published.getByRole("link", { name: title }).click();
     await expect(page.getByText("该版本不可编辑")).toBeVisible();
 
+    // 复制：版本号由系统递增，只确认影响说明，不再要求运营填版本号
     await page.getByRole("button", { name: "复制为新版本", exact: true }).click();
-    await promptDialog(page, "复制", "v2");
-    await expect(page.getByText("已创建草稿")).toBeVisible();
+    const dialog = page.locator("#ops-dialog");
+    await expect(dialog).toBeVisible();
+    await expect(dialog.locator("#ops-prompt-input")).toHaveCount(0);
+    await dialog.getByRole("button", { name: "复制", exact: true }).click();
+    await expect(page.getByText(/已创建草稿/)).toBeVisible();
     await expect(page.locator("#questions .question-card").first()).toBeVisible();
+  });
+
+  test("题库：同一草稿在两个页面编辑，旧页面保存必须报冲突且不覆盖", async ({
+    browser,
+  }, testInfo) => {
+    desktopOnly(testInfo);
+    const title = `公网验收冲突 ${Date.now().toString(36)}`;
+    const contextA = await browser.newContext();
+    const contextB = await browser.newContext();
+    const pageA = await contextA.newPage();
+    const pageB = await contextB.newPage();
+    const errors = [];
+    pageA.on("pageerror", (e) => errors.push("A:" + e.message));
+    pageB.on("pageerror", (e) => errors.push("B:" + e.message));
+
+    try {
+      await login(pageA, ADMIN);
+      const editUrl = await createQuestionnaireDraft(pageA, title);
+      await addOneQuestion(pageA, "两个页面同时编辑的情境");
+
+      // B（内容运营）在 A 保存之前打开同一草稿，因此持有更旧的修订号
+      await login(pageB, CONTENT);
+      await pageB.goto(editUrl);
+      await waitOpsReady(pageB);
+      await expect(pageB.locator("#q-title")).toHaveValue(title);
+
+      // A 先改标题并保存成功
+      await pageA.locator("#q-title").fill(title + "-A已保存");
+      await pageA.getByRole("button", { name: "保存草稿", exact: true }).click();
+      await expect(pageA.getByText("草稿已保存")).toBeVisible();
+
+      // B 在旧页面上保存：必须明确报冲突，而不是静默覆盖
+      await pageB.locator("#q-description").fill("B 只改了用途说明");
+      await pageB.getByRole("button", { name: "保存草稿", exact: true }).click();
+      await expect(pageB.getByText(/保存冲突/)).toBeVisible();
+
+      // 本地输入必须保留，不能自动丢弃或自动重试覆盖
+      await expect(pageB.locator("#q-title")).toHaveValue(title);
+      await expect(pageB.locator("#q-description")).toHaveValue("B 只改了用途说明");
+
+      // 刷新后看到的是 A 保存的内容，B 的旧页面没有把它覆盖掉
+      await pageA.reload();
+      await waitOpsReady(pageA);
+      await expect(pageA.locator("#q-title")).toHaveValue(title + "-A已保存");
+      await expect(pageA.locator("#q-description")).not.toHaveValue("B 只改了用途说明");
+
+      // 冲突提示里要给出"加载最新版本"的恢复路径
+      await pageB.getByRole("button", { name: /加载最新版本/ }).first().click();
+      await confirmDialog(pageB, "加载最新版本");
+      await expect(pageB.locator("#q-title")).toHaveValue(title + "-A已保存");
+    } finally {
+      await contextA.close();
+      await contextB.close();
+    }
+    expect(errors, `页面脚本错误：${errors.join(" | ")}`).toEqual([]);
+  });
+
+  test("内容运营进不了审计页，首页也不出现审计内容", async ({ page }, testInfo) => {
+    test.skip(!CONTENT.username, "未提供 DD_OPS_CONTENT_USER");
+    desktopOnly(testInfo);
+    await login(page, CONTENT);
+
+    // 首页本身可用，但不能有"最近操作"区块
+    await expect(page.getByRole("heading", { name: "工作首页" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "最近操作" })).toHaveCount(0);
+
+    await page.goto("/ops/audit/");
+    await expect(page.getByText("权限不足")).toBeVisible();
+
+    // 首页也不应该通过接口泄露：直接用会话拉一次首页 HTML
+    const html = await page.evaluate(async () => {
+      const response = await fetch("/ops/", { credentials: "same-origin" });
+      return await response.text();
+    });
+    expect(html).not.toContain("最近操作");
+  });
+
+  test("审计：非法日期不报 500，给出中文提示并保留输入", async ({ page }, testInfo) => {
+    desktopOnly(testInfo);
+    await login(page, ADMIN);
+
+    const response = await page.goto("/ops/audit/?start=2026-99-99");
+    expect(response.status()).toBe(200);
+    await expect(page.getByText(/不是有效日期/)).toBeVisible();
+    // <input type="date"> 会丢弃浏览器无法识别的值，所以"保留用户输入"靠提示
+    // 文案回显原值来保证：提示里必须出现用户实际填的那个条件。
+    await expect(page.locator("#filter-problems")).toContainText("2026-99-99");
+
+    const endFirst = await page.goto("/ops/audit/?start=2026-09-12&end=2026-09-01");
+    expect(endFirst.status()).toBe(200);
+    await expect(page.getByText(/开始日期晚于结束日期/)).toBeVisible();
+
+    // 越界的页号也不应 500
+    const badPage = await page.goto("/ops/audit/?page=abc");
+    expect(badPage.status()).toBe(200);
   });
 
   test("活动：维护材料与步骤后发布", async ({ page }, testInfo) => {
@@ -174,14 +316,16 @@ test.describe("运营后台（公网）", () => {
     await page.goto("/ops/activities/");
     await page.getByRole("link", { name: "新建活动草稿" }).click();
 
-    await page.locator("#new-code").fill("pub-act-" + Date.now().toString(36));
-    await page.locator("#new-version").fill("v1");
+    await expect(page.locator("#new-code")).toHaveCount(0);
+    await expect(page.locator("#new-version")).toHaveCount(0);
+
     await page.locator("#new-title").fill(title);
     await page.locator("#new-island").fill("观察岛");
     await page.locator("#new-mood").fill("好奇");
     await page.locator("#new-duration").fill("20");
     await page.getByRole("button", { name: "创建草稿并开始编辑" }).click();
     await expect(page).toHaveURL(/\/ops\/activities\/[0-9a-f-]{36}\/$/);
+    await waitOpsReady(page);
     await expect(page.locator("#a-title")).toHaveValue(title);
 
     await page.locator("#a-goal").fill("陪孩子观察身边的形状");

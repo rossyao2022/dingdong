@@ -32,7 +32,7 @@ def authenticate_parent(request):
         grant = LoginGrant.objects.select_related("user").get(
             id=token["grant_id"], user_id=token["user_id"]
         )
-    except TokenError, KeyError, ValueError, ValidationError, LoginGrant.DoesNotExist:
+    except (TokenError, KeyError, ValueError, ValidationError, LoginGrant.DoesNotExist):
         raise ApiError("AUTH_REQUIRED", 401, "登录已失效") from None
     if (
         grant.revoked_at
@@ -209,7 +209,7 @@ def paginate(queryset, request, serialize, scope):
             queryset = queryset.filter(
                 Q(created_at__gt=payload["at"]) | Q(created_at=payload["at"], id__gt=payload["id"])
             )
-        except signing.BadSignature, ValueError, KeyError:
+        except (signing.BadSignature, ValueError, KeyError):
             raise ApiError("VALIDATION_ERROR", 422, "分页游标无效") from None
     rows = list(queryset.order_by("created_at", "id")[: size + 1])
     more = len(rows) > size

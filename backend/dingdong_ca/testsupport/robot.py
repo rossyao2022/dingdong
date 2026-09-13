@@ -176,7 +176,7 @@ def normalize_observation(payload, subject):
             or start >= end
         ):
             raise ValueError
-    except TypeError, ValueError:
+    except (TypeError, ValueError):
         raise FixtureFailure("UPSTREAM_SCHEMA_INVALID") from None
     metrics = payload["metrics"]
     if not isinstance(metrics, list) or len(metrics) != 1:

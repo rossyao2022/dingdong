@@ -1,0 +1,101 @@
+Python 3.14.7 (main, Sep  1 2026, 00:05:20) [GCC 14.2.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+(InteractiveConsole)
+
+now exiting InteractiveConsole...
+
+> dingdong-parent@0.3.2 test:public
+> playwright test --config=playwright.public.config.js --grep 窄屏下导航
+
+
+Running 2 tests using 1 worker
+
+  ✘  1 [desktop] › deployment-tests/ops-public.spec.js:302:3 › 运营后台（公网） › 窄屏下导航与列表基本可用 (8.9s)
+  ✘  2 [mobile] › deployment-tests/ops-public.spec.js:302:3 › 运营后台（公网） › 窄屏下导航与列表基本可用 (10.3s)
+
+
+  1) [desktop] › deployment-tests/ops-public.spec.js:302:3 › 运营后台（公网） › 窄屏下导航与列表基本可用 ───────────────
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/ops\/$/
+    Received string:  "http://110.42.225.196/ops/login/"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 5000ms
+        14 × locator resolved to <html lang="zh-CN">…</html>
+           - unexpected value "http://110.42.225.196/ops/login/"
+
+
+      33 |   await page.locator("#id_password").fill(account.password);
+      34 |   await page.getByRole("button", { name: "登录", exact: true }).click();
+    > 35 |   await expect(page).toHaveURL(/\/ops\/$/);
+         |                      ^
+      36 |   // 后台脚本必须真正加载成功，否则页面按钮会静默失效
+      37 |   expect(await page.evaluate(() => typeof window.Ops)).toBe("object");
+      38 | }
+        at login (/Users/yihu/Documents/ChatGPT/叮咚/frontend/deployment-tests/ops-public.spec.js:35:22)
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/deployment-tests/ops-public.spec.js:303:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/ops-public-运营后台（公网）-窄屏下导航与列表基本可用-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/ops-public-运营后台（公网）-窄屏下导航与列表基本可用-desktop/error-context.md
+
+  2) [mobile] › deployment-tests/ops-public.spec.js:302:3 › 运营后台（公网） › 窄屏下导航与列表基本可用 ────────────────
+
+    Error: page.goto: net::ERR_EMPTY_RESPONSE at http://110.42.225.196/ops/login/
+    Call log:
+      - navigating to "http://110.42.225.196/ops/login/", waiting until "load"
+
+
+      29 |
+      30 | async function login(page, account) {
+    > 31 |   await page.goto("/ops/login/");
+         |              ^
+      32 |   await page.locator("#id_username").fill(account.username);
+      33 |   await page.locator("#id_password").fill(account.password);
+      34 |   await page.getByRole("button", { name: "登录", exact: true }).click();
+        at login (/Users/yihu/Documents/ChatGPT/叮咚/frontend/deployment-tests/ops-public.spec.js:31:14)
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/deployment-tests/ops-public.spec.js:303:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/ops-public-运营后台（公网）-窄屏下导航与列表基本可用-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/ops-public-运营后台（公网）-窄屏下导航与列表基本可用-mobile/error-context.md
+
+  2 failed
+    [desktop] › deployment-tests/ops-public.spec.js:302:3 › 运营后台（公网） › 窄屏下导航与列表基本可用 ────────────────
+    [mobile] › deployment-tests/ops-public.spec.js:302:3 › 运营后台（公网） › 窄屏下导航与列表基本可用 ─────────────────
+
+Read-only browser regression exit: 1
+ssh: connect to host 100.115.66.119 port 22: Operation timed out
+node:internal/errors:999
+  const err = new Error(message);
+              ^
+
+Error: Command failed: ssh dell docker exec -i dingdong-demo-api-1 python manage.py shell
+ssh: connect to host 100.115.66.119 port 22: Operation timed out
+
+    at genericNodeError (node:internal/errors:999:15)
+    at wrappedFn (node:internal/errors:544:14)
+    at checkExecSyncError (node:child_process:942:11)
+    at execFileSync (node:child_process:978:15)
+    at remote (file:///private/tmp/dingdong-ops-review-retry.mjs:6:30)
+    at file:///private/tmp/dingdong-ops-review-retry.mjs:14:2 {
+  status: 255,
+  signal: null,
+  output: [
+    null,
+    '',
+    'ssh: connect to host 100.115.66.119 port 22: Operation timed out\r\n'
+  ],
+  pid: 11388,
+  stdout: '',
+  stderr: 'ssh: connect to host 100.115.66.119 port 22: Operation timed out\r\n'
+}
+
+Node.js v26.7.0

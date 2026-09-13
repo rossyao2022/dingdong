@@ -240,7 +240,7 @@
     </section>
   </div>
 
-  {% if audit_rows %}
+  {% if can_view_audit and audit_rows %}
     <section class="card">
       <h2>该档案的操作记录</h2>
       <ul class="timeline">
@@ -260,6 +260,7 @@
         <div class="ops-dialog-body">
           <h2>更正儿童档案</h2>
           <p>用于家长提出资料更正后的人工修改，修改会记录在操作审计中。</p>
+          <div id="profile-conflict" hidden></div>
           <div class="form-row">
             <label for="profile-name">称呼</label>
             <input type="text" id="profile-name" value="{{ child.name }}" maxlength="80" required />
@@ -295,27 +296,92 @@
         const open = document.getElementById("edit-profile-open");
         const cancel = document.getElementById("edit-profile-cancel");
         const form = document.getElementById("edit-profile-form");
+        const conflictBox = document.getElementById("profile-conflict");
         if (!dialog || !open) return;
+        /* 页面渲染时的档案修订号：服务端据此判断是否有人在你之前改过。 */
+        let revision = {{ child.revision }};
+        const fields = {
+          name: document.getElementById("profile-name"),
+          gender: document.getElementById("profile-gender"),
+          birth: document.getElementById("profile-birth"),
+        };
         open.addEventListener("click", function () {
+          conflictBox.hidden = true;
           dialog.showModal();
         });
         cancel.addEventListener("click", function () {
           dialog.close();
         });
+        function localValues() {
+          return { name: fields.name.value, gender: fields.gender.value, birth_date: fields.birth.value };
+        }
+        function renderConflict(current) {
+          conflictBox.innerHTML = "";
+          conflictBox.hidden = false;
+          const notice = window.Ops.notice({
+            kind: "danger",
+            title: "保存冲突：这份档案在你编辑期间已被其他人更正",
+            message: "为避免覆盖对方的修改，本次没有保存。你填写的内容仍保留在下方输入框中。",
+            actions: [
+              {
+                label: "加载最新档案",
+                primary: true,
+                onClick: function () {
+                  fields.name.value = current.name || "";
+                  fields.gender.value = current.gender || "unknown";
+                  fields.birth.value = current.birth_date || "";
+                  revision = current.revision;
+                  conflictBox.hidden = true;
+                  window.Ops.toast("已加载服务端最新档案。", "ok");
+                },
+              },
+              {
+                label: "查看差异",
+                onClick: function () {
+                  const local = localValues();
+                  const diffs = [];
+                  if (local.name !== (current.name || "")) {
+                    diffs.push("称呼：" + (local.name || "（空）") + " → 服务端现有 " + (current.name || "（空）"));
+                  }
+                  if (local.gender !== (current.gender || "unknown")) {
+                    diffs.push("性别：本页选择与你不同，服务端现有 " + (current.gender_label || current.gender));
+                  }
+                  if ((local.birth_date || "") !== (current.birth_date || "")) {
+                    diffs.push("生日：本页填写 " + (local.birth_date || "（空）") + " → 服务端现有 " + (current.birth_date || "（空）"));
+                  }
+                  window.Ops.alert({
+                    title: "与最新档案的差异",
+                    message: "下面是你的输入与服务端当前内容的差异。",
+                    impacts: diffs.length ? diffs : ["没有差异：对方修改的可能正是你也要改的内容。"],
+                  });
+                },
+              },
+            ],
+          });
+          conflictBox.appendChild(notice);
+        }
         form.addEventListener("submit", async function (event) {
           event.preventDefault();
           const button = document.getElementById("edit-profile-save");
+          const values = localValues();
           const data = await window.Ops.act({
             url: "{% url 'ops:api_child_profile' child.pk %}",
             body: {
-              name: document.getElementById("profile-name").value,
-              gender: document.getElementById("profile-gender").value,
-              birth_date: document.getElementById("profile-birth").value,
+              name: values.name,
+              gender: values.gender,
+              birth_date: values.birth_date,
+              revision: revision,
             },
             button: button,
             success: "档案已更新。",
+            onError: function (error) {
+              if (error && error.code === "EDIT_CONFLICT") {
+                renderConflict(error.current || {});
+              }
+            },
           });
           if (data) {
+            if (typeof data.revision === "number") revision = data.revision;
             dialog.close();
             window.setTimeout(function () {
               window.location.reload();

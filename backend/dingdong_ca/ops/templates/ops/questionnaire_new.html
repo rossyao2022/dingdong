@@ -6,18 +6,11 @@
 {% block content %}
   <section class="card" style="max-width:720px">
     <h2>第一步：填写题库基本信息</h2>
-    <p class="card-sub">创建后进入可视化编辑器逐题添加题目。草稿不会出现在家长端。</p>
+    <p class="card-sub">
+      创建后进入可视化编辑器逐题添加题目。草稿不会出现在家长端。
+      内部编号与版本号由系统自动生成，不需要手工维护。
+    </p>
 
-    <div class="form-row">
-      <label for="new-code">题库标识</label>
-      <input type="text" id="new-code" placeholder="例如 exploration" maxlength="64" />
-      <p class="help">用于区分不同题库，只能使用字母、数字和短横线，创建后不可修改。</p>
-    </div>
-    <div class="form-row">
-      <label for="new-version">版本号</label>
-      <input type="text" id="new-version" placeholder="例如 v1" maxlength="32" />
-      <p class="help">同一题库可以保留多个版本，发布新版本时旧版本会自动停用。</p>
-    </div>
     <div class="form-row">
       <label for="new-purpose">用途</label>
       <select id="new-purpose">
@@ -30,11 +23,14 @@
     <div class="form-row">
       <label for="new-title">题库名称</label>
       <input type="text" id="new-title" placeholder="家长看到的问卷名称" maxlength="160" />
+      <p class="help">使用同一个名称再建一次，会自动成为该题库的新版本，不会产生两个同名题库。</p>
     </div>
     <div class="form-row">
       <label for="new-description">给家长的用途说明</label>
       <textarea id="new-description" placeholder="例如：非正式体验，只记录本次选择，不作能力评价。"></textarea>
     </div>
+
+    <div id="create-problems" hidden></div>
 
     <div class="sticky-actions">
       <button type="button" class="btn btn-primary" id="create-submit">创建草稿并开始编辑</button>
@@ -47,21 +43,47 @@
   <script>
     (function () {
       const button = document.getElementById("create-submit");
+      const problems = document.getElementById("create-problems");
+      /* 请求标识在第一次点击时生成：公网后台是 HTTP，不能假设 crypto.randomUUID 存在。
+         同一次提交重试复用同一个标识，服务端据此保证不会产生第二份草稿。 */
+      let requestKey = null;
       button.addEventListener("click", async function () {
+        const title = document.getElementById("new-title").value.trim();
+        if (problems) {
+          problems.hidden = true;
+          problems.innerHTML = "";
+        }
+        if (!title) {
+          if (problems) {
+            problems.hidden = false;
+            problems.appendChild(
+              window.Ops.notice({
+                kind: "danger",
+                title: "还差一步",
+                message: "请先填写题库名称，运营界面看到的名称就是家长看到的名称。",
+              })
+            );
+          }
+          window.Ops.toast("请先填写题库名称。", "error");
+          return;
+        }
+        if (!requestKey) requestKey = window.Ops.requestId();
         const data = await window.Ops.act({
           url: "{% url 'ops:api_questionnaire_create' %}",
           body: {
-            code: document.getElementById("new-code").value,
-            version: document.getElementById("new-version").value,
             purpose: document.getElementById("new-purpose").value,
-            title: document.getElementById("new-title").value,
+            title: title,
             description: document.getElementById("new-description").value,
+            request_key: requestKey,
           },
           button: button,
-          success: "草稿已创建。",
+          success: false,
         });
         if (data && data.questionnaire) {
-          window.location.href = "/ops/questionnaires/" + data.questionnaire.id + "/";
+          window.Ops.toast(data.notice || "草稿已创建。", "ok");
+          window.setTimeout(function () {
+            window.location.href = "/ops/questionnaires/" + data.questionnaire.id + "/";
+          }, 700);
         }
       });
     })();

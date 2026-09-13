@@ -56,7 +56,7 @@ class BoundedMultipartParser(MultiPartParser):
         raw.upload_handlers = [MemoryOnlyUploadHandler(raw)]
         try:
             return super().parse(stream, media_type, parser_context)
-        except RequestDataTooBig, TooManyFieldsSent, TooManyFilesSent:
+        except (RequestDataTooBig, TooManyFieldsSent, TooManyFilesSent):
             raise ApiError("INPUT_TOO_LARGE", 413, "输入超过限制") from None
 
 

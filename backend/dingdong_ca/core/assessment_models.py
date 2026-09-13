@@ -83,6 +83,11 @@ class QuestionnaireVersion(PublishedVersion):
     description = models.TextField(default="仅用于测试流程，非专业量表，不作能力评价。")
     schema_version = models.CharField(max_length=32, default="questionnaire-v1")
     questions = models.JSONField(default=list, blank=True)
+    # 修订号：运营后台保存草稿时用它做乐观并发控制，防止旧页面静默覆盖别人的修改。
+    # 系统字段：不出现在任何表单里，由接口在事务内维护。
+    revision = models.PositiveBigIntegerField(default=1, editable=False)
+    # 新建请求幂等键：双击或重试不会产生两份内容。
+    create_request_key = models.UUIDField(null=True, blank=True, editable=False)
     frozen_fields = ("schema_version", "questions", "purpose", "title", "description")
 
     def __str__(self):
@@ -98,6 +103,11 @@ class QuestionnaireVersion(PublishedVersion):
             ),
             models.UniqueConstraint(
                 fields=["code"], condition=Q(status="published"), name="questionnaire_one_published"
+            ),
+            models.UniqueConstraint(
+                fields=["create_request_key"],
+                condition=Q(create_request_key__isnull=False),
+                name="questionnaire_create_request_unique",
             ),
         ]
 

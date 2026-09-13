@@ -18,7 +18,7 @@
               {% if family.status == "active" %}
                 <button type="button" class="btn btn-sm btn-danger"
                         data-ops-action="{% url 'ops:api_family_status' family.pk %}"
-                        data-ops-body='{"status": "frozen"}'
+                        data-ops-body='{"status": "frozen", "expected_status": "active"}'
                         data-ops-confirm-title="冻结该家庭"
                         data-ops-confirm="冻结后，家长端将无法访问该家庭的儿童、活动与报告。"
                         data-ops-confirm-impacts="已生成的数据不会被删除，恢复后家长可继续访问|冻结与恢复都会记录在操作审计中"
@@ -29,7 +29,7 @@
               {% elif family.status == "frozen" %}
                 <button type="button" class="btn btn-sm btn-primary"
                         data-ops-action="{% url 'ops:api_family_status' family.pk %}"
-                        data-ops-body='{"status": "active"}'
+                        data-ops-body='{"status": "active", "expected_status": "frozen"}'
                         data-ops-confirm-title="恢复该家庭"
                         data-ops-confirm="恢复后家长可以重新访问该家庭的数据。"
                         data-ops-confirm-impacts="只恢复访问权限，不会修改任何业务数据"

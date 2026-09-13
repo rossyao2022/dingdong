@@ -8,6 +8,10 @@
   const state = JSON.parse(dataNode.textContent) || {};
   if (!Array.isArray(state.questions)) state.questions = [];
   const status = config.dataset.status;
+  /* 修订号：本页内容基于哪一版。保存时回传，服务端据此判断是否有人先改过。 */
+  let revision = parseInt(config.dataset.revision, 10);
+  if (isNaN(revision) || revision < 1) revision = 1;
+  let copyRequestKey = null;
   const endpoints = {
     save: config.dataset.saveUrl,
     check: config.dataset.checkUrl,
@@ -214,6 +218,7 @@
 
   function collect() {
     return {
+      revision: revision,
       title: document.getElementById("q-title").value,
       description: document.getElementById("q-description").value,
       questions: state.questions.map(function (question) {
@@ -232,6 +237,125 @@
     };
   }
 
+  /* ---------------------------------------------------------------- 保存冲突 */
+
+  const conflictBox = document.getElementById("conflict");
+
+  function diffAgainst(current) {
+    const local = collect();
+    const rows = [];
+    if ((local.title || "") !== (current.title || "")) {
+      rows.push(
+        "题库名称：你填写的是「" +
+          (local.title || "（空）") +
+          "」，服务端最新是「" +
+          (current.title || "（空）") +
+          "」"
+      );
+    }
+    if ((local.description || "") !== (current.description || "")) {
+      rows.push("用途说明：你填写的内容与服务端最新版本不一致");
+    }
+    const localCount = local.questions.length;
+    const remote = current.questions || [];
+    if (localCount !== remote.length) {
+      rows.push("题目数量：你这边 " + localCount + " 题，服务端最新 " + remote.length + " 题");
+    } else {
+      let changed = 0;
+      local.questions.forEach(function (question, index) {
+        if ((question.title || "") !== ((remote[index] || {}).title || "")) changed += 1;
+      });
+      if (changed) rows.push("有 " + changed + " 道题的题干与服务端最新版本不同");
+    }
+    return rows;
+  }
+
+  function applyLatest(current) {
+    document.getElementById("q-title").value = current.title || "";
+    document.getElementById("q-description").value = current.description || "";
+    state.questions = JSON.parse(JSON.stringify(current.questions || []));
+    revision = current.revision;
+    conflictBox.hidden = true;
+    conflictBox.innerHTML = "";
+    window.Ops.markClean();
+    render();
+  }
+
+  async function overwriteWithLocal(current) {
+    const button = document.getElementById("save");
+    /* 用户已经看过差异并明确选择用自己的内容覆盖：这不是自动重试。 */
+    revision = current.revision;
+    const result = await window.Ops.act({
+      url: endpoints.save,
+      body: collect(),
+      button: button,
+      success: "已按你的内容保存，服务端最新版本被覆盖。",
+    });
+    if (result && result.questionnaire) {
+      state.questions = result.questionnaire.questions;
+      revision = result.questionnaire.revision;
+      conflictBox.hidden = true;
+      conflictBox.innerHTML = "";
+      window.Ops.markClean();
+    }
+    return result;
+  }
+
+  function showConflict(current) {
+    if (!conflictBox) return;
+    conflictBox.innerHTML = "";
+    conflictBox.hidden = false;
+    conflictBox.appendChild(
+      window.Ops.notice({
+        kind: "danger",
+        title: "保存冲突：这份题库在你编辑期间已被其他人保存",
+        message:
+          "为避免覆盖对方的修改，本次没有保存。你页面上的内容仍然保留，可以对比差异后再决定下一步。",
+        actions: [
+          {
+            label: "查看差异",
+            onClick: function () {
+              const rows = diffAgainst(current);
+              window.Ops.alert({
+                title: "你的修改与服务端最新版本的差异",
+                message: "下面是主要差异。完整内容可以用「加载最新版本」查看。",
+                impacts: rows.length ? rows : ["没有明显差异：对方可能修改了选项文字或顺序。"],
+              });
+            },
+          },
+          {
+            label: "加载最新版本（放弃我的修改）",
+            onClick: function () {
+              window.Ops.confirm({
+                title: "加载服务端最新版本",
+                message: "加载后你会丢失当前页面上尚未保存的内容，确定继续吗？",
+                confirmLabel: "加载最新版本",
+              }).then(function (agreed) {
+                if (agreed) applyLatest(current);
+              });
+            },
+          },
+          {
+            label: "用我的内容覆盖最新版本",
+            primary: true,
+            onClick: function () {
+              window.Ops.confirm({
+                title: "用我的内容覆盖",
+                message: "这会用你页面上的内容覆盖服务端最新版本，对方的修改会丢失。确定继续吗？",
+                impacts: ["仅在你确认自己的版本应该取代对方时才这样做"],
+                confirmLabel: "确认覆盖",
+                danger: true,
+              }).then(function (agreed) {
+                if (agreed) overwriteWithLocal(current);
+              });
+            },
+          },
+        ],
+      })
+    );
+    conflictBox.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }
+
   async function save(silent) {
     const button = document.getElementById("save");
     const result = await window.Ops.act({
@@ -239,9 +363,15 @@
       body: collect(),
       button: button,
       success: silent ? false : "草稿已保存。",
+      onError: function (error) {
+        if (error && error.code === "EDIT_CONFLICT") showConflict(error.current || {});
+      },
     });
     if (result && result.questionnaire) {
       state.questions = result.questionnaire.questions;
+      if (typeof result.questionnaire.revision === "number") {
+        revision = result.questionnaire.revision;
+      }
       window.Ops.markClean();
     }
     return result;
@@ -336,24 +466,32 @@
   const copyButton = document.getElementById("copy");
   if (copyButton) {
     copyButton.addEventListener("click", async function () {
-      const version = await window.Ops.prompt({
+      /* 版本号由系统递增，运营不需要手工管理技术编号；
+         同一次点击重复提交也只会产生一个新版本。 */
+      const agreed = await window.Ops.confirm({
         title: "复制为新版本",
-        message: "复制会创建一个可编辑的草稿，题目内容与当前版本一致。",
-        label: "新版本号（留空自动生成）",
-        placeholder: "例如 v3",
+        message: "复制会创建一个可编辑的草稿，题目内容与当前版本一致，版本号由系统自动递增。",
+        impacts: [
+          "当前版本保持原样，历史答卷仍绑定它，不会被改写",
+          "发布新版本时，该题库原有的已发布版本会自动停用",
+        ],
         confirmLabel: "复制",
       });
-      if (version === null) return;
-      await window.Ops.act({
+      if (!agreed) return;
+      if (!copyRequestKey) copyRequestKey = window.Ops.requestId();
+      const result = await window.Ops.act({
         url: endpoints.copy,
-        body: { version: version },
+        body: { request_key: copyRequestKey },
         button: copyButton,
-        success: "已创建草稿。",
-        redirect: null,
-        after: function (data) {
-          window.location.href = data.redirect;
-        },
+        success: false,
       });
+      if (result && result.redirect) {
+        copyRequestKey = null;
+        window.Ops.toast("已创建草稿 " + (result.version || "") + "。", "ok");
+        window.setTimeout(function () {
+          window.location.href = result.redirect;
+        }, 700);
+      }
     });
   }
 

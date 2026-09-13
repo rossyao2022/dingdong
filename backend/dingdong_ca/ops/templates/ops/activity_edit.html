@@ -23,9 +23,12 @@
     </div>
   {% endif %}
 
+  <div id="conflict" hidden></div>
+
   <div id="activity-config"
        data-status="{{ row.status }}"
        data-editable="{% if can_edit %}1{% else %}0{% endif %}"
+       data-revision="{{ row.revision }}"
        data-save-url="{% url 'ops:api_activity_save' row.pk %}"
        data-check-url="{% url 'ops:api_activity_check' row.pk %}"
        data-publish-url="/api/v1/staff/activities/{{ row.pk }}/publish"
@@ -118,7 +121,7 @@
       <section class="card">
         <h2>使用情况</h2>
         <dl class="kv">
-          <dt>活动标识</dt><dd>{{ row.code }}</dd>
+          <dt>系统编号</dt><dd>{{ row.code }}（自动生成，无需维护）</dd>
           <dt>版本号</dt><dd>{{ row.version }}</dd>
           <dt>进行中的记录</dt><dd>{{ active_records }} 条</dd>
           <dt>历史记录总数</dt><dd>{{ total_records }} 条</dd>

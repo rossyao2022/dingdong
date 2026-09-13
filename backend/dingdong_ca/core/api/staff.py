@@ -134,7 +134,7 @@ def validate_content(row):
                     or not isinstance(step["guide_text"], str)
                 ):
                     raise ValueError
-    except KeyError, TypeError, ValueError:
+    except (KeyError, TypeError, ValueError):
         raise ApiError("CONTENT_INVALID", 422, "发布内容不符合当前测试协议") from None
 
 

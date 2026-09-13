@@ -136,5 +136,35 @@ def ops_client(user):
     return client
 
 
-def post_json(client, url, payload):
-    return client.post(url, json.dumps(payload), content_type="application/json")
+_CONTENT_SAVE_MODELS = ("questionnaires", "activities", "children")
+
+
+def post_json(client, url, payload, revision=None):
+    """POST JSON。内容保存接口未显式给出修订号时，自动使用库内当前修订号。"""
+    body = dict(payload)
+    if revision is None:
+        body.setdefault("revision", _lookup_revision(url))
+    else:
+        body["revision"] = revision
+    if body.get("revision") is None:
+        body.pop("revision", None)
+    return client.post(url, json.dumps(body), content_type="application/json")
+
+
+def _lookup_revision(url):
+    import re
+
+    from dingdong_ca.core.models import ActivityContentVersion, Child, QuestionnaireVersion
+
+    match = re.fullmatch(
+        r"/ops/api/(questionnaires|activities|children)/([0-9a-fA-F-]{36})", url
+    )
+    if not match:
+        return None
+    model = {
+        "questionnaires": QuestionnaireVersion,
+        "activities": ActivityContentVersion,
+        "children": Child,
+    }[match.group(1)]
+    row = model.objects.filter(pk=match.group(2)).first()
+    return None if row is None else row.revision

@@ -5,6 +5,7 @@
 {% block crumb %}查询已生成的报告，查看内容与生成状态{% endblock %}
 
 {% block content %}
+  {% include "ops/_filter_problems.html" %}
   {% if failed_count %}
     <div class="notice notice-danger">
       <strong>有 {{ failed_count }} 个报告生成任务失败</strong>

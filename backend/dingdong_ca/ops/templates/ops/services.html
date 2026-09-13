@@ -5,6 +5,7 @@
 {% block crumb %}家长提交的求助、删除与更正申请{% endblock %}
 
 {% block content %}
+  {% include "ops/_filter_problems.html" %}
   <section class="grid grid-4" aria-label="事项概览">
     <a class="stat" href="{% url 'ops:services' %}?status=open" data-nav>
       <span>待处理</span><b>{{ counts.open }}</b>

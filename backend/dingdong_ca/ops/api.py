@@ -8,13 +8,16 @@
 """
 
 import copy
+import hashlib
+import re
 import uuid
 from functools import wraps
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.db import transaction
+from django.db import connection, transaction
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from django.utils.text import slugify
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import api_view
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
@@ -28,6 +31,9 @@ from .services import OpsError, json_error, json_ok, ops_audit
 MAX_QUESTIONS = 50
 MAX_OPTIONS = 12
 PURPOSE_RANGE = {"exploration": (1, 10), "assessment": (20, 30)}
+
+
+# --------------------------------------------------------------------------- 并发控制
 
 
 def ops_action(permission):
@@ -47,8 +53,8 @@ def ops_action(permission):
             try:
                 return view(request, data, *args, **kwargs)
             except OpsError as exc:
-                return json_error(exc.code, exc.message, exc.status, exc.fields)
-            except Http404, ObjectDoesNotExist:
+                return json_error(exc.code, exc.message, exc.status, exc.fields, extra=exc.extra)
+            except (Http404, ObjectDoesNotExist):
                 return json_error("NOT_FOUND", "记录不存在或已被删除。", 404)
 
         handler.authentication_classes = [SessionAuthentication]
@@ -56,6 +62,97 @@ def ops_action(permission):
         return api_view(["POST"])(handler)
 
     return decorate
+
+
+def expected_revision(data, label):
+    """读取并校验客户端携带的修订号。
+
+    修订号是"我这次编辑基于哪一版"的声明。缺失或不合法时明确要求刷新页面，
+    而不是当作"没有冲突"放行——那正是旧页面静默覆盖别人修改的成因。
+    """
+    raw = data.get("revision")
+    if isinstance(raw, bool) or raw is None:
+        number = None
+    elif isinstance(raw, int):
+        number = raw
+    elif isinstance(raw, str) and raw.strip().isdigit():
+        number = int(raw.strip())
+    else:
+        number = None
+    if number is None or number < 1:
+        raise OpsError(
+            "VALIDATION_ERROR",
+            f"没有收到{label}的修订号，无法确认你打开的是最新版本。"
+            "请刷新页面后重新编辑，避免覆盖其他人的修改。",
+            422,
+            [{"field": "revision"}],
+        )
+    return number
+
+
+def edit_conflict(row, payload, label):
+    """过期编辑：返回 409 与服务端当前内容，前端据此对比后重新编辑。"""
+    return OpsError(
+        "EDIT_CONFLICT",
+        f"这份{label}在你编辑期间已被其他人保存过，为避免覆盖对方的修改，本次没有保存。"
+        "你的输入仍然保留在页面上：可以先对比差异，再决定加载最新版本或用你的修改覆盖。",
+        409,
+        [{"field": "revision"}],
+        extra={"current": payload},
+    )
+
+
+def request_key(data):
+    """新建请求幂等键：重复提交或重试不会产生第二份内容。"""
+    raw = data.get("request_key")
+    if not isinstance(raw, str) or not raw.strip():
+        return None
+    try:
+        return uuid.UUID(raw.strip())
+    except ValueError:
+        raise OpsError(
+            "VALIDATION_ERROR", "提交标识格式不正确，请刷新页面后重试。", 422
+        ) from None
+
+
+CODE_LIMIT = 48
+
+
+def generated_code(title, prefix):
+    """由业务名称推出稳定的内部标识，运营不需要自己编英文短横线。
+
+    同一名称必然得到同一标识，因此"重名"会自然落成同一内容的新版本，
+    而不是产生两个看起来一样的题库/活动。
+    """
+    digest = hashlib.sha1(title.strip().encode("utf-8")).hexdigest()[:12]
+    slug = re.sub(r"-{2,}", "-", slugify(title, allow_unicode=False)).strip("-")
+    if len(slug) >= 3:
+        return f"{prefix}-{slug}"[:CODE_LIMIT]
+    return f"{prefix}-{digest}"
+
+
+def next_version(model, code):
+    """同内容的下一个版本号：v1、v2……由系统递增，运营无需手工管理。"""
+    used = set(model.objects.filter(code=code).values_list("version", flat=True))
+    number = 1
+    while f"v{number}" in used:
+        number += 1
+    return f"v{number}"
+
+
+def lock_code(kind, code):
+    """按内容标识取事务级咨询锁，保证并发创建/复制不会撞版本号。"""
+    with connection.cursor() as cursor:
+        cursor.execute(
+            "SELECT pg_advisory_xact_lock(hashtextextended(%s,0))", [f"ops-content:{kind}:{code}"]
+        )
+
+
+def reusable(model, key):
+    """幂等：同一请求键已经建过内容就直接返回，不再新建。"""
+    if key is None:
+        return None
+    return model.objects.filter(create_request_key=key).first()
 
 
 # --------------------------------------------------------------------------- 内容规范化
@@ -137,7 +234,7 @@ def normalize_questions(raw, purpose):
             try:
                 min_choices = int(item.get("min_choices", 1))
                 max_choices = int(item.get("max_choices", len(clean_options)))
-            except TypeError, ValueError:
+            except (TypeError, ValueError):
                 raise OpsError(
                     "VALIDATION_ERROR", f"第 {index} 题的选择数量不是整数。", 422
                 ) from None
@@ -232,6 +329,7 @@ def _content_payload(row):
         "purpose": row.purpose,
         "status": row.status,
         "questions": row.questions,
+        "revision": row.revision,
         "updated_at": row.updated_at.isoformat(),
     }
 
@@ -297,18 +395,35 @@ def questionnaire_check(request, data, version_id):
 
 @ops_action("questionnaire.edit")
 def questionnaire_create(request, data):
-    code = _text(data.get("code", ""), 64, "code", "题库标识")
-    version = _text(data.get("version", ""), 32, "version", "版本号")
+    """新建题库草稿：运营只填业务名称、用途和说明，标识与版本由系统生成。
+
+    可选 `code` / `version` 仅供脚本与测试显式指定；页面不提供这两个输入。
+    """
     title = _text(data.get("title", ""), 160, "title", "题库名称")
+    if not title:
+        raise OpsError("VALIDATION_ERROR", "请填写题库名称。", 422, [{"field": "title"}])
     purpose = data.get("purpose")
     if purpose not in PURPOSE_RANGE:
-        raise OpsError("VALIDATION_ERROR", "请选择题库用途。", 422)
-    if not code or not version or not title:
-        raise OpsError("VALIDATION_ERROR", "题库标识、版本号和名称都需要填写。", 422)
-    if QuestionnaireVersion.objects.filter(code=code, version=version).exists():
-        raise OpsError("STATE_CONFLICT", "相同题库标识和版本号已存在，请换一个版本号。", 409)
+        raise OpsError("VALIDATION_ERROR", "请选择题库用途。", 422, [{"field": "purpose"}])
     description = _text(data.get("description", ""), 2000, "description", "给家长的用途说明")
+    key = request_key(data)
+    explicit_code = _text(data.get("code", ""), 64, "code", "题库标识")
+    explicit_version = _text(data.get("version", ""), 32, "version", "版本号")
+
     with transaction.atomic():
+        reused = reusable(QuestionnaireVersion, key)
+        if reused is not None:
+            return json_ok({"questionnaire": _content_payload(reused), "reused": True})
+        code = explicit_code or generated_code(title, "qn")
+        lock_code("questionnaire", code)
+        version = explicit_version or next_version(QuestionnaireVersion, code)
+        if QuestionnaireVersion.objects.filter(code=code, version=version).exists():
+            raise OpsError(
+                "STATE_CONFLICT",
+                f"该题库已经有版本 {version}，请直接打开已有版本或使用“复制为新版本”。",
+                409,
+            )
+        is_new_version = QuestionnaireVersion.objects.filter(code=code).exists()
         row = QuestionnaireVersion.objects.create(
             code=code,
             version=version,
@@ -319,6 +434,7 @@ def questionnaire_create(request, data):
             schema_version="questionnaire-v1",
             questions=[],
             status="draft",
+            create_request_key=key,
         )
         ops_audit(
             request.user,
@@ -327,7 +443,14 @@ def questionnaire_create(request, data):
             f"{row.title} · {row.version}",
             {"purpose": purpose},
         )
-    return json_ok({"questionnaire": _content_payload(row)}, status=201)
+        notice = (
+            f"该名称已存在同名题库，已创建它的新版本 {row.version}，版本之间互不影响。"
+            if is_new_version
+            else "草稿已创建，可以开始添加题目。"
+        )
+    return json_ok(
+        {"questionnaire": _content_payload(row), "reused": False, "notice": notice}, status=201
+    )
 
 
 @ops_action("questionnaire.edit")
@@ -336,16 +459,20 @@ def questionnaire_save(request, data, version_id):
     description = _text(data.get("description", ""), 2000, "description", "给家长的用途说明")
     with transaction.atomic():
         row = QuestionnaireVersion.objects.select_for_update().get(pk=version_id)
+        expected = expected_revision(data, "题库")
         if row.status != "draft":
             raise OpsError(
                 "STATE_CONFLICT",
                 "已发布或已停用的题库不能直接修改。请先复制为新版本再编辑。",
                 409,
             )
+        if row.revision != expected:
+            raise edit_conflict(row, _content_payload(row), "题库")
         questions = normalize_questions(data.get("questions", []), row.purpose)
         row.title = title or row.title
         row.description = description
         row.questions = questions
+        row.revision = expected + 1
         row.save()
         ops_audit(
             request.user,
@@ -359,10 +486,23 @@ def questionnaire_save(request, data, version_id):
 
 @ops_action("questionnaire.edit")
 def questionnaire_copy(request, data, version_id):
+    key = request_key(data)
     with transaction.atomic():
+        reused = reusable(QuestionnaireVersion, key)
+        if reused is not None:
+            return json_ok(
+                {
+                    "id": str(reused.pk),
+                    "redirect": f"/ops/questionnaires/{reused.pk}/",
+                    "version": reused.version,
+                    "reused": True,
+                },
+                status=201,
+            )
         source = QuestionnaireVersion.objects.select_for_update().get(pk=version_id)
+        lock_code("questionnaire", source.code)
         version = _text(data.get("version", ""), 32, "version", "新版本号")
-        version = version or "copy-" + uuid.uuid4().hex[:12]
+        version = version or next_version(QuestionnaireVersion, source.code)
         if QuestionnaireVersion.objects.filter(code=source.code, version=version).exists():
             raise OpsError("STATE_CONFLICT", "该版本号已存在，请换一个。", 409)
         new = QuestionnaireVersion.objects.create(
@@ -375,6 +515,7 @@ def questionnaire_copy(request, data, version_id):
             schema_version=source.schema_version,
             questions=copy.deepcopy(source.questions),
             status="draft",
+            create_request_key=key,
         )
         ops_audit(
             request.user,
@@ -383,7 +524,15 @@ def questionnaire_copy(request, data, version_id):
             f"{new.title} · {new.version}",
             {"from": f"{source.version}（{L.CONTENT_STATUS.get(source.status, source.status)}）"},
         )
-    return json_ok({"id": str(new.pk), "redirect": f"/ops/questionnaires/{new.pk}/"}, status=201)
+    return json_ok(
+        {
+            "id": str(new.pk),
+            "redirect": f"/ops/questionnaires/{new.pk}/",
+            "version": new.version,
+            "reused": False,
+        },
+        status=201,
+    )
 
 
 @ops_action("questionnaire.edit")
@@ -419,6 +568,7 @@ def _activity_payload(row):
         "duration_minutes": row.duration_minutes,
         "status": row.status,
         "content": row.content,
+        "revision": row.revision,
         "updated_at": row.updated_at.isoformat(),
     }
 
@@ -441,14 +591,27 @@ def activity_check(request, data, version_id):
 
 @ops_action("activity.edit")
 def activity_create(request, data):
-    code = _text(data.get("code", ""), 64, "code", "活动标识")
-    version = _text(data.get("version", ""), 32, "version", "版本号")
+    """新建活动草稿：运营只填标题与内容，标识与版本由系统生成。"""
     title = _text(data.get("title", ""), 120, "title", "活动标题")
-    if not code or not version or not title:
-        raise OpsError("VALIDATION_ERROR", "活动标识、版本号和标题都需要填写。", 422)
-    if ActivityContentVersion.objects.filter(code=code, version=version).exists():
-        raise OpsError("STATE_CONFLICT", "相同活动标识和版本号已存在，请换一个版本号。", 409)
+    if not title:
+        raise OpsError("VALIDATION_ERROR", "请填写活动标题。", 422, [{"field": "title"}])
+    key = request_key(data)
+    explicit_code = _text(data.get("code", ""), 64, "code", "活动标识")
+    explicit_version = _text(data.get("version", ""), 32, "version", "版本号")
     with transaction.atomic():
+        reused = reusable(ActivityContentVersion, key)
+        if reused is not None:
+            return json_ok({"activity": _activity_payload(reused), "reused": True})
+        code = explicit_code or generated_code(title, "act")
+        lock_code("activity", code)
+        version = explicit_version or next_version(ActivityContentVersion, code)
+        if ActivityContentVersion.objects.filter(code=code, version=version).exists():
+            raise OpsError(
+                "STATE_CONFLICT",
+                f"该活动已经有版本 {version}，请直接打开已有版本或使用“复制为新版本”。",
+                409,
+            )
+        is_new_version = ActivityContentVersion.objects.filter(code=code).exists()
         row = ActivityContentVersion.objects.create(
             code=code,
             version=version,
@@ -465,15 +628,23 @@ def activity_create(request, data):
             },
             status="draft",
             data_origin="synthetic",
+            create_request_key=key,
         )
         ops_audit(request.user, "activity.create", row, f"{row.title} · {row.version}")
-    return json_ok({"activity": _activity_payload(row)}, status=201)
+        notice = (
+            f"该名称已存在同名活动，已创建它的新版本 {row.version}，版本之间互不影响。"
+            if is_new_version
+            else "草稿已创建，可以开始维护步骤。"
+        )
+    return json_ok(
+        {"activity": _activity_payload(row), "reused": False, "notice": notice}, status=201
+    )
 
 
 def _positive_int(value, label):
     try:
         number = int(value)
-    except TypeError, ValueError:
+    except (TypeError, ValueError):
         raise OpsError("VALIDATION_ERROR", f"{label}需要填写整数分钟数。", 422) from None
     if not 1 <= number <= 600:
         raise OpsError("VALIDATION_ERROR", f"{label}需要在 1–600 分钟之间。", 422)
@@ -484,17 +655,21 @@ def _positive_int(value, label):
 def activity_save(request, data, version_id):
     with transaction.atomic():
         row = ActivityContentVersion.objects.select_for_update().get(pk=version_id)
+        expected = expected_revision(data, "活动")
         if row.status != "draft":
             raise OpsError(
                 "STATE_CONFLICT",
                 "已发布或已停用的活动不能直接修改，请先复制为新版本。",
                 409,
             )
+        if row.revision != expected:
+            raise edit_conflict(row, _activity_payload(row), "活动")
         row.title = _text(data.get("title", ""), 120, "title", "活动标题") or row.title
         row.island = _text(data.get("island", ""), 32, "island", "岛屿") or row.island
         row.mood = _text(data.get("mood", ""), 32, "mood", "情绪") or row.mood
         row.duration_minutes = _positive_int(data.get("duration_minutes"), "活动时长")
         row.content = normalize_activity_content(data.get("content", {}))
+        row.revision = expected + 1
         row.save()
         ops_audit(
             request.user,
@@ -508,10 +683,23 @@ def activity_save(request, data, version_id):
 
 @ops_action("activity.edit")
 def activity_copy(request, data, version_id):
+    key = request_key(data)
     with transaction.atomic():
+        reused = reusable(ActivityContentVersion, key)
+        if reused is not None:
+            return json_ok(
+                {
+                    "id": str(reused.pk),
+                    "redirect": f"/ops/activities/{reused.pk}/",
+                    "version": reused.version,
+                    "reused": True,
+                },
+                status=201,
+            )
         source = ActivityContentVersion.objects.select_for_update().get(pk=version_id)
+        lock_code("activity", source.code)
         version = _text(data.get("version", ""), 32, "version", "新版本号")
-        version = version or "copy-" + uuid.uuid4().hex[:12]
+        version = version or next_version(ActivityContentVersion, source.code)
         if ActivityContentVersion.objects.filter(code=source.code, version=version).exists():
             raise OpsError("STATE_CONFLICT", "该版本号已存在，请换一个。", 409)
         new = ActivityContentVersion.objects.create(
@@ -524,6 +712,7 @@ def activity_copy(request, data, version_id):
             content=copy.deepcopy(source.content),
             status="draft",
             data_origin=source.data_origin,
+            create_request_key=key,
         )
         ops_audit(
             request.user,
@@ -532,7 +721,15 @@ def activity_copy(request, data, version_id):
             f"{new.title} · {new.version}",
             {"from": f"{source.version}（{L.CONTENT_STATUS.get(source.status, source.status)}）"},
         )
-    return json_ok({"id": str(new.pk), "redirect": f"/ops/activities/{new.pk}/"}, status=201)
+    return json_ok(
+        {
+            "id": str(new.pk),
+            "redirect": f"/ops/activities/{new.pk}/",
+            "version": new.version,
+            "reused": False,
+        },
+        status=201,
+    )
 
 
 @ops_action("activity.edit")
@@ -583,8 +780,22 @@ def family_status(request, data, family_id):
     target = data.get("status")
     if target not in ("active", "frozen"):
         raise OpsError("VALIDATION_ERROR", "只能设置为正常或已冻结。", 422)
+    expected = (data.get("expected_status") or "").strip()
     with transaction.atomic():
         family = Family.objects.select_for_update().get(pk=family_id)
+        if expected and expected != family.status:
+            # 页面渲染之后别人已经改过状态：按新的状态重新判断，不盲目执行旧意图。
+            raise OpsError(
+                "EDIT_CONFLICT",
+                "该家庭的状态刚刚已被其他人修改，本次没有执行。请刷新页面确认最新状态后再操作。",
+                409,
+                extra={
+                    "current": {
+                        "status": family.status,
+                        "label": L.FAMILY_STATUS.get(family.status, family.status),
+                    }
+                },
+            )
         if family.status == target:
             return json_ok({"status": family.status, "already": True})
         if family.status == "closed":
@@ -598,7 +809,7 @@ def family_status(request, data, family_id):
             _family_label(family),
             {"children": family.child_set.count()},
         )
-    return json_ok({"status": family.status})
+    return json_ok({"status": family.status, "label": L.FAMILY_STATUS.get(family.status, "")})
 
 
 @ops_action("child.edit")
@@ -606,6 +817,7 @@ def child_profile(request, data, child_id):
     from django.core.exceptions import ValidationError as DjangoValidationError
     from django.utils.dateparse import parse_date
 
+    expected = None
     name = _text(data.get("name", ""), 80, "name", "儿童称呼")
     if not name:
         raise OpsError("VALIDATION_ERROR", "儿童称呼不能为空。", 422)
@@ -623,6 +835,16 @@ def child_profile(request, data, child_id):
         raise OpsError("VALIDATION_ERROR", "生日格式不正确，请使用 2000-01-01 形式。", 422)
     with transaction.atomic():
         child = Child.objects.select_for_update().get(pk=child_id)
+        expected = expected_revision(data, "儿童档案")
+        if child.revision != expected:
+            raise OpsError(
+                "EDIT_CONFLICT",
+                "这份儿童档案在你编辑期间已被其他人更正过，为避免覆盖对方的修改，本次没有保存。"
+                "你填写的内容仍保留在弹窗中：可以先看一下最新档案，再决定是否重新提交。",
+                409,
+                [{"field": "revision"}],
+                extra={"current": _child_payload(child)},
+            )
         before = {"name": child.name, "gender": child.gender, "birth_date": str(child.birth_date)}
         child.name = name
         child.gender = gender
@@ -634,6 +856,7 @@ def child_profile(request, data, child_id):
             raise OpsError(
                 "VALIDATION_ERROR", "；".join(messages) or "档案信息不合法。", 422
             ) from None
+        child.revision = expected + 1
         child.save()
         ops_audit(
             request.user,
@@ -645,9 +868,18 @@ def child_profile(request, data, child_id):
                 "after": {"name": name, "gender": gender, "birth_date": str(birth_date)},
             },
         )
-    return json_ok(
-        {"name": child.name, "gender": child.gender, "birth_date": str(child.birth_date or "")}
-    )
+    return json_ok(_child_payload(child))
+
+
+def _child_payload(child):
+    return {
+        "name": child.name,
+        "gender": child.gender,
+        "gender_label": L.GENDER.get(child.gender, child.gender),
+        "birth_date": str(child.birth_date or ""),
+        "revision": child.revision,
+        "updated_at": child.updated_at.isoformat(),
+    }
 
 
 __all__ = ["content_problems", "ops_action"]

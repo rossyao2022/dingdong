@@ -35,7 +35,7 @@ def window(request):
         ):
             raise ValueError
         return start, end
-    except TypeError, ValueError:
+    except (TypeError, ValueError):
         raise ApiError("VALIDATION_ERROR", 422, "from/to 必须成对、带时区且起点早于终点") from None
 
 

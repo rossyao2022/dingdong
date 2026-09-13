@@ -35,7 +35,7 @@
     {% if perms.reports and not perms.jobs %}
       <a class="stat" href="{% url 'ops:reports' %}" data-nav>
         <span>报告管理</span>
-        <b>{{ counters.failed_jobs }}</b>
+        <b>{{ counters.failed_report_jobs }}</b>
         <small>口径：报告生成任务中状态为“失败”的数量，查看与重试需要技术运维角色。</small>
       </a>
     {% endif %}
@@ -47,6 +47,12 @@
         <span>{{ metric.label }}</span>
         <b>{{ metric.value }}</b>
         <small>{{ metric.scope }}</small>
+      </div>
+    {% empty %}
+      <div class="stat">
+        <span>当前角色没有可展示的统计口径</span>
+        <b>—</b>
+        <small>首页统计按角色可见范围展示；需要更多数据请联系管理员调整角色。</small>
       </div>
     {% endfor %}
   </section>
@@ -166,24 +172,32 @@
         </div>
       </section>
 
-      <section class="card">
-        <h2>最近操作</h2>
-        {% if recent_audit %}
-          <ul class="timeline">
-            {% for row in recent_audit %}
-              <li>
-                <div>
-                  {{ row.action|audit_action }} ·
-                  {% if row.target_label %}{{ row.target_label }}{% else %}{{ row.target_kind|label:"TARGET_KIND" }}{% endif %}
-                </div>
-                <time>{{ row.created_at|date:"Y-m-d H:i" }} · {{ row.actor|display_name }}</time>
-              </li>
-            {% endfor %}
-          </ul>
-        {% else %}
-          <p class="card-sub">还没有操作记录。</p>
-        {% endif %}
-      </section>
+      {% if perms.audit %}
+        <section class="card" id="recent-audit">
+          <h2>最近操作</h2>
+          <p class="card-sub" style="margin:0 0 6px">
+            范围：全站最近的操作审计记录。只有具备「操作审计」权限的角色可以看到本区块。
+          </p>
+          {% if recent_audit %}
+            <ul class="timeline">
+              {% for row in recent_audit %}
+                <li>
+                  <div>
+                    {{ row.action|audit_action }} ·
+                    {% if row.target_label %}{{ row.target_label }}{% else %}{{ row.target_kind|label:"TARGET_KIND" }}{% endif %}
+                  </div>
+                  <time>{{ row.created_at|date:"Y-m-d H:i" }} · {{ row.actor|display_name }}</time>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="card-sub">还没有操作记录。</p>
+          {% endif %}
+          <p class="card-sub" style="margin:6px 0 0">
+            <a href="{% url 'ops:audit' %}" data-nav>查看完整操作审计 →</a>
+          </p>
+        </section>
+      {% endif %}
     </div>
   </div>
 {% endblock %}

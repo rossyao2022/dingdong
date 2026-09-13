@@ -88,7 +88,7 @@ def verify(request, child_id):
                     and payload["external_subject_id"].startswith("TEST-SUBJECT-")
                     and len(payload["external_subject_id"]) <= 255
                 )
-            except KeyError, TypeError, ValueError:
+            except (KeyError, TypeError, ValueError):
                 valid = False
             if not valid:
                 raise ApiError("PROOF_INVALID", 422)
