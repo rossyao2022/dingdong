@@ -1,16 +1,27 @@
-# v0.3.3 发布包完整性（2026-09-13 14:41:46 CST）
+# v0.3.3 发布包完整性（2026-09-13 14:43:51 CST）
 
 == sha256 ==
-17a60e425aa2295dd0ff92d3fe93cc51c67c36634d3efdd4de6e351e3d6757cb  dist/dingdong-v0.3.3.tar.gz
-17a60e425aa2295dd0ff92d3fe93cc51c67c36634d3efdd4de6e351e3d6757cb  dingdong-v0.3.3.tar.gz
+4f0aa2d87d4ddcce3240f4eff39bbb0c78f424c2f8dc75ef009f7c7c88694df8  dist/dingdong-v0.3.3.tar.gz
+4f0aa2d87d4ddcce3240f4eff39bbb0c78f424c2f8dc75ef009f7c7c88694df8  dingdong-v0.3.3.tar.gz
 
-== 包内文件数 ==
+== RELEASE.json ==
+{
+  "version": "0.3.3",
+  "branch": "codex/release-v0.3.3",
+  "commit": "ee82706e9ccb302d3b91e76b3d20889ccacc18c8"
+}
+== 包内 .py 文件数 ==
 103
-== 是否含 .env / evidence / PROJECT_MEMORY ==
+== 包内 spec 含 SERVICE_QUERY 次数 ==
+5
+== 泄漏检查（.env/evidence/PROJECT_MEMORY/backend docs，期望 0）==
 0
-== 关键修复标记 ==
-EDIT_CONFLICT: 10
-expected_revision: 4
-data-ops-ready: 2
-parse_date_filter: 3
-create_request_key: 60
+== 关键修复标记（包内出现次数）==
+EDIT_CONFLICT: 12
+expected_revision: 5
+data-ops-ready: 4
+parse_date_filter: 5
+create_request_key: 64
+
+== 远端校验 ==
+本地与远端 sha256 均为 4f0aa2d87d4ddcce3240f4eff39bbb0c78f424c2f8dc75ef009f7c7c88694df8，远端 tar 校验 OK

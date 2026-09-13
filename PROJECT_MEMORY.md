@@ -174,7 +174,9 @@ npm --prefix frontend run dev
 
 ## 运营后台 v0.3.3：修复独立验收问题并重新交付（2026-09-13 14:45）
 
-**最新有效状态**：针对[独立验收报告](deploy/OPS_INDEPENDENT_REVIEW_20260912.md)的问题全部修复并重新交付。版本/镜像/分支/标签/发布包统一 **0.3.3**，分支`codex/release-v0.3.3`，标签`v0.3.3`，远端目录`/home/tigery/services/dingdong/releases/dingdong-v0.3.3`，`.env`密钥与数据卷沿用（已校验一致），`APP_VERSION=0.3.3`。公网地址不变：家长端 http://110.42.225.196/dingdong/ ，运营后台 http://110.42.225.196/ops/ 。部署前已备份数据库 `dingdong-pre-v0.3.3-20260913-062741.sql.gz`。
+**最新有效状态**：针对[独立验收报告](deploy/OPS_INDEPENDENT_REVIEW_20260912.md)的问题全部修复并重新交付。版本/镜像/分支/标签/发布包统一 **0.3.3**，分支`codex/release-v0.3.3`，标签`v0.3.3`（指向 `ee82706`，与发布包 `RELEASE.json` 一致），远端目录`/home/tigery/services/dingdong/releases/dingdong-v0.3.3`，`.env`密钥与数据卷沿用（已校验一致），`APP_VERSION=0.3.3`。公网地址不变：家长端 http://110.42.225.196/dingdong/ ，运营后台 http://110.42.225.196/ops/ 。部署前已备份数据库 `dingdong-pre-v0.3.3-20260913-062741.sql.gz`。
+
+**发布包**：`dist/dingdong-v0.3.3.tar.gz`，sha256 `4f0aa2d87d4ddcce3240f4eff39bbb0c78f424c2f8dc75ef009f7c7c88694df8`，`RELEASE.json` 记录提交 `ee82706`；103 个 `.py`、0 语法错误、无 `.env`/evidence/backend docs 泄漏。**注意**：首个修复提交 `204740d` 的包内 `ops-public.spec.js` 是验收前的旧版（缺 `SERVICE_QUERY` 与三项新用例），因此已在提交文档后从 `ee82706` 重新打包并把标签前移到 `ee82706`；两次提交间**可部署代码零差异**（仅文档+验收脚本+证据），镜像字节一致，远端只做了覆盖解包、未重建镜像、未重启容器。运营后台容器仍为 `dingdong-backend:0.3.3` / `dingdong-web:0.3.3`，内网入口绑定 `100.115.66.119:18080`（不是 `127.0.0.1`）。
 
 **五项修复**：
 
