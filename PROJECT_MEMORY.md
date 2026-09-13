@@ -1,12 +1,12 @@
 # 叮咚项目记忆与会话交接
 
-最后更新：2026-09-12 19:00，Asia/Shanghai。适用于本目录中的后续会话。本文记录已核对事实，不代替代码和最新用户指令。
+最后更新：2026-09-13 14:45，Asia/Shanghai。适用于本目录中的后续会话。本文记录已核对事实，不代替代码和最新用户指令。
 
 ## 当前结论与最近工作
 
-项目已完成 M1–M5 自有业务实现、M6 运营后台（`dingdong_ca.ops`），并已把运营后台部署到 tigery、通过上海公网入口完成真实浏览器验收。**当前线上版本 0.3.2**：家长端 http://110.42.225.196/dingdong/ ，运营后台 **http://110.42.225.196/ops/** ，Django 后台 /admin/ 。最新部署与验收见本文末尾「运营后台交付与公网验收 v0.3.0 → v0.3.2」。
+项目已完成 M1–M5 自有业务实现、M6 运营后台（`dingdong_ca.ops`），并已把运营后台部署到 tigery、通过上海公网入口完成真实浏览器验收。**当前线上版本 0.3.3**：家长端 http://110.42.225.196/dingdong/ ，运营后台 **http://110.42.225.196/ops/** ，Django 后台 /admin/ 。v0.3.3 修复了独立验收发现的问题，见本文末尾「运营后台 v0.3.3：修复独立验收问题并重新交付（2026-09-13）」；上一轮 v0.3.2 的交付记录见「运营后台交付与公网验收 v0.3.0 → v0.3.2」。
 
-最新验证记录：后端173项通过（覆盖率90%）；公网真实Chrome 16项通过（桌面10+窄屏6）；本地源码浏览器18项、部署配置8项。桌面及390×844移动视口已测，不能称为真实手机硬件验收。这些是已有测试记录，本次记忆更新没有重新跑整套业务测试。
+最新验证记录（v0.3.3）：后端201项通过；公网真实Chrome 19项通过（桌面12+窄屏2+通用5，7项写操作按设计跳过）、0失败；部署配置8项通过；ruff通过。此前 v0.3.2 记录：后端173项、公网16项、本地源码浏览器18项、部署配置8项。桌面及390×844移动视口已测，不能称为真实手机硬件验收。
 
 - [M5实现与外部边界](backend/docs/M5_RESULT.md)
 - [最近启动复验](frontend/docs/UI_FUNCTIONAL_20260912.md)、[原始Chrome日志](frontend/docs/ui-functional-20260912.txt)
@@ -73,7 +73,7 @@ npm --prefix frontend run dev
 
 新儿童做报告测试需要先用inject_fixture按返回的child_id注入assessment_success；旧答卷可指定`--questionnaire-version-id`。机器人流程注入sync_success，测试凭据形式为`TEST-PROOF-CHILD_UUID`；先授权再核验。参考窗口为2026-09-01至2026-09-08 UTC。这些不是供应商账号或真实设备凭据。完整命令及故障场景见[后端说明](backend/README.md)与[家长端说明](frontend/README.md)。
 
-验证命令：`uv run --directory backend pytest -q`、`npm --prefix frontend test`（真实Chrome及全部服务需就绪）；Django check/makemigrations --check --dry-run、Ruff和前端check按改动范围执行。修改Worker代码后重启Worker；后台静态编辑器变更后collectstatic。不要因已有旧绿灯日志就声称新修改通过。
+验证命令：`uv run --directory backend pytest -q`、`npm --prefix frontend test`（真实Chrome及全部服务需就绪）；Django check/makemigrations --check --dry-run、Ruff和前端check按改动范围执行。部署配置测试**必须从 backend 目录运行**（`test_settings.py` 的子进程要能 import `config`）：`cd backend && .venv/bin/python -m pytest ../deploy/tests -q`；本地 pytest 若遇沙箱 tmpdir 报错，加 `--basetemp=/tmp/dd-pytest/bt`。修改Worker代码后重启Worker；后台静态编辑器变更后collectstatic。不要因已有旧绿灯日志就声称新修改通过。
 
 ## 文档、原材料与Git状态
 
@@ -83,7 +83,7 @@ npm --prefix frontend run dev
 
 参考仓库：参考代码/dingdong，已核对HEAD为d754a5bf9ea8e71ca64a850d2e26aa321fe8ab38，未在本轮fetch远端。2026-09-09项目分析针对更旧的TalentRadar网页，不能把其随机评分问题套用到当前实现。
 
-根目录Git工作区目前大量文件/目录为untracked，尚未建立本轮实现的可依赖提交基线。不要把untracked当作可以清理的垃圾；先核对状态，不能git clean、reset或覆盖现有实现。参考仓库是独立仓库。用户未要求提交或推送，本轮没有创建提交。
+根目录Git工作区已建立发布分支基线：v0.2.0 至 v0.3.3 各有 `codex/release-v<版本>` 分支与 `v<版本>` 标签，最新为 `codex/release-v0.3.3`。原始材料（`材料/`、`参考代码/`、`项目分析.md`、`材料清单.md` 等）仍是 untracked，不要把 untracked 当作可以清理的垃圾；先核对状态，不能 git clean、reset 或覆盖现有实现。参考仓库是独立仓库。**没有 Git remote，未推送。**
 
 ## 仍需外部确认与下一次开始方式
 
@@ -163,3 +163,33 @@ npm --prefix frontend run dev
 **演示边界未变**：固定验证码`00000`、fixture集成、不接真实供应商、不采集真实指纹。后台账号密码与密钥不进仓库、测试证据与项目记忆。验收用的临时账号（opsverify_admin / opsverify_operator）已在验收后停用。
 
 **回滚**：见[回滚说明](deploy/ROLLBACK.md)。**不要把回滚目标设成v0.3.0或v0.3.1**——前者Docker下`/ops/`打不开，后者管理员按钮403。
+
+
+## v0.3.2 独立复验：正式运营交付暂不通过（2026-09-12）
+
+用户要求验收现有改动，本轮未修功能或改部署。线上0.3.2、源码HEAD eefea90。后端173项和部署配置8项重新通过，但独立公网真实Chrome实验复现：同一题库两个旧编辑页面后保存者静默覆盖先保存者标题；content角色在审计页403但首页可看到全站最近审计的合成儿童标记；非法审计日期返回500。新建内容仍强制手填内部标识/版本号，需改善。
+
+只读公网回归首次7通过1失败（Ops脚本即时断言），重试受登录/连接/SSH异常影响，不能称为全绿。随后公网登录页200、SSH恢复，确认本轮临时验收账号活动数量0，首次隔离草稿已停用且从未发布。服务处理/报告重试/内容发布未在公网重复操作，不能把历史验收当作本轮证据。完整问题、源码位置、复现步骤和边界见[独立验收报告](deploy/OPS_INDEPENDENT_REVIEW_20260912.md)，日志位于deploy/evidence/review-v0.3.2/。修复上述阻塞前不应标记正式运营交付通过。
+
+
+## 运营后台 v0.3.3：修复独立验收问题并重新交付（2026-09-13 14:45）
+
+**最新有效状态**：针对[独立验收报告](deploy/OPS_INDEPENDENT_REVIEW_20260912.md)的问题全部修复并重新交付。版本/镜像/分支/标签/发布包统一 **0.3.3**，分支`codex/release-v0.3.3`，标签`v0.3.3`，远端目录`/home/tigery/services/dingdong/releases/dingdong-v0.3.3`，`.env`密钥与数据卷沿用（已校验一致），`APP_VERSION=0.3.3`。公网地址不变：家长端 http://110.42.225.196/dingdong/ ，运营后台 http://110.42.225.196/ops/ 。部署前已备份数据库 `dingdong-pre-v0.3.3-20260913-062741.sql.gz`。
+
+**五项修复**：
+
+- **P1 静默覆盖 → 修订号乐观并发**。题库/活动/儿童档案写入引入 `revision`：服务端在事务内 `select_for_update` 后比较客户端携带的修订号，不一致返回 `409 EDIT_CONFLICT` 并附服务端当前内容、**不落库**；缺失或非法修订号返回 `422`。前端保留运营输入，提供"查看差异 / 加载最新版本 / 用我的内容覆盖"三路径，不自动重试、不丢输入。新增迁移 `core.0007`：为 `QuestionnaireVersion`、`ActivityContentVersion`、`Child` 增加 `revision` 与 `create_request_key`（可空），**只加不删**。
+- **P1 首页审计越权 → 服务端裁剪**。`ops/services.py` 的 `dashboard_data(user)` 按 `has_permission(user, "audit.view")` 裁剪 metrics/counters/recent_audit，无权限角色首页不渲染"最近操作"区块，审计页仍 403。
+- **P2 非法日期 500 → 参数校验**。新增 `parse_date_filter`（严格 `YYYY-MM-DD`，`DATE_PATTERN`）/`parse_date_range`/`parse_keyword`/`parse_int`；非法值返回中文提示并在页面保留原输入。
+- **P2 免技术标识 → 服务端生成**。`generated_code`（`slugify`+sha1 截断）、`next_version`（锁内递增）、`lock_code`（`pg_advisory_xact_lock`）、`request_key`（幂等键）。同一标题归为同一内容的新版本并给出提示；`code`/`version` 仅作为脚本可选参数保留，页面不提供输入。
+- **验收脚本稳定化**。`ops-public.spec.js` 改用 `data-ops-ready` 就绪信号替代脆弱的 `window.Ops` 即时断言；新增冲突/越权/非法日期三项用例；服务事项用例只处理 `DD_OPS_SERVICE_QUERY` 指定的隔离合成事项，避免触碰既有运营数据。
+
+**关键坑（新会话仍需警惕）**：仓库曾有 15 处/11 文件写成 Python 2 风格的 `except A, B:`，使模块无法导入，却被 mtime/size 恰好一致的陈旧 `.pyc` 掩盖。遇到莫名的模块导入失败，先做全仓库 AST 语法校验再怀疑别的。
+
+**验收证据**（目录 `deploy/evidence/v0.3.3/`）：后端 [201 项](deploy/evidence/v0.3.3/backend-green.txt)、[部署配置 8 项](deploy/evidence/v0.3.3/deploy-config.txt)、[ruff](deploy/evidence/v0.3.3/ruff.txt)、[公网浏览器 19 通过/0 失败](deploy/evidence/v0.3.3/public-browser.txt)、[公网入口与版本](deploy/evidence/v0.3.3/public-entry.txt)、[发布包完整性](deploy/evidence/v0.3.3/package-integrity.txt)。真实链路：报告任务 `63070570-3d2f-40d6-9d4f-fd7a79166608` 前 5 次 `RENDER_FAILED` 进入失败态，运营经公网手动重试第 6 次 succeeded 并产出真实 `ReportVersion`；隔离服务事项 `fb8373aa-...` 标记 completed 并留审计；隔离儿童 `380eaad6-...` 状态 active。详见[公网交付与验收 v0.3.3](deploy/OPS_CONSOLE_DEPLOYMENT_20260913.md)。
+
+**验收后清理**：本轮公网验收创建的内容经真实 `/ops/api/.../retire` 接口停用（题库发布版 `67a5bef4`、复制草稿 `16b78506`、冲突草稿 `d119037a`、活动发布版 `c0bd3ab5`），留审计；3 个临时账号 `acpt0333_admin/operator/content` 已停用并验证无法登录；凭据只存在于临时文件，未入仓库、证据或本记忆。业务数据量未变（qn=9/act=12/child=22/audit=185）。
+
+**剩余限制**：演示供应商边界未变（固定验证码 `00000`、fixture 集成、不接真实供应商、不采集真实指纹）；专业量表题量与评分解释仍待甲方确认；未做真实手机硬件验收；运营账号不做数据分片；未验证的外部条件与 v0.3.2 相同。
+
+**回滚**：见[回滚说明](deploy/ROLLBACK.md)。常规回滚目标是 **v0.3.2**（v0.3.3 之前的可用发布）；**不要回滚到 v0.3.0 或 v0.3.1**（前者 Docker 下 `/ops/` 打不开，后者管理员按钮 403）。`0006`/`0007` 迁移可安全保留，无需反向迁移。

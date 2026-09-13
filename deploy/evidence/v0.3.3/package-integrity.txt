@@ -1,0 +1,16 @@
+# v0.3.3 发布包完整性（2026-09-13 14:41:46 CST）
+
+== sha256 ==
+17a60e425aa2295dd0ff92d3fe93cc51c67c36634d3efdd4de6e351e3d6757cb  dist/dingdong-v0.3.3.tar.gz
+17a60e425aa2295dd0ff92d3fe93cc51c67c36634d3efdd4de6e351e3d6757cb  dingdong-v0.3.3.tar.gz
+
+== 包内文件数 ==
+103
+== 是否含 .env / evidence / PROJECT_MEMORY ==
+0
+== 关键修复标记 ==
+EDIT_CONFLICT: 10
+expected_revision: 4
+data-ops-ready: 2
+parse_date_filter: 3
+create_request_key: 60

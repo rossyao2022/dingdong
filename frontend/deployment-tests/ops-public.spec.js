@@ -10,7 +10,8 @@
  *   DD_OPS_OPERATOR_USER / DD_OPS_OPERATOR_PW  普通运营（operations）
  *   DD_OPS_CONTENT_USER / DD_OPS_CONTENT_PW    内容运营（content，无 audit.view）
  *   DD_OPS_SEARCH       用于家庭检索的儿童称呼（可选，默认「验收儿童」）
- *   DD_OPS_FAILED_JOB   已存在失败报告的生成任务 UUID（可选）
+ *   DD_OPS_FAILED_JOB   本轮真实产生、且处于失败态的报告任务 UUID（可选）
+ *   DD_OPS_SERVICE_QUERY 本轮隔离合成事项的儿童称呼（可选，缺失则跳过服务事项闭环）
  */
 import { test, expect } from "@playwright/test";
 
@@ -28,6 +29,7 @@ const CONTENT = {
 };
 const SEARCH = process.env.DD_OPS_SEARCH || "验收儿童";
 const FAILED_JOB = process.env.DD_OPS_FAILED_JOB || "";
+const SERVICE_QUERY = process.env.DD_OPS_SERVICE_QUERY || "";
 
 const desktopOnly = (testInfo) =>
   test.skip(testInfo.project.name === "mobile", "写操作只在桌面视口验收");
@@ -391,16 +393,22 @@ test.describe("运营后台（公网）", () => {
 
   test("服务事项：筛选→详情→处理→历史留痕完整闭环", async ({ page }, testInfo) => {
     desktopOnly(testInfo);
+    // 只处理本轮专门创建的隔离合成事项，不碰既有运营数据。
+    test.skip(!SERVICE_QUERY, "未提供 DD_OPS_SERVICE_QUERY（隔离合成事项的儿童称呼）");
     await login(page, OPERATOR);
     await page.goto("/ops/services/");
 
     // 先按"待处理"筛选，保证拿到的是可处理的事项而不是历史记录
     await page.locator("#status").selectOption("open");
+    await page.locator("#q").fill(SERVICE_QUERY);
     await page.getByRole("button", { name: "筛选", exact: true }).click();
     await expect(page.getByText("待处理", { exact: true }).first()).toBeVisible();
 
     const row = page.locator("table.ops-table tbody tr").first();
     await expect(row).toBeVisible();
+    await expect(row).toContainText(SERVICE_QUERY);
+    // 隔离事项应当唯一：避免误取到别的家庭
+    expect(await page.locator("table.ops-table tbody tr").count()).toBe(1);
     await row.getByRole("link", { name: "查看处理" }).click();
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 

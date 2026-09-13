@@ -1,8 +1,8 @@
-# tigery Docker 演示部署 · v0.3.2
+# tigery Docker 演示部署 · v0.3.3
 
 当前公网入口：**http://110.42.225.196/dingdong/**（家长端），运营后台 **http://110.42.225.196/ops/**，Django 后台 http://110.42.225.196/admin/ 。使用上海服务器已开放80端口，访问者无需Tailscale。
 
-部署转发配置、启动与回退见 [上海公网入口](relay/README.md)，回滚步骤见 [回滚说明](ROLLBACK.md)。APP_VERSION=0.3.2，PUBLIC_ORIGIN=http://110.42.225.196。分支codex/release-v0.3.2和标签v0.3.2对应此发布。
+部署转发配置、启动与回退见 [上海公网入口](relay/README.md)，回滚步骤见 [回滚说明](ROLLBACK.md)。APP_VERSION=0.3.3，PUBLIC_ORIGIN=http://110.42.225.196。分支codex/release-v0.3.3和标签v0.3.3对应此发布。
 
 发布包内的RELEASE.json记录精确Git提交；密钥和数据库不进包。tigery沿用已有.env密钥和数据卷，仅修改版本和公共Origin。首次部署可使用 `python3 deploy/configure.py http://110.42.225.196 --bind 100.115.66.119`。容器启动：`docker compose --env-file deploy/.env -f deploy/compose.yml up -d --build --wait`。
 
@@ -11,6 +11,18 @@
 Django 生成的是根绝对地址（重定向、`{% url %}`），带前缀剥离的 `/dingdong/` 入口只能撑住第一次请求：页面一渲染，链接和重定向就跳到根路径。这和已有的 `/admin/`、`/static/`、`/api/v1/` 是同一模式——上海 nginx 把运营后台自己的根路径转发给隧道。`/dingdong/ops/` 仍能打开首屏，但后续导航会跳到 `/ops/`，所以对外只说 `/ops/`。
 
 占用根 `/ops/` 前已核对：上海站点 `/www/wwwroot/game` 没有 `ops` 目录，其 index.html 与 JS 资源也没有 `/ops` 引用，该路径此前只会返回原站的 SPA 兜底页。
+
+## v0.3.3 变更
+
+v0.3.3 修复独立验收（见 [独立验收报告](OPS_INDEPENDENT_REVIEW_20260912.md)）发现的全部问题，交付说明见 [公网交付与验收 v0.3.3](OPS_CONSOLE_DEPLOYMENT_20260913.md)。
+
+1. **旧页面保存不再静默覆盖（P1）。** 题库、活动、儿童档案的写入引入修订号 `revision`：服务端在事务内比较客户端携带的修订号，不一致时返回 `409 EDIT_CONFLICT` 并带回服务端当前内容，**不落库**；前端保留运营输入并提供"查看差异 / 加载最新版本 / 用我的内容覆盖"三路径。缺失或非法修订号返回 `422`。新增迁移 `core.0007`：为 `QuestionnaireVersion`、`ActivityContentVersion`、`Child` 增加 `revision` 与 `create_request_key`（可空），**只加不删**。
+2. **首页不再泄露审计信息（P1）。** 工作首页的"最近操作"改为按 `audit.view` 在服务端裁剪；无权限角色既打不开审计页，首页也不出现审计区块。
+3. **非法日期筛选不再 500（P2）。** 新增 `parse_date_filter` / `parse_date_range` / `parse_keyword` / `parse_int`，严格校验 `YYYY-MM-DD`，非法值返回中文提示并在页面上保留原输入。
+4. **新建内容免填技术标识与版本（P2）。** 标识由业务名称派生、版本号在锁内自动递增、请求带幂等键；`code` / `version` 仅保留为脚本可选参数。
+5. **验收脚本稳定化。** `frontend/deployment-tests/ops-public.spec.js` 改用 `data-ops-ready` 就绪信号替代脆弱的 `window.Ops` 即时断言，并新增冲突、越权、非法日期三项用例。
+
+版本一致性：`VERSION`、`backend/pyproject.toml`、`backend/uv.lock`、`frontend/package.json`、`frontend/package-lock.json`、镜像标签、Git 分支/标签、发布包统一为 **0.3.3**。
 
 ## v0.3.2 变更
 

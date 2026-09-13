@@ -266,7 +266,7 @@ def audit():
             try:
                 for part in ref[2:].split("/"):
                     value = value[part.replace("~1", "/").replace("~0", "~")]
-            except KeyError, TypeError:
+            except (KeyError, TypeError):
                 errors.append({"kind": "schema_ref", "ref": ref})
     for path, methods in spec["paths"].items():
         for method, op in methods.items():

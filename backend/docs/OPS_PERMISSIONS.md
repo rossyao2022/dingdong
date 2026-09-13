@@ -3,7 +3,7 @@
 本文件说明后台的角色划分、权限点、数据可见范围与服务端校验方式。适用于账号审批、权限排障与安全复核。
 
 - 代码位置：`backend/dingdong_ca/ops/permissions.py`（权限定义）、`backend/dingdong_ca/ops/views.py`（页面校验）、`backend/dingdong_ca/ops/api.py`（动作校验）
-- 自动化验证：`backend/tests/test_ops_console.py`、`test_ops_content.py`、`test_ops_reports.py`、`test_ops_services.py`
+- 自动化验证：`backend/tests/test_ops_console.py`、`test_ops_content.py`、`test_ops_reports.py`、`test_ops_services.py`、`test_ops_admin_role.py`、`test_ops_edit_conflicts.py`（修订号/冲突）、`test_ops_audit_scope.py`（审计可见范围）、`test_ops_filters.py`（非法筛选不 500）
 
 ---
 
@@ -87,6 +87,7 @@
 - **纯运营角色看不到题库/活动导航**。题库与活动属于内容运营职责，让运营角色误入编辑页只会造成误操作。运营如需处理题库草稿待办，由内容运营处理。
 - **报告查看与任务重试分离**。运营可以看报告、看失败原因，但重试是技术动作，保留给 `technical` / `account_admin`。
 - **数据删除比一般处理更严**。`service.handle` 允许运营处理求助与更正；`service.delete` 只给技术运维与管理员。
+- **审计不留旁路**。`audit.view` 同时约束审计页与工作首页的"最近操作"区块；无权限角色在服务端拿到空结果，任何入口都读不到审计内容。
 
 ---
 
@@ -126,11 +127,34 @@
 
 全部为同源请求，使用 Django 会话认证并强制 CSRF。
 
+### 乐观并发控制：修订号（revision）
+
+同一份内容的保存不再是"谁最后点谁赢"。每个可编辑对象都带一个自增的**修订号**，客户端编辑时携带它读取到的修订号，服务端在事务内原子比较：
+
+| 情况 | 服务端行为 |
+| --- | --- |
+| 请求未带修订号或格式非法 | `422 VALIDATION_ERROR`，要求刷新页面后重试 |
+| 修订号与库中不一致（期间已被他人保存） | `409 EDIT_CONFLICT`，附带服务端当前内容供前端对比；**不写入**，因此不会静默覆盖 |
+| 修订号一致 | 行内 `select_for_update` 加锁后写入，修订号 +1 |
+
+覆盖对象：题库保存（`questionnaire_save`）、活动保存（`activity_save`）、儿童档案更正（`child_profile`）。新建请求另带**幂等键**（`create_request_key`），重复提交不会产生第二份内容。
+
+### 内容标识与版本号由服务端生成
+
+新建题库/活动不再要求运营填写内部标识与版本号：
+
+- 内部标识由业务名称派生（`generated_code`：`slugify` + sha1 截断），同名归为同一内容的后续版本；
+- 版本号由 `next_version` 在事务级咨询锁（`pg_advisory_xact_lock`）内递增，并发创建不会撞号；
+- 请求体中的 `code` / `version` 仅作为可选参数保留给脚本与测试，运营页面不提供这两个输入。
+
+这三项都在服务端执行，不依赖前端是否隐藏输入框。
+
 ---
 
 ## 5. 数据可见范围
 
 - **运营后台可见全量家庭数据**，与家长端的"仅本人家庭"隔离是两套不同入口。后台是内部工具，不做按运营账号的数据分片。
+- **审计数据（含工作首页的"最近操作"）严格按 `audit.view` 判定。** 没有该权限的角色（例如 `content`）既打不开 `/ops/audit/`（403），其工作首页也不渲染"最近操作"区块。首页的审计查询在服务端按权限裁剪，返回空集，而不是"查出来再由前端隐藏"——因此不存在绕过审计页从首页读取审计记录的旁路。
 - **家长端接口的数据隔离未受影响**。本次改动没有修改家长端的认证与权限逻辑；后台的错误页通过 `config/urls.py` 中按 `/ops/` 前缀分流的 `handler403` / `handler404` 实现，非 `/ops/` 路径仍走 Django 默认行为，家长端 API 的错误契约逐字节未变。
 - **家长账号无法进入后台**，后台账号也无法登录家长端（`account_kind` 区分）。
 

@@ -1,0 +1,13 @@
+# v0.3.3 公网入口与版本核对（2026-09-13 14:41:42 CST）
+
+== /dingdong/version.txt ==
+0.3.3
+
+== /api/v1/runtime ==
+{"environment":"demo","sms_mode":"fixed_code","data_source":"database_fixture","fixture_dataset":null}
+== /ops/ ==
+status=302 redirect=http://110.42.225.196/ops/login/?next=/ops/
+== /ops/login/ ==
+status=200 type=text/html; charset=utf-8
+== /static/ops/ops.js 含就绪标记 ==
+1
