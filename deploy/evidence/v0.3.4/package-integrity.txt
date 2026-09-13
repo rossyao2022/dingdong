@@ -1,12 +1,23 @@
 # v0.3.4 发布包完整性
 
 文件：dist/dingdong-v0.3.4.tar.gz
-字节：329835
-SHA256：fcd94766593f8e6f6e5289fe8dd4944e4f438064d70454ce8c5112990d047161
+字节：330045
+SHA256：95f59ba9a738060ab3702cfc22367a99036338888444a91bd0c5f31d81fb8907
 条目数：210（含目录）
 包内 .py：107，AST 语法错误 0
-打包提交：97177024cd12e7b883e3cf8ae2ce8f06378fc88a（分支 codex/release-v0.3.4，标签 v0.3.4）
-包内 RELEASE.json：{"version": "0.3.4", "branch": "codex/release-v0.3.4", "commit": "97177024cd12e7b883e3cf8ae2ce8f06378fc88a"}
+打包提交：ee7a453f5f2ab1c9edad2bb8d4538e435a1384a5（分支 codex/release-v0.3.4，标签 v0.3.4 同指该提交）
+包内 RELEASE.json：{"version": "0.3.4", "branch": "codex/release-v0.3.4", "commit": "ee7a453f5f2ab1c9edad2bb8d4538e435a1384a5"}
+
+## 为什么打包过两次
+
+首个修复提交 aee4066 已打出 v0.3.4 的包（sha256 6280596...），提交交付文档后又重建过一次
+（sha256 fcd9476...）。两次都不是最终版，原因都是**包内文档在打包之后又被修改**：
+deploy/ 下的交付文档属于打包范围，任何后续编辑都会让"包内容 ≠ 提交内容"。
+最终做法是把文档定稿提交（ee7a453）、把标签移到该提交、再从该提交打包。
+此后的改动只落在包外的文件上（本文件、PROJECT_MEMORY.md、文档索引），
+不影响包内内容，因此包与标签保持一致。
+
+**可部署代码在 aee4066 与 ee7a453 之间零差异**，镜像字节一致，远端只做覆盖解包、未重建。
 
 ## 泄漏检查（均无）
 
@@ -15,8 +26,7 @@ SHA256：fcd94766593f8e6f6e5289fe8dd4944e4f438064d70454ce8c5112990d047161
 ## 打包范围
 
 deploy/package.py 只归档已提交的 VERSION / .dockerignore / backend / frontend / deploy，
-并排除 **/docs/** 与 deploy/evidence/**。因此 v0.3.4 冻结后新写交付文档与验收证据
-（全部落在 docs 与 evidence 下）不改变包内的可部署代码。
+并排除 **/docs/** 与 deploy/evidence/**，且要求这些路径在 git 中干净。
 
 ## 与 v0.3.3 的包内 .py 差异（仅新增测试）
 
@@ -28,8 +38,8 @@ deploy/package.py 只归档已提交的 VERSION / .dockerignore / backend / fron
 
 ## 远端同步事实
 
-上传到 /home/tigery/services/dingdong/releases/，远端 sha256sum -c 通过（OK）。
-覆盖解包到 dingdong-v0.3.4/，RELEASE.json 更新为提交 9717702；
+上传到 /home/tigery/services/dingdong/releases/，远端 sha256sum -c 通过。
+覆盖解包到 dingdong-v0.3.4/，RELEASE.json 指向 ee7a453；
 deploy/.env 未被覆盖（不在包内，mtime 仍为部署时刻）。
 容器镜像仍为 dingdong-backend:0.3.4 / dingdong-web:0.3.4，未重建、未重启。
 
