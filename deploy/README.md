@@ -1,8 +1,8 @@
-# tigery Docker 演示部署 · v0.3.3
+# tigery Docker 演示部署 · v0.3.4
 
 当前公网入口：**http://110.42.225.196/dingdong/**（家长端），运营后台 **http://110.42.225.196/ops/**，Django 后台 http://110.42.225.196/admin/ 。使用上海服务器已开放80端口，访问者无需Tailscale。
 
-部署转发配置、启动与回退见 [上海公网入口](relay/README.md)，回滚步骤见 [回滚说明](ROLLBACK.md)。APP_VERSION=0.3.3，PUBLIC_ORIGIN=http://110.42.225.196。分支codex/release-v0.3.3和标签v0.3.3对应此发布。
+部署转发配置、启动与回退见 [上海公网入口](relay/README.md)，回滚步骤见 [回滚说明](ROLLBACK.md)。APP_VERSION=0.3.4，PUBLIC_ORIGIN=http://110.42.225.196。分支codex/release-v0.3.4和标签v0.3.4对应此发布。
 
 发布包内的RELEASE.json记录精确Git提交；密钥和数据库不进包。tigery沿用已有.env密钥和数据卷，仅修改版本和公共Origin。首次部署可使用 `python3 deploy/configure.py http://110.42.225.196 --bind 100.115.66.119`。容器启动：`docker compose --env-file deploy/.env -f deploy/compose.yml up -d --build --wait`。
 
@@ -11,6 +11,19 @@
 Django 生成的是根绝对地址（重定向、`{% url %}`），带前缀剥离的 `/dingdong/` 入口只能撑住第一次请求：页面一渲染，链接和重定向就跳到根路径。这和已有的 `/admin/`、`/static/`、`/api/v1/` 是同一模式——上海 nginx 把运营后台自己的根路径转发给隧道。`/dingdong/ops/` 仍能打开首屏，但后续导航会跳到 `/ops/`，所以对外只说 `/ops/`。
 
 占用根 `/ops/` 前已核对：上海站点 `/www/wwwroot/game` 没有 `ops` 目录，其 index.html 与 JS 资源也没有 `/ops` 引用，该路径此前只会返回原站的 SPA 兜底页。
+
+## v0.3.4 变更
+
+v0.3.4 修复 v0.3.3 第二轮独立验收（见 [第二轮独立验收报告](OPS_INDEPENDENT_REVIEW_20260913.md)）遗留的两个 P1，交付说明见 [公网交付与验收 v0.3.4](OPS_CONSOLE_DEPLOYMENT_20260913_V034.md)。
+
+1. **儿童档案修订号在所有入口前进（P1-A）。** 此前只有运营后台推进 `revision`，家长改档后运营手里的旧页面仍能静默覆盖。现在家长端 `PATCH /api/v1/children/<id>` 与 Django 技术后台 `save_model` 都会推进修订号；家长端请求体可带可选 `revision`，不一致返回 `409 EDIT_CONFLICT` 且不落库。**无数据库迁移变更**（复用 v0.3.3 的 `0007`）。
+2. **不同标题不再退化成同一内部标识（P1-B）。** `generated_code` 始终保留完整标题的 sha1 摘要，"ABC 观察"与"ABC 绘画"不再同号；新增 `unique_code` 在咨询锁内取唯一标识，撞号加 `-2/-3` 后缀。**每次新建都是独立内容**，只有"复制为新版本"才构成同一内容的版本序列。
+3. **家长端冲突恢复路径修复。** 家长端 `409` 后要读最新档案，而 `GET /api/v1/children/<id>` 此前只有 `PATCH`，真实浏览器里必然 `405`，冲突提示成了死路。已补上 `GET`（第 51 个操作），同步 `设计/API/openapi.json`。
+4. **新增 P1 专项浏览器验收**：`frontend/deployment-tests/ops-p1-acceptance.spec.js`（6 项，跨入口冲突恢复 + 内容身份独立 + 版本替代）。
+
+版本一致性：`VERSION`、`backend/pyproject.toml`、`backend/uv.lock`、`frontend/package.json`、`frontend/package-lock.json`、镜像标签、Git 分支/标签、发布包统一为 **0.3.4**。
+
+> 工具链注意：`ruff format --target-version py314`（0.16.7）会把合法的 `except (A, B):` 改写成 Python 2 语法，改完文件无法导入。复核格式时显式加 `--target-version py313`。
 
 ## v0.3.3 变更
 

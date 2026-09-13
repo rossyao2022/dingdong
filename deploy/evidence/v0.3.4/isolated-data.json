@@ -1,0 +1,9 @@
+{
+  "phone": "+8613972499345",
+  "child_id": "f2fea2b2-7a8c-4d64-ac20-3d9499e2c7f2",
+  "child_name": "P1验收隔离儿童192347",
+  "association_id": "a92d58b7-089f-49ea-8df5-8801a4567ec5",
+  "association_status": "verified",
+  "data_request_id": "81d8ac36-6b5e-4adc-9378-241203c26f7d",
+  "failed_job": "(UUID('9557b88a-7736-4aec-8988-4d05ca05e481'), 'report', 'RENDER_FAILED')"
+}

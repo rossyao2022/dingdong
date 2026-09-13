@@ -6,7 +6,7 @@
 
 项目已完成 M1–M5 自有业务实现、M6 运营后台（`dingdong_ca.ops`），并已把运营后台部署到 tigery、通过上海公网入口完成真实浏览器验收。**当前线上版本 0.3.3**：家长端 http://110.42.225.196/dingdong/ ，运营后台 **http://110.42.225.196/ops/** ，Django 后台 /admin/ 。v0.3.3 修复了独立验收发现的问题，见本文末尾「运营后台 v0.3.3：修复独立验收问题并重新交付（2026-09-13）」；上一轮 v0.3.2 的交付记录见「运营后台交付与公网验收 v0.3.0 → v0.3.2」。
 
-最新验证记录（v0.3.3）：后端201项通过；公网真实Chrome 19项通过（桌面12+窄屏2+通用5，7项写操作按设计跳过）、0失败；部署配置8项通过；ruff通过。此前 v0.3.2 记录：后端173项、公网16项、本地源码浏览器18项、部署配置8项。桌面及390×844移动视口已测，不能称为真实手机硬件验收。
+最新验证记录（v0.3.4）：后端237项通过；公网真实Chrome 23项通过（桌面18+窄屏2+通用2，13项写操作按设计跳过）、0失败；部署配置8项通过；前端check与单测3项通过；ruff通过。此前 v0.3.3 记录：后端201项、公网19项、部署配置8项；v0.3.2 记录：后端173项、公网16项、本地源码浏览器18项。桌面及390×844移动视口已测，不能称为真实手机硬件验收。
 
 - [M5实现与外部边界](backend/docs/M5_RESULT.md)
 - [最近启动复验](frontend/docs/UI_FUNCTIONAL_20260912.md)、[原始Chrome日志](frontend/docs/ui-functional-20260912.txt)
@@ -83,7 +83,7 @@ npm --prefix frontend run dev
 
 参考仓库：参考代码/dingdong，已核对HEAD为d754a5bf9ea8e71ca64a850d2e26aa321fe8ab38，未在本轮fetch远端。2026-09-09项目分析针对更旧的TalentRadar网页，不能把其随机评分问题套用到当前实现。
 
-根目录Git工作区已建立发布分支基线：v0.2.0 至 v0.3.3 各有 `codex/release-v<版本>` 分支与 `v<版本>` 标签，最新为 `codex/release-v0.3.3`。原始材料（`材料/`、`参考代码/`、`项目分析.md`、`材料清单.md` 等）仍是 untracked，不要把 untracked 当作可以清理的垃圾；先核对状态，不能 git clean、reset 或覆盖现有实现。参考仓库是独立仓库。**没有 Git remote，未推送。**
+根目录Git工作区已建立发布分支基线：v0.2.0 至 v0.3.4 各有 `codex/release-v<版本>` 分支与 `v<版本>` 标签，最新为 `codex/release-v0.3.4`。原始材料（`材料/`、`参考代码/`、`项目分析.md`、`材料清单.md` 等）仍是 untracked，不要把 untracked 当作可以清理的垃圾；先核对状态，不能 git clean、reset 或覆盖现有实现。参考仓库是独立仓库。**没有 Git remote，未推送。**
 
 ## 仍需外部确认与下一次开始方式
 
@@ -204,3 +204,28 @@ npm --prefix frontend run dev
 补查两项P1仍存在：家长PATCH儿童资料不递增revision，运营旧页面仍以旧revision保存成功覆盖家长修改；有英文前缀的不同中文标题生成相同code，误作同内容不同版本，隔离测试确认发布第二份使第一份retired。两项新增预期断言均失败，有原始复现脚本和日志。
 
 正式交付结论以本次[第二轮独立验收报告](deploy/OPS_INDEPENDENT_REVIEW_20260913.md)为准，不能继续引用上一节“全部修复”作为最新结论。本轮未改功能或部署；公网临时账号及隔离题库草稿已停用，草稿未发布，未修改既有家庭与服务数据。证据deploy/evidence/review-v0.3.3/。
+
+
+## 运营后台 v0.3.4：修复第二轮验收的两个 P1 并重新交付（2026-09-13 19:20）
+
+**最新有效状态**：v0.3.3 第二轮独立验收的两个 P1 已修复并重新交付。版本/镜像/分支/标签/发布包统一 **0.3.4**，分支`codex/release-v0.3.4`，远端目录`/home/tigery/services/dingdong/releases/dingdong-v0.3.4`，`.env`密钥与数据卷沿用（仅改 `APP_VERSION=0.3.4`，已逐项核对），镜像`dingdong-backend:0.3.4`/`dingdong-web:0.3.4`，容器`RestartCount=0`。公网地址不变：家长端 http://110.42.225.196/dingdong/ ，运营后台 http://110.42.225.196/ops/ 。部署前已备份数据库 `dingdong-pre-v0.3.4-20260913-112015.sql.gz`，sha256 `f6b23b15259705d14a422d24d06815f9892ca0d349f3a8c24908039aead08194`。
+
+**发布包**：`dist/dingdong-v0.3.4.tar.gz`。**本版无数据库迁移变更**（复用 `0007`）。
+
+**三项修复**：
+
+- **P1-A 儿童档案修订号只在运营端前进**。此前家长 `PATCH /api/v1/children/<id>` 不递增 `revision`，家长改档后运营手里那份旧页面仍能保存成功并静默覆盖。现在家长端 `PATCH`（`core/api/children.py`）与 Django 技术后台 `DraftContentAdmin.save_model`（`core/admin.py`）都推进修订号；家长端请求体的 `revision` 为可选字段，带了且不一致返回 `409 EDIT_CONFLICT` 且**不落库**。`inputs.py` 拆出 `ChildBaseInput`，`ChildCreate` 不受影响。前端 `app.js` 编辑档案带 `revision`，409 后读回最新档案并明确告知本次未保存。
+- **P1-B 不同标题退化成同一内部标识**。`generated_code` 用 `slugify` 派生后按长度截断，**摘要被截掉**，"ABC 观察"/"ABC 绘画"得到同一个 `code`，被当成同一内容的不同版本，发布一份会停用另一份。现在 `_fit_code` **始终保留标题 sha1 摘要**（`_title_digest` 前 12 位，`CODE_LIMIT=48`），并新增 `unique_code` 在 `pg_advisory_xact_lock` 内取唯一标识、撞号加 `-2/-3` 后缀。**每次新建都是独立内容**；只有版本页"复制为新版本"才构成同一内容的版本序列。历史脏数据只读审计确认仅 `qn-abc-mtzoqmm9`（v1/v2 均 retired、从未发布、无引用），不做批量重算。
+- **修复中发现的独立缺陷（真实浏览器暴露）**：家长端 409 恢复路径要读 `GET /api/v1/children/<id>`，而该端点**只注册了 `PATCH`**，必然 405，冲突提示成了死路。`child_detail` 已改为 `@endpoint(["GET","PATCH"])` 并实现 `GET`（按家庭隔离、需登录、返回含 `revision` 的序列化儿童）。**操作数 50 → 51**，同步 `设计/API/openapi.json` 与契约断言。
+
+**关键坑（新会话仍需警惕）**：`ruff format --target-version py314`（0.16.7，当前最新）会把合法的 `except (A, B):` 改写成 Python 2 语法的 `except A, B:`，**改完文件无法导入**。复核格式必须显式加 `--target-version py313`；py314 下有 9 个文件属该误报，不要动。
+
+**验收证据**（目录 `deploy/evidence/v0.3.4/`）：后端 [237 项](deploy/evidence/v0.3.4/backend-green.txt)、[部署配置 8 项](deploy/evidence/v0.3.4/deploy-config.txt)、[ruff](deploy/evidence/v0.3.4/ruff.txt)、[前端 check](deploy/evidence/v0.3.4/frontend-check.txt)、[前端单测 3 项](deploy/evidence/v0.3.4/frontend-unit.txt)、[公网浏览器 23 通过/13 跳过/0 失败](deploy/evidence/v0.3.4/public-browser.txt)、[隔离验收数据](deploy/evidence/v0.3.4/isolated-data.json)、[本地部署前浏览器验收](deploy/evidence/review-v0.3.4/)。真实链路：失败报告任务 `9557b88a-7736-4aec-8988-4d05ca05e481` 前 5 次 `RENDER_FAILED`，公网手动重试第 6 次 succeeded，`ReportVersion` 3→4；隔离伙伴关联 `a92d58b7-089f-49ea-8df5-8801a4567ec5` 为 verified；隔离服务事项 `81d8ac36-6b5e-4adc-9378-241203c26f7d` 闭环。新增 P1 专项用例 `frontend/deployment-tests/ops-p1-acceptance.spec.js`（6 项）。详见[公网交付与验收 v0.3.4](deploy/OPS_CONSOLE_DEPLOYMENT_20260913_V034.md)。
+
+**本地与公网的差异（不要误判为缺陷）**：`ops-public.spec.js` 本地 20 通过/1 失败/1 跳过——失败项是"报告"用例，原因是本地 `compose up` 会重新 seed，`ReportVersion` 与 `BackgroundJob` 均为 0，报告列表无行可看，属环境数据为空；同在公网通过。`http-profile.spec.js` 本地跑不了：它断言 `window.isSecureContext === false`，而 Chromium 把 `127.0.0.1` 视为安全上下文，只有真实 HTTP 公网入口成立。
+
+**验收后清理**：公网与本地均按"只做状态变更、不物理删除、补写审计"执行，脚本与前后数字见[清理记录](deploy/evidence/v0.3.4/acceptance-cleanup.md)。公网：正常家庭 38→10、在册儿童 31→3、已发布题库 10→2、已发布活动 13→8、启用工作人员 4→1、审计 339→419；关闭 28 个测试家庭（含历史 `HTTP兼容验收`×20）、归档 28 个儿童、停用 21 个题库/活动版本、停用 31 个账号（`acpt034_*` + 28 个测试家长）。本地：正常家庭 15→2、在册儿童 14→2、停用 46 个版本、停用 16 个账号（`local-accept-*` + 13 个测试家长）。清理复用既有审计动作码（`questionnaire.retire`/`activity.retire`/`child.profile_update`/`staff.status`/`family.freeze`）并写明 `reason`，**未引入未翻译的新动作码**。清理后两组入口复验仍全部 200。**测试家庭仍可在运营端"家庭查询"里检索到（儿童显示"已归档"）**，这是保留可追溯性的刻意取舍。
+
+**剩余限制**：演示供应商边界未变（固定验证码 `00000`、fixture 集成、不接真实供应商、不采集真实指纹）；专业量表题量与评分解释仍待甲方确认；未做真实手机硬件验收；运营账号不做数据分片。本地/公网的运营后台验收账号已全部停用，重跑需先重建。
+
+**回滚**：见[回滚说明](deploy/ROLLBACK.md)。常规回滚目标是 **v0.3.3**（v0.3.4 之前的可用发布）；**不要回滚到 v0.3.0 或 v0.3.1**（前者 Docker 下 `/ops/` 打不开，后者管理员按钮 403），也**不要回滚到 v0.3.2 及更早**（会同时丢掉并发保护与内容标识修复）。`0006`/`0007` 迁移可安全保留，无需反向迁移。

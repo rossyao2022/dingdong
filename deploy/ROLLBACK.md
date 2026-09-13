@@ -1,4 +1,4 @@
-# 回滚说明 · 叮咚运营后台 v0.3.3
+# 回滚说明 · 叮咚运营后台 v0.3.4
 
 本文件说明如何在 tigery 演示环境回退到上一版本，以及各层需要同时还原什么。
 
@@ -6,27 +6,28 @@
 
 ---
 
-## 0. 本次发布（v0.3.3 / v0.3.2 / v0.3.1 / v0.3.0）引入了什么
+## 0. 本次发布（v0.3.4 / v0.3.3 / v0.3.2 / v0.3.1 / v0.3.0）引入了什么
 
 | 类别 | 内容 | 回滚影响 |
 | --- | --- | --- |
+| 代码 | v0.3.4：儿童档案修订号在家长端与技术后台也前进、内容标识保留标题摘要并取唯一标识、新增 `GET /api/v1/children/<id>` | 回滚后恢复"家长改档被运营旧页面静默覆盖"与"不同标题同号互相停用"，且家长端冲突恢复路径再次 405 |
 | 代码 | v0.3.3：题库/活动/儿童的修订号并发控制、首页审计权限裁剪、筛选参数校验、标识与版本自动生成 | 回滚后恢复"后保存者覆盖"与"首页显示审计"的旧行为 |
 | 代码 | 新增 `dingdong_ca.ops` 应用、29 个模板、静态资源（v0.3.0） | 回滚到 v0.2.x 后 `/ops/` 路径整体消失 |
 | 权限 | 复用接口把 `account_admin` 视为满足任一 staff 角色（v0.3.2） | **回滚 v0.3.2 会让管理员的"发布""重试"按钮再次 403** |
 | 配置 | `deploy/nginx.conf.template` 代理白名单补上 `ops/`（v0.3.1） | **回滚 v0.3.1 会让 `/ops/` 再次变成容器 nginx 404** |
 | 配置 | 上海 nginx 增加根路径 `location ^~ /ops/` → 隧道 | 回滚到 v0.3.0 之前需同时删掉这条，否则 `/ops/` 指向已下线的后台 |
-| 数据库迁移 | v0.3.3：`0007_activitycontentversion_create_request_key_and_more`（`revision` / `create_request_key`，可空） | **只增不删**：不删列、不改既有数据 |
+| 数据库迁移 | v0.3.3：`0007_activitycontentversion_create_request_key_and_more`（`revision` / `create_request_key`，可空） | **只增不删**：不删列、不改既有数据。v0.3.4 无新增迁移，复用 `0007` |
 | 数据库迁移 | v0.3.0：`0006_auditevent_detail_auditevent_target_label_and_more` | 同上，**只增不删** |
 | 配置 | `INSTALLED_APPS` 增加 `dingdong_ca.ops`；新增 `LOGIN_URL` / `LOGIN_REDIRECT_URL`；`config/urls.py` 新增 `/ops/` 路由与按前缀分流的 403/404 处理 | 回滚代码后这些配置一并回退 |
-| 家长端 | **未改动**认证与权限逻辑 | 无影响 |
+| 家长端 | v0.3.4 改了档案编辑的请求与冲突恢复；v0.3.3 起认证与权限逻辑未改动 | 回滚代码后一并回退 |
 
-> **不要回滚到 v0.3.0 或 v0.3.1**：前者在 Docker 下 `/ops/` 根本打不开，后者管理员按钮会 403。**v0.3.2 是 v0.3.3 之前的可用发布**，是常规回滚目标——它功能正常，只是缺少本版的并发保护、审计裁剪与免技术标识。它同样会丢掉这三项交付能力，回滚前请确认这是有意为之。
+> **不要回滚到 v0.3.0 或 v0.3.1**：前者在 Docker 下 `/ops/` 根本打不开，后者管理员按钮会 403。**v0.3.3 是 v0.3.4 之前的可用发布**，是常规回滚目标——它后台可用、并发保护与内容标识修复都在，只是缺 v0.3.4 的"跨入口修订号"与"标题摘要 + 独立标识"。回滚前请确认这是有意为之。
 >
-> **v0.3.3 的 `0006`+`0007` 迁移可安全保留**：两版都只加列和索引，旧版本代码不会读到这些列，回滚到旧镜像后迁移记录仍留在数据库里也不会报错。不需要反向迁移。
+> **`0006`+`0007` 迁移可安全保留**：两版都只加列和索引，旧版本代码不会读到这些列，回滚到旧镜像后迁移记录仍留在数据库里也不会报错。不需要反向迁移。
 
 ---
 
-## 1. 回滚到 v0.3.2（上一版本）
+## 1. 回滚到 v0.3.3（上一版本）
 
 ### 1.1 在 tigery 上操作
 
@@ -38,15 +39,15 @@ cd /home/tigery/services/dingdong
 把 `deploy/.env` 里的版本改回上一版：
 
 ```sh
-sed -i 's/^APP_VERSION=.*/APP_VERSION=0.3.2/' deploy/.env
+sed -i 's/^APP_VERSION=.*/APP_VERSION=0.3.3/' deploy/.env
 grep '^APP_VERSION' deploy/.env
 ```
 
 用上一版发布包重建并启动（发布包内 `RELEASE.json` 记录了精确提交）：
 
 ```sh
-ls -d releases/dingdong-v0.3.2
-cp releases/dingdong-v0.3.2/deploy/.env.example deploy/.env.rollback 2>/dev/null || true
+ls -d releases/dingdong-v0.3.3
+cp releases/dingdong-v0.3.3/deploy/.env.example deploy/.env.rollback 2>/dev/null || true
 docker compose --env-file deploy/.env -f deploy/compose.yml up -d --build --wait
 ```
 
@@ -59,11 +60,11 @@ curl --noproxy '*' -s http://110.42.225.196/dingdong/version.txt
 curl --noproxy '*' -s http://110.42.225.196/api/v1/runtime
 ```
 
-期望：版本回到 `0.3.2`，runtime 为 `demo`。`/ops/` 仍可打开（v0.3.2 后台正常），家长端首页仍正常。
+期望：版本回到 `0.3.3`，runtime 为 `demo`。`/ops/` 仍可打开，家长端首页仍正常。
 
 ### 1.3 不需要动的部分
 
-- **上海 nginx 配置**：`/dingdong/`、`/api/v1/`、`/admin/`、`/static/` 的转发规则在 v0.2.2 之后没变，回滚到 v0.3.2 无需修改。
+- **上海 nginx 配置**：`/dingdong/`、`/api/v1/`、`/admin/`、`/static/` 的转发规则在 v0.2.2 之后没变，回滚到 v0.3.3 无需修改。
 - **SSH 反向隧道**：`dingdong-relay` 服务无需重启，它只转发端口，与版本无关。
 - **数据卷**：`postgres_data`、`redis_data` 保留，家庭与答卷数据不受影响。
 - **数据库迁移**：`0006`、`0007` 保留即可，见上文说明。
@@ -102,7 +103,7 @@ curl --noproxy '*' -s http://110.42.225.196/api/v1/runtime
 - [ ] `/api/v1/runtime` 返回 `demo`
 - [ ] 家长端首页可打开，登录 → 保存档案 → 刷新恢复可用
 - [ ] `/admin/` 登录页可打开（HTTP 下 CSRF 依赖 same-origin 策略，见 `ADMIN_CSRF_FIX_20260912.md`）
-- [ ] `/ops/login/` 返回 200 且能登录（回滚到 v0.3.2 时后台仍在；只有回滚到 v0.2.x 才应消失）
+- [ ] `/ops/login/` 返回 200 且能登录（回滚到 v0.3.3 时后台仍在；只有回滚到 v0.2.x 才应消失）
 - [ ] `docker compose ps` 中 api / worker / beat / web / postgres / redis 均健康
 
 ---
@@ -111,8 +112,9 @@ curl --noproxy '*' -s http://110.42.225.196/api/v1/runtime
 
 | 版本 | 分支 / 标签 | 说明 |
 | --- | --- | --- |
-| v0.3.3 | `codex/release-v0.3.3` | 修复独立验收的并发覆盖 / 首页审计越权 / 非法筛选 500 / 免技术标识 |
-| v0.3.2 | `codex/release-v0.3.2` | 管理员角色放行 + 窄屏返回路径修复（**v0.3.3 之前的可用发布，常规回滚目标**） |
+| v0.3.4 | `codex/release-v0.3.4` | 儿童档案修订号覆盖全部入口 + 内容标识保留标题摘要并独立化（**v0.3.3 之前的可用发布不存在，常规回滚目标为 v0.3.3**） |
+| v0.3.3 | `codex/release-v0.3.3` | 修复独立验收的并发覆盖 / 首页审计越权 / 非法筛选 500 / 免技术标识（**v0.3.4 之前的可用发布，常规回滚目标**） |
+| v0.3.2 | `codex/release-v0.3.2` | 管理员角色放行 + 窄屏返回路径修复（缺少并发保护与内容标识修复） |
 | v0.3.1 | `codex/release-v0.3.1` | 修复运营后台在 Docker 下的 nginx 404（**管理员按钮仍 403，不要回滚到此版**） |
 | v0.3.0 | `codex/release-v0.3.0` | 运营后台（**Docker 部署下 `/ops/` 不可达，不要回滚到此版**） |
 | v0.2.5 | `codex/release-v0.2.5` | 后台 CSRF 修复 |
