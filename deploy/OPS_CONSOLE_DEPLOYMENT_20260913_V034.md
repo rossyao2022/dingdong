@@ -182,11 +182,11 @@
 
 ## 6. 发布标识
 
-- 分支：`codex/release-v0.3.4`，标签：`v0.3.4`
-- 发布包：`dist/dingdong-v0.3.4.tar.gz`（附 `.sha256`，远端已校验）
-- 远端目录：`/home/tigery/services/dingdong/releases/dingdong-v0.3.4`
+- 分支：`codex/release-v0.3.4`，标签：`v0.3.4`（指向 `9717702`）
+- 发布包：`dist/dingdong-v0.3.4.tar.gz`（附 `.sha256`，远端已 `sha256sum -c` 校验通过）。具体哈希值、泄漏检查与远端同步事实记录在 [package-integrity.txt](evidence/v0.3.4/package-integrity.txt) —— **不写进本文件**，避免"包内文档记录自身哈希"的自相矛盾。
+- 远端目录：`/home/tigery/services/dingdong/releases/dingdong-v0.3.4`（compose 工作目录是其下的 `deploy/`）
 - 包内 `RELEASE.json` 记录构建用的精确 Git 提交；`code` / `version` 等发布标识以包内 `RELEASE.json` 与 `dist/dingdong-v0.3.4.tar.gz.sha256` 为准。
 
 版本一致性：`VERSION`、`backend/pyproject.toml`、`backend/uv.lock`、`frontend/package.json`、`frontend/package-lock.json`、镜像标签、Git 分支/标签、发布包统一为 **0.3.4**。
 
-> 本次发布包只包含 `VERSION` / `.dockerignore` / `backend` / `frontend` / `deploy`（排除 `**/docs/**` 与 `deploy/evidence/**`）。v0.3.4 冻结后的改动全部落在文档与验收证据上，**运行代码与镜像未变**，因此无需重建镜像。
+> 本次发布包只包含 `VERSION` / `.dockerignore` / `backend` / `frontend` / `deploy`（排除 `**/docs/**` 与 `deploy/evidence/**`）。v0.3.4 冻结后的改动全部落在文档与验收证据上，**运行代码与镜像未变**，因此没有重建镜像，远端只做了覆盖解包（`.env` 不在包内、未被覆盖）。包内 `.py` 由 103 增至 107，新增的 4 个都是 `backend/tests/` 下的回归用例。

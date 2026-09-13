@@ -1,0 +1,40 @@
+# v0.3.4 发布包完整性
+
+文件：dist/dingdong-v0.3.4.tar.gz
+字节：329835
+SHA256：fcd94766593f8e6f6e5289fe8dd4944e4f438064d70454ce8c5112990d047161
+条目数：210（含目录）
+包内 .py：107，AST 语法错误 0
+打包提交：97177024cd12e7b883e3cf8ae2ce8f06378fc88a（分支 codex/release-v0.3.4，标签 v0.3.4）
+包内 RELEASE.json：{"version": "0.3.4", "branch": "codex/release-v0.3.4", "commit": "97177024cd12e7b883e3cf8ae2ce8f06378fc88a"}
+
+## 泄漏检查（均无）
+
+无 .env、无 deploy/evidence/、无 */docs/、无数据库备份、无 .DS_Store。
+
+## 打包范围
+
+deploy/package.py 只归档已提交的 VERSION / .dockerignore / backend / frontend / deploy，
+并排除 **/docs/** 与 deploy/evidence/**。因此 v0.3.4 冻结后新写交付文档与验收证据
+（全部落在 docs 与 evidence 下）不改变包内的可部署代码。
+
+## 与 v0.3.3 的包内 .py 差异（仅新增测试）
+
++ backend/tests/test_independent_recheck.py
++ backend/tests/test_ops_admin_entry_revision.py
++ backend/tests/test_ops_child_revision.py
++ backend/tests/test_ops_content_identity.py
+（103 → 107）
+
+## 远端同步事实
+
+上传到 /home/tigery/services/dingdong/releases/，远端 sha256sum -c 通过（OK）。
+覆盖解包到 dingdong-v0.3.4/，RELEASE.json 更新为提交 9717702；
+deploy/.env 未被覆盖（不在包内，mtime 仍为部署时刻）。
+容器镜像仍为 dingdong-backend:0.3.4 / dingdong-web:0.3.4，未重建、未重启。
+
+## 同步后复验
+
+公网：/dingdong/ 200、/ops/ 302（跳登录）、/ops/login/ 200、/admin/login/ 200、
+      /api/v1/runtime 200、/dingdong/version.txt = 0.3.4
+内网 100.115.66.119:18080：/ 200、/ops/login/ 200、/api/v1/runtime 200

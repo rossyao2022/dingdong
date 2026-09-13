@@ -210,7 +210,7 @@ npm --prefix frontend run dev
 
 **最新有效状态**：v0.3.3 第二轮独立验收的两个 P1 已修复并重新交付。版本/镜像/分支/标签/发布包统一 **0.3.4**，分支`codex/release-v0.3.4`，远端目录`/home/tigery/services/dingdong/releases/dingdong-v0.3.4`，`.env`密钥与数据卷沿用（仅改 `APP_VERSION=0.3.4`，已逐项核对），镜像`dingdong-backend:0.3.4`/`dingdong-web:0.3.4`，容器`RestartCount=0`。公网地址不变：家长端 http://110.42.225.196/dingdong/ ，运营后台 http://110.42.225.196/ops/ 。部署前已备份数据库 `dingdong-pre-v0.3.4-20260913-112015.sql.gz`，sha256 `f6b23b15259705d14a422d24d06815f9892ca0d349f3a8c24908039aead08194`。
 
-**发布包**：`dist/dingdong-v0.3.4.tar.gz`。**本版无数据库迁移变更**（复用 `0007`）。
+**发布包**：`dist/dingdong-v0.3.4.tar.gz`，sha256 `fcd94766593f8e6f6e5289fe8dd4944e4f438064d70454ce8c5112990d047161`，`RELEASE.json` 记录提交 `9717702`（标签 `v0.3.4` 同指该提交）；107 个 `.py`、0 语法错误、无 `.env`/evidence/backend docs 泄漏。**注意**：首个修复提交 `aee4066` 的包内 `RELEASE.json` 记录的是 `aee4066`，因此在提交交付文档后从 `9717702` 重新打包并把标签打在 `9717702`；两次提交间**可部署代码零差异**（仅文档+验收证据+测试用例，且 docs/evidence 根本不进包），镜像字节一致，远端只做了覆盖解包、未重建镜像、未重启容器。详见`deploy/evidence/v0.3.4/package-integrity.txt`。远端 compose 工作目录是 `/home/tigery/services/dingdong/releases/dingdong-v0.3.4/deploy`（不是 `/home/tigery/services/dingdong/deploy`），`deploy/.env` 就在该目录下、权限 600、不在包内。**本版无数据库迁移变更**（复用 `0007`）。
 
 **三项修复**：
 
