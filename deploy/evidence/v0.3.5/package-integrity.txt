@@ -1,0 +1,53 @@
+# v0.3.5 发布包完整性
+
+文件：dist/dingdong-v0.3.5.tar.gz
+字节：344604
+SHA256：6143e6a33d27d076c7220c3062c1379a403698f01f9a6f17c3a95dea3c7f8858
+条目数：214（含目录）
+包内 .py：107，AST 语法错误 0
+打包提交：a6147b5e6a958a28d62711a799a8ee12d88972ff（分支 codex/release-v0.3.5，标签 v0.3.5 同指该提交）
+包内 RELEASE.json：{"version": "0.3.5", "branch": "codex/release-v0.3.5", "commit": "a6147b5e6a958a28d62711a799a8ee12d88972ff"}
+
+## 为什么打包过三次（以及为什么每次运行代码都一样）
+
+`deploy/` 下的交付文档属于打包范围，而交付文档要写"公网验收通过"的真实结果、以及文档校验的真实计数，
+都只能在部署并跑完公网验收之后定稿。这与 v0.3.4 遇到的是同一个坑。三次构建：
+
+| 次序 | 提交 | 包 SHA256 | 用途 |
+| --- | --- | --- | --- |
+| 1 | `6cad450` | `66201b2f56a8187bc73795f5dc93d3f8b32433b10f8eaefc636cab090b99bcdf` | 先用它同步 tigery 并 `--build` 重建镜像、部署上线、跑公网验收 |
+| 2 | `7232abf` | `9dc0038677ca9870c2112408138144f791e06831d48871a80c259838b7264cda` | 补入交付文档、README/ROLLBACK 更新与验收证据 |
+| 3 | `a6147b5` | `6143e6a33d27d076c7220c3062c1379a403698f01f9a6f17c3a95dea3c7f8858` | **最终**：把交付文档里的文档校验计数改成最终审计结果，使包内文档与包外 `doc-audit.json` 一致 |
+
+**可部署代码在三次构建之间零差异**：`git diff --stat 6cad450 a6147b5 -- backend frontend VERSION .dockerignore` 为空；
+三次之间只改了文档与验收证据。为确认部署来源与最终包一致，逐文件比对部署目录与最终包内同一文件的 sha256：
+
+| 文件 | 部署目录 | 包内 |
+| --- | --- | --- |
+| frontend/app.js | 8c543704e1eefe693d5e76ec827a004f9790d9dedb64fe61880c7623b65a91e8 | 同左 |
+| frontend/client.css | 834417c8a2d78654e46f79badf5571fa096a24ffd661f816667689b407f0d40f | 同左 |
+| VERSION | d5d1d767be9218f02ebda081a83a2b2fede85055e910e5a94a09329966486fcc | 同左 |
+| backend/dingdong_ca/core/api/children.py | 1b97ae42c63282e9e55c585c54f8ef6c7a5d7c3a3e4969168bde372ef5ca8f66 | 同左 |
+
+因此远端**没有重建镜像**：最终包与部署目录的运行代码逐字节一致，区别只在包内的交付文档与 README/ROLLBACK。
+远端 `sha256sum -c` 通过（214 条目），并已把最终包的 `RELEASE.json` 覆盖到部署目录，使部署目录的发布标识与标签一致。
+`.env` 不在包内，未被覆盖。
+
+## 泄漏检查（均无）
+
+无 .env、无 deploy/evidence/、无 */docs/、无数据库备份（.sql/.sql.gz）、无 .DS_Store。
+
+## 打包范围
+
+`deploy/package.py` 只归档已提交的 `VERSION` / `.dockerignore` / `backend` / `frontend` / `deploy`，
+并排除 **`**/docs/**`** 与 **`deploy/evidence/**`**，且要求这些路径在 git 中干净。
+包内 `.py` 为 107 个（与 v0.3.4 相同：本轮只改前端与浏览器测试，未新增后端测试文件）。
+
+## 远端同步事实
+
+- 最终发布包上传到 tigery：`/home/tigery/services/dingdong/releases/dingdong-v0.3.5.tar.gz`，远端 `sha256sum -c` 通过，条目数 214。
+- 解包目录：`/home/tigery/services/dingdong/releases/dingdong-v0.3.5`（compose 工作目录是其下的 `deploy/`），其 `RELEASE.json` 已更新为提交 `a6147b5`。
+- 镜像摘要：`dingdong-backend:0.3.5` = `sha256:00d747a0edbcbbda5757d0df1507d7a2dd71b0c0893f9bc260df0f6413dec5bb`；`dingdong-web:0.3.5` = `sha256:d01b4f95f37e5c1cb0d2a328b0f2bdcb3410f19263277324cc1ea551ca453eae`。
+- 六个 `dingdong-demo-*` 容器全部运行，`api/web/worker/beat` 的 `RestartCount=0`，`api` 健康；`postgres_data` / `redis_data` 数据卷沿用（compose 项目名固定为 `dingdong-demo`）。
+- 部署前数据库备份：`dingdong-pre-v0.3.5-20260914-092110.sql.gz`，SHA256 `d912b5ffaea078b5ec6597ec6d575baff39aad74375ce634afb1d13d02fa037d`。
+- 无数据库迁移变更（复用 v0.3.4 的 `0007`）。

@@ -129,18 +129,7 @@
   ],
   "operations": 51,
   "schemas": 62,
-  "errors": [
-    {
-      "kind": "local_link",
-      "file": "文档/文档索引.md",
-      "target": "../deploy/evidence/v0.3.5/package-integrity.txt"
-    },
-    {
-      "kind": "local_link",
-      "file": "deploy/PARENT_CONFLICT_RECOVERY_20260914.md",
-      "target": "evidence/v0.3.5/package-integrity.txt"
-    }
-  ],
+  "errors": [],
   "documents": [
     "README.md",
     "材料清单.md",
