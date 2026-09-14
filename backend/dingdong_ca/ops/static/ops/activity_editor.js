@@ -39,11 +39,19 @@
   }
 
   function button(label, className, onClick, title) {
-    const node = el("button", className || "icon-btn", label);
+    const node = el("button", className || "btn btn-sm btn-icon", label);
     node.type = "button";
     if (title) node.title = title;
     node.addEventListener("click", onClick);
     return node;
+  }
+
+  /* 空状态统一走界面组件体系的 .empty。 */
+  function emptyState(title, note) {
+    const box = el("div", "empty");
+    box.appendChild(el("p", "empty-title", title));
+    if (note) box.appendChild(el("p", "empty-subtitle text-secondary", note));
+    return box;
   }
 
   function touch() {
@@ -51,18 +59,20 @@
   }
 
   function stepCard(step, index) {
-    const card = el("div", "step-card");
-    const head = el("div", "question-head");
+    /* 视觉外壳来自组件库的 .card；.step-card 只保留"这是一个步骤"的语义。 */
+    const card = el("div", "card step-card");
+    const body = el("div", "card-body");
+    const head = el("div", "ops-editor-head");
     head.appendChild(el("span", "idx", "第 " + (index + 1) + " 步"));
-    head.appendChild(el("span", "spacer"));
+    head.appendChild(el("span", "ops-editor-spacer"));
     if (editable) {
-      head.appendChild(button("↑", "icon-btn", function () {
+      head.appendChild(button("↑", "btn btn-sm btn-icon", function () {
         if (index === 0) return;
         content.steps.splice(index - 1, 0, content.steps.splice(index, 1)[0]);
         touch();
         render();
       }, "上移"));
-      head.appendChild(button("↓", "icon-btn", function () {
+      head.appendChild(button("↓", "btn btn-sm btn-icon", function () {
         if (index === content.steps.length - 1) return;
         content.steps.splice(index + 1, 0, content.steps.splice(index, 1)[0]);
         touch();
@@ -74,11 +84,11 @@
         render();
       }));
     }
-    card.appendChild(head);
+    body.appendChild(head);
 
-    const instructionRow = el("div", "form-row");
-    instructionRow.appendChild(el("label", null, "家长指引（这一步要做什么）"));
-    const instruction = el("textarea");
+    const instructionRow = el("div", "mb-3");
+    instructionRow.appendChild(el("label", "form-label", "家长指引（这一步要做什么）"));
+    const instruction = el("textarea", "form-control");
     instruction.value = step.instruction || "";
     instruction.placeholder = "例如：和孩子一起在小区里找三种不同的叶子。";
     instruction.disabled = !editable;
@@ -87,11 +97,11 @@
       touch();
     });
     instructionRow.appendChild(instruction);
-    card.appendChild(instructionRow);
+    body.appendChild(instructionRow);
 
-    const guideRow = el("div", "form-row");
-    guideRow.appendChild(el("label", null, "引导语（家长可以这样说）"));
-    const guide = el("textarea");
+    const guideRow = el("div", "mb-0");
+    guideRow.appendChild(el("label", "form-label", "引导语（家长可以这样说）"));
+    const guide = el("textarea", "form-control");
     guide.value = step.guide_text || "";
     guide.placeholder = "例如：你摸一摸，这片叶子和刚才那片有什么不一样？";
     guide.disabled = !editable;
@@ -100,14 +110,16 @@
       touch();
     });
     guideRow.appendChild(guide);
-    card.appendChild(guideRow);
+    body.appendChild(guideRow);
+
+    card.appendChild(body);
     return card;
   }
 
   function render() {
     listNode.innerHTML = "";
     if (!content.steps.length) {
-      listNode.appendChild(el("p", "table-empty", "还没有步骤。点击“添加步骤”开始。"));
+      listNode.appendChild(emptyState("还没有步骤", "点击“添加步骤”开始。"));
       return;
     }
     content.steps.forEach(function (step, index) {
@@ -139,9 +151,10 @@
     box.innerHTML = "";
     box.hidden = !problems.length;
     if (!problems.length) return;
-    const notice = el("div", "notice notice-warn");
+    const notice = el("div", "alert alert-warning");
+    notice.setAttribute("role", "alert");
     notice.appendChild(el("strong", null, "还不能发布，请先处理以下问题："));
-    const list = el("ul");
+    const list = el("ul", "mb-0");
     problems.forEach(function (text) {
       list.appendChild(el("li", null, text));
     });

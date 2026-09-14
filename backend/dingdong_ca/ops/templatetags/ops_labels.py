@@ -31,33 +31,36 @@ MAPS = {
     "TARGET_KIND": L.TARGET_KIND,
 }
 
+# 状态 -> 颜色。取值是 Tabler/Bootstrap 的浅色底色工具类（bg-*-lt），
+# 由组件库提供样式，本文件只负责"什么状态用什么颜色"这一个业务判断。
+# 不要在这里写自定义 CSS 类名，否则颜色又回到各页面各自实现。
 STATUS_TONE = {
-    "draft": "badge-muted",
-    "published": "badge-ok",
-    "retired": "badge-muted",
-    "active": "badge-ok",
-    "frozen": "badge-warn",
-    "closed": "badge-muted",
-    "archived": "badge-muted",
-    "completed": "badge-ok",
-    "succeeded": "badge-ok",
-    "failed": "badge-danger",
-    "cancelled": "badge-muted",
-    "skipped": "badge-muted",
-    "open": "badge-warn",
-    "processing": "badge-accent",
-    "pending": "badge-accent",
-    "running": "badge-accent",
-    "waiting": "badge-warn",
-    "unknown": "badge-warn",
-    "verified": "badge-ok",
-    "revoked": "badge-muted",
-    "paused": "badge-warn",
-    "enabled": "badge-ok",
-    "expired": "badge-muted",
-    "needs_recapture": "badge-warn",
-    "result_unknown": "badge-warn",
-    "ready": "badge-accent",
+    "draft": "bg-secondary-lt",
+    "published": "bg-green-lt",
+    "retired": "bg-secondary-lt",
+    "active": "bg-green-lt",
+    "frozen": "bg-yellow-lt",
+    "closed": "bg-secondary-lt",
+    "archived": "bg-secondary-lt",
+    "completed": "bg-green-lt",
+    "succeeded": "bg-green-lt",
+    "failed": "bg-red-lt",
+    "cancelled": "bg-secondary-lt",
+    "skipped": "bg-secondary-lt",
+    "open": "bg-yellow-lt",
+    "processing": "bg-azure-lt",
+    "pending": "bg-azure-lt",
+    "running": "bg-azure-lt",
+    "waiting": "bg-yellow-lt",
+    "unknown": "bg-yellow-lt",
+    "verified": "bg-green-lt",
+    "revoked": "bg-secondary-lt",
+    "paused": "bg-yellow-lt",
+    "enabled": "bg-green-lt",
+    "expired": "bg-secondary-lt",
+    "needs_recapture": "bg-yellow-lt",
+    "result_unknown": "bg-yellow-lt",
+    "ready": "bg-teal-lt",
 }
 
 
@@ -68,7 +71,8 @@ def label(value, mapping_name):
 
 @register.filter
 def tone(value):
-    return STATUS_TONE.get(value, "badge-muted")
+    """状态 -> Tabler 浅色底色工具类。未知状态回退中性色，不显示成醒目颜色。"""
+    return STATUS_TONE.get(value, "bg-secondary-lt")
 
 
 @register.filter

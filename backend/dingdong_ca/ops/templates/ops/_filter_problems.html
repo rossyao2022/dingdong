@@ -3,10 +3,10 @@
 各列表视图把 `filter_problems` 传进来，这里用中文说明哪些条件没有生效。
 {% endcomment %}
 {% if filter_problems %}
-  <div class="notice notice-danger" role="alert" id="filter-problems">
-    <strong>筛选条件有问题，列表没有按这些条件筛选</strong>
-    <p style="margin:6px 0 0">下面的条件不合法，已被忽略；当前显示的记录范围比预期更宽。</p>
-    <ul>
+  <div class="alert alert-danger" role="alert" id="filter-problems">
+    <h4 class="alert-heading">筛选条件有问题，列表没有按这些条件筛选</h4>
+    <p class="mb-1">下面的条件不合法，已被忽略；当前显示的记录范围比预期更宽。</p>
+    <ul class="mb-0">
       {% for problem in filter_problems %}
         <li>{{ problem }}</li>
       {% endfor %}

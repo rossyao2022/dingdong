@@ -1,0 +1,38 @@
+运营后台逐页渲染体检 · 改版前（v0.3.5 旧界面）
+命令：OPS_BACKEND_URL=http://127.0.0.1:8018 node tools/ops-page-audit.mjs
+数据：与改版后同一套本地演示数据（两个服务指向同一 Postgres）
+工具：frontend/tools/ops-page-audit.mjs（真实 Chrome，不拦截接口）
+时间：2026-09-14 13:53:33 CST
+------------------------------------------------------------
+发现的目标 id： {"family":"d3d69c9b-2c17-4e80-b1e0-b312b1469d2d","questionnaire":"ecddb00e-b410-4f19-9285-8ed4686185d1","activity":"bc9ae845-1e05-4cfc-bab5-20ae4b1eaec2","report":"e13ec393-b2f7-4ba8-b1e5-a3ce78b3fa60","job":"2b0b9854-8c7e-4df9-ae59-d1811d80b9c3","service":"647913a5-0fe5-4e74-bf50-b5feed91b8fc","account":"b0b3844d-25c3-4ba4-8600-7d674ab8c1e9","child":"8cd54d83-c673-4385-9d1c-5771ac3afba0"}
+01-dashboard               ok   200  标题="" 卡片=3 表格=2 裸控件=1 Ops=object
+02-families                ok   200  标题="" 卡片=2 表格=1 裸控件=1 Ops=object
+03-family-detail           ok   200  标题="" 卡片=4 表格=0 裸控件=0 Ops=object
+04-child-detail            ok   200  标题="" 卡片=8 表格=3 裸控件=3 Ops=object
+05-questionnaires          ok   200  标题="" 卡片=2 表格=1 裸控件=3 Ops=object
+06-questionnaire-new       ok   200  标题="" 卡片=1 表格=0 裸控件=3 Ops=object
+07-questionnaire-edit      ok   200  标题="" 卡片=4 表格=0 裸控件=7 Ops=object
+08-questionnaire-preview   ok   200  标题="" 卡片=1 表格=0 裸控件=0 Ops=object
+09-activities              ok   200  标题="" 卡片=2 表格=1 裸控件=2 Ops=object
+10-activity-new            ok   200  标题="" 卡片=1 表格=0 裸控件=4 Ops=object
+11-activity-edit           ok   200  标题="" 卡片=4 表格=0 裸控件=13 Ops=object
+12-activity-preview        ok   200  标题="" 卡片=1 表格=0 裸控件=0 Ops=object
+13-reports                 ok   200  标题="" 卡片=2 表格=1 裸控件=2 Ops=object
+14-report-detail           ok   200  标题="" 卡片=4 表格=0 裸控件=0 Ops=object
+15-jobs                    ok   200  标题="" 卡片=2 表格=1 裸控件=3 Ops=object
+16-job-detail              ok   200  标题="" 卡片=4 表格=0 裸控件=0 Ops=object
+17-services                ok   200  标题="" 卡片=2 表格=1 裸控件=3 Ops=object
+18-service-detail          ok   200  标题="" 卡片=4 表格=0 裸控件=0 Ops=object
+19-audit                   ok   200  标题="" 卡片=2 表格=1 裸控件=4 Ops=object
+20-accounts                ok   200  标题="" 卡片=3 表格=2 裸控件=1 Ops=object
+21-account-detail          ok   200  标题="" 卡片=5 表格=0 裸控件=4 Ops=object
+22-account-new             ok   200  标题="" 卡片=2 表格=0 裸控件=8 Ops=object
+23-account-reset           ok   200  标题="" 卡片=1 表格=0 裸控件=2 Ops=object
+24-password                ok   200  标题="" 卡片=1 表格=0 裸控件=3 Ops=object
+25-unknown-route           ok*  404  标题="" 卡片=0 表格=0 裸控件=0 Ops=undefined
+      ⚠ console: Failed to load resource: the server responded with a status of 404 (Not Found)
+      ⚠ console: Failed to load resource: the server responded with a status of 404 (Not Found)
+90-mobile-dashboard        横向溢出=0px 展开按钮可见=true
+91-mobile-families         横向溢出=0px 展开按钮可见=true
+
+未处理错误总计：2

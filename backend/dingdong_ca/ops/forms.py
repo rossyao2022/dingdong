@@ -12,7 +12,30 @@ from .permissions import ROLE_LABELS
 ASSIGNABLE_ROLES = ["operations", "content", "technical", "account_admin"]
 
 
-class OpsLoginForm(AuthenticationForm):
+class OpsFormMixin:
+    """把界面组件体系的表单类名统一注入到 Django 默认控件上。
+
+    运营后台使用组件库的 form-control / form-select / form-check-input 样式，
+    而 Django 默认渲染出来的控件没有任何类名。在这里集中注入，
+    避免每个模板手写 class，也避免以后新增字段忘记加类名而出现"裸控件"。
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            widget = field.widget
+            if isinstance(widget, (forms.CheckboxInput, forms.CheckboxSelectMultiple)):
+                extra = "form-check-input"
+            elif isinstance(widget, (forms.Select, forms.SelectMultiple)):
+                extra = "form-select"
+            else:
+                extra = "form-control"
+            classes = widget.attrs.get("class", "").split()
+            if extra not in classes:
+                widget.attrs["class"] = " ".join(classes + [extra])
+
+
+class OpsLoginForm(OpsFormMixin, AuthenticationForm):
     """只允许工作人员登录；家长账号在运营后台不可用。"""
 
     username = forms.CharField(
@@ -36,7 +59,7 @@ class OpsLoginForm(AuthenticationForm):
             raise ValidationError("该账号不是运营后台账号，请使用家长端登录。", code="not_staff")
 
 
-class StaffCreateForm(forms.Form):
+class StaffCreateForm(OpsFormMixin, forms.Form):
     username = forms.CharField(
         label="登录账号",
         max_length=150,
@@ -98,7 +121,7 @@ class StaffCreateForm(forms.Form):
         return user
 
 
-class StaffPasswordResetForm(forms.Form):
+class StaffPasswordResetForm(OpsFormMixin, forms.Form):
     password1 = forms.CharField(
         label="新密码",
         strip=False,
@@ -122,7 +145,7 @@ class StaffPasswordResetForm(forms.Form):
         return data
 
 
-class OpsPasswordChangeForm(PasswordChangeForm):
+class OpsPasswordChangeForm(OpsFormMixin, PasswordChangeForm):
     """沿用 Django 的密码强度校验，只把提示语换成中文业务语言。"""
 
     error_messages = {

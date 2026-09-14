@@ -21,31 +21,43 @@
 {% endblock %}
 
 {% block content %}
-  <div class="notice">
-    <strong>这是运营视角的预览</strong>
-    预览内容与家长端展示一致：题库名称、用途说明、题干、选项与必填规则。
-    题目数量：{{ row.questions|length }} 题。
+  <div class="alert alert-info" role="alert">
+    <h4 class="alert-heading">这是运营视角的预览</h4>
+    <p class="mb-0">
+      预览内容与家长端展示一致：题库名称、用途说明、题干、选项与必填规则。
+      题目数量：{{ row.questions|length }} 题。
+    </p>
   </div>
 
   <section class="card">
-    <h2>{{ row.title }}</h2>
-    <p class="card-sub">{{ row.description }}</p>
-    <p class="help">{{ row.purpose|label:"QUESTIONNAIRE_PURPOSE" }} · 版本 {{ row.version }}</p>
-
-    {% for question in row.questions %}
-      <div class="preview-question">
-        <b>第 {{ forloop.counter }} 题 · {{ question.title }}</b>
-        <div class="help">
-          {{ question.type|label:"QUESTION_TYPE" }}
-          {% if question.required %}· 必填{% else %}· 选填{% endif %}
-          {% if question.type == "multiple_choice" %}· 最少选 {{ question.min_choices }} 项，最多选 {{ question.max_choices }} 项{% endif %}
-        </div>
-        {% for option in question.options %}
-          <span class="preview-option">{{ option.label }}</span>
-        {% endfor %}
+    <div class="card-header">
+      <div>
+        <h2 class="card-title">{{ row.title }}</h2>
+        <div class="card-subtitle">{{ row.purpose|label:"QUESTIONNAIRE_PURPOSE" }} · 版本 {{ row.version }}</div>
       </div>
-    {% empty %}
-      <p class="table-empty">该版本还没有题目。{% if row.status == "draft" %}回到编辑页添加题目后再发布。{% endif %}</p>
-    {% endfor %}
+    </div>
+    <div class="card-body">
+      <p class="text-secondary">{{ row.description }}</p>
+
+      {% for question in row.questions %}
+        <div class="preview-question">
+          <b>第 {{ forloop.counter }} 题 · {{ question.title }}</b>
+          <div class="text-secondary small">
+            {{ question.type|label:"QUESTION_TYPE" }}
+            {% if question.required %}· 必填{% else %}· 选填{% endif %}
+            {% if question.type == "multiple_choice" %}· 最少选 {{ question.min_choices }} 项，最多选 {{ question.max_choices }} 项{% endif %}
+          </div>
+          {% for option in question.options %}
+            <span class="preview-option">{{ option.label }}</span>
+          {% endfor %}
+        </div>
+      {% empty %}
+        {% if row.status == "draft" %}
+          {% include "ops/_empty.html" with title="该版本还没有题目" note="回到编辑页添加题目后再发布。" %}
+        {% else %}
+          {% include "ops/_empty.html" with title="该版本还没有题目" %}
+        {% endif %}
+      {% endfor %}
+    </div>
   </section>
 {% endblock %}

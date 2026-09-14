@@ -44,14 +44,15 @@
     return "ops-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
   }
 
+  /* 轻提示。类名用 ops-toast，避免与组件库自带的 .toast 组件互相覆盖。 */
   function toast(message, kind) {
     const node = document.getElementById("toast");
     if (!node) return;
     node.textContent = message;
-    node.className = "toast show" + (kind ? " " + kind : "");
+    node.className = "ops-toast show" + (kind ? " " + kind : "");
     window.clearTimeout(node._timer);
     node._timer = window.setTimeout(function () {
-      node.className = "toast" + (kind ? " " + kind : "");
+      node.className = "ops-toast" + (kind ? " " + kind : "");
     }, kind === "error" ? 6000 : 3200);
   }
 
@@ -210,12 +211,14 @@
     }
 
     const field = document.createElement("div");
-    field.className = "form-row";
+    field.className = "mb-0";
     const label = document.createElement("label");
+    label.className = "form-label";
     label.textContent = opts.label || "内容";
     label.setAttribute("for", "ops-prompt-input");
     const input = document.createElement("input");
     input.type = "text";
+    input.className = "form-control";
     input.id = "ops-prompt-input";
     input.value = opts.defaultValue || "";
     input.placeholder = opts.placeholder || "";
@@ -258,24 +261,38 @@
   }
 
   /* 可复用的提示块：冲突、权限、校验结果都用同一种结构呈现，
-     带标题、说明、要点列表和零到多个操作按钮。 */
+     带标题、说明、要点列表和零到多个操作按钮。
+     外观直接用组件库的 alert 组件，不自己再定义一套提示样式。 */
+  const NOTICE_KIND = {
+    danger: "alert-danger",
+    error: "alert-danger",
+    warn: "alert-warning",
+    warning: "alert-warning",
+    ok: "alert-success",
+    success: "alert-success",
+    info: "alert-info",
+  };
+
   function notice(options) {
     const opts = options || {};
     const box = document.createElement("div");
-    box.className = "notice" + (opts.kind ? " notice-" + opts.kind : "");
+    box.className = "alert " + (NOTICE_KIND[opts.kind] || "alert-info");
+    box.setAttribute("role", "alert");
     if (opts.title) {
-      const strong = document.createElement("strong");
-      strong.textContent = opts.title;
-      box.appendChild(strong);
+      const heading = document.createElement("h4");
+      heading.className = "alert-heading";
+      heading.textContent = opts.title;
+      box.appendChild(heading);
     }
     if (opts.message) {
       const text = document.createElement("p");
-      text.style.margin = "6px 0";
+      text.className = "mb-0";
       text.textContent = opts.message;
       box.appendChild(text);
     }
     if (opts.impacts && opts.impacts.length) {
       const list = document.createElement("ul");
+      list.className = "mb-0";
       opts.impacts.forEach(function (item) {
         const li = document.createElement("li");
         li.textContent = item;
@@ -285,8 +302,7 @@
     }
     if (opts.actions && opts.actions.length) {
       const row = document.createElement("div");
-      row.className = "filters";
-      row.style.marginTop = "8px";
+      row.className = "btn-list mt-3";
       opts.actions.forEach(function (action) {
         const button = document.createElement("button");
         button.type = "button";
@@ -311,17 +327,24 @@
     });
   }
 
+  /* 按钮忙碌态：保留按钮内部结构（图标 + 文字），不用 textContent 直接覆盖。
+     用 WeakMap 记住原始内容，避免第二次进入忙碌态时读到上一次的“处理中…”。 */
+  const busyOriginal = new WeakMap();
   function busy(button, on) {
     if (!button) return;
     if (on) {
+      if (!busyOriginal.has(button)) busyOriginal.set(button, button.innerHTML);
       button.setAttribute("aria-busy", "true");
-      if (button.dataset.label === undefined) button.dataset.label = button.textContent;
       button.disabled = true;
-      button.textContent = button.dataset.busy || "处理中…";
+      button.innerHTML = button.dataset.busy || "处理中…";
     } else {
       button.removeAttribute("aria-busy");
       button.disabled = false;
-      if (button.dataset.label !== undefined) button.textContent = button.dataset.label;
+      const original = busyOriginal.get(button);
+      if (original !== undefined) {
+        button.innerHTML = original;
+        busyOriginal.delete(button);
+      }
     }
   }
 
@@ -444,14 +467,48 @@
     });
   }
 
+  /* 侧栏抽屉：窄屏展开 / 关闭。
+     - 焦点管理：打开后焦点进入侧栏第一个链接，关闭后回到展开按钮。
+     - 关闭方式：关闭按钮、遮罩点击、Esc 三种都有。
+     桌面宽度下这些控件由 CSS 隐藏，侧栏常驻，不需要任何脚本。 */
   function initShell() {
-    const toggle = document.querySelector(".ops-menu-toggle");
-    const sidebar = document.querySelector(".ops-sidebar");
-    if (toggle && sidebar) {
-      toggle.addEventListener("click", function () {
-        sidebar.classList.toggle("open");
+    const sidebar = document.getElementById("ops-sidebar");
+    const backdrop = document.querySelector(".ops-backdrop");
+    const openers = document.querySelectorAll("[data-ops-nav-open]");
+    const closers = document.querySelectorAll("[data-ops-nav-close]");
+
+    function setOpen(open) {
+      if (!sidebar) return;
+      sidebar.classList.toggle("open", open);
+      if (backdrop) backdrop.hidden = !open;
+      openers.forEach(function (button) {
+        button.setAttribute("aria-expanded", open ? "true" : "false");
       });
+      if (open) {
+        const first = sidebar.querySelector("a, button");
+        if (first) first.focus();
+      } else {
+        const opener = openers[0];
+        if (opener) opener.focus();
+      }
     }
+
+    openers.forEach(function (button) {
+      button.addEventListener("click", function () {
+        setOpen(!sidebar || !sidebar.classList.contains("open"));
+      });
+    });
+    closers.forEach(function (button) {
+      button.addEventListener("click", function () {
+        setOpen(false);
+      });
+    });
+    document.addEventListener("keydown", function (event) {
+      if (event.key !== "Escape" || !sidebar) return;
+      if (!sidebar.classList.contains("open")) return;
+      setOpen(false);
+    });
+
     document.querySelectorAll("[data-ops-confirm]").forEach(function (form) {
       form.addEventListener("submit", async function (event) {
         if (form.dataset.confirmed === "1") return;

@@ -183,14 +183,14 @@ test.describe("运营后台", () => {
 
   test("题库：可视化新建草稿→校验→发布→复制新版本", async ({ page }) => {
     const staff = makeStaff(["content"], "内容丙");
+    // 内部编号与版本号由服务端自动生成（v0.3.4 起界面上不再有这两个输入框），
+    // 这里用一个可精确定位的标题做创建与清理的依据。
     const title = `验收题库 ${crypto.randomUUID().slice(0, 6)}`;
     try {
       await login(page, staff);
       await page.goto(`${BACKEND}/ops/questionnaires/`);
       await page.getByRole("link", { name: "新建题库草稿" }).click();
 
-      await page.locator("#new-code").fill("accept-" + crypto.randomUUID().slice(0, 8));
-      await page.locator("#new-version").fill("v1");
       await page.locator("#new-purpose").selectOption("exploration");
       await page.locator("#new-title").fill(title);
       await page.locator("#new-description").fill("非正式体验，只记录本次选择，不作能力评价。");
@@ -233,17 +233,25 @@ test.describe("运营后台", () => {
       await published.getByRole("link", { name: title }).click();
       await expect(page.getByText("该版本不可编辑")).toBeVisible();
 
-      // 复制为新版本，可继续编辑
+      // 复制为新版本，可继续编辑。
+      // 编辑页的版本号由系统自动递增，所以这里只需要确认，不再手工填写版本号。
       await page.getByRole("button", { name: "复制为新版本", exact: true }).click();
-      await promptDialog(page, "复制", "v2");
+      await confirmDialog(page, "复制");
       await expect(page.getByText("已创建草稿")).toBeVisible();
       await expect(page).toHaveURL(/\/ops\/questionnaires\/[0-9a-f-]{36}\/$/);
       await expect(page.locator("#q-title")).toHaveValue(title);
       await expect(page.locator("#questions .question-card").first()).toBeVisible();
+
+      // 列表页的“复制为新版本”仍允许指定版本号，走带输入框的对话框
+      await page.goto(`${BACKEND}/ops/questionnaires/`);
+      const copyRow = page.locator("table.ops-table tbody tr").filter({ hasText: title }).first();
+      await copyRow.getByRole("button", { name: "复制为新版本" }).click();
+      await promptDialog(page, "复制", "v3");
+      await expect(page.getByText("已创建草稿")).toBeVisible();
     } finally {
       shell(
         `from dingdong_ca.core.models import QuestionnaireVersion
-QuestionnaireVersion.objects.filter(code__startswith="accept-").update(status="retired")`,
+QuestionnaireVersion.objects.filter(title=${JSON.stringify(title)}).update(status="retired")`,
       );
       deactivate(staff.username);
     }
@@ -257,8 +265,6 @@ QuestionnaireVersion.objects.filter(code__startswith="accept-").update(status="r
       await page.goto(`${BACKEND}/ops/activities/`);
       await page.getByRole("link", { name: "新建活动草稿" }).click();
 
-      await page.locator("#new-code").fill("accept-act-" + crypto.randomUUID().slice(0, 8));
-      await page.locator("#new-version").fill("v1");
       await page.locator("#new-title").fill(title);
       await page.locator("#new-island").fill("观察岛");
       await page.locator("#new-mood").fill("好奇");
@@ -295,7 +301,7 @@ QuestionnaireVersion.objects.filter(code__startswith="accept-").update(status="r
     } finally {
       shell(
         `from dingdong_ca.core.models import ActivityContentVersion
-ActivityContentVersion.objects.filter(code__startswith="accept-act-").update(status="retired")`,
+ActivityContentVersion.objects.filter(title=${JSON.stringify(title)}).update(status="retired")`,
       );
       deactivate(staff.username);
     }

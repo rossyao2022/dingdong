@@ -30,11 +30,19 @@
   }
 
   function button(label, className, onClick, title) {
-    const node = el("button", className || "icon-btn", label);
+    const node = el("button", className || "btn btn-sm btn-icon", label);
     node.type = "button";
     if (title) node.title = title;
     node.addEventListener("click", onClick);
     return node;
+  }
+
+  /* 空状态统一走界面组件体系的 .empty，不再自己拼一行灰字。 */
+  function emptyState(title, note) {
+    const box = el("div", "empty");
+    box.appendChild(el("p", "empty-title", title));
+    if (note) box.appendChild(el("p", "empty-subtitle text-secondary", note));
+    return box;
   }
 
   function touch() {
@@ -42,13 +50,15 @@
   }
 
   function questionCard(question, index) {
-    const card = el("div", "question-card");
+    /* 视觉外壳来自组件库的 .card；.question-card 只负责"这是一道题"的语义与左侧色条。 */
+    const card = el("div", "card question-card");
     card.dataset.index = String(index);
+    const body = el("div", "card-body");
 
-    const head = el("div", "question-head");
+    const head = el("div", "ops-editor-head");
     head.appendChild(el("span", "idx", "第 " + (index + 1) + " 题"));
 
-    const typeSelect = el("select");
+    const typeSelect = el("select", "form-select form-select-sm w-auto");
     typeSelect.setAttribute("aria-label", "题型");
     [
       ["single_choice", "单选"],
@@ -74,11 +84,11 @@
     });
     head.appendChild(typeSelect);
 
-    const requiredLabel = el("label");
+    const requiredLabel = el("label", "form-check m-0");
     requiredLabel.style.display = "flex";
     requiredLabel.style.alignItems = "center";
     requiredLabel.style.gap = "6px";
-    const required = el("input");
+    const required = el("input", "form-check-input");
     required.type = "checkbox";
     required.checked = !!question.required;
     required.disabled = !editable;
@@ -90,15 +100,15 @@
     requiredLabel.appendChild(document.createTextNode("必填"));
     head.appendChild(requiredLabel);
 
-    head.appendChild(el("span", "spacer"));
+    head.appendChild(el("span", "ops-editor-spacer"));
     if (editable) {
-      head.appendChild(button("↑", "icon-btn", function () {
+      head.appendChild(button("↑", "btn btn-sm btn-icon", function () {
         if (index === 0) return;
         state.questions.splice(index - 1, 0, state.questions.splice(index, 1)[0]);
         touch();
         render();
       }, "上移"));
-      head.appendChild(button("↓", "icon-btn", function () {
+      head.appendChild(button("↓", "btn btn-sm btn-icon", function () {
         if (index === state.questions.length - 1) return;
         state.questions.splice(index + 1, 0, state.questions.splice(index, 1)[0]);
         touch();
@@ -118,10 +128,10 @@
         });
       }, "删除题目"));
     }
-    card.appendChild(head);
+    body.appendChild(head);
 
-    const titleRow = el("div", "form-row");
-    const title = el("textarea");
+    const titleRow = el("div", "mb-3");
+    const title = el("textarea", "form-control");
     title.value = question.title || "";
     title.placeholder = "题干，例如：遇到一件从没见过的小玩意儿，你更想先……";
     title.disabled = !editable;
@@ -130,13 +140,13 @@
       touch();
     });
     titleRow.appendChild(title);
-    card.appendChild(titleRow);
+    body.appendChild(titleRow);
 
     const optionsBox = el("div");
     question.options.forEach(function (option, optionIndex) {
       const row = el("div", "option-row");
       row.appendChild(el("span", "idx", String(optionIndex + 1)));
-      const input = el("input");
+      const input = el("input", "form-control");
       input.type = "text";
       input.value = option.label || "";
       input.placeholder = "选项文字";
@@ -161,7 +171,7 @@
       }
       optionsBox.appendChild(row);
     });
-    card.appendChild(optionsBox);
+    body.appendChild(optionsBox);
 
     if (editable) {
       const addOption = button("添加选项", "btn btn-sm", function () {
@@ -172,20 +182,18 @@
         touch();
         render();
       });
-      card.appendChild(addOption);
+      body.appendChild(addOption);
     }
 
     if (question.type === "multiple_choice") {
-      const range = el("div", "filters");
-      range.style.marginTop = "10px";
+      const range = el("div", "row g-2 align-items-end mt-3");
       [
         ["min_choices", "最少选择"],
         ["max_choices", "最多选择"],
       ].forEach(function (pair) {
-        const field = el("div", "field");
-        field.style.minWidth = "120px";
-        field.appendChild(el("label", null, pair[1]));
-        const input = el("input");
+        const field = el("div", "col-auto");
+        field.appendChild(el("label", "form-label", pair[1]));
+        const input = el("input", "form-control form-control-sm");
         input.type = "number";
         input.min = "1";
         input.value = question[pair[0]] || 1;
@@ -199,16 +207,16 @@
         field.appendChild(input);
         range.appendChild(field);
       });
-      card.appendChild(range);
+      body.appendChild(range);
     }
+    card.appendChild(body);
     return card;
   }
 
   function render() {
     listNode.innerHTML = "";
     if (!state.questions.length) {
-      const empty = el("p", "table-empty", "还没有题目。点击“添加题目”开始。");
-      listNode.appendChild(empty);
+      listNode.appendChild(emptyState("还没有题目", "点击“添加题目”开始。"));
       return;
     }
     state.questions.forEach(function (question, index) {
@@ -382,9 +390,11 @@
     box.innerHTML = "";
     box.hidden = !problems.length;
     if (!problems.length) return;
-    const notice = el("div", "notice notice-warn");
+    /* 提示块沿用界面组件体系的 alert，标题与要点都保持可读的中文语义。 */
+    const notice = el("div", "alert alert-warning");
+    notice.setAttribute("role", "alert");
     notice.appendChild(el("strong", null, "还不能发布，请先处理以下问题："));
-    const list = el("ul");
+    const list = el("ul", "mb-0");
     problems.forEach(function (text) {
       list.appendChild(el("li", null, text));
     });

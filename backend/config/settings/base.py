@@ -62,6 +62,8 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                # 运营后台静态资源的版本号，用于击穿静态文件缓存。
+                "dingdong_ca.ops.context.ops_assets",
             ]
         },
     }

@@ -51,17 +51,18 @@ PERMISSIONS = {
     "account.manage": {"account_admin"},
 }
 
-# 导航：标题 -> (权限点, 视图名, 分组)
+# 导航：标题 -> (权限点, 视图名, 分组, 图标)
+# 图标只做辅助识别，不替代文字标签（Tabler Icons 类名，见 static/ops/vendor）。
 NAVIGATION = [
-    ("工作首页", "dashboard.view", "ops:dashboard", "日常"),
-    ("家庭与儿童", "family.view", "ops:families", "日常"),
-    ("服务事项", "service.view", "ops:services", "日常"),
-    ("报告管理", "report.view", "ops:reports", "日常"),
-    ("题库管理", "questionnaire.view", "ops:questionnaires", "内容"),
-    ("活动管理", "activity.view", "ops:activities", "内容"),
-    ("生成任务", "job.view", "ops:jobs", "技术"),
-    ("账号与权限", "account.manage", "ops:accounts", "管理"),
-    ("操作审计", "audit.view", "ops:audit", "管理"),
+    ("工作首页", "dashboard.view", "ops:dashboard", "日常", "ti-layout-dashboard"),
+    ("家庭与儿童", "family.view", "ops:families", "日常", "ti-users"),
+    ("服务事项", "service.view", "ops:services", "日常", "ti-lifebuoy"),
+    ("报告管理", "report.view", "ops:reports", "日常", "ti-file-analytics"),
+    ("题库管理", "questionnaire.view", "ops:questionnaires", "内容", "ti-list-check"),
+    ("活动管理", "activity.view", "ops:activities", "内容", "ti-balloon"),
+    ("生成任务", "job.view", "ops:jobs", "技术", "ti-refresh-dot"),
+    ("账号与权限", "account.manage", "ops:accounts", "管理", "ti-shield-lock"),
+    ("操作审计", "audit.view", "ops:audit", "管理", "ti-history"),
 ]
 
 
@@ -100,9 +101,9 @@ def role_labels(user):
 
 def navigation(user):
     items = []
-    for title, permission, view, group in NAVIGATION:
+    for title, permission, view, group, icon in NAVIGATION:
         if has_permission(user, permission):
-            items.append({"title": title, "view": view, "group": group})
+            items.append({"title": title, "view": view, "group": group, "icon": icon})
     return items
 
 

@@ -4,36 +4,42 @@
 {% block crumb %}<a href="{% url 'ops:activities' %}" data-nav>← 返回活动列表</a>{% endblock %}
 
 {% block content %}
-  <section class="card" style="max-width:720px">
-    <h2>第一步：填写活动基本信息</h2>
-    <p class="card-sub">
-      创建后进入编辑器维护材料、目标和步骤。草稿不会出现在家长端。
-      内部编号与版本号由系统自动生成，不需要手工维护。
-    </p>
+  <section class="card mx-auto" style="max-width:760px">
+    <div class="card-header"><h2 class="card-title">第一步：填写活动基本信息</h2></div>
+    <div class="card-body">
+      <p class="text-secondary small">
+        创建后进入编辑器维护材料、目标和步骤。草稿不会出现在家长端。
+        内部编号与版本号由系统自动生成，不需要手工维护。
+      </p>
 
-    <div class="form-row">
-      <label for="new-title">活动标题</label>
-      <input type="text" id="new-title" placeholder="家长看到的标题" maxlength="120" />
-      <p class="help">这里每次都会新建一份<strong>独立</strong>活动：即使标题相同，也是两份互不影响的内容。要修改已有活动，请回到活动列表用“复制为新版本”。</p>
-    </div>
-    <div class="form-row">
-      <label for="new-island">所属岛屿</label>
-      <input type="text" id="new-island" placeholder="例如 观察岛" maxlength="32" />
-    </div>
-    <div class="form-row">
-      <label for="new-mood">情绪标签</label>
-      <input type="text" id="new-mood" placeholder="例如 好奇" maxlength="32" />
-    </div>
-    <div class="form-row">
-      <label for="new-duration">时长（分钟）</label>
-      <input type="number" id="new-duration" min="1" max="600" value="15" />
-    </div>
+      <div class="mb-3">
+        <label class="form-label" for="new-title">活动标题</label>
+        <input type="text" class="form-control" id="new-title"
+               placeholder="家长看到的标题" maxlength="120" />
+        <p class="form-hint">
+          这里每次都会新建一份<strong>独立</strong>活动：即使标题相同，也是两份互不影响的内容。
+          要修改已有活动，请回到活动列表用“复制为新版本”。
+        </p>
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="new-island">所属岛屿</label>
+        <input type="text" class="form-control" id="new-island" placeholder="例如 观察岛" maxlength="32" />
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="new-mood">情绪标签</label>
+        <input type="text" class="form-control" id="new-mood" placeholder="例如 好奇" maxlength="32" />
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="new-duration">时长（分钟）</label>
+        <input type="number" class="form-control" id="new-duration" min="1" max="600" value="15" />
+      </div>
 
-    <div id="create-problems" hidden></div>
+      <div id="create-problems" hidden></div>
 
-    <div class="sticky-actions">
-      <button type="button" class="btn btn-primary" id="create-submit">创建草稿并开始编辑</button>
-      <a class="btn btn-ghost" href="{% url 'ops:activities' %}" data-nav>取消</a>
+      <div class="sticky-actions">
+        <button type="button" class="btn btn-primary" id="create-submit">创建草稿并开始编辑</button>
+        <a class="btn btn-ghost-secondary" href="{% url 'ops:activities' %}" data-nav>取消</a>
+      </div>
     </div>
   </section>
 {% endblock %}
