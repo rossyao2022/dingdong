@@ -28,7 +28,9 @@ SKIP = {
 
 
 def put(path, value):
-    (ROOT / path).write_text(value.replace("2026-09-12", DATE), encoding="utf-8")
+    # 不能在这里做全局日期替换：它会把文档清单里形如 <目录>/2026-09-12.md 的
+    # 真实文件名一起改写，生成不存在的路径。需要当天日期的文本用 {DATE} 自行插值。
+    (ROOT / path).write_text(value, encoding="utf-8")
 
 
 def cell(value):
@@ -52,7 +54,7 @@ def generate():
     out = [
         "# 当前 API 请求响应与字段字典",
         "",
-        "由 scripts/audit_documents.py 从当前 OpenAPI 生成（2026-09-12）。以实际代码及通过的契约测试核验实现；本文件不把内部接口称为 DingDong 已确认协议。所有路径前缀为 `/api/v1`。",
+        f"由 scripts/audit_documents.py 从当前 OpenAPI 生成（{DATE}）。以实际代码及通过的契约测试核验实现；本文件不把内部接口称为 DingDong 已确认协议。所有路径前缀为 `/api/v1`。",
         "",
         "## 接口目录",
         "",
@@ -125,7 +127,7 @@ def generate():
     out = [
         "# 当前数据库模型字段清单",
         "",
-        "由 scripts/audit_documents.py 根据 Django 模型元数据生成（2026-09-12），不读取家庭业务数据。以迁移文件为数据库落地依据；跨家庭鉴权、发布冻结和任务状态转换还由服务层负责。早期逻辑设计中的 content_digest、provider 等字段不能视为已落库字段。",
+        f"由 scripts/audit_documents.py 根据 Django 模型元数据生成（{DATE}），不读取家庭业务数据。以迁移文件为数据库落地依据；跨家庭鉴权、发布冻结和任务状态转换还由服务层负责。早期逻辑设计中的 content_digest、provider 等字段不能视为已落库字段。",
         "",
     ]
     for model in sorted(
@@ -294,7 +296,7 @@ def audit():
             if expected != actual:
                 errors.append({"kind": "path_parameters", "path": path})
     result = {
-        "date": "2026-09-12",
+        "date": DATE,
         "scope": "本地文档链接、原始归档哈希/ZIP、提取产物、OpenAPI 引用与 operationId/路径参数；不验证远端链接、Office 版式或真实供应商协议。",
         "markdown_files": len(docs),
         "local_links_checked": links,
