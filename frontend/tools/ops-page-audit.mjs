@@ -51,10 +51,35 @@ const PAGES = [
   ["20-accounts", "/ops/accounts/"],
   ["21-account-detail", "/ops/accounts/{account}/"],
   ["22-account-new", "/ops/accounts/new/"],
-  ["23-account-reset", "/ops/accounts/{account}/reset-password/"],
+  ["23-account-reset", "/ops/accounts/{account_resettable}/reset-password/"],
   ["24-password", "/ops/password/"],
   ["25-unknown-route", "/ops/does-not-exist/"],
 ];
+
+/**
+ * 挑一个"可以重置密码"的目标账号。
+ *
+ * 运营后台按设计**不允许**重置自己、超级管理员和其他管理员的密码
+ * （`views._modifiable`，与 /api/v1/staff/users 的保护一致），命中时返回 403
+ * "权限不足"。这是正确行为，不是缺陷——但列表第一行通常正好是管理员，
+ * 直接拿过来会把"设计如此"报成 FAIL，久了就没人看 FAIL 了。
+ * 所以这里按角色徽章跳过管理员与当前账号，只要启用中的普通账号。
+ */
+async function pickResettableAccount(page) {
+  await page.goto(BACKEND + "/ops/accounts/", { waitUntil: "domcontentloaded" });
+  return page.evaluate(() => {
+    const isAdminLabel = (text) => /管理员/.test(text); // 含"超级管理员"
+    for (const row of document.querySelectorAll("tbody tr")) {
+      const cellText = row.textContent || "";
+      if (isAdminLabel(cellText) || cellText.includes("当前账号")) continue;
+      const href = [...row.querySelectorAll("a[href]")]
+        .map((a) => a.getAttribute("href"))
+        .find((h) => /^\/ops\/accounts\/[0-9a-f-]{36}\/$/.test(h));
+      if (href) return href.replace(/^\/ops\/accounts\//, "").replace(/\/$/, "");
+    }
+    return null;
+  });
+}
 
 /** 从列表页收集第一行的目标 id，保证详情页有真实数据。 */
 async function collectIds(page) {
@@ -77,6 +102,7 @@ async function collectIds(page) {
   await pick("/ops/jobs/", "^/ops/jobs/[0-9a-f-]{36}/$", "job");
   await pick("/ops/services/", "^/ops/services/[0-9a-f-]{36}/$", "service");
   await pick("/ops/accounts/", "^/ops/accounts/[0-9a-f-]{36}/$", "account");
+  ids.account_resettable = await pickResettableAccount(page);
   // 儿童详情链接只在家庭详情页里；逐个家庭找，直到某个家庭有儿童档案
   if (!ids.child) {
     await pick("/ops/families/", "^/ops/families/[0-9a-f-]{36}/$", "__first_family");
