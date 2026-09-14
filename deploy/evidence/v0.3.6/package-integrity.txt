@@ -1,0 +1,117 @@
+v0.3.6 发布包完整性
+============================================================
+记录时间：2026-09-14 14:22 CST
+
+最终发布包
+------------------------------------------------------------
+文件      dist/dingdong-v0.3.6.tar.gz
+sha256    eadc2863295bafe5d83f77fdaabd60c2b5362d65d23117130d717c7120214a57
+大小      1,765,509 字节
+条目数    230
+RELEASE.json 记录的提交   5d8d96e6719afa440d9a26d8ac07eb6580c4e03d
+代码提交（同一提交）      5d8d96e6719afa440d9a26d8ac07eb6580c4e03d
+分支                      codex/release-v0.3.6
+标签                      v0.3.6 → 5d8d96e（annotated tag 对象 558f67bf…）
+
+> 本文件自身在包外，因此**不能**写进包内文档（会造成自相矛盾）。
+> 交付文档 `deploy/OPS_CONSOLE_UI_20260914_V036.md` 只声明哈希记在这里。
+
+
+为什么打了三次包
+------------------------------------------------------------
+这不是重复打包，是流程顺序决定的，每次的原因都不同：
+
+1. **3f28674d…（提交 9a741a1）** 首次打包：界面改版 + 测试修正定稿后。
+   部署到 tigery 后跑公网逐页体检，发现每个页面的控制台都有一条 COOP 错误
+   （明文 HTTP 下 Django 默认发的 Cross-Origin-Opener-Policy 无法生效）。
+2. **fe95b7f7…（提交 c51c2e4）** 修掉 COOP 后重打，重新上传、重建镜像并部署。
+   公网复验：入口全 200、响应头已无 COOP、逐页体检只剩未知路径自身那条 404。
+   此后跑完公网真实 Chrome 全套验收（26 通过 / 18 跳过 / 0 失败）与验收后清理。
+3. **eadc2863…（提交 5d8d96e，即最终包）** 用真实验收结果写交付文档与证据，
+   并修正体检工具的一处误报（把"不能重置管理员密码"报成 FAIL）后重打。
+   标签指向本提交。
+
+**探针记录**：`deploy/evidence/v0.3.6/` 记录了本轮的原始输出；
+`deploy/evidence/**` 按 `deploy/package.py` 的规则不进包（但已提交进 git）。
+
+
+首包（fe95b7f7 / c51c2e4）→ 最终包（eadc2863 / 5d8d96e）的全部差异
+------------------------------------------------------------
+用逐文件 sha256 比较两边解包目录（229 / 230 个文件），差异只有 5 个：
+
+| 文件 | 性质 | 是否进 Docker 镜像 |
+| --- | --- | --- |
+| `RELEASE.json` | 记录提交号，必然不同 | 否 |
+| `deploy/README.md` | 交付文档（v0.3.6 变更小节） | 否 |
+| `deploy/ROLLBACK.md` | 交付文档（回滚目标改为 v0.3.5） | 否 |
+| `deploy/OPS_CONSOLE_UI_20260914_V036.md` | 新增交付文档 | 否 |
+| `frontend/tools/ops-page-audit.mjs` | 开发期自检工具的一处误报修正 | 否（`.dockerignore` 不放行 `frontend/tools/`） |
+
+**关键核对**：`git diff --stat c51c2e4 HEAD -- backend VERSION .dockerignore` 为空。
+即首包之后没有改过任何进入镜像的内容。据此：
+
+> **远端不需要重新构建镜像。** 上面 5 个差异全部不进镜像，
+> 因此 tigery 上正在运行的 `dingdong-backend:0.3.6` / `dingdong-web:0.3.6`
+> 与最终包对应的镜像内容一致。重新构建只会得到同样的镜像。
+
+再看一遍证据：把两边解包目录按 **镜像相关路径**（`backend/` + `VERSION` + `.dockerignore`）
+逐文件 sha256 比对，**161 个文件全部一致，无新增、无缺失、无内容差异**。
+
+
+远端同步事实
+------------------------------------------------------------
+部署目录   /home/tigery/services/dingdong/releases/dingdong-v0.3.6
+compose 工作目录  上述目录下的 `deploy/`
+compose 项目名    dingdong-demo（写死在 `deploy/compose.yml`，复用既有数据卷
+                  `dingdong-demo_postgres_data` / `_redis_data`，未新建数据卷）
+镜像              dingdong-backend:0.3.6 / dingdong-web:0.3.6
+容器              6 个全部 Healthy，api / worker / beat / web 的 RestartCount 均为 0
+deploy/.env       主机侧沿用，仅把 APP_VERSION 改为 0.3.6；
+                  密钥（DJANGO_SECRET_KEY / JWT_SIGNING_KEY / POSTGRES_PASSWORD）
+                  与 PUBLIC_ORIGIN / ADDITIONAL_ORIGINS 未覆盖、未变更；该文件不进包
+备份              /home/tigery/services/dingdong/backups/dingdong-pre-v0.3.6-20260914-055438.sql.gz
+                  207,612 字节，sha256 11d25d793cad171b20185452d09064c35381b3f13133006d3a46d331f76e21ff，
+                  `gzip -t` 通过
+上传校验          远端 `sha256sum -c dingdong-v0.3.6.tar.gz.sha256` → OK（首包与最终包各校验一次）
+
+发布标识核对
+------------------------------------------------------------
+VERSION                       0.3.6
+backend/pyproject.toml        0.3.6
+backend/uv.lock               0.3.6（dingdong-ca-backend）
+frontend/package.json         0.3.6
+frontend/package-lock.json    0.3.6（顶层与 packages[""] 两处）
+镜像标签                      0.3.6
+Git 分支 / 标签               codex/release-v0.3.6 / v0.3.6
+数据库迁移                    无变更，仍停在 core.0007
+
+
+打包范围与排除
+------------------------------------------------------------
+`deploy/package.py` 归档 `VERSION` / `.dockerignore` / `backend` / `frontend` / `deploy`
+下所有 git 已跟踪文件，并排除：
+
+- `**/docs/**`（含 `frontend/docs/ops/` 与 `frontend/docs/ops-before-v0.3.6/` 的改版前后截图）
+- `deploy/evidence/**`（本轮全部验收原始输出）
+- 未跟踪的原始素材（`材料/`、`参考代码/`、`材料清单.md`、`项目分析.md`）——本就不在归档路径内
+
+已确认包内包含本轮新增的 `deploy/OPS_CONSOLE_UI_20260914_V036.md`、
+`backend/dingdong_ca/ops/README.md`、`backend/dingdong_ca/ops/static/ops/vendor/tabler/tabler.min.css`。
+
+
+泄漏检查（包内不得出现密钥、环境变量、证据与原始素材）
+------------------------------------------------------------
+- 包内**没有** `.env`、`.venv`、`*.sqlite3`、`deploy/evidence/`、`**/docs/**`、`材料/`、`参考代码/`。
+- 包内不存在 `DJANGO_SECRET_KEY=<hex>` / `JWT_SIGNING_KEY=<hex>` / `POSTGRES_PASSWORD=<hex>` 形式的赋值。
+- 本地 `deploy/.env` 里的密钥、数据库口令**未出现在包内**（按该文件中的口令逐字检索，无命中）。
+- 包内出现的 64 位十六进制串只有两类：交付文档里历史**发布包自身的**哈希，以及 `backend/uv.lock`
+  里第三方依赖的哈希——都不是本项目密钥。**本轮的发布包哈希只写在本文，不写进包内任何文档。
+
+> 说明：本轮不把发布包自身的 sha256 写进包内文档。若写进去，包内容会随哈希变化而变化，
+> 哈希又随内容变化，永远对不上。
+
+
+未包含在本文的验证结论
+------------------------------------------------------------
+逐项验收结论（含"受限与未做"）见 `deploy/OPS_CONSOLE_UI_20260914_V036.md`；
+原始输出见 `deploy/evidence/v0.3.6/`。
