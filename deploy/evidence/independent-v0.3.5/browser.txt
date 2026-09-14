@@ -1,0 +1,23 @@
+
+> dingdong-parent@0.3.5 test:public
+> playwright test --config=playwright.public.config.js independent-temporary.spec.js
+
+
+Running 10 tests using 1 worker
+
+  ✓   1 [desktop] › deployment-tests/independent-temporary.spec.js:74:3 › 家长端档案冲突恢复（真实入口） › 冲突后家长的称呼、性别、生日全部保留，服务端仍是对方保存的值 (6.7s)
+  ✓   2 [desktop] › deployment-tests/independent-temporary.spec.js:113:3 › 家长端档案冲突恢复（真实入口） › 查看最新资料只做对比；取消保留输入；明确确认载入才替换表单，随后可保存成功 (7.5s)
+  ✓   3 [desktop] › deployment-tests/independent-temporary.spec.js:177:3 › 家长端档案冲突恢复（真实入口） › 恢复期间对方又改了一次：仍然拒绝覆盖、输入不丢、提示更新 (8.1s)
+  ✓   4 [desktop] › deployment-tests/independent-temporary.spec.js:230:3 › 家长端档案冲突恢复（真实入口） › 读取最新资料失败时：输入保留，不显示保存成功 (6.4s)
+  -   5 [desktop] › deployment-tests/independent-temporary.spec.js:280:3 › 家长端档案冲突恢复（真实入口） › 窄屏下也能完成冲突恢复并保存
+  -   6 [mobile] › deployment-tests/independent-temporary.spec.js:74:3 › 家长端档案冲突恢复（真实入口） › 冲突后家长的称呼、性别、生日全部保留，服务端仍是对方保存的值
+  -   7 [mobile] › deployment-tests/independent-temporary.spec.js:113:3 › 家长端档案冲突恢复（真实入口） › 查看最新资料只做对比；取消保留输入；明确确认载入才替换表单，随后可保存成功
+  -   8 [mobile] › deployment-tests/independent-temporary.spec.js:177:3 › 家长端档案冲突恢复（真实入口） › 恢复期间对方又改了一次：仍然拒绝覆盖、输入不丢、提示更新
+  -   9 [mobile] › deployment-tests/independent-temporary.spec.js:230:3 › 家长端档案冲突恢复（真实入口） › 读取最新资料失败时：输入保留，不显示保存成功
+  ✓  10 [mobile] › deployment-tests/independent-temporary.spec.js:280:3 › 家长端档案冲突恢复（真实入口） › 窄屏下也能完成冲突恢复并保存 (6.3s)
+
+  5 skipped
+  5 passed (36.4s)
+
+Read-only browser regression exit: 0
+Review accounts disabled; isolated draft retired
