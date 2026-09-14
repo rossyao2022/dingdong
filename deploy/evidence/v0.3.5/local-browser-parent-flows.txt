@@ -1,0 +1,115 @@
+# 本地真实浏览器：家长端既有流程回归（frontend/tests/flows.spec.js）
+
+日期：2026-09-14
+环境：本地 Docker 演示环境 0.3.5 + 临时 Django 开发服务（8017，deploy 设置）
+命令：cd frontend && npx playwright test tests/flows.spec.js --reporter=list
+
+结论：5 通过 / 3 失败。三项失败与本轮改动无关，原因是这套用例本来依赖
+"同一数据库上的 Django 开发服务 + Celery Worker/Beat"：
+  - 两项在用例内调用 `manage.py inject_fixture`，命令用的数据库与本次临时代理服务
+    不是同一个（Child does not exist），因此注入失败；
+  - 一项用 Django 技术后台登录临时技术人员，临时服务上 admin 登录未通过。
+与本轮直接相关的两项通过：
+  - 「真实登录、活动完成、刷新恢复、退出清理」
+  - 「移动端各页面、无效关联提示、资料编辑与帮助回执」（含编辑儿童档案对话框）
+其余通过项：移动端布局与儿童切换、首页小岛与菜单、探索四题刷新恢复。
+未通过的三项在本轮记为"未实测/环境受限"，历史结论保留，不作为本轮通过证据。
+---
+
+
+Running 8 tests using 1 worker
+
+  ✓  1 tests/flows.spec.js:57:1 › 真实登录、活动完成、刷新恢复、退出清理 (6.7s)
+CommandError: Child does not exist
+  ✘  2 tests/flows.spec.js:89:1 › 用途授权、22题、合成输入、真实初始报告 (2.3s)
+CommandError: Child does not exist
+  ✘  3 tests/flows.spec.js:126:1 › 机器人关联、阶段报告、撤回同步授权 (2.0s)
+  ✓  4 tests/flows.spec.js:157:1 › 移动端布局、儿童切换与跨页退出 (4.7s)
+  ✘  5 tests/flows.spec.js:197:1 › 家长提交删除、后台实际处理、无儿童时查看回执 (8.7s)
+  ✓  6 tests/flows.spec.js:275:1 › 登录后首页小岛出发与全部菜单可点击 (3.1s)
+  ✓  7 tests/flows.spec.js:302:1 › 探索四题、刷新恢复、返回修改、完成仅展示选择 (10.9s)
+  ✓  8 tests/flows.spec.js:359:1 › 移动端各页面、无效关联提示、资料编辑与帮助回执 (7.7s)
+
+
+  1) tests/flows.spec.js:89:1 › 用途授权、22题、合成输入、真实初始报告 ───────────────────────────────────────────────
+
+    Error: Command failed: /Users/yihu/.local/bin/uv run --no-sync --directory /Users/yihu/Documents/ChatGPT/叮咚/backend python manage.py inject_fixture --child-id 51e287b1-666d-4d75-8b0f-7ca7e932466e --scenario assessment_success
+    CommandError: Child does not exist
+
+
+      30 | }
+      31 | function inject(id, scenario) {
+    > 32 |   execFileSync(
+         |   ^
+      33 |     uvBin(),
+      34 |     [
+      35 |       "run",
+        at inject (/Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/flows.spec.js:32:3)
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/flows.spec.js:92:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../tmp/dd-pw-out/flows-用途授权、22题、合成输入、真实初始报告/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../tmp/dd-pw-out/flows-用途授权、22题、合成输入、真实初始报告/error-context.md
+
+  2) tests/flows.spec.js:126:1 › 机器人关联、阶段报告、撤回同步授权 ─────────────────────────────────────────────────
+
+    Error: Command failed: /Users/yihu/.local/bin/uv run --no-sync --directory /Users/yihu/Documents/ChatGPT/叮咚/backend python manage.py inject_fixture --child-id d505130d-c6c9-42f0-b526-2c23388f04cc --scenario sync_success
+    CommandError: Child does not exist
+
+
+      30 | }
+      31 | function inject(id, scenario) {
+    > 32 |   execFileSync(
+         |   ^
+      33 |     uvBin(),
+      34 |     [
+      35 |       "run",
+        at inject (/Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/flows.spec.js:32:3)
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/flows.spec.js:129:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../tmp/dd-pw-out/flows-机器人关联、阶段报告、撤回同步授权/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../tmp/dd-pw-out/flows-机器人关联、阶段报告、撤回同步授权/error-context.md
+
+  3) tests/flows.spec.js:197:1 › 家长提交删除、后台实际处理、无儿童时查看回执 ────────────────────────────────────────────
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected: "http://127.0.0.1:8017/admin/"
+    Received: "http://127.0.0.1:8017/admin/login/"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 5000ms
+        14 × locator resolved to <html dir="ltr" lang="zh-hans" data-theme="auto">…</html>
+           - unexpected value "http://127.0.0.1:8017/admin/login/"
+
+
+      242 |     await admin.locator("#id_password").fill(password);
+      243 |     await admin.locator("input[type=submit]").click();
+    > 244 |     await expect(admin).toHaveURL("http://127.0.0.1:8017/admin/");
+          |                         ^
+      245 |     const cookies = await staff.cookies();
+      246 |     const result = await staff.request.post(
+      247 |       "http://127.0.0.1:8017/api/v1/staff/data-requests/" +
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/flows.spec.js:244:25
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../tmp/dd-pw-out/flows-家长提交删除、后台实际处理、无儿童时查看回执/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../tmp/dd-pw-out/flows-家长提交删除、后台实际处理、无儿童时查看回执/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../tmp/dd-pw-out/flows-家长提交删除、后台实际处理、无儿童时查看回执/error-context.md
+
+  3 failed
+    tests/flows.spec.js:89:1 › 用途授权、22题、合成输入、真实初始报告 ────────────────────────────────────────────────
+    tests/flows.spec.js:126:1 › 机器人关联、阶段报告、撤回同步授权 ──────────────────────────────────────────────────
+    tests/flows.spec.js:197:1 › 家长提交删除、后台实际处理、无儿童时查看回执 ─────────────────────────────────────────────
+  5 passed (49.1s)

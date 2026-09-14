@@ -13,116 +13,35 @@
  *   DD_OPS_ADMIN_USER / DD_OPS_ADMIN_PW    管理员（可编辑题库、活动与儿童档案）
  *
  * 家长端使用隔离的合成账号（随机手机号 + 固定验证码），只创建本轮需要的数据。
+ *
+ * 注意：本文件只验证"冲突发生"和"服务端数据没被覆盖"。家长端的冲突恢复体验
+ * （保留未保存输入、查看最新、明确确认后继续保存）在
+ * parent-conflict-recovery.spec.js 里单独验收，不要在这一层用"表单被替换"当成功。
  */
 import { test, expect } from "@playwright/test";
-
-const ADMIN = {
-  username: process.env.DD_OPS_ADMIN_USER,
-  password: process.env.DD_OPS_ADMIN_PW,
-};
-
-const stamp = () => Date.now().toString(36);
-
-const desktopOnly = (testInfo) =>
-  test.skip(testInfo.project.name === "mobile", "写操作只在桌面视口验收");
-
-async function waitOpsReady(page) {
-  await page.waitForFunction(
-    () => document.documentElement.dataset.opsReady === "1",
-    null,
-    { timeout: 20000 },
-  );
-  expect(await page.evaluate(() => typeof window.Ops)).toBe("object");
-}
-
-async function login(page, account) {
-  await page.goto("/ops/login/");
-  await page.locator("#id_username").fill(account.username);
-  await page.locator("#id_password").fill(account.password);
-  await page.getByRole("button", { name: "登录", exact: true }).click();
-  await expect(page).toHaveURL(/\/ops\/$/);
-  await waitOpsReady(page);
-}
-
-async function confirmDialog(page, label) {
-  const dialog = page.locator("#ops-dialog");
-  await expect(dialog).toBeVisible();
-  await dialog.getByRole("button", { name: label, exact: true }).click();
-}
-
-/** 家长端：隔离合成账号登录并建档（固定验证码 00000），返回儿童称呼。 */
-async function parentSignup(page, childName) {
-  await page.goto("./");
-  await page
-    .getByLabel("手机号", { exact: true })
-    .fill("199" + String(Date.now()).slice(-8));
-  await page.getByRole("button", { name: "获取验证码", exact: true }).click();
-  await page.getByLabel("验证码", { exact: true }).fill("00000");
-  await page.getByRole("button", { name: "登录", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "建立儿童档案" })).toBeVisible();
-  await page.getByLabel("姓名或称呼", { exact: true }).fill(childName);
-  await page.getByRole("button", { name: "保存档案", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "好奇心，准备出发！" })).toBeVisible();
-}
+import {
+  ADMIN,
+  stamp,
+  desktopOnly,
+  watchErrors,
+  waitOpsReady,
+  login,
+  confirmDialog,
+  parentSignup,
+  openChildDetail,
+  opsSubmitProfile,
+  openEditProfile,
+  fillProfileDraft,
+  submitProfile,
+  readSystemCode,
+  readVersion,
+} from "./helpers.js";
 
 /** 家长端：在「账户与关联」页打开编辑档案对话框并提交新称呼。 */
 async function parentSubmitProfile(page, name) {
-  // 只改 hash，不做整页刷新：这样页面仍持有登录时读到的修订号
-  await page.evaluate(() => {
-    if (location.hash !== "#settings") location.hash = "settings";
-  });
-  await expect(page.getByRole("button", { name: "编辑档案", exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "编辑档案", exact: true }).click();
-  await page.locator('#edit-child-form input[name="name"]').fill(name);
-  await page.getByRole("button", { name: "保存修改", exact: true }).click();
-}
-
-/** 运营端：按儿童称呼检索并进入儿童详情页。 */
-async function openChildDetail(page, childName) {
-  await page.goto("/ops/families/");
-  await page.locator("#q").fill(childName);
-  await page.getByRole("button", { name: "查询", exact: true }).click();
-  const rows = page.locator("table.ops-table tbody tr");
-  await expect(rows.first()).toBeVisible();
-  // 隔离数据应当唯一命中，避免误改到既有家庭
-  expect(await rows.count()).toBe(1);
-  await rows.first().getByRole("link", { name: "查看家庭" }).click();
-  await expect(page.getByRole("heading", { name: "家庭信息" })).toBeVisible();
-  await page.getByRole("link", { name: "查看儿童详情" }).first().click();
-  await expect(page.getByRole("heading", { name: /儿童详情/ }).first()).toBeVisible();
-  await waitOpsReady(page);
-}
-
-/** 运营端：在儿童详情页提交一次档案更正（不等待结果，由调用方断言）。 */
-async function opsSubmitProfile(page, name) {
-  await page.locator("#edit-profile-open").click();
-  await expect(page.locator("#profile-name")).toBeVisible();
-  await page.locator("#profile-name").fill(name);
-  await page.locator("#edit-profile-save").click();
-}
-
-/** 读取页面「题库信息 / 使用情况」里的系统编号（自动生成、只读展示）。 */
-async function readSystemCode(page) {
-  const text = await page.evaluate(() => {
-    for (const dt of document.querySelectorAll("dl.kv dt")) {
-      if (dt.textContent.trim() === "系统编号") {
-        return dt.nextElementSibling ? dt.nextElementSibling.textContent : "";
-      }
-    }
-    return "";
-  });
-  return text.split("（")[0].trim();
-}
-
-async function readVersion(page) {
-  return await page.evaluate(() => {
-    for (const dt of document.querySelectorAll("dl.kv dt")) {
-      if (dt.textContent.trim() === "版本号") {
-        return dt.nextElementSibling ? dt.nextElementSibling.textContent.trim() : "";
-      }
-    }
-    return "";
-  });
+  await openEditProfile(page);
+  await fillProfileDraft(page, { name });
+  await submitProfile(page);
 }
 
 /** 建一个题库草稿，返回 { code, version }；停留在此草稿的编辑页。 */
@@ -232,12 +151,10 @@ test.describe("P1 专项验收（公网）", () => {
     const opsCtx = await browser.newContext();
     const parent = await parentCtx.newPage();
     const ops = await opsCtx.newPage();
-    const errors = [];
-    parent.on("pageerror", (e) => errors.push("家长:" + e.message));
-    ops.on("pageerror", (e) => errors.push("运营:" + e.message));
+    const errors = watchErrors(parent, ops);
 
     try {
-      await parentSignup(parent, child);
+      await parentSignup(parent, { name: child });
 
       // 运营先渲染档案页：此时页面里记下的修订号已经注定会过期
       await login(ops, ADMIN);
@@ -278,7 +195,7 @@ test.describe("P1 专项验收（公网）", () => {
     expect(errors, `页面脚本错误：${errors.join(" | ")}`).toEqual([]);
   });
 
-  test("P1-A 儿童档案：运营改档后，家长旧页面保存必须报冲突并保留输入", async ({
+  test("P1-A 儿童档案：运营改档后，家长旧页面保存必须报冲突，且服务端保留运营的值", async ({
     browser,
   }, testInfo) => {
     desktopOnly(testInfo);
@@ -287,13 +204,11 @@ test.describe("P1 专项验收（公网）", () => {
     const opsCtx = await browser.newContext();
     const parent = await parentCtx.newPage();
     const ops = await opsCtx.newPage();
-    const errors = [];
-    parent.on("pageerror", (e) => errors.push("家长:" + e.message));
-    ops.on("pageerror", (e) => errors.push("运营:" + e.message));
+    const errors = watchErrors(parent, ops);
 
     try {
       // 家长登录建档，页面内存里的修订号固定在此时
-      await parentSignup(parent, child);
+      await parentSignup(parent, { name: child });
 
       await login(ops, ADMIN);
       await openChildDetail(ops, child);
@@ -302,17 +217,13 @@ test.describe("P1 专项验收（公网）", () => {
 
       // 家长页仍是旧修订号，提交必须被拒绝
       await parentSubmitProfile(parent, child + "-家长改");
-      const box = parent.locator("#dialog .form-error");
-      await expect(box).toContainText("已被更正过");
-      await expect(box).toContainText("已载入最新档案");
-      // 对话框已重新载入服务端最新值；家长本次输入没有被写入
-      await expect(parent.locator('#edit-child-form input[name="name"]')).toHaveValue(
-        child + "-运营改",
-      );
-
-      // 运营侧确认自己的更正没有被家长旧页面覆盖
+      await expect(
+        parent.locator("#dialog").getByText(/已被更正过|资料已被更新/).first(),
+      ).toBeVisible();
+      // 服务端不写入这次提交：运营保存的称呼必须还在。
+      // "家长这次填写是否被保留"属于恢复体验，由 parent-conflict-recovery.spec.js
+      // 断言；这里断言的只是"没有覆盖数据库"。
       await ops.reload();
-      await waitOpsReady(ops);
       await expect(
         ops.getByRole("heading", { name: new RegExp(child + "-运营改") }),
       ).toBeVisible();

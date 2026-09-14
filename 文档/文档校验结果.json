@@ -1,8 +1,8 @@
 {
-  "date": "2026-09-13",
+  "date": "2026-09-14",
   "scope": "本地文档链接、原始归档哈希/ZIP、提取产物、OpenAPI 引用与 operationId/路径参数；不验证远端链接、Office 版式或真实供应商协议。",
   "markdown_files": 59,
-  "local_links_checked": 276,
+  "local_links_checked": 278,
   "archived_files_checked": 85,
   "attachments": [
     {
@@ -148,6 +148,7 @@
     "deploy/HTTP_UUID_FIX_20260912.md",
     "deploy/ROLLBACK.md",
     "deploy/OPS_CONSOLE_DEPLOYMENT_20260913.md",
+    "deploy/OPS_INDEPENDENT_REVIEW_20260914.md",
     "deploy/ADMIN_CSRF_FIX_20260912.md",
     "deploy/OPS_CONSOLE_DEPLOYMENT_20260912.md",
     "backend/README.md",
@@ -161,12 +162,11 @@
     "需求/一期核心需求与代码差距_20260911.md",
     ".workbuddy-ai/memory/2026-09-11.md",
     ".workbuddy/memory/MEMORY.md",
-    ".workbuddy/memory/2026-09-13.md",
+    ".workbuddy/memory/2026-09-14.md",
     ".workbuddy/memory/2026-09-13.md",
     "设计/API/初始化数据与闭环测试_V0.1.md",
     "设计/API/请求响应与字段字典_V0.1.md",
     "设计/API/前后端交互规范_V0.1.md",
-    "backend/.pytest_cache/README.md",
     "backend/docs/M5_RESULT.md",
     "backend/docs/SCAFFOLD.md",
     "backend/docs/OPS_MANUAL.md",

@@ -1,0 +1,159 @@
+# v0.3.5 修复前：新测试在旧代码上失败（本地 Docker 环境）
+
+日期：2026-09-14
+环境：本地 Docker 演示环境（镜像 dingdong-backend:0.3.4 / dingdong-web:0.3.4，即修复前代码）
+入口：http://127.0.0.1:18473/（家长端在根路径，运营后台 /ops/）
+命令：cd frontend && PUBLIC_HTTP_URL=http://127.0.0.1:18473/ \
+      npx playwright test --config=playwright.public.config.js parent-conflict-recovery.spec.js --project=desktop
+
+结论：4 项失败、1 项跳过（窄屏专项）。失败原因正是本轮要修的问题：
+家长在旧表单上提交被判冲突后，前端立刻重建表单，家长填写的称呼被服务端值替换。
+
+关键断言（第一条用例）：
+    Expected: "冲突保留mu0ijhrp-家长改"
+    Received: "冲突保留mu0ijhrp-运营改"
+
+这说明"服务端没有被覆盖"是成立的（运营的值还在），但"家长未保存的输入被保留"不成立。
+下面的日志是这一次运行的原始输出（去掉 Chrome 启动噪音）。
+
+---
+
+
+Running 5 tests using 1 worker
+
+  ✘  1 [desktop] › deployment-tests/parent-conflict-recovery.spec.js:74:3 › 家长端档案冲突恢复（真实入口） › 冲突后家长的称呼、性别、生日全部保留，服务端仍是对方保存的值 (9.0s)
+  ✘  2 [desktop] › deployment-tests/parent-conflict-recovery.spec.js:113:3 › 家长端档案冲突恢复（真实入口） › 查看最新资料只做对比；取消保留输入；明确确认载入才替换表单，随后可保存成功 (1.0m)
+  ✘  3 [desktop] › deployment-tests/parent-conflict-recovery.spec.js:174:3 › 家长端档案冲突恢复（真实入口） › 恢复期间对方又改了一次：仍然拒绝覆盖、输入不丢、提示更新 (1.0m)
+  ✘  4 [desktop] › deployment-tests/parent-conflict-recovery.spec.js:222:3 › 家长端档案冲突恢复（真实入口） › 读取最新资料失败时：输入保留，不显示保存成功 (1.0m)
+  -  5 [desktop] › deployment-tests/parent-conflict-recovery.spec.js:270:3 › 家长端档案冲突恢复（真实入口） › 窄屏下也能完成冲突恢复并保存
+
+
+  1) [desktop] › deployment-tests/parent-conflict-recovery.spec.js:74:3 › 家长端档案冲突恢复（真实入口） › 冲突后家长的称呼、性别、生日全部保留，服务端仍是对方保存的值 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  locator('#edit-child-form input[name="name"]')
+    Expected: "冲突保留mu0ijhrp-家长改"
+    Received: "冲突保留mu0ijhrp-运营改"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveValue" locator('#edit-child-form input[name="name"]') with timeout 5000ms
+      - waiting for locator('#edit-child-form input[name="name"]')
+        14 × locator resolved to <input name="name" required="" maxlength="80" value="冲突保留mu0ijhrp-运营改"/>
+           - unexpected value "冲突保留mu0ijhrp-运营改"
+
+
+      88 |
+      89 |       // 家长这次填写的三个字段必须原样留在输入框里
+    > 90 |       await expect(editName(parent)).toHaveValue(child + "-家长改");
+         |                                      ^
+      91 |       await expect(editGender(parent)).toHaveValue("male");
+      92 |       await expect(editBirth(parent)).toHaveValue("2021-05-06");
+      93 |
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/deployment-tests/parent-conflict-recovery.spec.js:90:38
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/parent-conflict-recovery-家-d8f08-家长的称呼、性别、生日全部保留，服务端仍是对方保存的值-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/parent-conflict-recovery-家-d8f08-家长的称呼、性别、生日全部保留，服务端仍是对方保存的值-desktop/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/parent-conflict-recovery-家-d8f08-家长的称呼、性别、生日全部保留，服务端仍是对方保存的值-desktop/error-context.md
+
+  2) [desktop] › deployment-tests/parent-conflict-recovery.spec.js:113:3 › 家长端档案冲突恢复（真实入口） › 查看最新资料只做对比；取消保留输入；明确确认载入才替换表单，随后可保存成功 
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.click: Test ended.
+    Call log:
+      - waiting for locator('#child-conflict').getByRole('button', { name: '查看最新资料', exact: true })
+
+
+      128 |
+      129 |       // 查看最新资料：只读对比，表单里的草稿一个字不动
+    > 130 |       await panelAction(parent, "查看最新资料").click();
+          |                                           ^
+      131 |       const diff = panel.locator("table.conflict-diff");
+      132 |       await expect(diff).toBeVisible();
+      133 |       await expect(diff).toContainText(child + "-运营改");
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/deployment-tests/parent-conflict-recovery.spec.js:130:43
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/parent-conflict-recovery-家-a27da-；取消保留输入；明确确认载入才替换表单，随后可保存成功-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/parent-conflict-recovery-家-a27da-；取消保留输入；明确确认载入才替换表单，随后可保存成功-desktop/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/parent-conflict-recovery-家-a27da-；取消保留输入；明确确认载入才替换表单，随后可保存成功-desktop/error-context.md
+
+  3) [desktop] › deployment-tests/parent-conflict-recovery.spec.js:174:3 › 家长端档案冲突恢复（真实入口） › 恢复期间对方又改了一次：仍然拒绝覆盖、输入不丢、提示更新 
+
+    Test timeout of 60000ms exceeded.
+
+    Error: browserContext.close: Test ended.
+    Browser logs:
+
+    <launching> /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/3r/ncyppjfj0lv_jfqvzm_40b8h0000gn/T/playwright_chromiumdev_profile-2LxQuv --remote-debugging-pipe --no-startup-window
+    <launched> pid=74875
+    [pid=74875] <gracefully close start>
+
+      215 |     } finally {
+      216 |       await parentCtx.close();
+    > 217 |       await opsCtx.close();
+          |       ^
+      218 |     }
+      219 |     expect(errors, `页面脚本错误：${errors.join(" | ")}`).toEqual([]);
+      220 |   });
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/deployment-tests/parent-conflict-recovery.spec.js:217:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/parent-conflict-recovery-家-265fc-复期间对方又改了一次：仍然拒绝覆盖、输入不丢、提示更新-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/parent-conflict-recovery-家-265fc-复期间对方又改了一次：仍然拒绝覆盖、输入不丢、提示更新-desktop/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/parent-conflict-recovery-家-265fc-复期间对方又改了一次：仍然拒绝覆盖、输入不丢、提示更新-desktop/error-context.md
+
+  4) [desktop] › deployment-tests/parent-conflict-recovery.spec.js:222:3 › 家长端档案冲突恢复（真实入口） › 读取最新资料失败时：输入保留，不显示保存成功 
+
+    Test timeout of 60000ms exceeded.
+
+    Error: browserContext.close: Test ended.
+    Browser logs:
+
+    <launching> /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/3r/ncyppjfj0lv_jfqvzm_40b8h0000gn/T/playwright_chromiumdev_profile-bBCmr4 --remote-debugging-pipe --no-startup-window
+    <launched> pid=75146
+    [pid=75146] <gracefully close start>
+
+      263 |     } finally {
+      264 |       await parentCtx.close();
+    > 265 |       await opsCtx.close();
+          |       ^
+      266 |     }
+      267 |     expect(errors, `页面脚本错误：${errors.join(" | ")}`).toEqual([]);
+      268 |   });
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/deployment-tests/parent-conflict-recovery.spec.js:265:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/parent-conflict-recovery-家-86787-实入口）-读取最新资料失败时：输入保留，不显示保存成功-desktop/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/parent-conflict-recovery-家-86787-实入口）-读取最新资料失败时：输入保留，不显示保存成功-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/parent-conflict-recovery-家-86787-实入口）-读取最新资料失败时：输入保留，不显示保存成功-desktop/error-context.md
+
+  4 failed
+    [desktop] › deployment-tests/parent-conflict-recovery.spec.js:74:3 › 家长端档案冲突恢复（真实入口） › 冲突后家长的称呼、性别、生日全部保留，服务端仍是对方保存的值 
+    [desktop] › deployment-tests/parent-conflict-recovery.spec.js:113:3 › 家长端档案冲突恢复（真实入口） › 查看最新资料只做对比；取消保留输入；明确确认载入才替换表单，随后可保存成功 
+    [desktop] › deployment-tests/parent-conflict-recovery.spec.js:174:3 › 家长端档案冲突恢复（真实入口） › 恢复期间对方又改了一次：仍然拒绝覆盖、输入不丢、提示更新 
+    [desktop] › deployment-tests/parent-conflict-recovery.spec.js:222:3 › 家长端档案冲突恢复（真实入口） › 读取最新资料失败时：输入保留，不显示保存成功 
+  1 skipped

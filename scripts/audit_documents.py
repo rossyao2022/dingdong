@@ -15,7 +15,16 @@ from urllib.parse import unquote
 
 ROOT = Path(__file__).resolve().parents[1]
 DATE = datetime.now().astimezone().date().isoformat()
-SKIP = {".git", ".venv", "node_modules", "staticfiles", "test-results", "参考代码"}
+SKIP = {
+    ".git",
+    ".venv",
+    "node_modules",
+    "staticfiles",
+    "test-results",
+    ".pytest_cache",
+    ".pytest-tmp",
+    "参考代码",
+}
 
 
 def put(path, value):

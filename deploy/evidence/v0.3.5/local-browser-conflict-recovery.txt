@@ -1,0 +1,41 @@
+# 本地真实浏览器：冲突恢复专项（v0.3.5 修复后）
+
+日期：2026-09-14
+环境：本地 Docker 演示环境，镜像 dingdong-backend:0.3.5 / dingdong-web:0.3.5（含本轮修复）
+入口：http://127.0.0.1:18473/（家长端在根路径，运营后台 /ops/）
+命令：cd frontend && PUBLIC_HTTP_URL=http://127.0.0.1:18473/ \
+      npx playwright test --config=playwright.public.config.js \
+      parent-conflict-recovery.spec.js ops-p1-acceptance.spec.js
+凭据：本轮临时管理员，通过环境变量传入，未写入仓库（验收后已停用）
+
+结论：11 通过、11 跳过（跳过的是另一个视口/视图下按设计不跑的写操作用例）、0 失败。
+---
+
+
+Running 22 tests using 1 worker
+
+  ✓   1 [desktop] › deployment-tests/ops-p1-acceptance.spec.js:145:3 › P1 专项验收（公网） › P1-A 儿童档案：家长改档后，运营旧页面保存必须报冲突，加载最新后可保存 (4.9s)
+  ✓   2 [desktop] › deployment-tests/ops-p1-acceptance.spec.js:198:3 › P1 专项验收（公网） › P1-A 儿童档案：运营改档后，家长旧页面保存必须报冲突，且服务端保留运营的值 (4.5s)
+  ✓   3 [desktop] › deployment-tests/ops-p1-acceptance.spec.js:237:3 › P1 专项验收（公网） › P1-B 题库：标题相近的两份内容各自独立，发布一份不会停用另一份 (7.2s)
+  ✓   4 [desktop] › deployment-tests/ops-p1-acceptance.spec.js:265:3 › P1 专项验收（公网） › P1-B 题库：同名两次创建是两份独立内容，不互相停用 (6.1s)
+  ✓   5 [desktop] › deployment-tests/ops-p1-acceptance.spec.js:286:3 › P1 专项验收（公网） › P1-B 题库：复制为新版本并发布后，只替代同一题库的旧版本 (5.8s)
+  ✓   6 [desktop] › deployment-tests/ops-p1-acceptance.spec.js:321:3 › P1 专项验收（公网） › P1-B 活动：标题相近的两份内容各自独立，发布一份不会停用另一份 (5.9s)
+  ✓   7 [desktop] › deployment-tests/parent-conflict-recovery.spec.js:74:3 › 家长端档案冲突恢复（真实入口） › 冲突后家长的称呼、性别、生日全部保留，服务端仍是对方保存的值 (5.3s)
+  ✓   8 [desktop] › deployment-tests/parent-conflict-recovery.spec.js:113:3 › 家长端档案冲突恢复（真实入口） › 查看最新资料只做对比；取消保留输入；明确确认载入才替换表单，随后可保存成功 (5.1s)
+  ✓   9 [desktop] › deployment-tests/parent-conflict-recovery.spec.js:177:3 › 家长端档案冲突恢复（真实入口） › 恢复期间对方又改了一次：仍然拒绝覆盖、输入不丢、提示更新 (6.3s)
+  ✓  10 [desktop] › deployment-tests/parent-conflict-recovery.spec.js:230:3 › 家长端档案冲突恢复（真实入口） › 读取最新资料失败时：输入保留，不显示保存成功 (5.1s)
+  -  11 [desktop] › deployment-tests/parent-conflict-recovery.spec.js:280:3 › 家长端档案冲突恢复（真实入口） › 窄屏下也能完成冲突恢复并保存
+  -  12 [mobile] › deployment-tests/ops-p1-acceptance.spec.js:145:3 › P1 专项验收（公网） › P1-A 儿童档案：家长改档后，运营旧页面保存必须报冲突，加载最新后可保存
+  -  13 [mobile] › deployment-tests/ops-p1-acceptance.spec.js:198:3 › P1 专项验收（公网） › P1-A 儿童档案：运营改档后，家长旧页面保存必须报冲突，且服务端保留运营的值
+  -  14 [mobile] › deployment-tests/ops-p1-acceptance.spec.js:237:3 › P1 专项验收（公网） › P1-B 题库：标题相近的两份内容各自独立，发布一份不会停用另一份
+  -  15 [mobile] › deployment-tests/ops-p1-acceptance.spec.js:265:3 › P1 专项验收（公网） › P1-B 题库：同名两次创建是两份独立内容，不互相停用
+  -  16 [mobile] › deployment-tests/ops-p1-acceptance.spec.js:286:3 › P1 专项验收（公网） › P1-B 题库：复制为新版本并发布后，只替代同一题库的旧版本
+  -  17 [mobile] › deployment-tests/ops-p1-acceptance.spec.js:321:3 › P1 专项验收（公网） › P1-B 活动：标题相近的两份内容各自独立，发布一份不会停用另一份
+  -  18 [mobile] › deployment-tests/parent-conflict-recovery.spec.js:74:3 › 家长端档案冲突恢复（真实入口） › 冲突后家长的称呼、性别、生日全部保留，服务端仍是对方保存的值
+  -  19 [mobile] › deployment-tests/parent-conflict-recovery.spec.js:113:3 › 家长端档案冲突恢复（真实入口） › 查看最新资料只做对比；取消保留输入；明确确认载入才替换表单，随后可保存成功
+  -  20 [mobile] › deployment-tests/parent-conflict-recovery.spec.js:177:3 › 家长端档案冲突恢复（真实入口） › 恢复期间对方又改了一次：仍然拒绝覆盖、输入不丢、提示更新
+  -  21 [mobile] › deployment-tests/parent-conflict-recovery.spec.js:230:3 › 家长端档案冲突恢复（真实入口） › 读取最新资料失败时：输入保留，不显示保存成功
+  ✓  22 [mobile] › deployment-tests/parent-conflict-recovery.spec.js:280:3 › 家长端档案冲突恢复（真实入口） › 窄屏下也能完成冲突恢复并保存 (4.5s)
+
+  11 skipped
+  11 passed (1.1m)

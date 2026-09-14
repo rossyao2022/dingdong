@@ -1,0 +1,77 @@
+# 本地真实浏览器：运营后台回归（deployment-tests/ops-public.spec.js）
+
+日期：2026-09-14
+环境：本地 Docker 演示环境 0.3.5
+入口：http://127.0.0.1:18473/，运营后台 /ops/
+命令：cd frontend && PUBLIC_HTTP_URL=http://127.0.0.1:18473/ \
+      npx playwright test --config=playwright.public.config.js ops-public.spec.js
+凭据：本轮临时管理员/运营/内容运营账号（环境变量传入，验收后停用）
+
+结论：13 通过 / 1 失败 / 8 跳过（跳过的写操作用例只在桌面视口跑，服务事项用例需要
+本轮隔离合成事项，未提供则按设计跳过）。
+唯一失败项为「报告：查看已生成内容，失败任务用业务语言说明并可重试」：本地环境在
+本轮重建后 `ReportVersion` / `BackgroundJob` 均为 0（冷启动种子不生成报告与任务），
+列表里没有"已生成"的报告可看。这是环境数据限制，不是产品缺陷；该项在公网环境中
+用真实注入的失败任务验证（见 public-browser.txt）。
+---
+
+
+Running 22 tests using 1 worker
+
+  ✓   1 [desktop] › deployment-tests/ops-public.spec.js:117:3 › 运营后台（公网） › 登录失败有提示，成功进入工作首页，退出后无法直接访问 (1.1s)
+  ✓   2 [desktop] › deployment-tests/ops-public.spec.js:138:3 › 运营后台（公网） › 家庭按称呼查询并进入儿童详情，一页聚合真实业务数据 (795ms)
+  ✓   3 [desktop] › deployment-tests/ops-public.spec.js:166:3 › 运营后台（公网） › 题库：可视化新建草稿→校验→发布→复制新版本（无需手填技术标识） (3.4s)
+  ✓   4 [desktop] › deployment-tests/ops-public.spec.js:219:3 › 运营后台（公网） › 题库：同一草稿在两个页面编辑，旧页面保存必须报冲突且不覆盖 (2.4s)
+  ✓   5 [desktop] › deployment-tests/ops-public.spec.js:274:3 › 运营后台（公网） › 内容运营进不了审计页，首页也不出现审计内容 (494ms)
+  ✓   6 [desktop] › deployment-tests/ops-public.spec.js:294:3 › 运营后台（公网） › 审计：非法日期不报 500，给出中文提示并保留输入 (552ms)
+  ✓   7 [desktop] › deployment-tests/ops-public.spec.js:314:3 › 运营后台（公网） › 活动：维护材料与步骤后发布 (3.1s)
+  ✘   8 [desktop] › deployment-tests/ops-public.spec.js:361:3 › 运营后台（公网） › 报告：查看已生成内容，失败任务用业务语言说明并可重试 (5.5s)
+  -   9 [desktop] › deployment-tests/ops-public.spec.js:394:3 › 运营后台（公网） › 服务事项：筛选→详情→处理→历史留痕完整闭环
+  ✓  10 [desktop] › deployment-tests/ops-public.spec.js:426:3 › 运营后台（公网） › 越权拦截：普通运营看不到技术页，也不能执行技术动作 (605ms)
+  ✓  11 [desktop] › deployment-tests/ops-public.spec.js:454:3 › 运营后台（公网） › 窄屏下导航与列表基本可用 (583ms)
+  ✓  12 [mobile] › deployment-tests/ops-public.spec.js:117:3 › 运营后台（公网） › 登录失败有提示，成功进入工作首页，退出后无法直接访问 (1.1s)
+  ✓  13 [mobile] › deployment-tests/ops-public.spec.js:138:3 › 运营后台（公网） › 家庭按称呼查询并进入儿童详情，一页聚合真实业务数据 (819ms)
+  -  14 [mobile] › deployment-tests/ops-public.spec.js:166:3 › 运营后台（公网） › 题库：可视化新建草稿→校验→发布→复制新版本（无需手填技术标识）
+  -  15 [mobile] › deployment-tests/ops-public.spec.js:219:3 › 运营后台（公网） › 题库：同一草稿在两个页面编辑，旧页面保存必须报冲突且不覆盖
+  -  16 [mobile] › deployment-tests/ops-public.spec.js:274:3 › 运营后台（公网） › 内容运营进不了审计页，首页也不出现审计内容
+  -  17 [mobile] › deployment-tests/ops-public.spec.js:294:3 › 运营后台（公网） › 审计：非法日期不报 500，给出中文提示并保留输入
+  -  18 [mobile] › deployment-tests/ops-public.spec.js:314:3 › 运营后台（公网） › 活动：维护材料与步骤后发布
+  -  19 [mobile] › deployment-tests/ops-public.spec.js:361:3 › 运营后台（公网） › 报告：查看已生成内容，失败任务用业务语言说明并可重试
+  -  20 [mobile] › deployment-tests/ops-public.spec.js:394:3 › 运营后台（公网） › 服务事项：筛选→详情→处理→历史留痕完整闭环
+  ✓  21 [mobile] › deployment-tests/ops-public.spec.js:426:3 › 运营后台（公网） › 越权拦截：普通运营看不到技术页，也不能执行技术动作 (558ms)
+  ✓  22 [mobile] › deployment-tests/ops-public.spec.js:454:3 › 运营后台（公网） › 窄屏下导航与列表基本可用 (533ms)
+
+
+  1) [desktop] › deployment-tests/ops-public.spec.js:361:3 › 运营后台（公网） › 报告：查看已生成内容，失败任务用业务语言说明并可重试 ─
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('table.ops-table tbody tr').first()
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('table.ops-table tbody tr').first() with timeout 5000ms
+      - waiting for locator('table.ops-table tbody tr').first()
+
+
+      365 |     await page.goto("/ops/reports/");
+      366 |     const firstRow = page.locator("table.ops-table tbody tr").first();
+    > 367 |     await expect(firstRow).toBeVisible();
+          |                            ^
+      368 |     await firstRow.getByRole("link", { name: "查看内容" }).click();
+      369 |     await expect(page.getByRole("heading", { name: /报告：/ })).toBeVisible();
+      370 |     await expect(page.getByRole("heading", { name: "生成状态" })).toBeVisible();
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/deployment-tests/ops-public.spec.js:367:28
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/ops-public-运营后台（公网）-报告：查看已生成内容，失败任务用业务语言说明并可重试-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/ops-public-运营后台（公网）-报告：查看已生成内容，失败任务用业务语言说明并可重试-desktop/error-context.md
+
+  1 failed
+    [desktop] › deployment-tests/ops-public.spec.js:361:3 › 运营后台（公网） › 报告：查看已生成内容，失败任务用业务语言说明并可重试 ──
+  8 skipped
+  13 passed (24.9s)

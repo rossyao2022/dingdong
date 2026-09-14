@@ -28,7 +28,10 @@ let viewEpoch = 0,
   pollTimer,
   currentActivity,
   nextCursor,
-  childDraft = null;
+  childDraft = null,
+  // 当前正在进行的儿童档案编辑会话。冲突恢复要靠它记住"这次编辑以哪一版为准"，
+  // 而不是靠重新渲染表单去猜。
+  childEdit = null;
 const keys = new Map();
 const requestKey = (k) => {
   if (!keys.has(k)) keys.set(k, API.createRequestId());
@@ -42,6 +45,8 @@ function stopWork() {
   clearTimeout(pollTimer);
   window.speechSynthesis?.cancel();
   if ($("#dialog").open) $("#dialog").close();
+  // 对话框一关，编辑会话就结束：不允许残留的基准修订号在下次打开时复用。
+  childEdit = null;
 }
 function forget() {
   viewEpoch++;
@@ -730,50 +735,218 @@ async function linkRobot() {
     }, e.submitter);
   };
 }
-function editChild(target) {
-  const c = target || state.child;
+const GENDER_TEXT = { unknown: "暂不填写", male: "男", female: "女" };
+function editChild() {
+  const c = state.child;
+  childEdit = {
+    id: c.id,
+    revision: c.revision,
+    conflict: false,
+    retried: false,
+    prompt: null,
+    latest: null,
+    showLatest: false,
+    error: "",
+  };
   showDialog(
     "编辑儿童档案",
-    `<form id="edit-child-form"><label class="field">姓名或称呼<input name="name" value="${esc(c.name)}" required maxlength="80"></label><label class="field">性别<select name="gender">${Object.entries(
-      { unknown: "暂不填写", male: "男", female: "女" },
-    )
-      .map(
-        ([k, v]) =>
-          `<option value="${k}" ${k === c.gender ? "selected" : ""}>${v}</option>`,
-      )
-      .join(
-        "",
-      )}</select></label><label class="field">出生日期（选填）<input type="date" name="birth_date" value="${esc(c.birth_date || "")}" max="${new Date().toISOString().slice(0, 10)}"></label><button class="button" type="submit">保存修改</button></form>`,
+    `<form id="edit-child-form">${childEditFields(c)}<button class="button" type="submit">保存修改</button></form><div id="child-conflict" class="conflict" role="status" hidden></div>`,
   );
   $("#edit-child-form").onsubmit = (e) => {
     e.preventDefault();
-    act(async () => {
-      const d = formData(e.target);
-      try {
-        // 带上打开页面时读到的修订号：若期间有人（工作人员或其他标签页）更正过，
-        // 服务端会拒绝这次保存，而不是把对方的修改覆盖掉。
-        state.child = await API.request("/children/" + c.id, {
-          method: "PATCH",
-          body: { ...d, birth_date: d.birth_date || null, revision: c.revision },
-        });
-      } catch (err) {
-        if (err.status === 409) {
-          const latest = await API.request("/children/" + c.id);
-          state.child = latest;
-          editChild(latest);
-          const box = $("#dialog .form-error");
-          if (box)
-            box.innerHTML =
-              esc(errorMessage(err)) + "<p>已载入最新档案；你刚才填写的内容没有保存。</p>";
-          return;
-        }
-        throw err;
-      }
-      await loadChildren();
-      await render();
-      toast("档案已更新。");
-    }, e.submitter);
+    act(() => saveChildEdit(), e.submitter);
   };
+}
+function childEditFields(c) {
+  return `<label class="field">姓名或称呼<input name="name" value="${esc(c.name)}" required maxlength="80"></label><label class="field">性别<select name="gender">${Object.entries(
+    GENDER_TEXT,
+  )
+    .map(
+      ([k, v]) =>
+        `<option value="${k}" ${k === c.gender ? "selected" : ""}>${v}</option>`,
+    )
+    .join(
+      "",
+    )}</select></label><label class="field">出生日期（选填）<input type="date" name="birth_date" value="${esc(c.birth_date || "")}" max="${new Date().toISOString().slice(0, 10)}"></label>`;
+}
+function childEditDraft() {
+  const d = formData($("#edit-child-form"));
+  return { name: d.name, gender: d.gender, birth_date: d.birth_date || null };
+}
+/** 只用服务端最新内容改写输入框，且只在家长明确确认"载入最新资料"时调用。 */
+function childEditFill(c) {
+  const form = $("#edit-child-form");
+  if (!form) return;
+  form.elements.name.value = c.name || "";
+  form.elements.gender.value = c.gender || "unknown";
+  form.elements.birth_date.value = c.birth_date || "";
+}
+function conflictReadMessage(err) {
+  if (err.status === 0)
+    return "现在连不上服务，没能读到最新资料。你填写的内容还在这里，网络恢复后可以再试。";
+  if (err.status === 401 || err.status === 403)
+    return "登录状态已失效，请重新登录后再继续。你填写的内容还在这里。";
+  if (err.status === 404)
+    return "这份档案已经不存在或已被归档，请联系工作人员。你填写的内容还在这里。";
+  return "暂时读不到最新资料，请稍后再试。你填写的内容还在这里。";
+}
+function conflictButton(action, label, kind = "") {
+  return `<button type="button" class="button${kind ? " " + kind : ""}" data-action="${action}">${label}</button>`;
+}
+function conflictDiff(draft, latest) {
+  const rows = [
+    ["姓名或称呼", draft.name || "（空）", latest.name || "（空）"],
+    [
+      "性别",
+      GENDER_TEXT[draft.gender] || "暂不填写",
+      GENDER_TEXT[latest.gender] || "暂不填写",
+    ],
+    ["出生日期", draft.birth_date || "未填写", latest.birth_date || "未填写"],
+  ];
+  return `<table class="conflict-diff"><thead><tr><th>项目</th><th>我的填写（还没保存）</th><th>最新资料</th></tr></thead><tbody>${rows
+    .map(
+      ([label, mine, theirs]) =>
+        `<tr${mine === theirs ? "" : ' class="diff"'}><td>${label}</td><td>${esc(mine)}</td><td>${esc(theirs)}</td></tr>`,
+    )
+    .join("")}</tbody></table>`;
+}
+/** 冲突面板：只改提示区，绝不渲染表单，家长填的三个字段原样留在输入框里。 */
+function renderChildConflict() {
+  const box = $("#child-conflict");
+  if (!box || !childEdit) return;
+  const c = childEdit;
+  const ask = {
+    load: [
+      "载入最新资料会把你正在填写的称呼、性别和出生日期换成对方保存的内容，你刚才的填写无法找回。",
+      conflictButton("child-conflict-load-confirm", "确认载入并替换", "danger"),
+    ],
+    apply: [
+      "确认后会以你刚刚看到的最新资料为准，用你填写的内容更新这份档案。如果这期间又有人改过，系统会再次提示，不会覆盖。",
+      conflictButton("child-conflict-apply-confirm", "确认用我的修改保存"),
+    ],
+    close: [
+      "你还有没有保存的修改，关闭后这些填写会丢失。",
+      conflictButton("child-conflict-close-confirm", "仍然关闭", "danger"),
+    ],
+  };
+  const actions = c.prompt
+    ? `<p class="conflict-ask">${ask[c.prompt][0]}</p><div class="actions">${ask[c.prompt][1]}${conflictButton("child-conflict-cancel", "取消", "secondary")}</div>`
+    : `<div class="actions">${conflictButton("child-conflict-view", c.showLatest ? "收起最新资料" : "查看最新资料", "secondary")}${conflictButton("child-conflict-load", "载入最新资料", "secondary")}${conflictButton("child-conflict-apply", "用我的修改保存")}</div>`;
+  box.hidden = false;
+  box.innerHTML =
+    `<b>${c.retried ? "资料又被更新了一次，本次修改仍未保存" : "资料已被更新，本次修改没有保存"}</b>` +
+    `<p>这份档案在你打开编辑后被其他页面更新过。为避免覆盖对方保存的内容，系统没有保存这次修改；你填写的称呼、性别和出生日期仍留在上面的表单里，可以继续改动，或选择下面的处理方式。</p>` +
+    (c.error ? `<p class="conflict-error">${esc(c.error)}</p>` : "") +
+    (c.showLatest && c.latest ? conflictDiff(childEditDraft(), c.latest) : "") +
+    actions;
+}
+async function saveChildEdit() {
+  if (!childEdit || !$("#edit-child-form")) return;
+  let draft;
+  try {
+    draft = childEditDraft();
+    // 带上本次编辑开始时读到的修订号：期间若有人（工作人员或其他页面）更正过，
+    // 服务端会拒绝这次保存，而不是把对方的修改覆盖掉。
+    state.child = await API.request("/children/" + childEdit.id, {
+      method: "PATCH",
+      body: { ...draft, revision: childEdit.revision },
+    });
+  } catch (err) {
+    if (err.status === 409) {
+      // 关键：不重建表单。家长填写的称呼、性别和生日原样留在输入框里，
+      // 由家长自己决定是载入最新资料，还是把这份修改保存到最新修订之上。
+      childEdit.retried = childEdit.conflict;
+      childEdit.conflict = true;
+      childEdit.prompt = null;
+      childEdit.showLatest = false;
+      childEdit.latest = null;
+      childEdit.error = "";
+      renderChildConflict();
+      return;
+    }
+    throw err;
+  }
+  childEdit = null;
+  await loadChildren();
+  await render();
+  toast("档案已更新。");
+}
+/** 只读对比：读最新资料放进面板，不动表单里的草稿。 */
+async function childConflictView() {
+  if (childEdit.showLatest) {
+    childEdit.showLatest = false;
+    childEdit.prompt = null;
+    renderChildConflict();
+    return;
+  }
+  try {
+    childEdit.latest = await API.request("/children/" + childEdit.id);
+    childEdit.error = "";
+    childEdit.showLatest = true;
+  } catch (err) {
+    childEdit.showLatest = false;
+    childEdit.error = conflictReadMessage(err);
+  }
+  childEdit.prompt = null;
+  renderChildConflict();
+}
+/** 家长确认后，用最新资料替换表单，并把基准修订号推进到最新。 */
+async function childConflictLoadLatest() {
+  try {
+    const latest = await API.request("/children/" + childEdit.id);
+    childEditFill(latest);
+    childEdit.latest = latest;
+    childEdit.revision = latest.revision;
+    childEdit.conflict = false;
+    childEdit.retried = false;
+    childEdit.prompt = null;
+    childEdit.showLatest = false;
+    childEdit.error = "";
+    state.child = latest;
+    const box = $("#child-conflict");
+    if (box) {
+      box.hidden = true;
+      box.innerHTML = "";
+    }
+    toast("已载入最新资料，你刚才的填写已被替换。");
+  } catch (err) {
+    childEdit.prompt = null;
+    childEdit.error = conflictReadMessage(err);
+    renderChildConflict();
+  }
+}
+/**
+ * 家长要确认"把自己的修改应用到最新资料"：先把最新资料摆出来（只读），
+ * 再让家长在看过之后确认。还没读过就先读一次，读失败只提示、不动草稿。
+ */
+async function childConflictAskApply() {
+  if (!childEdit.latest) {
+    try {
+      childEdit.latest = await API.request("/children/" + childEdit.id);
+    } catch (err) {
+      childEdit.prompt = null;
+      childEdit.error = conflictReadMessage(err);
+      renderChildConflict();
+      return;
+    }
+    childEdit.showLatest = true;
+  }
+  childEdit.prompt = "apply";
+  childEdit.error = "";
+  renderChildConflict();
+}
+/** 家长确认后，在"家长已经看到的那一版"之上保存本地草稿；期间再被改过仍会再次冲突。 */
+async function childConflictApplyMine() {
+  if (!childEdit.latest) {
+    childConflictAskApply();
+    return;
+  }
+  // 基准就是家长看到的那一版：不偷偷换成刚读到的新版本，
+  // 否则等于把对方在此期间做的修改静默覆盖掉。
+  childEdit.revision = childEdit.latest.revision;
+  childEdit.prompt = null;
+  childEdit.error = "";
+  await saveChildEdit();
 }
 function dataRequestDialog(kind) {
   const name = {
@@ -831,6 +1004,39 @@ async function handleAction(action, el) {
   const id = el.dataset.id;
   switch (action) {
     case "close":
+      // 冲突还没处理完就关闭，等于把家长未保存的填写丢掉：先问一句。
+      if (childEdit?.conflict) {
+        childEdit.prompt = "close";
+        renderChildConflict();
+        break;
+      }
+      $("#dialog").close();
+      window.speechSynthesis?.cancel();
+      break;
+    case "child-conflict-view":
+      await childConflictView();
+      break;
+    case "child-conflict-load":
+      childEdit.prompt = "load";
+      childEdit.error = "";
+      renderChildConflict();
+      break;
+    case "child-conflict-apply":
+      await childConflictAskApply();
+      break;
+    case "child-conflict-cancel":
+      childEdit.prompt = null;
+      childEdit.error = "";
+      renderChildConflict();
+      break;
+    case "child-conflict-load-confirm":
+      await childConflictLoadLatest();
+      break;
+    case "child-conflict-apply-confirm":
+      await childConflictApplyMine();
+      break;
+    case "child-conflict-close-confirm":
+      childEdit = null;
       $("#dialog").close();
       window.speechSynthesis?.cancel();
       break;

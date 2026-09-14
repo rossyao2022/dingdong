@@ -281,6 +281,65 @@ p {
   margin: 12px 0;
   line-height: 1.6;
 }
+/* 儿童档案保存冲突：只提示与给选择，不碰输入框里的内容。 */
+.conflict {
+  background: #fff6f3;
+  border: 1px solid #efc4bb;
+  border-left: 4px solid #cf6a56;
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin: 18px 0 0;
+  color: #6d3327;
+  font-size: 15px;
+  line-height: 1.7;
+}
+.conflict > b {
+  display: block;
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+.conflict p {
+  margin: 8px 0;
+}
+.conflict .conflict-ask {
+  font-weight: 600;
+}
+.conflict .conflict-error {
+  color: #913e31;
+  background: #fff1ee;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.conflict .actions {
+  margin-top: 12px;
+}
+.conflict .button {
+  font-size: 15px;
+  padding: 10px 16px;
+  min-height: 42px;
+}
+table.conflict-diff {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0 4px;
+  background: #ffffff;
+  font-size: 14px;
+}
+table.conflict-diff th,
+table.conflict-diff td {
+  border: 1px solid #f0d8d1;
+  padding: 8px 10px;
+  text-align: left;
+  vertical-align: top;
+  word-break: break-word;
+}
+table.conflict-diff th {
+  background: #fdeee9;
+  font-weight: 600;
+}
+table.conflict-diff tr.diff td:nth-child(2) {
+  background: #fff8e8;
+}
 .login-layout {
   display: grid;
   grid-template-columns: 1.05fr 1fr;

@@ -1,0 +1,14 @@
+
+> dingdong-parent@0.3.4 test:public
+> playwright test --config=playwright.public.config.js independent-temporary.spec.js --grep P1-A --project=desktop
+
+
+Running 2 tests using 1 worker
+
+  ✓  1 [desktop] › deployment-tests/independent-temporary.spec.js:226:3 › P1 专项验收（公网） › P1-A 儿童档案：家长改档后，运营旧页面保存必须报冲突，加载最新后可保存 (8.0s)
+  ✓  2 [desktop] › deployment-tests/independent-temporary.spec.js:281:3 › P1 专项验收（公网） › P1-A 儿童档案：运营改档后，家长旧页面保存必须报冲突并保留输入 (5.4s)
+
+  2 passed (14.0s)
+
+Read-only browser regression exit: 0
+Review accounts disabled; isolated draft retired
