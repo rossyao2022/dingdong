@@ -1,12 +1,12 @@
 # 叮咚项目记忆与会话交接
 
-最后更新：2026-09-14 08:12，Asia/Shanghai。适用于本目录中的后续会话。本文记录已核对事实，不代替代码和最新用户指令。
+最后更新：2026-09-14 09:35，Asia/Shanghai。适用于本目录中的后续会话。本文记录已核对事实，不代替代码和最新用户指令。
 
 ## 当前结论与最近工作
 
-项目已完成 M1–M5 自有业务实现、M6 运营后台（`dingdong_ca.ops`），并已把运营后台部署到 tigery、通过上海公网入口完成真实浏览器验收。**当前线上版本 0.3.3**：家长端 http://110.42.225.196/dingdong/ ，运营后台 **http://110.42.225.196/ops/** ，Django 后台 /admin/ 。v0.3.3 修复了独立验收发现的问题，见本文末尾「运营后台 v0.3.3：修复独立验收问题并重新交付（2026-09-13）」；上一轮 v0.3.2 的交付记录见「运营后台交付与公网验收 v0.3.0 → v0.3.2」。
+项目已完成 M1–M5 自有业务实现、M6 运营后台（`dingdong_ca.ops`），并已把运营后台部署到 tigery、通过上海公网入口完成真实浏览器验收。**当前线上版本 0.3.5**：家长端 http://110.42.225.196/dingdong/ ，运营后台 **http://110.42.225.196/ops/** ，Django 后台 /admin/ 。v0.3.5 修复了第三轮独立验收遗留的 P2（家长端档案冲突后未保存输入被丢弃 + 配套测试名实不符），见本文末尾「运营后台 v0.3.5：家长端档案冲突保留输入并提供可恢复路径（2026-09-14）」；上一轮 v0.3.4 的交付见「运营后台 v0.3.4：修复第二轮独立验收的两个 P1（2026-09-13）」。
 
-最新验证记录（v0.3.4）：后端237项通过；公网真实Chrome 23项通过（桌面18+窄屏2+通用2，13项写操作按设计跳过）、0失败；部署配置8项通过；前端check与单测3项通过；ruff通过。此前 v0.3.3 记录：后端201项、公网19项、部署配置8项；v0.3.2 记录：后端173项、公网16项、本地源码浏览器18项。桌面及390×844移动视口已测，不能称为真实手机硬件验收。
+最新验证记录（v0.3.5）：后端237项通过、部署配置8项通过、ruff通过、文档校验0错误（61文档/278链接/51操作/62 schema）、前端check与单测3项通过；**公网真实Chrome**：冲突恢复+P1专项11通过/11跳过/0失败，运营后台回归15通过/7跳过/0失败。此前 v0.3.4 记录：后端237项、公网23项、部署8项；v0.3.3 记录：后端201项、公网19项。桌面及390×844移动视口已测，不能称为真实手机硬件验收。
 
 - [M5实现与外部边界](backend/docs/M5_RESULT.md)
 - [最近启动复验](frontend/docs/UI_FUNCTIONAL_20260912.md)、[原始Chrome日志](frontend/docs/ui-functional-20260912.txt)
@@ -228,7 +228,7 @@ npm --prefix frontend run dev
 
 **剩余限制**：演示供应商边界未变（固定验证码 `00000`、fixture 集成、不接真实供应商、不采集真实指纹）；专业量表题量与评分解释仍待甲方确认；未做真实手机硬件验收；运营账号不做数据分片。本地/公网的运营后台验收账号已全部停用，重跑需先重建。
 
-**回滚**：见[回滚说明](deploy/ROLLBACK.md)。常规回滚目标是 **v0.3.3**（v0.3.4 之前的可用发布）；**不要回滚到 v0.3.0 或 v0.3.1**（前者 Docker 下 `/ops/` 打不开，后者管理员按钮 403），也**不要回滚到 v0.3.2 及更早**（会同时丢掉并发保护与内容标识修复）。`0006`/`0007` 迁移可安全保留，无需反向迁移。
+**回滚**：见[回滚说明](deploy/ROLLBACK.md)。常规回滚目标是 **v0.3.4**（v0.3.5 之前的可用发布）；**不要回滚到 v0.3.0 或 v0.3.1**（前者 Docker 下 `/ops/` 打不开，后者管理员按钮 403），也**不要回滚到 v0.3.2 及更早**（会同时丢掉并发保护与内容标识修复）。`0006`/`0007` 迁移可安全保留，无需反向迁移；v0.3.5 无新迁移。
 
 
 ## v0.3.4 第三轮独立验收（2026-09-14）
@@ -236,3 +236,25 @@ npm --prefix frontend run dev
 前两轮P1已通过独立复验：原有后端237项、上轮独立复现2项、部署8项通过；公网只读Chrome8项及家长/运营跨入口2项通过。本轮首次并行pytest争用测试库出现建库错误，串行重测通过，保留原日志。
 
 尚有P2：家长409后app.js调用editChild(latest)自动换掉表单，丢弃未保存输入；测试名“保留输入”实际断言被替换为服务器值。可进入受控运营试用，但完整交付仍需补齐此恢复交互及正确断言。见[第三轮独立验收](deploy/OPS_INDEPENDENT_REVIEW_20260914.md)。本轮未修改功能与线上版本，临时账号、隔离草稿与新建测试家庭儿童已完成定向停用/归档，未修改其他业务数据。
+
+
+## v0.3.5：家长端档案冲突保留输入并提供可恢复路径（2026-09-14）
+
+**修复的 P2**：家长编辑儿童档案被 `409 EDIT_CONFLICT` 挡下后，`frontend/app.js` 的 `editChild` 立即 `GET` 最新档案并 `editChild(latest)` **重建整个表单**，家长刚填写的称呼/性别/生日被服务端值替换。服务端保护有效（数据没被覆盖），但这次填写被静默丢弃，家长没有选择机会。
+
+**修复**（`frontend/app.js`，无后端改动、无迁移）：
+- 命中 `409` **不重建表单**：三个可编辑字段原样留在输入框，只渲染独立的冲突提示区 `#child-conflict`（`renderChildConflict` 只改面板、绝不碰输入框）。
+- 提示用家长语言（"资料已被更新，本次修改没有保存……"），**不出现 409 / revision / 修订号 / 数据库**。
+- **三条显式路径**：查看最新资料（`childConflictView`，只读并排 `table.conflict-diff` 对比）、载入最新资料（`childConflictLoadLatest`，二次确认"无法找回"后才 `childEditFill` 替换并推进基准修订号）、用我的修改保存（`childConflictAskApply` 先展示、`childConflictApplyMine` 以**家长看到的那一版** `childEdit.latest.revision` 为基准提交，期间再被改过会**再次冲突**，不静默覆盖）。
+- 读取失败/断网/登录失效（`0/401/403/404`）：`conflictReadMessage` 给中文提示，**不清空输入、不显示保存成功**；冲突未处理点"关闭"先确认（`prompt="close"`）；保存成功或关闭时清空 `childEdit` 会话，避免过期修订号复用。
+- 编辑会话状态挂在模块级 `childEdit` 对象上；`stopWork()` 关闭对话框时一并重置。
+
+**测试修正（TDD）**：先写失败用例，在 v0.3.4 旧代码上确有多项失败（日志 `deploy/evidence/v0.3.5/pre-fix-local-browser-failures.txt`）。新增 `frontend/deployment-tests/parent-conflict-recovery.spec.js`（5 项，真实入口不拦 API）：字段保留且服务端未被覆盖 / 查看与取消不丢输入 + 明确确认才替换 + 在最新修订上保存成功 / 恢复期间再次冲突 / 读取失败不清空（唯一人为模拟是 `page.route` 让单个 GET 返回 503）/ 窄屏同一流程。原 `ops-p1-acceptance.spec.js` 中名实不符的"保留输入"用例改为只断言**服务端保留运营的值**；两份 spec 共用辅助抽到 `deployment-tests/helpers.js`。
+
+**部署**：tigery `/home/tigery/services/dingdong/releases/dingdong-v0.3.5`，镜像 `dingdong-backend:0.3.5` / `dingdong-web:0.3.5`，compose 项目名仍为 `dingdong-demo`（数据卷沿用），`.env` 仅改 `APP_VERSION=0.3.5`。部署前备份 `dingdong-pre-v0.3.5-20260914-092110.sql.gz`（sha256 `d912b5ff…`）。镜像摘要：backend `00d747a0edbc…`、web `d01b4f95f37e…`。公网 `/dingdong/ /ops/login/ /admin/login/ /api/v1/runtime` 与 Tailscale `100.115.66.119:18080` 的 `/ /ops/login/ /api/v1/runtime` 全部 200，`version.txt`=`0.3.5`，公网 `app.js` 含新冲突代码（`child-conflict` 15 处）。
+
+**验收证据**（`deploy/evidence/v0.3.5/`）：[后端 237](deploy/evidence/v0.3.5/backend.txt)、[部署配置 8](deploy/evidence/v0.3.5/deploy-config.txt)、[ruff](deploy/evidence/v0.3.5/ruff.txt)、[文档校验 0 错误](deploy/evidence/v0.3.5/doc-audit.json)、[前端 check](deploy/evidence/v0.3.5/frontend-check.txt)、[前端单测 3](deploy/evidence/v0.3.5/frontend-unit.txt)、[公网冲突恢复+P1 11 通过/11 跳过/0 失败](deploy/evidence/v0.3.5/public-browser-conflict-recovery.txt)、[公网运营后台 15 通过/7 跳过/0 失败](deploy/evidence/v0.3.5/public-browser-ops-public.txt)、[隔离验收数据](deploy/evidence/v0.3.5/isolated-data.json)、[验收后清理](deploy/evidence/v0.3.5/acceptance-cleanup.md)。真实链路：隔离家庭 `P2验收隔离儿童093012`（`ab2ceea1…`）经真实家长 API 建立，注入 fixture 后 Worker 真的跑出失败任务 `273a7d16-d8d9-4ac8-a7e9-f72ceb9bf583`（report/RENDER_FAILED）并被公网重试；隔离服务事项 `0a63c972…` 闭环。详见[交付与验收 v0.3.5](deploy/PARENT_CONFLICT_RECOVERY_20260914.md)。
+
+**本地与公网的差异（不要误判为缺陷）**：`ops-public.spec.js` 本地 13 通过/1 失败/8 跳过——失败是"报告"用例，本地库没有失败任务，公网注入真实失败任务后通过。`tests/flows.spec.js` 本地 5 通过/3 失败，属**本地测试环境问题**：该 spec 用 `npm run dev`（`server.cjs` 代理到 `127.0.0.1:8017`）访问后端，而用例内部的 `inject_fixture` 走 `uv run manage.py`，两者连的是**不同的本地数据库**，因此注入报 "Child does not exist"；不在本轮回归基线内，不计为 v0.3.5 通过。
+
+**验收后清理**：只做状态变更、不物理删除、补写审计，脚本 `deploy/evidence/v0.3.5/cleanup-acceptance-data.py`（显式名单：儿童按 `冲突保留*/P1跨入口*/P2验收隔离儿童*/独立复验*` 前缀、内容按逐条 `code+version`、工作人员按 `acpt035_` 前缀）。公网：正常家庭 19→10、在册儿童 12→3、已发布题库 9→2、已发布活动 12→8、启用工作人员 4→1、审计 583→619；关闭 9 个测试家庭、归档 9 个儿童、停用 11 个题库版本 + 4 个活动版本 + 12 个账号（`acpt035_*` + 9 个测试家长），新增审计 36 条。**更早轮次的历史测试家庭（`HTTP兼容验收` 等）本轮未动**。清理后两组入口复验仍全部 200。

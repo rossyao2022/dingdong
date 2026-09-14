@@ -1,8 +1,8 @@
-# tigery Docker 演示部署 · v0.3.4
+# tigery Docker 演示部署 · v0.3.5
 
 当前公网入口：**http://110.42.225.196/dingdong/**（家长端），运营后台 **http://110.42.225.196/ops/**，Django 后台 http://110.42.225.196/admin/ 。使用上海服务器已开放80端口，访问者无需Tailscale。
 
-部署转发配置、启动与回退见 [上海公网入口](relay/README.md)，回滚步骤见 [回滚说明](ROLLBACK.md)。APP_VERSION=0.3.4，PUBLIC_ORIGIN=http://110.42.225.196。分支codex/release-v0.3.4和标签v0.3.4对应此发布。
+部署转发配置、启动与回退见 [上海公网入口](relay/README.md)，回滚步骤见 [回滚说明](ROLLBACK.md)。APP_VERSION=0.3.5，PUBLIC_ORIGIN=http://110.42.225.196。分支codex/release-v0.3.5和标签v0.3.5对应此发布。
 
 发布包内的RELEASE.json记录精确Git提交；密钥和数据库不进包。tigery沿用已有.env密钥和数据卷，仅修改版本和公共Origin。首次部署可使用 `python3 deploy/configure.py http://110.42.225.196 --bind 100.115.66.119`。容器启动：`docker compose --env-file deploy/.env -f deploy/compose.yml up -d --build --wait`。
 
@@ -11,6 +11,16 @@
 Django 生成的是根绝对地址（重定向、`{% url %}`），带前缀剥离的 `/dingdong/` 入口只能撑住第一次请求：页面一渲染，链接和重定向就跳到根路径。这和已有的 `/admin/`、`/static/`、`/api/v1/` 是同一模式——上海 nginx 把运营后台自己的根路径转发给隧道。`/dingdong/ops/` 仍能打开首屏，但后续导航会跳到 `/ops/`，所以对外只说 `/ops/`。
 
 占用根 `/ops/` 前已核对：上海站点 `/www/wwwroot/game` 没有 `ops` 目录，其 index.html 与 JS 资源也没有 `/ops` 引用，该路径此前只会返回原站的 SPA 兜底页。
+
+## v0.3.5 变更
+
+v0.3.5 修复 v0.3.4 第三轮独立验收（见 [第三轮独立验收报告](OPS_INDEPENDENT_REVIEW_20260914.md)）遗留的 P2，交付说明见 [家长端档案冲突恢复交付 v0.3.5](PARENT_CONFLICT_RECOVERY_20260914.md)。
+
+1. **冲突后保留家长未保存的输入（P2）。** v0.3.4 及以前，家长端被 `409` 挡下后立即重新读取最新档案并 `editChild(latest)` 重建整个表单，家长刚填写的称呼、性别、生日被服务端值替换。v0.3.5 起被挡下时**不重建表单**：三个字段原样留在输入框，只渲染独立的冲突提示区，提示用家长能理解的语言（不出现 409 / 修订号 / 数据库），并提供三条显式路径——**查看最新资料**（只读并排对比）、**载入最新资料**（二次确认"无法找回"后才替换）、**用我的修改保存**（基准取家长看到的那一版，期间若再被改过会再次拒绝、不静默覆盖）。读取失败/断网/登录失效只提示、不清空输入；冲突未处理就关闭会先确认。
+2. **测试修正。** 原 `ops-p1-acceptance.spec.js` 中"保留输入"用例实际断言表单被替换成服务端值，名实不符；现改为只断言服务端数据未被覆盖，并在新增的 `parent-conflict-recovery.spec.js`（5 项，真实入口）中按真实业务目标断言输入保留。两份 spec 共用辅助抽到 `deployment-tests/helpers.js`。
+3. **无后端逻辑与数据库迁移变更。** 复用 v0.3.4 的 `0007`。后端仍为 237 项通过。
+
+版本一致性：`VERSION`、`backend/pyproject.toml`、`backend/uv.lock`、`frontend/package.json`、`frontend/package-lock.json`、镜像标签、Git 分支/标签、发布包统一为 **0.3.5**。
 
 ## v0.3.4 变更
 

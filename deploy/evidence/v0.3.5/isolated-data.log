@@ -1,0 +1,12 @@
+# child ab2ceea1-8e56-412d-9231-da77854fdf74 P2验收隔离儿童093012
+# proof TEST-PROOF-ab2ceea1-8e56-412d-9231-da77854fdf74
+{
+  "phone": "<redacted: 见清理记录，账号已停用>",
+  "child_id": "ab2ceea1-8e56-412d-9231-da77854fdf74",
+  "child_name": "P2验收隔离儿童093012",
+  "association_id": "9bad0404-0ef5-4c9b-8dca-ea1d6c06d92d",
+  "association_status": "verified",
+  "data_request_id": "0a63c972-0bb1-421d-9849-b6ff46d371b9",
+  "failed_job": "(UUID('273a7d16-d8d9-4ac8-a7e9-f72ceb9bf583'), 'report', 'RENDER_FAILED')",
+  "search_query": "P2验收隔离儿童093012"
+}

@@ -1,8 +1,8 @@
 {
   "date": "2026-09-14",
   "scope": "本地文档链接、原始归档哈希/ZIP、提取产物、OpenAPI 引用与 operationId/路径参数；不验证远端链接、Office 版式或真实供应商协议。",
-  "markdown_files": 59,
-  "local_links_checked": 278,
+  "markdown_files": 61,
+  "local_links_checked": 314,
   "archived_files_checked": 85,
   "attachments": [
     {
@@ -129,7 +129,18 @@
   ],
   "operations": 51,
   "schemas": 62,
-  "errors": [],
+  "errors": [
+    {
+      "kind": "local_link",
+      "file": "文档/文档索引.md",
+      "target": "../deploy/evidence/v0.3.5/package-integrity.txt"
+    },
+    {
+      "kind": "local_link",
+      "file": "deploy/PARENT_CONFLICT_RECOVERY_20260914.md",
+      "target": "evidence/v0.3.5/package-integrity.txt"
+    }
+  ],
   "documents": [
     "README.md",
     "材料清单.md",
@@ -151,6 +162,7 @@
     "deploy/OPS_INDEPENDENT_REVIEW_20260914.md",
     "deploy/ADMIN_CSRF_FIX_20260912.md",
     "deploy/OPS_CONSOLE_DEPLOYMENT_20260912.md",
+    "deploy/PARENT_CONFLICT_RECOVERY_20260914.md",
     "backend/README.md",
     "设计/一期功能_API与业务闭环_V0.1.md",
     "设计/登录认证设计_V0.1.md",
@@ -187,6 +199,7 @@
     "材料/文档/姚易【叮咚机器人】.md",
     "材料/讨论/梳理机器人需求_20260911.md",
     "deploy/relay/README.md",
+    "deploy/evidence/v0.3.5/acceptance-cleanup.md",
     "deploy/evidence/v0.3.4/acceptance-cleanup.md",
     "deploy/evidence/review-v0.3.4/historical-content-audit.md",
     "frontend/docs/UI_FUNCTIONAL_20260912.md"

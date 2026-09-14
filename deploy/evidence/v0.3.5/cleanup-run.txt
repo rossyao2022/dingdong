@@ -1,0 +1,14 @@
+BEFORE: {"families_active": 19, "children_active": 12, "qv_published": 9, "acv_published": 12, "staff_active": 4, "audit": 583}
+AFTER : {"families_active": 10, "children_active": 3, "qv_published": 2, "acv_published": 8, "staff_active": 1, "audit": 619}
+matched_children: 13 ['P1跨入口家长mtzq9gau-运营改', 'P1跨入口家长mu0kbtix-运营改', 'P1跨入口运营mtzq9ln7-运营改', 'P1跨入口运营mu0kbzxv-运营改', 'P2验收隔离儿童092957', 'P2验收隔离儿童093012', '冲突保留mu0kcuwm-运营改', '冲突保留mu0kd0el-家长再改', '冲突保留mu0kd6lg-家长改', '冲突保留mu0kdczb-运营改', '冲突保留mu0kdjlp-家长改', '独立复验mu0hm1xz家长mu0hm5ol-运营改', '独立复验mu0hm1xz运营mu0hmbt7-运营改']
+closed_families: 9 ['04f3edd0', '2f9adcbd', '4f2b7fdb', '6c61d8ef', '9c504c8c', 'a15c4570', 'a4f1ac05', 'c2afc577', 'cb7c2667']
+archived_children: 9
+retired_questionnaires: 11 ['qn-p1mu0kc4jeabc-c06650d352d9/v1', 'qn-p1mu0kc4jeabc-4d23f0012d71/v1', 'qn-p1mu0kcauw-8b6bc9c92157/v1', 'qn-p1mu0kcauw-8b6bc9c92157-2/v1', 'qn-p1mu0kchdr-296c39edfff2/v2', 'qn-mu0ke7q1-1d282445ac34/v1', 'qn-mu0ke7q1-1d282445ac34/v2', 'qn-mu0kebl5-f97b6cb3a350/v1', 'qn-mu0ki2dj-22405914f77f/v1', 'qn-mu0ki2dj-22405914f77f/v2', 'qn-mu0ki6ip-dfcff03d8937/v1']
+retired_activities: 4 ['act-p1mu0kcntkabc-8e4f1d39dae6/v1', 'act-p1mu0kcntkabc-9d4ecc0b1670/v1', 'act-mu0kehwn-4620ede151ec/v1', 'act-mu0kid42-cd7bc7a31658/v1']
+deactivated_accounts: 12 ['parent-3ab5352bb0174ab0bc12c6807f334be4', 'parent-ece5dcabc41941c8be0230867e152982', 'parent-6e24e2c7512e467380fdc52f509c13dd', 'parent-56ed8860c8b84c4bba2dc0ab4b0adc62', 'parent-96ddd4e4723844bcba86f0e99155866d', 'parent-8a336ac940ab44d4807e90ff69fd645d', 'parent-f2f01add279146aa8fa7d9e5c3b10eb2', 'parent-35d531dea90a498db97c3066e190d08d', 'parent-4017cfae7fdf443ba6206f133b8c0270', 'acpt035_content', 'acpt035_operator', 'acpt035_admin']
+audit_rows_added: 36
+published QV now: ['exploration/vreadable-v2', 'initial-assessment/vreadable-v2']
+published ACV now: ['test-activity-0/vreadable-v2', 'test-activity-1/vreadable-v2', 'test-activity-2/vreadable-v2', 'test-activity-3/vreadable-v2', 'test-activity-4/vreadable-v2', 'test-activity-5/vreadable-v2', 'test-activity-6/vreadable-v2', 'test-activity-7/vreadable-v2']
+active children now: ['合成儿童1', '合成儿童2', '小易']
+active families now: 10
+active staff now: ['dingdong_admin']

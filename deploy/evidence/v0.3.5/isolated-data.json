@@ -1,0 +1,12 @@
+{
+  "child_id": "ab2ceea1-8e56-412d-9231-da77854fdf74",
+  "child_name": "P2验收隔离儿童093012",
+  "association_id": "9bad0404-0ef5-4c9b-8dca-ea1d6c06d92d",
+  "association_status": "verified",
+  "data_request_id": "0a63c972-0bb1-421d-9849-b6ff46d371b9",
+  "failed_job_id": "273a7d16-d8d9-4ac8-a7e9-f72ceb9bf583",
+  "failed_job_kind": "report",
+  "failed_job_error_code": "RENDER_FAILED",
+  "search_query": "P2验收隔离儿童093012",
+  "note": "由 deploy/evidence/v0.3.5/prepare-acceptance-data.py 通过真实家长 API 建立；手机号与凭据不落盘。另有首次脚本试跑建立的同前缀儿童 P2验收隔离儿童092957（脚本报错退出，无失败任务），清理时一并归档。"
+}
