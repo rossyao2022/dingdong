@@ -92,7 +92,7 @@
 | 后端测试 | **237 项通过** | [backend.txt](evidence/v0.3.5/backend.txt) |
 | 部署配置与 nginx 路由测试 | **8 项通过** | [deploy-config.txt](evidence/v0.3.5/deploy-config.txt) |
 | `ruff check` / `format` | All checks passed（116 文件已格式化） | [ruff.txt](evidence/v0.3.5/ruff.txt) |
-| 文档校验 | 61 文档 / 278 链接 / 51 操作 / 62 schema / **0 错误** | [doc-audit.json](evidence/v0.3.5/doc-audit.json) |
+| 文档校验 | 61 文档 / 314 链接 / 51 操作 / 62 schema / **0 错误** | [doc-audit.json](evidence/v0.3.5/doc-audit.json) |
 | 前端语法检查 | 4 个入口脚本通过 | [frontend-check.txt](evidence/v0.3.5/frontend-check.txt) |
 | 前端单元测试 | 3 项通过 | [frontend-unit.txt](evidence/v0.3.5/frontend-unit.txt) |
 | **公网真实 Chrome：冲突恢复专项 + P1 专项** | **11 通过 / 11 跳过 / 0 失败** | [public-browser-conflict-recovery.txt](evidence/v0.3.5/public-browser-conflict-recovery.txt) |
