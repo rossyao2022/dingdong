@@ -1,0 +1,128 @@
+v0.3.6 公网验收新建对象清单（只读探针）
+cutoff: 2026-09-14T06:00:00+00:00 (= 14:00 CST，本轮验收开始前)
+时间: 2026-09-14 14:15:15 CST
+------------------------------------------------------------
+cutoff: 2026-09-14 06:00:00+00:00
+
+--- QuestionnaireVersion ---
+  qn-mu0ujppu-3feaaf3059e5	v1	published	公网验收题库 mu0ujppu
+  qn-mu0ujppu-3feaaf3059e5	v2	draft	公网验收题库 mu0ujppu
+  qn-mu0ujw1j-7f80e4546a2f	v1	draft	公网验收冲突 mu0ujw1j-A已保存
+  qn-p1mu0ui7zzabc-2f260f82d35a	v1	published	P1消歧mu0ui7zzABC观察
+  qn-p1mu0ui7zzabc-b1561834480d	v1	published	P1消歧mu0ui7zzABC绘画
+  qn-p1mu0uigy1-1f928c831250	v1	published	P1同名mu0uigy1
+  qn-p1mu0uigy1-1f928c831250-2	v1	published	P1同名mu0uigy1
+  qn-p1mu0uiqrt-681666cc20e0	v1	retired	P1版本替代mu0uiqrt
+  qn-p1mu0uiqrt-681666cc20e0	v2	published	P1版本替代mu0uiqrt
+
+--- ActivityContentVersion ---
+  act-mu0ukhkb-3120453fcfed	v1	published	公网验收活动 mu0ukhkb
+  act-p1mu0uj0lsabc-45a688eecf3d	v1	published	P1消歧活动mu0uj0lsABC观察
+  act-p1mu0uj0lsabc-fca20d8fcd4a	v1	published	P1消歧活动mu0uj0lsABC绘画
+
+--- Child （本轮新建）---
+  8445aa1a-53ea-4f97-97e6-63b664f1c680	active	P1跨入口家长mu0ucb3x
+  cbdc981b-4df3-46ed-bdf6-e6dd26d91b37	active	P1跨入口运营mu0uchzp
+  28d2f204-f223-4b30-90dc-8ff34acd1756	active	冲突保留mu0ued12
+  159608cf-7b44-40cf-96e3-126bf795748e	active	冲突保留mu0uejs6
+  3d9a76a5-ca10-42b6-a4f7-1b024c4e6b26	active	冲突保留mu0ueq4j
+  e33e4963-658f-4890-8e3c-27ad352602f0	active	冲突保留mu0uexgb
+  b9270e4f-276f-4fd1-a7dd-198de58a0a8e	active	冲突保留mu0uffzy
+  74c80139-2378-413f-ac88-c3c8c460f7ea	active	冲突保留mu0uge7v-运营改
+  6fe06c7b-69dd-4f99-aa20-4924e4843e09	active	冲突保留mu0ugmf8-家长再改
+  05761cd4-e0a2-414b-baa9-20c48eef5705	active	冲突保留mu0ugx6c-家长改
+  012cfa34-3205-470a-a638-1797134ab2c2	active	冲突保留mu0uh6ix-运营改
+  35739212-b02f-4eaa-a739-77f133eb6b70	active	冲突保留mu0uhh73-家长改
+  ffcc9488-780e-4603-ac1f-6e05b6caa3a2	active	P1跨入口家长mu0uhri8-运营改
+  d9059237-8aa4-4576-8e4f-e47c9192d62c	active	P1跨入口运营mu0ui0tr-运营改
+
+--- Child （按称呼前缀匹配，含更早遗留）---
+  397dca8a-cc80-4c46-85bb-1efec72b9313	archived	P1跨入口家长mtzq9gau-运营改
+  00ea864a-e4c3-42c6-8328-6eda77278526	archived	P1跨入口家长mu0kbtix-运营改
+  8445aa1a-53ea-4f97-97e6-63b664f1c680	active	P1跨入口家长mu0ucb3x
+  ffcc9488-780e-4603-ac1f-6e05b6caa3a2	active	P1跨入口家长mu0uhri8-运营改
+  d9bf4de2-66b1-42a4-8c3a-d8e24a9ccbfc	archived	P1跨入口运营mtzq9ln7-运营改
+  787fb0bf-235e-42ed-92a2-fc9c2d3db1cd	archived	P1跨入口运营mu0kbzxv-运营改
+  cbdc981b-4df3-46ed-bdf6-e6dd26d91b37	active	P1跨入口运营mu0uchzp
+  d9059237-8aa4-4576-8e4f-e47c9192d62c	active	P1跨入口运营mu0ui0tr-运营改
+  aa1f8dee-6124-4931-a1cf-ae699aa16a97	archived	P2验收隔离儿童092957
+  ab2ceea1-8e56-412d-9231-da77854fdf74	archived	P2验收隔离儿童093012
+  e1c6bed1-570e-4f8b-95b3-ba6e765c74c8	archived	冲突保留mu0kcuwm-运营改
+  32bf5022-8238-4db7-af99-4fc6c13d3a98	archived	冲突保留mu0kd0el-家长再改
+  65ee8190-5263-4661-a9ed-c279b0409b57	archived	冲突保留mu0kd6lg-家长改
+  0cbb24f2-b7dd-4261-9041-b3434b135a51	archived	冲突保留mu0kdczb-运营改
+  b3ab6bfe-ba64-4a9a-952d-e2f0994f6d28	archived	冲突保留mu0kdjlp-家长改
+  28d2f204-f223-4b30-90dc-8ff34acd1756	active	冲突保留mu0ued12
+  159608cf-7b44-40cf-96e3-126bf795748e	active	冲突保留mu0uejs6
+  3d9a76a5-ca10-42b6-a4f7-1b024c4e6b26	active	冲突保留mu0ueq4j
+  e33e4963-658f-4890-8e3c-27ad352602f0	active	冲突保留mu0uexgb
+  b9270e4f-276f-4fd1-a7dd-198de58a0a8e	active	冲突保留mu0uffzy
+  74c80139-2378-413f-ac88-c3c8c460f7ea	active	冲突保留mu0uge7v-运营改
+  6fe06c7b-69dd-4f99-aa20-4924e4843e09	active	冲突保留mu0ugmf8-家长再改
+  05761cd4-e0a2-414b-baa9-20c48eef5705	active	冲突保留mu0ugx6c-家长改
+  012cfa34-3205-470a-a638-1797134ab2c2	active	冲突保留mu0uh6ix-运营改
+  35739212-b02f-4eaa-a739-77f133eb6b70	active	冲突保留mu0uhh73-家长改
+  96d791cf-55a1-47bf-afb5-233c0ab7f86e	archived	独立复验mu0hm1xz家长mu0hm5ol-运营改
+  02545c85-60cd-4ca2-8133-96289188fdee	archived	独立复验mu0hm1xz运营mu0hmbt7-运营改
+  1d80db85-0cc6-4e86-9e7d-25c67a2de2f5	archived	独立复验mu0ouuusmu0ouzmf-运营改
+  7abf5e3b-aa43-4ad7-b329-3babbbf30da0	archived	独立复验mu0ouuusmu0ov4kh-家长再改
+  7f6a6041-e5ae-49e2-82ab-24117d8bf828	archived	独立复验mu0ouuusmu0ovadc-家长改
+  ef2dc3a1-3b2c-43fe-8e08-64fed33cce8d	archived	独立复验mu0ouuusmu0ovgl5-运营改
+  dd4566de-ce94-4ac5-97f9-47aac2965b0c	archived	独立复验mu0ouuusmu0ovm7n-家长改
+  c1448b6f-cd40-47a4-b469-1499e469051a	active	界面验收隔离儿童135848
+
+--- Family （涉及本轮儿童）---
+  ebba5eb5-b0e9-47c1-ad73-a1822b17fd47	closed
+  cdea8c14-a462-4e1a-b132-813a0e8817b0	closed
+  f9420f70-0730-47b9-b8fd-70aa94e9b2ba	closed
+  5b43b00f-2b53-4fd3-bfbc-d06b71b5fb55	closed
+  04f3edd0-9260-4b3f-96a7-ecdac4ff9832	closed
+  2f9adcbd-24a2-4d00-9978-b4eb80b1251a	closed
+  6c61d8ef-8476-455c-8c86-07947ee49fd0	closed
+  9c504c8c-1f75-417f-babe-126b25fc77a2	closed
+  c2afc577-e23a-4c37-870d-dff6390e6c77	closed
+  4f2b7fdb-2dae-40d0-824f-8d23ff7c2fef	closed
+  a15c4570-21f8-4f09-973d-73e216d97c80	closed
+  cb7c2667-1bfd-434a-bfd3-47be5a4b6030	closed
+  a4f1ac05-5eb3-45be-bf3a-ea82c0bb00c9	closed
+  528012be-7788-4bbc-8200-cdf7c695c169	closed
+  82120c07-696e-4498-bb44-65ed5bd76440	closed
+  ee256619-6057-45b0-9351-18750543cfee	closed
+  fbd2c174-41b5-4964-a9a5-23f8ab84178d	closed
+  984a6ddb-c574-43bc-b31a-eed77b8194b7	closed
+  38234c75-b8d4-4428-8b58-59d281851397	active
+  4e66d9a4-dca3-4568-a78d-fb75d7c0aec0	active
+  111dd845-8e15-4815-99d4-ad9a457c50dc	active
+  8bf49af7-0f29-473c-86b0-8018633b578c	active
+  8d8edc6a-2d7a-4713-8359-702fae9cb000	active
+  a63b87fe-48a4-4cf7-b4be-ada29efce881	active
+  7911f27d-5a36-4cf7-b687-3a2f1272f972	active
+  da5cb621-9eef-4bc2-9d6b-7aa4b526f385	active
+  1427ca36-3da7-4372-88cb-dd332b3b5d8b	active
+  f244e590-8368-4b1a-abc9-a25665b804e9	active
+  29c5ea22-02ab-4c44-81d2-67d2ade36b3f	active
+  22a1e7d8-cc64-49a7-baa8-1ea863a26341	active
+  8ef424ad-b8a3-4ff2-935d-675b74812df4	active
+  81cd0567-0780-4922-82af-889603101137	active
+  26f41d35-7dc2-45ee-899a-3562cea4323a	active
+
+--- 工作人员 acpt036_* ---
+  acpt036_operator	active=True	['operations']
+  acpt036_content	active=True	['content']
+  acpt036_admin	active=True	['account_admin']
+
+--- 家长账号（本轮新建）---
+  parent-f992c31b515c4fb588ac48ddc731c572	active=True
+  parent-41420518e7fb4d72bf5d096a3906e41e	active=True
+  parent-c03ffe6e5db64d6d86ff43cedefa353f	active=True
+  parent-24180a2d670b460f8270a09c190a3f3b	active=True
+  parent-a78496f296874b4a9121555b766a388f	active=True
+  parent-96660f188904440cafcb8aa4c23bda05	active=True
+  parent-2c946a79410c41c9908f92ca7397a859	active=True
+  parent-ef7135d6f0864c10b38669b036d7e02a	active=True
+  parent-f54fbe4630a547d4847763ed544c40ed	active=True
+  parent-cd7a474bdc6548eeb805353f97bb2ccd	active=True
+  parent-c1c50b50ed074f1f97a290dafe8ef120	active=True
+  parent-98f1257739214d3e8d994d07571a76a8	active=True
+  parent-be9dbbcaa34c4667936bb91d33b3931b	active=True
+  parent-4cf3615975e14dc1b3f3cc76b5a0491a	active=True

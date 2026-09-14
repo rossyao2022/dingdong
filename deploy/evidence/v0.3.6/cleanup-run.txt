@@ -1,0 +1,18 @@
+v0.3.6 验收后定向清理（只做状态变更，不物理删除）
+时间: 2026-09-14 14:15:51 CST
+脚本: deploy/evidence/v0.3.6/cleanup-acceptance-data.py
+------------------------------------------------------------
+BEFORE: {"families_active": 25, "children_active": 18, "qv_published": 8, "acv_published": 11, "staff_active": 4, "parents_active": 25, "audit": 765}
+AFTER : {"families_active": 10, "children_active": 3, "qv_published": 2, "acv_published": 8, "staff_active": 1, "parents_active": 10, "audit": 809}
+matched_children: 15 ['P1跨入口家长mu0ucb3x', 'P1跨入口家长mu0uhri8-运营改', 'P1跨入口运营mu0uchzp', 'P1跨入口运营mu0ui0tr-运营改', '冲突保留mu0ued12', '冲突保留mu0uejs6', '冲突保留mu0ueq4j', '冲突保留mu0uexgb', '冲突保留mu0uffzy', '冲突保留mu0uge7v-运营改', '冲突保留mu0ugmf8-家长再改', '冲突保留mu0ugx6c-家长改', '冲突保留mu0uh6ix-运营改', '冲突保留mu0uhh73-家长改', '界面验收隔离儿童135848']
+closed_families: 15 ['111dd845', '1427ca36', '22a1e7d8', '26f41d35', '29c5ea22', '38234c75', '4e66d9a4', '7911f27d', '81cd0567', '8bf49af7', '8d8edc6a', '8ef424ad', 'a63b87fe', 'da5cb621', 'f244e590']
+archived_children: 15
+retired_questionnaires: 8 ['qn-mu0ujppu-3feaaf3059e5/v1', 'qn-mu0ujppu-3feaaf3059e5/v2', 'qn-mu0ujw1j-7f80e4546a2f/v1', 'qn-p1mu0ui7zzabc-2f260f82d35a/v1', 'qn-p1mu0ui7zzabc-b1561834480d/v1', 'qn-p1mu0uigy1-1f928c831250/v1', 'qn-p1mu0uigy1-1f928c831250-2/v1', 'qn-p1mu0uiqrt-681666cc20e0/v2']
+retired_activities: 3 ['act-mu0ukhkb-3120453fcfed/v1', 'act-p1mu0uj0lsabc-45a688eecf3d/v1', 'act-p1mu0uj0lsabc-fca20d8fcd4a/v1']
+deactivated_accounts: 18 ['acpt036_admin', 'acpt036_content', 'acpt036_operator', 'parent-24180a2d670b460f8270a09c190a3f3b', 'parent-2c946a79410c41c9908f92ca7397a859', 'parent-41420518e7fb4d72bf5d096a3906e41e', 'parent-4cf3615975e14dc1b3f3cc76b5a0491a', 'parent-839d82ed09bd426383265d9e4611abed', 'parent-96660f188904440cafcb8aa4c23bda05', 'parent-98f1257739214d3e8d994d07571a76a8', 'parent-a78496f296874b4a9121555b766a388f', 'parent-be9dbbcaa34c4667936bb91d33b3931b', 'parent-c03ffe6e5db64d6d86ff43cedefa353f', 'parent-c1c50b50ed074f1f97a290dafe8ef120', 'parent-cd7a474bdc6548eeb805353f97bb2ccd', 'parent-ef7135d6f0864c10b38669b036d7e02a', 'parent-f54fbe4630a547d4847763ed544c40ed', 'parent-f992c31b515c4fb588ac48ddc731c572']
+audit_rows_added: 44
+published QV now: ['exploration/vreadable-v2', 'initial-assessment/vreadable-v2']
+published ACV now: ['test-activity-0/vreadable-v2', 'test-activity-1/vreadable-v2', 'test-activity-2/vreadable-v2', 'test-activity-3/vreadable-v2', 'test-activity-4/vreadable-v2', 'test-activity-5/vreadable-v2', 'test-activity-6/vreadable-v2', 'test-activity-7/vreadable-v2']
+active children now: ['合成儿童1', '合成儿童2', '小易']
+active families now: 10
+active staff now: ['dingdong_admin']

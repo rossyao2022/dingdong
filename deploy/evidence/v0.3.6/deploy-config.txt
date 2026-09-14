@@ -1,0 +1,35 @@
+v0.3.6 发布标识与版本一致性核对
+时间: 2026-09-14 14:17:48 CST
+============================================================
+--- 分支与提交 ---
+branch: codex/release-v0.3.6
+HEAD:   c51c2e4c7cb84fbbf8091a805d89b957e0f5383c
+
+--- 五处版本号 ---
+VERSION:                      0.3.6
+backend/pyproject.toml:       version = "0.3.6"
+backend/uv.lock:              version = "0.3.6"
+frontend/package.json:        0.3.6
+frontend/package-lock.json:   0.3.6
+
+--- 远端部署事实 ---
+release 目录: /home/tigery/services/dingdong/releases/dingdong-v0.3.6
+compose 工作目录: 上述目录下的 deploy/
+compose 项目名: dingdong-demo（写死在 deploy/compose.yml，复用既有数据卷）
+镜像: dingdong-web:0.3.6 / dingdong-backend:0.3.6
+APP_VERSION=0.3.6（deploy/.env，密钥沿用主机侧，未覆盖）
+
+--- 本轮新增/变更的部署配置 ---
+deploy/compose.yml: 新增 APP_VERSION: ${APP_VERSION:?set APP_VERSION}（必填，缺了启动失败）
+backend/config/settings/base.py: 注册 dingdong_ca.ops.context.ops_assets 上下文处理器
+backend/config/settings/deployment.py: SECURE_CROSS_ORIGIN_OPENER_POLICY 按 scheme 决定
+
+--- 数据库迁移 ---
+core
+ [X] 0001_initial
+ [X] 0002_backgroundjob_assessmentsession_algorithmattempt_and_more
+ [X] 0003_datarequest_externalassociation_jobobservation_and_more
+ [X] 0004_questionnaireversion_description_and_more
+ [X] 0005_alter_questionnaireversion_options_and_more
+ [X] 0006_auditevent_detail_auditevent_target_label_and_more
+ [X] 0007_activitycontentversion_create_request_key_and_more

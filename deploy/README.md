@@ -1,8 +1,8 @@
-# tigery Docker 演示部署 · v0.3.5
+# tigery Docker 演示部署 · v0.3.6
 
 当前公网入口：**http://110.42.225.196/dingdong/**（家长端），运营后台 **http://110.42.225.196/ops/**，Django 后台 http://110.42.225.196/admin/ 。使用上海服务器已开放80端口，访问者无需Tailscale。
 
-部署转发配置、启动与回退见 [上海公网入口](relay/README.md)，回滚步骤见 [回滚说明](ROLLBACK.md)。APP_VERSION=0.3.5，PUBLIC_ORIGIN=http://110.42.225.196。分支codex/release-v0.3.5和标签v0.3.5对应此发布。
+部署转发配置、启动与回退见 [上海公网入口](relay/README.md)，回滚步骤见 [回滚说明](ROLLBACK.md)。APP_VERSION=0.3.6，PUBLIC_ORIGIN=http://110.42.225.196。分支codex/release-v0.3.6和标签v0.3.6对应此发布。
 
 发布包内的RELEASE.json记录精确Git提交；密钥和数据库不进包。tigery沿用已有.env密钥和数据卷，仅修改版本和公共Origin。首次部署可使用 `python3 deploy/configure.py http://110.42.225.196 --bind 100.115.66.119`。容器启动：`docker compose --env-file deploy/.env -f deploy/compose.yml up -d --build --wait`。
 
@@ -11,6 +11,32 @@
 Django 生成的是根绝对地址（重定向、`{% url %}`），带前缀剥离的 `/dingdong/` 入口只能撑住第一次请求：页面一渲染，链接和重定向就跳到根路径。这和已有的 `/admin/`、`/static/`、`/api/v1/` 是同一模式——上海 nginx 把运营后台自己的根路径转发给隧道。`/dingdong/ops/` 仍能打开首屏，但后续导航会跳到 `/ops/`，所以对外只说 `/ops/`。
 
 占用根 `/ops/` 前已核对：上海站点 `/www/wwwroot/game` 没有 `ops` 目录，其 index.html 与 JS 资源也没有 `/ops` 引用，该路径此前只会返回原站的 SPA 兜底页。
+
+## v0.3.6 变更
+
+v0.3.6 是**运营后台界面改版**，交付说明见 [运营后台界面改版交付与验收 v0.3.6](OPS_CONSOLE_UI_20260914_V036.md)。
+
+1. **统一到本地化组件体系。** 固定版本取回 `@tabler/core` 1.5.1 与 `@tabler/icons-webfont` 3.46.0，
+   落到 `backend/dingdong_ca/ops/static/ops/vendor/`，随镜像交付、不引用公网 CDN。
+   Tabler 产物已内含其依赖的 Bootstrap 5.3 全部组件样式与 JS。来源与许可见 `vendor/THIRD_PARTY_NOTICES.md`；
+   三层职责切分与"不要重写选择器"等维护约定见 `backend/dingdong_ca/ops/README.md`。
+   **不要再引入 Bootstrap 官方 CSS/JS**，会与 Tabler 产物重复定义同一批类名。
+2. **25 个页面统一到重建的应用外壳。** `base.html` 改为「侧栏 + 吸顶顶栏 + 面包屑 + 页脚」，
+   403/404 页一并继承；新增 `ops/context.py`（模板公共上下文）与 `ops/_empty.html`（统一空状态）；
+   导航条目补图标（`NAVIGATION` 四元组 → 五元组）。
+3. **静态资源缓存击穿（部署配置变更）。** 此前 `collectstatic` 不带内容哈希，`/static/ops/ops.css`
+   改版前后同址，浏览器继续用旧文件——运营上线后看不到新界面。现所有静态资源拼
+   `?v={{ ops_asset_version }}`。`deploy/compose.yml` 新增 **必填** 的
+   `APP_VERSION: ${APP_VERSION:?set APP_VERSION}`，缺了直接启动失败而不是静默降级。
+   **升级时记得同步 `deploy/.env` 的 `APP_VERSION`。**
+4. **明文入口不再发生效不了的 COOP 头（部署配置变更）。** Django 默认发
+   `Cross-Origin-Opener-Policy: same-origin` 且不看协议；Chrome 只在可信源（https / localhost）
+   认可它，公网明文入口因此逐页报控制台错误。现按 scheme 决定：纯 HTTP 不发，切 https 自动恢复。
+   这是本轮新增的逐页体检工具首次在公网跑出来的真实缺陷，本地用 127.0.0.1 调试看不到。
+5. **无数据库迁移变更**，仍停在 `0007`；后端业务逻辑与家长端交互未改动。
+   后端 237 项、部署层 9 项（较上轮 +1）、前端单测 3 项、本地浏览器 8 项、公网真实 Chrome 26 项全部通过。
+
+版本一致性：`VERSION`、`backend/pyproject.toml`、`backend/uv.lock`、`frontend/package.json`、`frontend/package-lock.json`、镜像标签、Git 分支/标签、发布包统一为 **0.3.6**。
 
 ## v0.3.5 变更
 

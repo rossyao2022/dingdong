@@ -1,12 +1,12 @@
 # 叮咚项目记忆与会话交接
 
-最后更新：2026-09-14 11:35，Asia/Shanghai。适用于本目录中的后续会话。本文记录已核对事实，不代替代码和最新用户指令。
+最后更新：2026-09-14 14:20，Asia/Shanghai。适用于本目录中的后续会话。本文记录已核对事实，不代替代码和最新用户指令。
 
 ## 当前结论与最近工作
 
-项目已完成 M1–M5 自有业务实现、M6 运营后台（`dingdong_ca.ops`），并已把运营后台部署到 tigery、通过上海公网入口完成真实浏览器验收。**当前线上版本 0.3.5**：家长端 http://110.42.225.196/dingdong/ ，运营后台 **http://110.42.225.196/ops/** ，Django 后台 /admin/ 。v0.3.5 修复了第三轮独立验收遗留的 P2（家长端档案冲突后未保存输入被丢弃 + 配套测试名实不符），见本文末尾「运营后台 v0.3.5：家长端档案冲突保留输入并提供可恢复路径（2026-09-14）」；上一轮 v0.3.4 的交付见「运营后台 v0.3.4：修复第二轮独立验收的两个 P1（2026-09-13）」。
+项目已完成 M1–M5 自有业务实现、M6 运营后台（`dingdong_ca.ops`），并已把运营后台部署到 tigery、通过上海公网入口完成真实浏览器验收。**当前线上版本 0.3.6**：家长端 http://110.42.225.196/dingdong/ ，运营后台 **http://110.42.225.196/ops/** ，Django 后台 /admin/ 。v0.3.6 是**运营后台界面改版**（本地化 Tabler 组件体系 + 25 个页面统一外壳 + 静态资源 `?v=` 缓存击穿 + 明文入口 COOP 静音），见本文末尾「运营后台 v0.3.6：界面改版（2026-09-14）」；交付说明 [deploy/OPS_CONSOLE_UI_20260914_V036.md](deploy/OPS_CONSOLE_UI_20260914_V036.md)。上一轮 v0.3.5 的交付见「运营后台 v0.3.5：家长端档案冲突保留输入并提供可恢复路径（2026-09-14）」。
 
-最新验证记录（v0.3.5）：后端237项通过、部署配置8项通过、ruff通过、文档校验0错误（61文档/278链接/51操作/62 schema）、前端check与单测3项通过；**公网真实Chrome**：冲突恢复+P1专项11通过/11跳过/0失败，运营后台回归15通过/7跳过/0失败。此前 v0.3.4 记录：后端237项、公网23项、部署8项；v0.3.3 记录：后端201项、公网19项。桌面及390×844移动视口已测，不能称为真实手机硬件验收。
+最新验证记录（v0.3.6）：后端237项通过、部署配置9项通过、ruff通过、前端check与单测3项通过、本地浏览器8项通过；**公网真实Chrome**：冲突恢复5通过/5跳过、P1专项6通过/6跳过、运营后台回归15通过/7跳过，合计26通过/18跳过/0失败；公网逐页体检25个页面全部通过、「裸控件」由改版前67个降为0。桌面及390×844移动视口已测，不能称为真实手机硬件验收。此前 v0.3.5 记录：后端237项、部署8项；公网冲突恢复+P1专项11通过、运营后台回归15通过。
 
 - [M5实现与外部边界](backend/docs/M5_RESULT.md)
 - [最近启动复验](frontend/docs/UI_FUNCTIONAL_20260912.md)、[原始Chrome日志](frontend/docs/ui-functional-20260912.txt)
@@ -83,7 +83,7 @@ npm --prefix frontend run dev
 
 参考仓库：参考代码/dingdong，已核对HEAD为d754a5bf9ea8e71ca64a850d2e26aa321fe8ab38，未在本轮fetch远端。2026-09-09项目分析针对更旧的TalentRadar网页，不能把其随机评分问题套用到当前实现。
 
-根目录Git工作区已建立发布分支基线：v0.2.0 至 v0.3.4 各有 `codex/release-v<版本>` 分支与 `v<版本>` 标签，最新为 `codex/release-v0.3.4`。原始材料（`材料/`、`参考代码/`、`项目分析.md`、`材料清单.md` 等）仍是 untracked，不要把 untracked 当作可以清理的垃圾；先核对状态，不能 git clean、reset 或覆盖现有实现。参考仓库是独立仓库。**没有 Git remote，未推送。**
+根目录Git工作区已建立发布分支基线：v0.2.0 至 v0.3.6 各有 `codex/release-v<版本>` 分支与 `v<版本>` 标签，最新为 `codex/release-v0.3.6`。原始材料（`材料/`、`参考代码/`、`项目分析.md`、`材料清单.md` 等）仍是 untracked，不要把 untracked 当作可以清理的垃圾；先核对状态，不能 git clean、reset 或覆盖现有实现。参考仓库是独立仓库。**没有 Git remote，未推送。**
 
 ## 仍需外部确认与下一次开始方式
 
@@ -270,3 +270,32 @@ npm --prefix frontend run dev
 ## 内置浏览器演示待续（2026-09-14）
 
 用户要求部署后用browser use控制内置浏览器逐项测试并展示记录。已在tigery重新执行现有0.3.5 Compose部署收敛命令并核验运行正常；无代码改动。内置浏览器创建tab和getState各超时30秒，open_in_codex返回queued，尚未开始交互演示。不能把上一轮外部Chrome测试算作此次内置浏览器验收。记录与待执行清单见[内置浏览器演示记录](deploy/INNER_BROWSER_DEMO_20260914.md)。恢复控制连接后从登录开始逐项执行，截图仅用隔离合成数据。
+
+
+## v0.3.6：运营后台界面改版（2026-09-14）
+
+本轮把运营后台从"29 个模板各写各的样式、原生控件与手写卡片混用"统一到一套组件体系，并修掉"改完看不见效果"的真实原因。**不改后端业务逻辑、家长端交互与数据库结构（迁移仍停在 `0007`）**。交付说明 [deploy/OPS_CONSOLE_UI_20260914_V036.md](deploy/OPS_CONSOLE_UI_20260914_V036.md)。
+
+**界面层**：固定版本取回 `@tabler/core` 1.5.1 与 `@tabler/icons-webfont` 3.46.0 落到 `backend/dingdong_ca/ops/static/ops/vendor/`，随镜像交付、不引用公网 CDN（Tabler 产物已内含它依赖的 Bootstrap 5.3 全部组件样式与 JS）。三层职责与维护约定见 [ops/README.md](backend/dingdong_ca/ops/README.md)：`vendor/` 不改、`ops.css` 改令牌与外壳、通用组件外观只改 `--tblr-*` 变量；**不要再引入 Bootstrap 官方 CSS/JS**。`base.html` 重建为「侧栏 + 吸顶顶栏 + 面包屑 + 页脚」外壳，25 个页面（含 403/404）统一继承；新增 `ops/context.py`、`ops/_empty.html`；导航补图标（`NAVIGATION` 四元组 → 五元组）。类名约定：无前缀 = Tabler/Bootstrap，`ops-` = 叮咚自定义；`.question-card` / `.step-card` / `.option-row` / `.kv` / `.timeline` 被验收脚本按名字引用，改名要同步改测试。
+
+**缓存击穿（部署配置变更）**：`collectstatic` 用 Django 默认存储，静态 URL 不带内容哈希，`/static/ops/ops.css` 改版前后同址，浏览器会继续用旧文件。现所有静态资源拼 `?v={{ ops_asset_version }}`。`deploy/compose.yml` 新增**必填** `APP_VERSION: ${APP_VERSION:?set APP_VERSION}`（缺了直接启动失败，不是静默降级），页脚也显示它——**现场判断浏览器加载的是不是新界面就看页脚版本号**。`ASSET_VERSION` 在模块导入时求值，改 `APP_VERSION` 必须重建容器。本地 `deploy/.env` 也要有 `APP_VERSION`，否则本地 compose 起不来。
+
+**明文入口 COOP 静音（部署配置变更，本轮新发现）**：Django 的 `SecurityMiddleware` 默认发 `Cross-Origin-Opener-Policy: same-origin` 且不看协议，而 Chrome 只在可信源（https / localhost）认可它——公网明文入口因此**每个页面控制台都有一条错误**。本地用 `127.0.0.1` 调试看不到，所以一直没被发现。现 `deployment.py` 按 scheme 决定：纯 HTTP 设为 `None`，切 https 自动恢复。先写测试再改实现（部署层 8 → 9 项）。
+
+**新增工具** `frontend/tools/`：`ops-page-audit.mjs` 逐页体检（25 个页面 + 窄屏，输出结构与错误计数、`report.json`）、`ops-quick-shots.mjs` 快速截图、`README.md`（与其它测试的分工）。`.dockerignore` 不放行该目录，不会进镜像。**判读要点：`裸控件`（没有 `form-control`/`form-select`/`form-check-input` 类的 input/select/textarea）应为 0。**
+
+**验证**：后端 237、部署层 9、前端 check 与单测 3、本地浏览器 8 项通过；**公网真实 Chrome 26 通过 / 18 跳过 / 0 失败**（冲突恢复 5+5、P1 专项 6+6、运营后台回归 15+7，跳过均为桌面/窄屏视口分工）。**逐页体检 25 个页面全部通过，"裸控件"由改版前 67 个（18/25 个页面）降为 0**；对照方式是同一套演示数据分别由 v0.3.5 源码（`git worktree`，端口 8018）与工作区源码（端口 8017）渲染，差异只可能来自界面代码。改版前后各 22 张整页截图留档在 `frontend/docs/ops-before-v0.3.6/` 与 `frontend/docs/ops/`（文件名一一对应；`docs/` 不进包，也按本仓库惯例不进 git）。
+
+**测试修正**：`frontend/tests/ops-console.spec.js` 的题库与活动两例引用了 v0.3.3/v0.3.4 就已删除的 `#new-code` / `#new-version`（该 spec 最后修改于 v0.3.0），一直失败。本轮只改步骤、业务断言全部保留。
+
+**部署**：tigery `/home/tigery/services/dingdong/releases/dingdong-v0.3.6`，镜像 `dingdong-backend:0.3.6` / `dingdong-web:0.3.6`，compose 项目名仍为 `dingdong-demo`（数据卷沿用），`.env` 仅改 `APP_VERSION=0.3.6`。部署前备份 `dingdong-pre-v0.3.6-20260914-055438.sql.gz`（sha256 `11d25d793cad…`，`gzip -t` 通过）。公网 `/dingdong/ /dingdong/version.txt /ops/login/ /admin/login/ /api/v1/runtime` 与内网 `/ /ops/login/ /api/v1/runtime` 全部 200，`RestartCount=0`；公网 `/ops/login/` 的静态资源为 `?v=0.3.6`，vendor 四个资源（tabler.min.css 693779B、tabler-icons.min.css 211022B、tabler-icons.woff2 462200B、ops.js 19971B）均 200。
+
+**验收数据与清理**（`deploy/evidence/v0.3.6/`）：[逐页体检改版前](deploy/evidence/v0.3.6/page-audit-before.txt) / [改版后](deploy/evidence/v0.3.6/page-audit-after.txt) / [公网](deploy/evidence/v0.3.6/page-audit-public.txt)、[公网冲突恢复](deploy/evidence/v0.3.6/public-browser-parent-conflict-recovery.txt)、[P1 专项](deploy/evidence/v0.3.6/public-browser-ops-p1-acceptance.txt)、[运营后台回归](deploy/evidence/v0.3.6/public-browser-ops-public.txt)、[清理运行结果](deploy/evidence/v0.3.6/cleanup-run.txt)、[发布标识与版本一致性](deploy/evidence/v0.3.6/deploy-config.txt)。真实链路：隔离家庭 `界面验收隔离儿童135848`（`c1448b6f…`）经真实家长 API 建立，注入 fixture 后 Worker 真的跑出失败任务 `31656a19-0130-44c6-bd42-1b2e4899a36b`（report/RENDER_FAILED）并被公网重试；隔离服务事项 `13d7c1e5…` 闭环。临时运营账号 `acpt036_{admin,operator,content}`。
+
+清理沿用"只做状态变更、不物理删除、补写审计"：**在册家庭 25→10、在册儿童 18→3、已发布题库 8→2、已发布活动 11→8、启用工作人员 4→1、启用家长 25→10、审计 765→809**；归档 15 个儿童、关闭 15 个家庭、退役 8 个题库版本 + 3 个活动版本、停用 18 个账号。清理后两个入口复验仍全部 200。**更早轮次的历史测试数据本轮未动。** 清理脚本不再硬编码儿童 UUID，按称呼前缀 + "仍未归档"判定，内容按逐条 `code+version`。
+
+**本轮新踩的两个坑（下一轮直接照做）**：
+- 凭据文件用 `source /tmp/dd-ops-creds.env` 读进来只是 **shell 变量**，Playwright 的 worker 子进程看不到，于是所有用例在 `fill` 处报 `value: expected string, got undefined`（表现为 25 项全失败，极易误判成界面坏了）。必须 `set -a; source 文件; set +a`，或把 `export` 写进文件。
+- 在容器里**按路径执行**脚本（`python /tmp/x.py`）时 `sys.path[0]` 是脚本所在目录，而容器里 `config` 包只在 `/app`，会报 `ModuleNotFoundError: No module named 'config'`。加 `-w /app -e PYTHONPATH=/app`。脚本若自己要 import Django 模型，需自带 `django.setup()` 引导（`cleanup-acceptance-data.py` 已加）。
+
+**未做/受限**：本轮**尚无独立第三方审计**（v0.3.3/v0.3.4/v0.3.5 各有独立验收报告）；公网仍是**明文 HTTP**（HTTPS 未启用，`*_COOKIE_SECURE` 为 False；切 https 需重新验收）；移动端只验到 390×844；"裸控件 = 0"是结构指标，不等于逐像素审美验收。

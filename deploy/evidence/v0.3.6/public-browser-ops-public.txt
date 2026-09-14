@@ -1,0 +1,36 @@
+公网真实 Chrome 验收 · ops-public.spec.js（v0.3.6）
+入口：http://110.42.225.196/dingdong/ ；运营后台 http://110.42.225.196/ops/
+镜像：dingdong-web:0.3.6 / dingdong-backend:0.3.6
+命令：PUBLIC_HTTP_URL=http://110.42.225.196/dingdong/ npx playwright test --config=playwright.public.config.js ops-public.spec.js
+凭据：环境变量注入（DD_OPS_ADMIN_USER 等），不落盘
+时间：2026-09-14 14:12:53 CST
+------------------------------------------------------------
+
+Running 22 tests using 1 worker
+
+  ✓   1 [desktop] › deployment-tests/ops-public.spec.js:117:3 › 运营后台（公网） › 登录失败有提示，成功进入工作首页，退出后无法直接访问 (6.3s)
+  ✓   2 [desktop] › deployment-tests/ops-public.spec.js:138:3 › 运营后台（公网） › 家庭按称呼查询并进入儿童详情，一页聚合真实业务数据 (6.7s)
+  ✓   3 [desktop] › deployment-tests/ops-public.spec.js:166:3 › 运营后台（公网） › 题库：可视化新建草稿→校验→发布→复制新版本（无需手填技术标识） (8.2s)
+  ✓   4 [desktop] › deployment-tests/ops-public.spec.js:219:3 › 运营后台（公网） › 题库：同一草稿在两个页面编辑，旧页面保存必须报冲突且不覆盖 (15.5s)
+  ✓   5 [desktop] › deployment-tests/ops-public.spec.js:274:3 › 运营后台（公网） › 内容运营进不了审计页，首页也不出现审计内容 (6.7s)
+  ✓   6 [desktop] › deployment-tests/ops-public.spec.js:294:3 › 运营后台（公网） › 审计：非法日期不报 500，给出中文提示并保留输入 (5.7s)
+  ✓   7 [desktop] › deployment-tests/ops-public.spec.js:314:3 › 运营后台（公网） › 活动：维护材料与步骤后发布 (13.0s)
+  ✓   8 [desktop] › deployment-tests/ops-public.spec.js:361:3 › 运营后台（公网） › 报告：查看已生成内容，失败任务用业务语言说明并可重试 (7.0s)
+  ✓   9 [desktop] › deployment-tests/ops-public.spec.js:394:3 › 运营后台（公网） › 服务事项：筛选→详情→处理→历史留痕完整闭环 (6.1s)
+  ✓  10 [desktop] › deployment-tests/ops-public.spec.js:426:3 › 运营后台（公网） › 越权拦截：普通运营看不到技术页，也不能执行技术动作 (5.4s)
+  ✓  11 [desktop] › deployment-tests/ops-public.spec.js:454:3 › 运营后台（公网） › 窄屏下导航与列表基本可用 (8.6s)
+  ✓  12 [mobile] › deployment-tests/ops-public.spec.js:117:3 › 运营后台（公网） › 登录失败有提示，成功进入工作首页，退出后无法直接访问 (7.6s)
+  ✓  13 [mobile] › deployment-tests/ops-public.spec.js:138:3 › 运营后台（公网） › 家庭按称呼查询并进入儿童详情，一页聚合真实业务数据 (8.2s)
+  -  14 [mobile] › deployment-tests/ops-public.spec.js:166:3 › 运营后台（公网） › 题库：可视化新建草稿→校验→发布→复制新版本（无需手填技术标识）
+  -  15 [mobile] › deployment-tests/ops-public.spec.js:219:3 › 运营后台（公网） › 题库：同一草稿在两个页面编辑，旧页面保存必须报冲突且不覆盖
+  -  16 [mobile] › deployment-tests/ops-public.spec.js:274:3 › 运营后台（公网） › 内容运营进不了审计页，首页也不出现审计内容
+  -  17 [mobile] › deployment-tests/ops-public.spec.js:294:3 › 运营后台（公网） › 审计：非法日期不报 500，给出中文提示并保留输入
+  -  18 [mobile] › deployment-tests/ops-public.spec.js:314:3 › 运营后台（公网） › 活动：维护材料与步骤后发布
+  -  19 [mobile] › deployment-tests/ops-public.spec.js:361:3 › 运营后台（公网） › 报告：查看已生成内容，失败任务用业务语言说明并可重试
+  -  20 [mobile] › deployment-tests/ops-public.spec.js:394:3 › 运营后台（公网） › 服务事项：筛选→详情→处理→历史留痕完整闭环
+  ✓  21 [mobile] › deployment-tests/ops-public.spec.js:426:3 › 运营后台（公网） › 越权拦截：普通运营看不到技术页，也不能执行技术动作 (6.9s)
+  ✓  22 [mobile] › deployment-tests/ops-public.spec.js:454:3 › 运营后台（公网） › 窄屏下导航与列表基本可用 (6.6s)
+
+  7 skipped
+  15 passed (2.0m)
+退出码: 0

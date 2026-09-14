@@ -1,0 +1,13 @@
+
+Running 8 tests using 1 worker
+
+  ✓  1 tests/ops-console.spec.js:123:3 › 运营后台 › 登录失败有提示，成功进入工作首页，退出后无法直接访问 (3.5s)
+  ✓  2 tests/ops-console.spec.js:151:3 › 运营后台 › 家庭查询与儿童详情聚合真实业务数据 (4.1s)
+  ✓  3 tests/ops-console.spec.js:184:3 › 运营后台 › 题库：可视化新建草稿→校验→发布→复制新版本 (6.6s)
+  ✓  4 tests/ops-console.spec.js:260:3 › 运营后台 › 活动：维护材料、目标、风格与步骤后发布 (6.1s)
+  ✓  5 tests/ops-console.spec.js:310:3 › 运营后台 › 报告：查看已生成报告内容，并在任务页处理生成异常 (3.8s)
+  ✓  6 tests/ops-console.spec.js:352:3 › 运营后台 › 服务事项：查看诉求并完成处理，历史与说明留痕 (2.4s)
+  ✓  7 tests/ops-console.spec.js:378:3 › 运营后台 › 越权拦截：运营角色看不到技术页，也不能执行技术动作 (1.7s)
+  ✓  8 tests/ops-console.spec.js:409:3 › 运营后台 › 窄屏下导航与表单基本可用 (1.7s)
+
+  8 passed (31.4s)

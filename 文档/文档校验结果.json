@@ -1,8 +1,8 @@
 {
   "date": "2026-09-14",
   "scope": "本地文档链接、原始归档哈希/ZIP、提取产物、OpenAPI 引用与 operationId/路径参数；不验证远端链接、Office 版式或真实供应商协议。",
-  "markdown_files": 61,
-  "local_links_checked": 314,
+  "markdown_files": 69,
+  "local_links_checked": 358,
   "archived_files_checked": 85,
   "attachments": [
     {
@@ -140,12 +140,15 @@
     "文档/文档索引.md",
     "文档/文档处理记录_20260912.md",
     "deploy/OPS_INDEPENDENT_REVIEW_20260912.md",
+    "deploy/OPS_INDEPENDENT_REVIEW_20260914_V035.md",
     "deploy/OPS_CONSOLE_DEPLOYMENT_20260913_V034.md",
     "deploy/OPS_INDEPENDENT_REVIEW_20260913.md",
     "deploy/DEPLOYMENT_20260912.md",
+    "deploy/INNER_BROWSER_DEMO_20260914.md",
     "deploy/README.md",
     "deploy/PUBLIC_DEPLOYMENT_20260912.md",
     "deploy/HTTP_UUID_FIX_20260912.md",
+    "deploy/OPS_CONSOLE_UI_20260914_V036.md",
     "deploy/ROLLBACK.md",
     "deploy/OPS_CONSOLE_DEPLOYMENT_20260913.md",
     "deploy/OPS_INDEPENDENT_REVIEW_20260914.md",
@@ -162,6 +165,7 @@
     "需求/后台设计已确认约束.md",
     "需求/一期核心需求与代码差距_20260911.md",
     ".workbuddy-ai/memory/2026-09-11.md",
+    ".workbuddy/memory/2026-09-14.md",
     ".workbuddy/memory/MEMORY.md",
     ".workbuddy/memory/2026-09-12.md",
     ".workbuddy/memory/2026-09-13.md",
@@ -180,6 +184,8 @@
     "backend/docs/M2_RESULT.md",
     "backend/docs/M1_RESULT.md",
     "backend/docs/OPS_PERMISSIONS.md",
+    "backend/dingdong_ca/ops/README.md",
+    "backend/dingdong_ca/ops/static/ops/vendor/THIRD_PARTY_NOTICES.md",
     "材料/可检索文本/CA_DingDong_天赋成长伙伴_项目开发预算与实施周期评估_V1.0.md",
     "材料/可检索文本/CA_DingDong_Functional_PRD_V3.0.md",
     "材料/可检索文本/DingDong_CA_NFC_21天项目管理.md",
@@ -188,9 +194,11 @@
     "材料/文档/姚易【叮咚机器人】.md",
     "材料/讨论/梳理机器人需求_20260911.md",
     "deploy/relay/README.md",
+    "deploy/evidence/v0.3.6/README.md",
     "deploy/evidence/v0.3.5/acceptance-cleanup.md",
     "deploy/evidence/v0.3.4/acceptance-cleanup.md",
     "deploy/evidence/review-v0.3.4/historical-content-audit.md",
+    "frontend/tools/README.md",
     "frontend/docs/UI_FUNCTIONAL_20260912.md"
   ]
 }

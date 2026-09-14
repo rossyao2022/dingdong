@@ -1,0 +1,38 @@
+运营后台逐页渲染体检 · 公网入口（v0.3.6）
+入口：http://110.42.225.196/ops/  （上海中继 → 反向隧道 → tigery :18080）
+账号：acpt036_admin（本轮隔离账号，验收后停用）
+镜像：dingdong-web:0.3.6 / dingdong-backend:0.3.6（含 COOP 修复）
+工具：frontend/tools/ops-page-audit.mjs（真实 Chrome，不拦截接口）
+时间：2026-09-14 14:06:52 CST
+------------------------------------------------------------
+发现的目标 id： {"family":"38234c75-b8d4-4428-8b58-59d281851397","questionnaire":"28a7e2ec-663a-4330-9d10-30afe729f523","activity":"cc79fb9a-1068-4c64-a231-f509397d53b8","report":"7457f2eb-cdb9-4c69-b6cc-95d0cbf2b3ba","job":"c0793d60-2df0-42ab-8c54-f907a1b6da4c","service":"13d7c1e5-5cec-4f06-b3bc-8f15fa450826","account":"cc2ddbae-a320-49c7-be4f-9a3a36cc4f74","account_resettable":"ea192170-53a9-4ec9-a3d8-ee68560b4f7c","child":"c1448b6f-cd40-47a4-b469-1499e469051a"}
+01-dashboard               ok   200  标题="工作首页" 卡片=3 表格=2 裸控件=0 Ops=object
+02-families                ok   200  标题="家庭与儿童" 卡片=2 表格=1 裸控件=0 Ops=object
+03-family-detail           ok   200  标题="家庭详情" 卡片=4 表格=1 裸控件=0 Ops=object
+04-child-detail            ok   200  标题="界面验收隔离儿童135848 · 儿童详情" 卡片=8 表格=4 裸控件=0 Ops=object
+05-questionnaires          ok   200  标题="题库管理" 卡片=2 表格=1 裸控件=0 Ops=object
+06-questionnaire-new       ok   200  标题="新建题库草稿" 卡片=1 表格=0 裸控件=0 Ops=object
+07-questionnaire-edit      ok   200  标题="公网验收冲突 mu0ki6ip-A已保存" 卡片=5 表格=0 裸控件=0 Ops=object
+08-questionnaire-preview   ok   200  标题="预览：公网验收冲突 mu0ki6ip-A已保存" 卡片=1 表格=0 裸控件=0 Ops=object
+09-activities              ok   200  标题="活动管理" 卡片=2 表格=1 裸控件=0 Ops=object
+10-activity-new            ok   200  标题="新建活动草稿" 卡片=1 表格=0 裸控件=0 Ops=object
+11-activity-edit           ok   200  标题="公网验收活动 mu0kid42" 卡片=5 表格=0 裸控件=0 Ops=object
+12-activity-preview        ok   200  标题="预览：公网验收活动 mu0kid42" 卡片=1 表格=0 裸控件=0 Ops=object
+13-reports                 ok   200  标题="报告管理" 卡片=2 表格=1 裸控件=0 Ops=object
+14-report-detail           ok   200  标题="报告：P2验收隔离儿童093012" 卡片=4 表格=0 裸控件=0 Ops=object
+15-jobs                    ok   200  标题="生成任务" 卡片=2 表格=1 裸控件=0 Ops=object
+16-job-detail              ok   200  标题="数据同步任务" 卡片=3 表格=1 裸控件=0 Ops=object
+17-services                ok   200  标题="服务事项" 卡片=2 表格=1 裸控件=0 Ops=object
+18-service-detail          ok   200  标题="家长求助" 卡片=5 表格=0 裸控件=0 Ops=object
+19-audit                   ok   200  标题="操作审计" 卡片=2 表格=1 裸控件=0 Ops=object
+20-accounts                ok   200  标题="账号与权限" 卡片=3 表格=2 裸控件=0 Ops=object
+21-account-detail          ok   200  标题="账号：acpt0333_admin" 卡片=2 表格=0 裸控件=0 Ops=object
+22-account-new             ok   200  标题="新建后台账号" 卡片=2 表格=0 裸控件=0 Ops=object
+23-account-reset           ok   200  标题="重置 acpt0333_content 的密码" 卡片=1 表格=0 裸控件=0 Ops=object
+24-password                ok   200  标题="修改密码" 卡片=1 表格=0 裸控件=0 Ops=object
+25-unknown-route           ok*  404  标题="记录不存在" 卡片=1 表格=0 裸控件=0 Ops=object
+      ⚠ console: Failed to load resource: the server responded with a status of 404 (Not Found)
+90-mobile-dashboard        横向溢出=0px 展开按钮可见=true
+91-mobile-families         横向溢出=0px 展开按钮可见=true
+
+未处理错误总计：1

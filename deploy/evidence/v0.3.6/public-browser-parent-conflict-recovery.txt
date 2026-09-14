@@ -1,0 +1,24 @@
+公网真实 Chrome 验收 · parent-conflict-recovery.spec.js（v0.3.6）
+入口：http://110.42.225.196/dingdong/ ；运营后台 http://110.42.225.196/ops/
+镜像：dingdong-web:0.3.6 / dingdong-backend:0.3.6
+命令：PUBLIC_HTTP_URL=http://110.42.225.196/dingdong/ npx playwright test --config=playwright.public.config.js parent-conflict-recovery.spec.js
+凭据：环境变量注入（DD_OPS_ADMIN_USER 等），不落盘
+时间：2026-09-14 14:10:31 CST
+------------------------------------------------------------
+
+Running 10 tests using 1 worker
+
+  ✓   1 [desktop] › deployment-tests/parent-conflict-recovery.spec.js:74:3 › 家长端档案冲突恢复（真实入口） › 冲突后家长的称呼、性别、生日全部保留，服务端仍是对方保存的值 (11.0s)
+  ✓   2 [desktop] › deployment-tests/parent-conflict-recovery.spec.js:113:3 › 家长端档案冲突恢复（真实入口） › 查看最新资料只做对比；取消保留输入；明确确认载入才替换表单，随后可保存成功 (13.8s)
+  ✓   3 [desktop] › deployment-tests/parent-conflict-recovery.spec.js:177:3 › 家长端档案冲突恢复（真实入口） › 恢复期间对方又改了一次：仍然拒绝覆盖、输入不丢、提示更新 (12.2s)
+  ✓   4 [desktop] › deployment-tests/parent-conflict-recovery.spec.js:230:3 › 家长端档案冲突恢复（真实入口） › 读取最新资料失败时：输入保留，不显示保存成功 (12.5s)
+  -   5 [desktop] › deployment-tests/parent-conflict-recovery.spec.js:280:3 › 家长端档案冲突恢复（真实入口） › 窄屏下也能完成冲突恢复并保存
+  -   6 [mobile] › deployment-tests/parent-conflict-recovery.spec.js:74:3 › 家长端档案冲突恢复（真实入口） › 冲突后家长的称呼、性别、生日全部保留，服务端仍是对方保存的值
+  -   7 [mobile] › deployment-tests/parent-conflict-recovery.spec.js:113:3 › 家长端档案冲突恢复（真实入口） › 查看最新资料只做对比；取消保留输入；明确确认载入才替换表单，随后可保存成功
+  -   8 [mobile] › deployment-tests/parent-conflict-recovery.spec.js:177:3 › 家长端档案冲突恢复（真实入口） › 恢复期间对方又改了一次：仍然拒绝覆盖、输入不丢、提示更新
+  -   9 [mobile] › deployment-tests/parent-conflict-recovery.spec.js:230:3 › 家长端档案冲突恢复（真实入口） › 读取最新资料失败时：输入保留，不显示保存成功
+  ✓  10 [mobile] › deployment-tests/parent-conflict-recovery.spec.js:280:3 › 家长端档案冲突恢复（真实入口） › 窄屏下也能完成冲突恢复并保存 (11.8s)
+
+  5 skipped
+  5 passed (1.1m)
+退出码: 0

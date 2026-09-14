@@ -1,0 +1,26 @@
+公网真实 Chrome 验收 · ops-p1-acceptance.spec.js（v0.3.6）
+入口：http://110.42.225.196/dingdong/ ；运营后台 http://110.42.225.196/ops/
+镜像：dingdong-web:0.3.6 / dingdong-backend:0.3.6
+命令：PUBLIC_HTTP_URL=http://110.42.225.196/dingdong/ npx playwright test --config=playwright.public.config.js ops-p1-acceptance.spec.js
+凭据：环境变量注入（DD_OPS_ADMIN_USER 等），不落盘
+时间：2026-09-14 14:11:35 CST
+------------------------------------------------------------
+
+Running 12 tests using 1 worker
+
+  ✓   1 [desktop] › deployment-tests/ops-p1-acceptance.spec.js:145:3 › P1 专项验收（公网） › P1-A 儿童档案：家长改档后，运营旧页面保存必须报冲突，加载最新后可保存 (12.3s)
+  ✓   2 [desktop] › deployment-tests/ops-p1-acceptance.spec.js:198:3 › P1 专项验收（公网） › P1-A 儿童档案：运营改档后，家长旧页面保存必须报冲突，且服务端保留运营的值 (9.2s)
+  ✓   3 [desktop] › deployment-tests/ops-p1-acceptance.spec.js:237:3 › P1 专项验收（公网） › P1-B 题库：标题相近的两份内容各自独立，发布一份不会停用另一份 (11.6s)
+  ✓   4 [desktop] › deployment-tests/ops-p1-acceptance.spec.js:265:3 › P1 专项验收（公网） › P1-B 题库：同名两次创建是两份独立内容，不互相停用 (12.7s)
+  ✓   5 [desktop] › deployment-tests/ops-p1-acceptance.spec.js:286:3 › P1 专项验收（公网） › P1-B 题库：复制为新版本并发布后，只替代同一题库的旧版本 (12.7s)
+  ✓   6 [desktop] › deployment-tests/ops-p1-acceptance.spec.js:321:3 › P1 专项验收（公网） › P1-B 活动：标题相近的两份内容各自独立，发布一份不会停用另一份 (14.8s)
+  -   7 [mobile] › deployment-tests/ops-p1-acceptance.spec.js:145:3 › P1 专项验收（公网） › P1-A 儿童档案：家长改档后，运营旧页面保存必须报冲突，加载最新后可保存
+  -   8 [mobile] › deployment-tests/ops-p1-acceptance.spec.js:198:3 › P1 专项验收（公网） › P1-A 儿童档案：运营改档后，家长旧页面保存必须报冲突，且服务端保留运营的值
+  -   9 [mobile] › deployment-tests/ops-p1-acceptance.spec.js:237:3 › P1 专项验收（公网） › P1-B 题库：标题相近的两份内容各自独立，发布一份不会停用另一份
+  -  10 [mobile] › deployment-tests/ops-p1-acceptance.spec.js:265:3 › P1 专项验收（公网） › P1-B 题库：同名两次创建是两份独立内容，不互相停用
+  -  11 [mobile] › deployment-tests/ops-p1-acceptance.spec.js:286:3 › P1 专项验收（公网） › P1-B 题库：复制为新版本并发布后，只替代同一题库的旧版本
+  -  12 [mobile] › deployment-tests/ops-p1-acceptance.spec.js:321:3 › P1 专项验收（公网） › P1-B 活动：标题相近的两份内容各自独立，发布一份不会停用另一份
+
+  6 skipped
+  6 passed (1.3m)
+退出码: 0
