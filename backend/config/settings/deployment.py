@@ -48,6 +48,11 @@ CSRF_TRUSTED_ORIGINS = list(dict.fromkeys(origins))
 COOKIE_SECURE = parsed.scheme == "https"
 SESSION_COOKIE_SECURE = COOKIE_SECURE
 CSRF_COOKIE_SECURE = COOKIE_SECURE
+# Django 默认发 `Cross-Origin-Opener-Policy: same-origin`，SecurityMiddleware 不看协议。
+# 但 Chrome 只在"可信源"（https 或 localhost）上认可这个响应头：在明文 HTTP 入口上它会
+# 被忽略，并在**每一个页面的控制台打一条错误**，把真正的错误淹掉。所以和上面的
+# COOKIE_SECURE 一样按 scheme 决定——纯 HTTP 入口不发，将来切到 https 自动恢复。
+SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin" if parsed.scheme == "https" else None
 # Only nginx is published; nginx overwrites this header using PUBLIC_ORIGIN.
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SECURE_CONTENT_TYPE_NOSNIFF = True
