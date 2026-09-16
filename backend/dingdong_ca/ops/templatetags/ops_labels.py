@@ -21,6 +21,8 @@ MAPS = {
     "PROFILE_KIND": L.PROFILE_KIND,
     "ASSOCIATION_STATUS": L.ASSOCIATION_STATUS,
     "CHECKPOINT_STATUS": L.CHECKPOINT_STATUS,
+    "CA_ACCOUNT_STATUS": L.CA_ACCOUNT_STATUS,
+    "CA_ACCOUNT_BIND_STATE": L.CA_ACCOUNT_BIND_STATE,
     "SERVICE_KIND": L.SERVICE_KIND,
     "SERVICE_REASON": L.SERVICE_REASON,
     "SERVICE_STATUS": L.SERVICE_STATUS,
@@ -61,6 +63,9 @@ STATUS_TONE = {
     "needs_recapture": "bg-yellow-lt",
     "result_unknown": "bg-yellow-lt",
     "ready": "bg-teal-lt",
+    # CA 账户的绑定状态：待接通是"还没接上"，用提示色而不是错误色
+    "bound": "bg-green-lt",
+    "unbound": "bg-yellow-lt",
 }
 
 

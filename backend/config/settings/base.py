@@ -18,6 +18,18 @@ JWT_SIGNING_KEY = env(
 )
 SMS_MODE = env("SMS_MODE", default="fixed_code")
 INTEGRATION_DATA_SOURCE = env("INTEGRATION_DATA_SOURCE", default="database_fixture")
+
+# --- CA × DingDong 对接（见 设计/CA对接_C1_ca_account_id设计_20260916.md） ---
+# 对外暴露的 CA 账户号前缀。号码形态一经对外发布即冻结，改前缀等于换契约。
+CA_ACCOUNT_ID_PREFIX = env("CA_ACCOUNT_ID_PREFIX", default="ca_")
+# NFC token 只存 HMAC 摘要，明文不落库。未显式配置时由 SECRET_KEY 派生——
+# 够用但换 SECRET_KEY 会让既有摘要失配（家长需重新绑定一次），生产请显式设。
+NFC_TOKEN_HMAC_KEY = env("NFC_TOKEN_HMAC_KEY", default="") or (SECRET_KEY + ":ca-nfc-token")
+# DingDong Data Service。两者留空时客户端显式报"未配置"，不伪造成功。
+DINGDONG_BASE_URL = env("DINGDONG_BASE_URL", default="")
+DINGDONG_API_KEY = env("DINGDONG_API_KEY", default="")
+DINGDONG_TIMEOUT_SECONDS = env.float("DINGDONG_TIMEOUT_SECONDS", default=5.0)
+
 COOKIE_SECURE = env.bool("COOKIE_SECURE", default=APP_ENV == "production")
 if APP_ENV == "production":
     raise ImproperlyConfigured(

@@ -570,7 +570,9 @@ def test_every_openapi_operation_has_a_real_view():
             operations += 1
     # 操作数从 50 增到 51：v0.3.4 给 /children/{child_id} 补上 GET，
     # 家长端在被 409 打回后需要读一次服务端最新档案与修订号（此前只有 PATCH）。
-    assert operations == 51
+    # 51 增到 55：CA 对接的 CA 账户四个操作（列/建、详情、归档）——
+    # 家长绑机器人（NFC 承接）与换机归档要走我们自己服务端的接口。
+    assert operations == 55
 
 
 def test_initial_fixture_tracks_current_questionnaire_and_can_target_fixed_old_session(client):

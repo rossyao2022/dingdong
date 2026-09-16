@@ -6,6 +6,7 @@ from dingdong_ca.core.api import (
     accounts,
     activities,
     assessments,
+    ca_accounts,
     children,
     consents,
     data_requests,
@@ -92,4 +93,8 @@ urlpatterns = [
     path("api/v1/children/<uuid:child_id>/activity-records", activities.records),
     path("api/v1/activity-records/<uuid:record_id>", activities.record_detail),
     path("api/v1/activity-records/<uuid:record_id>/finish", activities.finish),
+    # CA 账户（NFC 承接与换机）：ca_account_id 是不透明字符串，不是 UUID
+    path("api/v1/children/<uuid:child_id>/ca-accounts", ca_accounts.child_accounts),
+    path("api/v1/ca-accounts/<str:ca_account_id>", ca_accounts.account_detail),
+    path("api/v1/ca-accounts/<str:ca_account_id>/retire", ca_accounts.account_retire),
 ]

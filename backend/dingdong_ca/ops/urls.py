@@ -36,6 +36,8 @@ urlpatterns = [
     path("reports/<uuid:report_id>/", views.report_detail, name="report_detail"),
     path("jobs/", views.jobs, name="jobs"),
     path("jobs/<uuid:job_id>/", views.job_detail, name="job_detail"),
+    # CA 账户（只读）
+    path("ca-accounts/", views.ca_accounts, name="ca_accounts"),
     # 服务事项
     path("services/", views.services, name="services"),
     path("services/<uuid:request_id>/", views.service_detail, name="service_detail"),

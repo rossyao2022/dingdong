@@ -17,6 +17,7 @@ from dingdong_ca.core.models import (
     ActivityContentVersion,
     AuditEvent,
     BackgroundJob,
+    CaAccount,
     Child,
     DataRequest,
     Family,
@@ -829,6 +830,51 @@ def audit_log(request):
     )
 
 
+# --------------------------------------------------------------------------- CA 账户
+# 只读页。号码不可在这里代改：换机是家长端的显式两步（先归档旧号，再发新号），
+# 运营只负责看清"哪个孩子对应哪台机器人、接通了没有"。
+
+
+@ops_page("ca_account.view")
+def ca_accounts(request):
+    status, status_error = parse_choice(request.GET.get("status"), L.CA_ACCOUNT_STATUS, "状态")
+    bind_state, bind_error = parse_choice(
+        request.GET.get("bind_state"), L.CA_ACCOUNT_BIND_STATE, "绑定状态"
+    )
+    keyword = parse_keyword(request.GET.get("q"))
+    rows = CaAccount.objects.select_related("child", "family", "bound_by")
+    if status:
+        rows = rows.filter(status=status)
+    if bind_state:
+        rows = rows.filter(bind_state=bind_state)
+    if keyword:
+        rows = rows.filter(
+            Q(ca_account_id__icontains=keyword)
+            | Q(child__name__icontains=keyword)
+            | Q(bound_by__phone__icontains=keyword)
+        )
+    page_obj = paginate(request, rows.order_by("-created_at"))
+    counts = {key: CaAccount.objects.filter(status=key).count() for key in ["active", "retired"]}
+    return render(
+        request,
+        "ops/ca_accounts.html",
+        base_context(
+            request,
+            "ca_accounts",
+            items=page_obj.object_list,
+            page=page_links(request, page_obj),
+            pages=window(page_obj),
+            status=status,
+            bind_state=bind_state,
+            keyword=keyword,
+            filter_problems=[e for e in (status_error, bind_error) if e],
+            counts=counts,
+            unbound=CaAccount.objects.filter(status="active", bind_state="unbound").count(),
+            empty_hint="没有匹配的 CA 账户。家长用机器人 NFC 绑定时才会生成账户号。",
+        ),
+    )
+
+
 # --------------------------------------------------------------------------- 权限不足
 # 权限不足页由 ops.responses 提供；这里不再注册全局 handler，避免影响家长端契约。
 
@@ -844,6 +890,7 @@ __all__ = [
     "activity_new",
     "activity_preview",
     "audit_log",
+    "ca_accounts",
     "child_detail",
     "dashboard",
     "families",

@@ -1,6 +1,7 @@
 from django.contrib import admin
 
 from .admin_actions import ActionPanelMixin
+from .ca_models import CaAccount
 from .models import ActivityContentVersion, ActivityRecord, AuditEvent, Child
 
 
@@ -143,6 +144,26 @@ class ReportAdmin(ReadOnlyAdmin):
 
 for model in [SyncCheckpoint, JobAttempt, ObservationBatch]:
     admin.site.register(model, ReadOnlyAdmin)
+
+
+@admin.register(CaAccount)
+class CaAccountAdmin(ReadOnlyAdmin):
+    # 不把 nfc_token_hash 放进列表与详情：运营不需要凭据摘要。
+    list_display = ["ca_account_id", "child", "status", "bind_state", "bound_at"]
+    fields = [
+        "id",
+        "ca_account_id",
+        "child",
+        "family",
+        "robot_ref",
+        "status",
+        "bind_state",
+        "bound_at",
+        "unbound_at",
+        "created_at",
+        "updated_at",
+    ]
+    search_fields = ["=ca_account_id"]
 
 
 from django.contrib.auth import get_user_model  # noqa: E402

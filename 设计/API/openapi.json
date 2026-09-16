@@ -5625,6 +5625,704 @@
         }
       }
     },
+    "/children/{child_id}/ca-accounts": {
+      "get": {
+        "operationId": "get_children_child_id_ca_accounts",
+        "tags": [
+          "CA 对接"
+        ],
+        "summary": "孩子的 CA 账户列表",
+        "description": "列出该孩子的 CA 账户，含已归档的历史号（家长端「上一台设备」入口用）。只给 NFC token 的短指纹，不给摘要原文。",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "child_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "目标对象 ID，后端必须验证权限与归属",
+              "examples": [
+                "11111111-1111-4111-8111-111111111111"
+              ]
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "上页 next_cursor；首次省略",
+              "examples": [
+                "eyJpZCI6IjEifQ"
+              ]
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "默认 20，最大 100",
+              "examples": [
+                20
+              ],
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "type": "string",
+                  "description": "请求追踪号",
+                  "examples": [
+                    "11111111-1111-4111-8111-111111111111"
+                  ],
+                  "format": "uuid"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaAccounts"
+                },
+                "example": {
+                  "items": [
+                    {
+                      "ca_account_id": "ca_01JC8Z9K3M7QXR2V6TB4NDH5PF",
+                      "child_id": "11111111-1111-4111-8111-111111111111",
+                      "family_id": "11111111-1111-4111-8111-111111111111",
+                      "robot_ref": "DD-ROBOT-0001",
+                      "nfc_token_fingerprint": "9f2c1a4b",
+                      "status": "active",
+                      "bind_state": "unbound",
+                      "bound_at": "2026-09-16T10:00:00Z",
+                      "unbound_at": null,
+                      "created_at": "2026-09-16T10:00:00Z"
+                    }
+                  ],
+                  "next_cursor": null
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "格式错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "登录无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限/用途不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "不存在或不属于当前家庭",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "状态/幂等冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "字段校验失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "请求过频",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "未预期错误，仅安全错误码及追踪号",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "依赖不可用",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "post_children_child_id_ca_accounts",
+        "tags": [
+          "CA 对接"
+        ],
+        "summary": "绑定机器人并建立 CA 账户",
+        "description": "NFC 承接入口：H5 读到 ?nfc_token= 后由家长选定服务的孩子，建立账户号。幂等键为 request_id。同一台机器人重复绑定复用原号（200）；该孩子已有活跃账户且是另一台机器人时返回 409 ACCOUNT_REPLACEMENT_REQUIRED，要求先归档旧号再发新号（换机发新号）。与对方的绑定尚未接通时 bind_state 保持 unbound，不伪造成功。",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "child_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "目标对象 ID，后端必须验证权限与归属",
+              "examples": [
+                "11111111-1111-4111-8111-111111111111"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CaAccountIssue"
+              },
+              "example": {
+                "request_id": "11111111-1111-4111-8111-111111111111",
+                "nfc_token": "NDEF-URI-TOKEN-0001",
+                "robot_ref": "DD-ROBOT-0001"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "已建立新账户",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "type": "string",
+                  "description": "请求追踪号",
+                  "examples": [
+                    "11111111-1111-4111-8111-111111111111"
+                  ],
+                  "format": "uuid"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaAccount"
+                },
+                "example": {
+                  "ca_account_id": "ca_01JC8Z9K3M7QXR2V6TB4NDH5PF",
+                  "child_id": "11111111-1111-4111-8111-111111111111",
+                  "family_id": "11111111-1111-4111-8111-111111111111",
+                  "robot_ref": "DD-ROBOT-0001",
+                  "nfc_token_fingerprint": "9f2c1a4b",
+                  "status": "active",
+                  "bind_state": "unbound",
+                  "bound_at": "2026-09-16T10:00:00Z",
+                  "unbound_at": null,
+                  "created_at": "2026-09-16T10:00:00Z"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "复用现有账户（同一机器人重绑或同 request_id 重放）",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "type": "string",
+                  "description": "请求追踪号",
+                  "examples": [
+                    "11111111-1111-4111-8111-111111111111"
+                  ],
+                  "format": "uuid"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaAccount"
+                },
+                "example": {
+                  "ca_account_id": "ca_01JC8Z9K3M7QXR2V6TB4NDH5PF",
+                  "child_id": "11111111-1111-4111-8111-111111111111",
+                  "family_id": "11111111-1111-4111-8111-111111111111",
+                  "robot_ref": "DD-ROBOT-0001",
+                  "nfc_token_fingerprint": "9f2c1a4b",
+                  "status": "active",
+                  "bind_state": "unbound",
+                  "bound_at": "2026-09-16T10:00:00Z",
+                  "unbound_at": null,
+                  "created_at": "2026-09-16T10:00:00Z"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "格式错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "登录无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限/用途不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "不存在或不属于当前家庭",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "状态/幂等冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "字段校验失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "请求过频",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "未预期错误，仅安全错误码及追踪号",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "依赖不可用",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ca-accounts/{ca_account_id}": {
+      "get": {
+        "operationId": "get_ca_accounts_ca_account_id",
+        "tags": [
+          "CA 对接"
+        ],
+        "summary": "CA 账户详情",
+        "description": "按不透明账户号读取；已归档（retired）的号也可读，用于查看历史。号码不是 UUID，不要按 UUID 解析或推断。",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "ca_account_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "CA 账户号：ca_ + 26 位 ULID，按不透明字符串处理",
+              "examples": [
+                "ca_01JC8Z9K3M7QXR2V6TB4NDH5PF"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "type": "string",
+                  "description": "请求追踪号",
+                  "examples": [
+                    "11111111-1111-4111-8111-111111111111"
+                  ],
+                  "format": "uuid"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaAccount"
+                },
+                "example": {
+                  "ca_account_id": "ca_01JC8Z9K3M7QXR2V6TB4NDH5PF",
+                  "child_id": "11111111-1111-4111-8111-111111111111",
+                  "family_id": "11111111-1111-4111-8111-111111111111",
+                  "robot_ref": "DD-ROBOT-0001",
+                  "nfc_token_fingerprint": "9f2c1a4b",
+                  "status": "active",
+                  "bind_state": "unbound",
+                  "bound_at": "2026-09-16T10:00:00Z",
+                  "unbound_at": null,
+                  "created_at": "2026-09-16T10:00:00Z"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "格式错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "登录无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限/用途不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "不存在或不属于当前家庭",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "状态/幂等冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "字段校验失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "请求过频",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "未预期错误，仅安全错误码及追踪号",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "依赖不可用",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ca-accounts/{ca_account_id}/retire": {
+      "post": {
+        "operationId": "post_ca_accounts_ca_account_id_retire",
+        "tags": [
+          "CA 对接"
+        ],
+        "summary": "归档 CA 账户（换机第一步）",
+        "description": "把账户置为 retired 并记录解绑时间；号码保留可查、永不重用。重复调用返回同一结果。换机流程是显式两步：先归档旧号，再为新机器人建号。",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "ca_account_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "CA 账户号：ca_ + 26 位 ULID",
+              "examples": [
+                "ca_01JC8Z9K3M7QXR2V6TB4NDH5PF"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功（含重复调用）",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "type": "string",
+                  "description": "请求追踪号",
+                  "examples": [
+                    "11111111-1111-4111-8111-111111111111"
+                  ],
+                  "format": "uuid"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaAccount"
+                },
+                "example": {
+                  "ca_account_id": "ca_01JC8Z9K3M7QXR2V6TB4NDH5PF",
+                  "child_id": "11111111-1111-4111-8111-111111111111",
+                  "family_id": "11111111-1111-4111-8111-111111111111",
+                  "robot_ref": "DD-ROBOT-0001",
+                  "nfc_token_fingerprint": "9f2c1a4b",
+                  "bind_state": "unbound",
+                  "bound_at": "2026-09-16T10:00:00Z",
+                  "unbound_at": null,
+                  "created_at": "2026-09-16T10:00:00Z",
+                  "status": "retired"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "格式错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "登录无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限/用途不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "不存在或不属于当前家庭",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "状态/幂等冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "字段校验失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "请求过频",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "未预期错误，仅安全错误码及追踪号",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "依赖不可用",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/children/{child_id}/observations": {
       "get": {
         "operationId": "get_children_child_id_observations",
@@ -12635,6 +13333,128 @@
           "items",
           "next_cursor"
         ]
+      },
+      "CaAccountIssue": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "request_id",
+          "nfc_token"
+        ],
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "幂等键：同一 request_id 重放返回同一账户；内容不一致返回 409"
+          },
+          "nfc_token": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2048,
+            "description": "机器人 NFC 标签上的 token 原文。后端只存 HMAC-SHA256 摘要，明文不落库、不进日志"
+          },
+          "robot_ref": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 64,
+            "description": "对方给的机器人标识，可选"
+          }
+        }
+      },
+      "CaAccount": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "ca_account_id",
+          "child_id",
+          "family_id",
+          "nfc_token_fingerprint",
+          "status",
+          "bind_state",
+          "bound_at",
+          "created_at"
+        ],
+        "properties": {
+          "ca_account_id": {
+            "type": "string",
+            "pattern": "^ca_[0-9A-HJKMNP-TV-Z]{26}$",
+            "description": "不透明账户号；对方不得解析内部结构，我方也不得改其语义"
+          },
+          "child_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "该机器人服务的孩子（一台机器人一个孩子）"
+          },
+          "family_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "robot_ref": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "nfc_token_fingerprint": {
+            "type": "string",
+            "description": "摘要前 8 位，供运营比对是否同一台机器人；无法反推原文"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "retired"
+            ],
+            "description": "本地占用状态：活跃 / 已归档"
+          },
+          "bind_state": {
+            "type": "string",
+            "enum": [
+              "unbound",
+              "bound"
+            ],
+            "description": "与对方的绑定状态；对方未接通时为 unbound，不代表失败"
+          },
+          "bound_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "unbound_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CaAccounts": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CaAccount"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
       }
     }
   }

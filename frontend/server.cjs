@@ -17,6 +17,7 @@ const files = new Set([
   "client.css",
   "app.js",
   "api.js",
+  "ca-link.js",
   "playworld.js",
 ]);
 http

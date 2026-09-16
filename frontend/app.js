@@ -1,4 +1,14 @@
 import * as API from "./api.js";
+import {
+  ACCOUNT_STATUS,
+  BIND_STATE,
+  activeAccount,
+  readNfcToken,
+  readParam,
+  replaceFlowNeeded,
+  retiredAccounts,
+  stripBindingParams,
+} from "./ca-link.js";
 const $ = (s) => document.querySelector(s);
 const esc = (v) =>
   String(v ?? "").replace(
@@ -544,12 +554,14 @@ async function render() {
         head("测评与报告", "初始测评、机器人观察与网页活动分别呈现。") +
         `<div class="grid">${bankCards}${explorationCard}<div class="panel"><div class="card-heading"><h2>${active ? "本次测评尚未结束" : "初始测评"}</h2>${testTag()}</div><p>${active ? esc(statusNames[active.status]) : "正式算法与专业量表尚未接入。当前为日常情境测试题，只验证问卷和报告流程，不作专业结论。"}</p>${active ? button("continue-assessment", "继续本次测评", `data-id="${active.id}"`) : button("begin-assessment", "开始测评")}</div></div>${history.length ? `<section class="panel"><h2>已完成的探索体验</h2>${history.map((s) => button("continue-assessment", esc(s.title) + " · 查看选择", `data-id="${s.id}"`, true)).join("")}</section>` : ""}<h2 style="margin:28px 0 18px">已生成报告</h2>${reportCards(reports.reverse())}<h2 style="margin:30px 0 0">成长观察</h2>${windowForm()}<div class="grid">${observationBlock(overview.robot_observation)}<section class="panel"><h2>阶段画像与变化</h2><p>${{ no_data: "还没有可处理的观察记录。", waiting_rule: "观察已收到，等待发布处理规则。", processing: "正在处理最新观察。", ready: "当前观察已生成阶段画像。", failed: "处理暂未完成，请联系工作人员。" }[overview.stage_status]}</p>${overview.trend.available ? metrics(overview.trend.changes.map((m) => ({ label: m.code, value: m.delta, unit: m.unit }))) : '<p class="notice">目前没有兼容、相邻且等长的两期结果，暂不展示变化。</p>'}<p class="note">网页活动完成数不参与阶段画像计算。</p>${button("refresh", "刷新观察状态", "", true)}</section></div>`;
     } else if (route === "settings") {
-      const [consents, associations, receipts] = await Promise.all([
+      const [consents, associations, receipts, accounts] = await Promise.all([
         API.all(`/children/${child}/consents`),
         API.all(`/children/${child}/associations`),
         API.all("/data-requests"),
+        API.all(`/children/${child}/ca-accounts`),
       ]);
       state.consents = consents;
+      hints.accounts = accounts;
       html =
         head(
           "账户与关联",
@@ -566,7 +578,7 @@ async function render() {
           })
           .join(
             "",
-          )}<p class="note">撤回会阻止后续处理；如果需要清除已有数据，请提交删除事项。</p></section><section class="panel"><h2>机器人数据关联</h2>${
+          )}<p class="note">撤回会阻止后续处理；如果需要清除已有数据，请提交删除事项。</p></section>${robotPanel(accounts)}<section class="panel"><h2>机器人数据关联</h2>${
           associations.some((a) => a.status === "verified")
             ? associations
                 .filter((a) => a.status === "verified")
@@ -607,6 +619,12 @@ async function render() {
     if (tick !== viewEpoch || state.child?.id !== child) return;
     page(html);
     bindForms();
+    // 凭据是在登录之前就取到的：等页面真的渲染出来再弹绑定，
+    // 家长不必自己找入口。只在有凭据时弹一次。
+    if (hints.nfcToken && !hints.nfcPrompted) {
+      hints.nfcPrompted = true;
+      bindRobotDialog(hints.nfcToken);
+    }
   } catch (e) {
     if (tick !== viewEpoch) return;
     if (e.status === 401) {
@@ -633,6 +651,151 @@ function timeline(rows) {
 }
 function receiptList(rows) {
   return `<h3 style="margin-top:28px">处理回执</h3>${rows.length ? rows.map((r) => `<article class="notice"><b>${{ support: "帮助事项", correction: "资料修正", deletion: "儿童数据删除" }[r.kind]} · ${{ open: "待处理", processing: "处理中", completed: "已完成", cancelled: "已取消" }[r.status]}</b><p class="note">提交于 ${date(r.created_at)}${r.completed_at ? " · 处理于 " + date(r.completed_at) : ""}${r.child_id === null ? " · 已不保留儿童标识" : ""}</p></article>`).join("") : "<p>还没有提交过服务事项。</p>"}`;
+}
+/**
+ * 机器人账户（CA 账户）。
+ *
+ * 两个状态维度必须分开说，不许合并成一句「已绑定」：
+ *   status     —— 我方这边这个号还用不用（使用中 / 已归档）
+ *   bind_state —— 对方有没有确认接通（待接通 / 已绑定）
+ * 新号建出来时 bind_state 就是「待接通」，这是正常状态，不是出错，也不能
+ * 为了让界面好看而提前改成「已绑定」。
+ */
+const ROBOT_JOIN_NOTE =
+  "账户号已经生成，但机器人还没有确认接通（显示「待接通」）。在对方确认之前，这台机器人的数据不会开始同步——不用重复提交，也不影响网页陪伴。";
+const ROBOT_REPLACEMENT_IMPACT =
+  "换号之后，DingDong 侧按账户号记录的成长周期和阶段对比不会延续到新号：新号从第一次同步开始重新积累。已经生成的报告按孩子保存，换机后仍然可以查看。";
+
+function accountRow(a) {
+  const active = a.status === "active";
+  const bound = a.bind_state === "bound";
+  // 归档的号不显示接通状态：对方侧那边怎么处置还没定（D20），我们只能保证本地这一半。
+  const tags = active
+    ? `<span class="tag">${esc(ACCOUNT_STATUS.active)}</span><span class="tag${bound ? "" : " warn"}">${esc(BIND_STATE[a.bind_state] || a.bind_state)}</span>`
+    : `<span class="tag muted">${esc(ACCOUNT_STATUS.retired)}</span>`;
+  return `<div class="account-row"><span class="account-role">${active ? "当前机器人" : "上一台机器人"}</span><div class="account-body"><code class="inline-code">${esc(a.ca_account_id)}</code>${tags}<p class="note">机器人指纹 ${esc(a.nfc_token_fingerprint)}${a.robot_ref ? " · 设备标识 " + esc(a.robot_ref) : ""} · 建立于 ${date(a.created_at)}${a.unbound_at ? " · 归档于 " + date(a.unbound_at) : ""}</p></div></div>`;
+}
+function robotPanel(rows) {
+  const active = activeAccount(rows);
+  const retired = retiredAccounts(rows);
+  const detected = hints.nfcToken
+    ? `<div class="notice"><b>收到一台机器人的绑定请求</b><p>链接里带着这台机器人的凭据。确认绑定时凭据只用于这一次，不会留在浏览器地址里。</p><div class="actions">${button("bind-robot", "绑定这台机器人")}${button("drop-nfc", "这次不绑", "", true)}</div></div>`
+    : "";
+  const current = active
+    ? accountRow(active) +
+      (active.bind_state === "bound"
+        ? ""
+        : `<p class="notice">${esc(ROBOT_JOIN_NOTE)}</p>`) +
+      `<div class="actions">${button("replace-robot", "换一台机器人", `data-id="${esc(active.ca_account_id)}"`)}${button("retire-account", "归档这个号", `data-id="${esc(active.ca_account_id)}"`, true)}</div>`
+    : `<p><b>${esc(state.child.name)}</b> 还没有机器人账户号。拿到机器人上的凭据后，点下面的按钮开始绑定。</p>${button("bind-robot", "绑定机器人")}`;
+  const history = retired.length
+    ? `<h3 style="margin-top:26px">上一台机器的账户</h3>${retired.map(accountRow).join("")}<p class="note">旧号归档后不再使用，也永远不会重发给别的机器人。这段时期的报告按孩子保存，在「测评与报告」里仍然看得到。</p>`
+    : "";
+  return `<section class="panel"><div class="card-heading"><h2>机器人账户</h2>${testTag()}</div>${detected}<p>每台机器人配一个账户号，DingDong 侧按这个号交换这台机器人上属于 <b>${esc(state.child.name)}</b> 的观察数据。号由我方生成，对方只做不透明保存。</p>${current}${history}<p class="note">一台机器人只服务一个孩子；同一台机器人再次绑定会复用原来的号，不换号。它与下面的「机器人数据关联」是两件事：账户号是我们给机器人的身份，关联是我们本地确认数据算谁。</p></section>`;
+}
+function bindRobotDialog(token = "") {
+  showDialog(
+    "绑定机器人",
+    `<p>机器人上的标签会带着凭据打开这个页面。确认后，系统会为这台机器人生成一个账户号。</p><form id="bind-robot-form"><label class="field">这台机器人服务的孩子<select name="child_id">${state.children.map((c) => `<option value="${c.id}" ${c.id === state.child?.id ? "selected" : ""}>${esc(c.name)}</option>`).join("")}</select></label><label class="field">机器人凭据<input name="nfc_token" value="${esc(token)}" required maxlength="2048" autocomplete="off" spellcheck="false" placeholder="从机器人标签上取得"></label><p class="note">凭据只用于本次绑定：不保存在浏览器里，也不写进日志。一台机器人只服务一个孩子。</p><button class="button" type="submit">确认绑定</button></form>`,
+  );
+  $("#bind-robot-form").onsubmit = (e) => {
+    e.preventDefault();
+    act(() => submitRobotBinding(e.target), e.submitter);
+  };
+}
+async function submitRobotBinding(form) {
+  const data = formData(form);
+  const token = data.nfc_token;
+  const child = data.child_id;
+  try {
+    const account = await API.request(`/children/${child}/ca-accounts`, {
+      method: "POST",
+      body: {
+        request_id: requestKey("ca-issue:" + child + ":" + token),
+        nfc_token: token,
+        ...(hints.nfcRobotRef ? { robot_ref: hints.nfcRobotRef } : {}),
+      },
+    });
+    keys.delete("ca-issue:" + child + ":" + token);
+    hints.nfcToken = "";
+    hints.nfcPrompted = true;
+    toast(
+      account.bind_state === "bound"
+        ? "这台机器人的账户号已建立并接通。"
+        : "账户号已建立，正在等待机器人确认接通。",
+    );
+    await render();
+  } catch (e) {
+    if (!replaceFlowNeeded(e)) throw e;
+    // 这个孩子已经有另一台机器人的活跃账户：换机是对外可见的两步，
+    // 先让家长看清代价，再归档旧号、发新号。
+    await openReplacement(child, token);
+  }
+}
+async function openReplacement(child, token) {
+  const rows =
+    child === state.child?.id
+      ? hints.accounts || []
+      : await API.all(`/children/${child}/ca-accounts`);
+  const account = activeAccount(rows);
+  if (!account)
+    throw new Error("这个孩子已经有一个账户号，但页面没读到它，请刷新后重试。");
+  hints.replaceChild = child;
+  replaceRobotDialog(account, token);
+}
+function replaceRobotDialog(account, token = "") {
+  hints.replaceAccount = account;
+  showDialog(
+    "换一台机器人",
+    `<p>现在这台机器人（指纹 ${esc(account.nfc_token_fingerprint)}，账户号 <code class="inline-code">${esc(account.ca_account_id)}</code>）会先归档，再为新机器人发一个新号。归档后旧号不再使用。</p><div class="notice error"><b>换号会重新开始</b><p>${esc(ROBOT_REPLACEMENT_IMPACT)}</p></div><form id="replace-robot-form"><label class="field">新机器人的凭据<input name="nfc_token" value="${esc(token)}" required maxlength="2048" autocomplete="off" spellcheck="false" placeholder="从机器人标签上取得"></label><button class="button danger" type="submit">确认换机并归档旧号</button></form>`,
+  );
+  $("#replace-robot-form").onsubmit = (e) => {
+    e.preventDefault();
+    act(() => submitRobotReplacement(e.target), e.submitter);
+  };
+}
+async function submitRobotReplacement(form) {
+  const token = formData(form).nfc_token;
+  const child = hints.replaceChild || state.child.id;
+  const account = hints.replaceAccount;
+  const key = "ca-replace:" + child + ":" + token;
+  // 第一步不可回退：先归档旧号。归档成功之后即使发号失败，也要如实说清
+  // "旧号已归档"，并让家长能用同一凭据补发，而不是含糊地整段重来。
+  await API.request(
+    `/ca-accounts/${encodeURIComponent(account.ca_account_id)}/retire`,
+    { method: "POST", body: {} },
+  );
+  try {
+    const created = await API.request(`/children/${child}/ca-accounts`, {
+      method: "POST",
+      body: {
+        request_id: requestKey(key),
+        nfc_token: token,
+        ...(hints.nfcRobotRef ? { robot_ref: hints.nfcRobotRef } : {}),
+      },
+    });
+    keys.delete(key);
+    hints.nfcToken = "";
+    hints.nfcPrompted = true;
+    toast(
+      created.bind_state === "bound"
+        ? "已换到新机器人，账号已接通。"
+        : "已换到新机器人，正在等待接通。",
+    );
+    await render();
+  } catch (e) {
+    throw new Error(
+      "旧号已经归档，但新号没有建立成功：" +
+        errorMessage(e) +
+        " 请用同一个凭据再提交一次，会为这台机器人补发新号。",
+    );
+  }
+}
+function retireAccountDialog(account) {
+  showDialog(
+    "归档这个账户号",
+    `<p>账户号 <code class="inline-code">${esc(account.ca_account_id)}</code> 会归档，之后不再使用，也不会重新发给别的机器人。</p><p>适合机器人已经不用了的情况。归档后它上面的数据不会再同步进来。要换新机器人请用「换一台机器人」，那会同时归档旧号并发新号。</p><p class="note">对方那边是否同时解除，需要由对方处理，我们在这里无法代为确认。</p><div class="actions">${button("confirm-retire", "确认归档这个号", `data-id="${esc(account.ca_account_id)}"`)}${button("close", "暂不归档", "", true)}</div>`,
+  );
 }
 async function activityDetail(id) {
   currentActivity =
@@ -1250,6 +1413,36 @@ async function handleAction(action, el) {
     case "link-robot":
       await linkRobot();
       break;
+    case "bind-robot":
+      bindRobotDialog(hints.nfcToken || "");
+      break;
+    case "drop-nfc":
+      hints.nfcToken = "";
+      hints.nfcPrompted = true;
+      toast("这次不绑定。凭据已经从地址里去掉。");
+      await render();
+      break;
+    case "replace-robot": {
+      const target = (hints.accounts || []).find((a) => a.ca_account_id === id);
+      if (!target) throw new Error("找不到这个账户号，请刷新后重试。");
+      hints.replaceChild = state.child.id;
+      replaceRobotDialog(target);
+      break;
+    }
+    case "retire-account": {
+      const target = (hints.accounts || []).find((a) => a.ca_account_id === id);
+      if (!target) throw new Error("找不到这个账户号，请刷新后重试。");
+      retireAccountDialog(target);
+      break;
+    }
+    case "confirm-retire":
+      await API.request(`/ca-accounts/${encodeURIComponent(id)}/retire`, {
+        method: "POST",
+        body: {},
+      });
+      toast("这个账户号已归档。");
+      await render();
+      break;
     case "revoke-consent":
       await API.request("/consents/" + id + "/revoke", {
         method: "POST",
@@ -1357,6 +1550,15 @@ channel?.addEventListener("message", (e) => {
 });
 window.addEventListener("pagehide", stopWork);
 async function boot() {
+  // NFC 标签把凭据放在 URL 里：先取下来，再从地址栏摘掉。留在地址栏的凭据
+  // 会被浏览历史、截图、转发出去的链接一起带走。
+  const nfcToken = readNfcToken(location.href);
+  if (nfcToken) {
+    hints.nfcToken = nfcToken;
+    hints.nfcRobotRef = readParam(location.href, "robot_ref");
+    hints.nfcPrompted = false;
+    history.replaceState(null, "", stripBindingParams(location.href));
+  }
   try {
     state.runtime = await API.request("/runtime", { auth: false });
     $("#environment").textContent =

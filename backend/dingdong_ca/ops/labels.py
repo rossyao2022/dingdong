@@ -81,6 +81,17 @@ CHECKPOINT_STATUS = {
     "paused": "已暂停",
 }
 
+# CA 账户：本地占用状态与「与对方的绑定状态」是两件事，不要合成一个词
+CA_ACCOUNT_STATUS = {
+    "active": "使用中",
+    "retired": "已归档",
+}
+
+CA_ACCOUNT_BIND_STATE = {
+    "unbound": "待接通",
+    "bound": "已绑定",
+}
+
 SERVICE_KIND = {
     "support": "家长求助",
     "deletion": "数据删除申请",
@@ -254,6 +265,9 @@ AUDIT_ACTION = {
     "activity.start": "家长开始活动",
     "association.verify": "核验伙伴关联",
     "association.revoke": "撤回伙伴关联",
+    # CA 对接：家长绑机器人时建号，换机时归档旧号
+    "ca_account.create": "建立 CA 账户",
+    "ca_account.retire": "归档 CA 账户",
 }
 
 # 审计 detail 里的字段名 -> 运营看得懂的说法
@@ -325,6 +339,7 @@ TARGET_KIND = {
     "consent_grant": "授权记录",
     "activity_record": "活动记录",
     "profile_snapshot": "画像快照",
+    "ca_account": "CA 账户",
 }
 
 
