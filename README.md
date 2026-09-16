@@ -4,22 +4,22 @@
 
 先看 [文档索引](文档/文档索引.md)：当前运行说明、历史设计和原始材料已分开整理。[文档完整性与链接校验](文档/文档处理记录_20260912.md)。
 
-M5 已加入后台可视化题库、探索/测评用途区分、可读测试内容与真实浏览器验收；98 项后端测试、9 个真实 Chrome 场景通过，当前 50 个 API 操作。家长端本地入口 http://127.0.0.1:4173 ，[前端启动说明](frontend/README.md)。[运行说明](/Users/yihu/Documents/ChatGPT/叮咚/backend/README.md)、[测试用例计划](/Users/yihu/Documents/ChatGPT/叮咚/backend/docs/TDD_CASES.md)、[最新验收记录](/Users/yihu/Documents/ChatGPT/叮咚/backend/docs/M5_RESULT.md)。
+M5 已加入后台可视化题库、探索/测评用途区分、可读测试内容与真实浏览器验收；98 项后端测试、9 个真实 Chrome 场景通过，当前 50 个 API 操作。家长端本地入口 http://127.0.0.1:4173 ，[前端启动说明](frontend/README.md)。[运行说明](backend/README.md)、[测试用例计划](backend/docs/TDD_CASES.md)、[最新验收记录](backend/docs/M5_RESULT.md)。
 
-前后端接口契约：[交互规范、OpenAPI 与初始化测试数据](/Users/yihu/Documents/ChatGPT/叮咚/设计/API/前后端交互规范_V0.1.md)。
+前后端接口契约：[交互规范、OpenAPI 与初始化测试数据](设计/API/前后端交互规范_V0.1.md)。
 
-一期功能与联调：[后台/前端功能、API及业务闭环评估](/Users/yihu/Documents/ChatGPT/叮咚/设计/一期功能_API与业务闭环_V0.1.md)。
+一期功能与联调：[后台/前端功能、API及业务闭环评估](设计/一期功能_API与业务闭环_V0.1.md)。
 
-数据库设计：[表结构 V0.1（字段、关联、约束与 ER 图）](/Users/yihu/Documents/ChatGPT/叮咚/设计/数据库表结构_V0.1.md)。
+数据库设计：[表结构 V0.1（字段、关联、约束与 ER 图）](设计/数据库表结构_V0.1.md)。
 
-历史后台设计：[V0.2：脚手架与一期菜单权限](/Users/yihu/Documents/ChatGPT/叮咚/设计/后台总体设计_V0.2.md)。
+历史后台设计：[V0.2：脚手架与一期菜单权限](设计/后台总体设计_V0.2.md)。
 
 从飞书“姚易【叮咚机器人】”归档，导出日期2026-09-09。
 
-历史参考需求依据：[一期核心需求与参考代码差距](/Users/yihu/Documents/ChatGPT/叮咚/需求/一期核心需求与代码差距_20260911.md)（2026-09-11，结合原讨论与最新仓库）。
+历史参考需求依据：[一期核心需求与参考代码差距](需求/一期核心需求与代码差距_20260911.md)（2026-09-11，结合原讨论与最新仓库）。
 
 
-历史材料判断可看[项目分析](/Users/yihu/Documents/ChatGPT/叮咚/项目分析.md)，再查[材料清单](/Users/yihu/Documents/ChatGPT/叮咚/材料清单.md)。
+历史材料判断可看[项目分析](项目分析.md)，再查[材料清单](材料清单.md)。
 
 - `材料/附件/`：飞书中的3份Word、2份Excel原文件。
 - `材料/文档/`：飞书主文档的Markdown和Word导出。

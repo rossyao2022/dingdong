@@ -27,7 +27,7 @@ Running 1 test using 1 worker
       15 |   await page.reload();
       16 |   await expect(page.getByRole('heading', { name: '好奇心，准备出发！' })).toBeVisible();
       17 |   await page.locator('#main-nav').getByRole('link', { name: '今日陪伴', exact: true }).click();
-        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/deployment-tests/http-profile.spec.js:14:66
+        at frontend/deployment-tests/http-profile.spec.js:14:66
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     test-results/http-profile-public-HTTP-l-aa7cf--survive-missing-randomUUID/test-failed-1.png

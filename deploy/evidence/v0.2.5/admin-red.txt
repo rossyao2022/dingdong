@@ -27,7 +27,7 @@ Running 2 tests using 1 worker
       10 |   await expect(page.locator('.errornote')).toBeVisible();
       11 | });
       12 |
-        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/deployment-tests/admin-login.spec.js:9:37
+        at frontend/deployment-tests/admin-login.spec.js:9:37
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     test-results/admin-login-admin-login-submits-with-CSRF-validation-on-HTTP-desktop/test-failed-1.png
@@ -49,7 +49,7 @@ Running 2 tests using 1 worker
       10 |   await expect(page.locator('.errornote')).toBeVisible();
       11 | });
       12 |
-        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/deployment-tests/admin-login.spec.js:9:37
+        at frontend/deployment-tests/admin-login.spec.js:9:37
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     test-results/admin-login-admin-login-submits-with-CSRF-validation-on-HTTP-mobile/test-failed-1.png

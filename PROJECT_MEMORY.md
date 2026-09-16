@@ -1,12 +1,14 @@
 # 叮咚项目记忆与会话交接
 
-最后更新：2026-09-14 14:20，Asia/Shanghai。适用于本目录中的后续会话。本文记录已核对事实，不代替代码和最新用户指令。
+最后更新：2026-09-16 23:55，Asia/Shanghai。适用于本目录中的后续会话。本文记录已核对事实，不代替代码和最新用户指令。
 
 ## 当前结论与最近工作
 
+**最近一轮工作：CA 对接 C1「`ca_account_id`」从设计落地为可运行系统（2026-09-16 晚，用户「你能不能直接干完」）。** 状态：**已实现、已测试，未部署、未发版**——线上仍是 v0.3.6，生产库没有 `0008` 迁移。已落地的部分：`CaAccount` 模型 + 迁移 `0008`（两个状态维度 `status`/`bind_state`，6 条约束）、发号器与生命周期服务（ULID / HMAC 摘要 / 幂等建号 / 同机复用同号 / 异机 409 换机信号 / 归档）、家长端 4 个接口、出站 DingDong 客户端骨架（未配置时显式报"未配置"，不伪造成功）、家长端 NFC 承接与换机界面（凭据读完即从地址栏摘掉，只留内存）、运营后台只读页「CA 账户」。**当前本地回归：后端 266 项、前端单测 16 项、家长端真实 Chrome 4 项全绿；openapi 55 operations / 65 schemas，`scripts/audit_documents.py` errors 为空。** 仍未做的三件：**8 个出站接口**（缺 D10 base URL / D12 key）、**换机的"主动解绑"分支**（缺 D20）、**人设 / 成长报告 / 健康度四态 / 复测 CTA 四个展示面**。设计与判定标准见 [设计/CA对接_C1_ca_account_id设计_20260916.md](设计/CA对接_C1_ca_account_id设计_20260916.md) §7；实现细节与五个环境坑见本文末尾「C1 `ca_account_id` 落地实现」。
+
 项目已完成 M1–M5 自有业务实现、M6 运营后台（`dingdong_ca.ops`），并已把运营后台部署到 tigery、通过上海公网入口完成真实浏览器验收。**当前线上版本 0.3.6**：家长端 http://110.42.225.196/dingdong/ ，运营后台 **http://110.42.225.196/ops/** ，Django 后台 /admin/ 。v0.3.6 是**运营后台界面改版**（本地化 Tabler 组件体系 + 25 个页面统一外壳 + 静态资源 `?v=` 缓存击穿 + 明文入口 COOP 静音），见本文末尾「运营后台 v0.3.6：界面改版（2026-09-14）」；交付说明 [deploy/OPS_CONSOLE_UI_20260914_V036.md](deploy/OPS_CONSOLE_UI_20260914_V036.md)。上一轮 v0.3.5 的交付见「运营后台 v0.3.5：家长端档案冲突保留输入并提供可恢复路径（2026-09-14）」。
 
-最新验证记录（v0.3.6）：后端237项通过、部署配置9项通过、ruff通过、前端check与单测3项通过、本地浏览器8项通过；**公网真实Chrome**：冲突恢复5通过/5跳过、P1专项6通过/6跳过、运营后台回归15通过/7跳过，合计26通过/18跳过/0失败；公网逐页体检25个页面全部通过、「裸控件」由改版前67个降为0。桌面及390×844移动视口已测，不能称为真实手机硬件验收。此前 v0.3.5 记录：后端237项、部署8项；公网冲突恢复+P1专项11通过、运营后台回归15通过。
+最新验收记录（v0.3.6 发布轮）：后端237项通过、部署配置9项通过、ruff通过、前端check与单测3项通过、本地浏览器8项通过；**公网真实Chrome**：冲突恢复5通过/5跳过、P1专项6通过/6跳过、运营后台回归15通过/7跳过，合计26通过/18跳过/0失败；公网逐页体检25个页面全部通过、「裸控件」由改版前67个降为0。桌面及390×844移动视口已测，不能称为真实手机硬件验收。此前 v0.3.5 记录：后端237项、部署8项；公网冲突恢复+P1专项11通过、运营后台回归15通过。**2026-09-16 的 CA 轮不减这些记录：它只改本地代码与文档，线上未动。**
 
 - [M5实现与外部边界](backend/docs/M5_RESULT.md)
 - [最近启动复验](frontend/docs/UI_FUNCTIONAL_20260912.md)、[原始Chrome日志](frontend/docs/ui-functional-20260912.txt)
@@ -19,9 +21,9 @@
 - 短信验证码固定为字符串 `00000`，保留真实挑战、限频、消费、JWT与权限流程。它是非生产测试模式，不接真实短信。
 - 其他API不得mock。base/mock初始化输入，外部缺失依赖使用数据库fixture，通过真实API/Worker生成业务结果；不直接插入成品报告、完成记录来冒充闭环。
 - 不采集、不留存真实指纹。当前测评测试只接受五张确定性合成PNG，经有界内存处理；不得把图片、可重建特征或相关凭据写入数据库、缓存、日志或队列。
-- CA主动获取DingDong数据。没有DingDong调用CA的入口，不下发画像、配置或任务；旧材料中的双向方案已撤销。
+- **我们是 CA 侧**（2026-09-16 用户更正：「我们是CA侧」）。DingDong 是提供 Data Service 的对接方。CA 主动获取 DingDong 数据——新对接文档把它落成 8 个 `/api/v1/ca/*` **出站调用**（请求头带 `X-API-Key`、全部走 HTTPS）；没有 DingDong 调用 CA 的入口，也不接收推送。我们只有 `bind` 与复测回写两个契约内写操作，**不下发画像、配置或任务**，该边界不变。详见[已确认约束](需求/后台设计已确认约束.md)首节。
 - 题库由运营逐题维护，不要求JSON或数据库操作。已发布/停用版本内容不可原地修改；旧答卷固定创建时版本。
-- 探索体验与正式测评流程测试分开。探索只记录本次选择，不编造天赋、能力分数或专业结论。所有体验/测试内容须明确标注。
+- 探索体验与正式测评流程测试分开。探索只记录本次选择，不编造天赋分、能力分或专业结论。**（2026-09-16 复核，此前一度记反）**：CA 对接文档里的**八维成长代理**（`*_growth`，0–100）、`match_score`、`health_score` **全部由 DingDong 侧产出**，我们只读取并展示，**不由我们产出**——因此旧 demo 边界「不产出天赋或能力分数」**无需松动**。所有体验/测试内容须明确标注。
 - 保留参考项目视觉风格。关键测试先行，功能实现后做必要回归和真实浏览器检查；桌面和移动视口均关注。常规实现自行决定，实质阻塞才询问。
 
 权威约束来源：[已确认约束](需求/后台设计已确认约束.md)。新用户明确指令优先；历史分析中的建议不是用户批准的新范围。
@@ -47,7 +49,7 @@
 
 ## 运行与续接
 
-工作区：`/Users/yihu/Documents/ChatGPT/叮咚`。原生JS前端，Django/DRF后端，PostgreSQL、Redis、Celery Worker/Beat。依赖以backend/uv.lock和frontend/package-lock.json为准。
+工作区：本仓库根目录。原生JS前端，Django/DRF后端，PostgreSQL、Redis、Celery Worker/Beat。依赖以backend/uv.lock和frontend/package-lock.json为准。
 
 - 家长端：`http://127.0.0.1:4173/`，`npm --prefix frontend run dev`。
 - 后台：`http://127.0.0.1:8017/admin/`，题库在 `/admin/core/questionnaireversion/`。无默认工作人员密码，不能使用测试结束已停用的临时账号。
@@ -83,7 +85,13 @@ npm --prefix frontend run dev
 
 参考仓库：参考代码/dingdong，已核对HEAD为d754a5bf9ea8e71ca64a850d2e26aa321fe8ab38，未在本轮fetch远端。2026-09-09项目分析针对更旧的TalentRadar网页，不能把其随机评分问题套用到当前实现。
 
-根目录Git工作区已建立发布分支基线：v0.2.0 至 v0.3.6 各有 `codex/release-v<版本>` 分支与 `v<版本>` 标签，最新为 `codex/release-v0.3.6`。原始材料（`材料/`、`参考代码/`、`项目分析.md`、`材料清单.md` 等）仍是 untracked，不要把 untracked 当作可以清理的垃圾；先核对状态，不能 git clean、reset 或覆盖现有实现。参考仓库是独立仓库。**没有 Git remote，未推送。**
+根目录Git工作区已建立发布分支基线：v0.2.0 至 v0.3.6 各有 `v<版本>` 标签（全部保留）。**2026-09-17 清理**：12 个已合并的 `codex/release-v0.2.0`…`v0.3.5` 分支已删除（都 `--merged` 进 HEAD，标签不动），**当前只剩工作分支 `codex/release-v0.3.6`**——`deploy/package.py` 会**校验当前分支名必须等于 `codex/release-v<VERSION>`**，改名会挡住打包，所以这个分支名不能动。原始材料（`材料/`、`参考代码/dingdong/`）是本地输入、**不进库**，2026-09-16 起已由根 `.gitignore` 显式排除；`frontend/docs/`（前端验收截图与本机记录约 15MB）**2026-09-17 起也移出版本库、只在本机留存**，正式证据仍以 `deploy/evidence/**` 为准。`项目分析.md`、`材料清单.md`、`参考代码/来源说明.md` 是我们自己的文档，随本轮一并入库。**不要把 untracked 当作可以清理的垃圾**，也不能 `git clean`、`reset` 或覆盖现有实现。
+
+**路径写法（2026-09-17 统一）**：文档与证据里**不再写 `/Users/<本机账号>/...` 绝对路径**；Markdown 链接写成相对文档所在目录的形式（`../设计/x.md`），日志/堆栈写成从仓库根起的路径（`backend/tests/x.py:6`）。本次一次改写了 26 个文件（约 108 处，含 `%E5%8F%AE%E5%92%9C` 这种 URL 编码形式）；改写后 `scripts/audit_documents.py` 仍是 78 篇 / 495 链接 / `errors: []`。后续照这个写法维护。
+
+**凭据边界（2026-09-16 起写进 `.gitignore`）**：`.env` / `.env.*`（`.env.example` 例外）、`*.pem` / `*.key` / `*.p12`、`**/*creds*.env`、`**/credentials*.json`、`**/dd-ops-*.env`、`**/*-creds.sh`、SSH 私钥一律不进库；验收凭据只经环境变量传递（`frontend/deployment-tests/`）。已复核：跟踪文件里**没有**明文口令或密钥（`deploy/evidence/acceptance-round-20260915/prepare-accounts.py` 从 `os.environ["DD_PW"]` 取值），`deploy/.env`（360B/600）始终被忽略。
+
+`材料/` 是**对方提供的第三方文档与网页归档**（约 45MB），`参考代码/dingdong/` 是外部参考仓库快照（HEAD `d754a5bf9ea8e71ca64a850d2e26aa321fe8ab38`）——两者都不进库。**根仓库此前没有 Git remote、从未推送**；参考仓库 `rossyao2022/dingdong` 是**公开的原型演示仓库**（我们对其只有 `pull` 权限），与本仓库历史无关——两边没有共同祖先（本仓库根提交 `2a01b74`，对方最新 `d754a5bf` 在本仓库里不存在），所以**不存在能算得出 diff 的 PR 路径**，不能向它提 PR。详见本文末尾「推送记录」。
 
 ## 仍需外部确认与下一次开始方式
 
@@ -299,3 +307,72 @@ npm --prefix frontend run dev
 - 在容器里**按路径执行**脚本（`python /tmp/x.py`）时 `sys.path[0]` 是脚本所在目录，而容器里 `config` 包只在 `/app`，会报 `ModuleNotFoundError: No module named 'config'`。加 `-w /app -e PYTHONPATH=/app`。脚本若自己要 import Django 模型，需自带 `django.setup()` 引导（`cleanup-acceptance-data.py` 已加）。
 
 **未做/受限**：本轮**尚无独立第三方审计**（v0.3.3/v0.3.4/v0.3.5 各有独立验收报告）；公网仍是**明文 HTTP**（HTTPS 未启用，`*_COOKIE_SECURE` 为 False；切 https 需重新验收）；移动端只验到 390×844；"裸控件 = 0"是结构指标，不等于逐像素审美验收。
+
+
+## v0.3.6 界面独立抽验（2026-09-14）
+
+本轮HEAD 40382c9，线上0.3.6健康。确认实际本地化Tabler组件接入；真实Chrome登录/表单页面桌面及390px窄屏截图人工检查，层级及控件统一、无整页溢出、无脚本错误。公网基础只读交互回归8项通过（56.9秒），部署配置9项通过。未重跑所有25页面与全部业务写操作，不把历史交付数字算作本轮。
+
+本轮界面抽查及基础功能通过；内置浏览器创建tab仍超时，用户要求的内置浏览器逐项演示尚未完成。报告及截图：[界面独立验收](deploy/OPS_UI_INDEPENDENT_REVIEW_20260914.md)。本轮无代码和部署改动，临时工作人员已停用，无家庭业务资料修改。
+
+
+## v0.3.6 全量功能验收（2026-09-15，逐项演示）
+
+按运营实际工作流把后台每个功能真的走一遍（13 项：登录/退出、首页导航、家庭与儿童、跨入口冲突恢复、题库全流程、活动全流程、内容独立性、报告与失败任务重试、服务事项、账号权限、审计、通用交互与视觉、家长端回归）。**线上仍是 0.3.6，本轮没有发现产品缺陷，因此未改运行代码、未发新版、未改迁移（仍 0007）。**
+
+**结论与证据**：[逐项演示记录](deploy/OPS_FULL_ACCEPTANCE_20260915.md)；真实 Chrome（Playwright `channel: chrome`）打公网入口，`14 passed / 12 skipped / 0 failed`（跳过全是桌面/窄屏视口分工）；逐项 `操作—预期—实际` 在 [tour-log.jsonl](deploy/evidence/acceptance-round-20260915/tour-log.jsonl)（31 行全 ok），关键截图 44 张在 `deploy/evidence/acceptance-round-20260915/shots/`；脚本 `frontend/deployment-tests/ops-demo-tour.spec.js`（新增，未跟踪）。既有公网回归同时复跑：`parent-conflict-recovery + ops-p1-acceptance` = **11 passed / 11 skipped / 0 failed**（[public-browser-regression.txt](deploy/evidence/acceptance-round-20260915/public-browser-regression.txt)）。
+
+**内置浏览器逐项演示 = 未完成（工具阻塞，必须如实保留）**：本会话 `cua.createBrowserTab` / `cua.getState` / `open_in_codex` 均为 **"is not available in the current environment"（工具未注册）**，与前几轮的"调用超时/返回 queued"不同。已按用户要求只做有限次尝试、未反复重试；原始记录 [inner-browser-probe.txt](deploy/evidence/acceptance-round-20260915/inner-browser-probe.txt)。**所有截图来自真实 Chrome，明确标注为外部 Chrome，没有冒充内置浏览器演示；该交付项不以外部 Chrome 或历史结果替代后宣布完成。**
+
+**本轮测试修正（都是新写脚本自身的问题，非产品缺陷，全部处理并复验）**：报告页按钮是"查询"不是"筛选"；新建账号后落在**详情页**而非列表且列表分页（改用 `?q=` 搜索定位）；审计非法日期断言拿到 403 是因为脚本当时还是 `content` 会话（该角色无 `audit.view`）——**这个 403 恰好证明权限拦截在服务端生效**；404 断言用正文精确文案"没有找到这条记录"（面包屑另有措辞）；家长端窄屏侧栏隐藏，改为等 `#main[aria-busy!=true]`；确认弹窗截图要选**他人**账号行（自己那行没有"停用自己"按钮）。**失败任务只能重试一次、服务事项只能处理一次是一次性状态变更**，整轮重跑必须重新准备隔离对象（本轮共备 3 份）。
+
+**测试数据与清理**：隔离对象用真实家长 API 建（前缀 `演示验收儿童*`）+ 容器内 `inject_fixture --scenario report_retry` 注入失败任务 + 真实 API 提交 support 服务事项；临时账号 `acptdemo_admin/operator/content` 与演示中新建的 `acptdemo_tmp*`。清单与脚本在 `deploy/evidence/acceptance-round-20260915/`（`prepare-accounts.py` / `prepare-data.py` / `probe-acceptance-data.py` / `cleanup-acceptance-data.py`）。清理沿用"只做状态变更、不物理删除、补写审计"（[cleanup-run.txt](deploy/evidence/acceptance-round-20260915/cleanup-run.txt)）：**在册家庭 21→10、在册儿童 14→3、已发布题库 19→2、已发布活动 11→8、启用工作人员 8→1、启用家长 21→10**，精确回到稳态基线（家庭 10 / 儿童 `合成儿童1`·`合成儿童2`·`小易` / 题库 `exploration`·`initial-assessment` / 活动 `test-activity-0..7` / 工作人员 `dingdong_admin` / 家长 10）。状态变更明细：儿童归档 11、家庭关闭 11、题库退役 17、活动退役 3、账号停用 18、补写审计 49（1117→1166，未删记录）。清理前计数减本轮新增量逐项等于基线 → **本轮新增对象已全部识别、无漏项**；清理后公网 `/ops/` 302、`/dingdong/` 200、`/admin/` 302，服务正常。真实家庭与更早轮次历史数据未动。
+
+**未做/受限**：内置浏览器逐项演示（见上）；本轮不重跑后端 237 项与部署层 9 项（无运行代码改动，不记作本轮新通过）；公网仍明文 HTTP；移动端只验到 390×844。
+
+
+## CA 对接文档 V1.0 到货（2026-09-16，仅分析未动代码）
+
+**用户决定一：全部约束遵循新的对接文档**（2026-09-16）。
+**用户决定二：我们是 CA 侧**（2026-09-16 用户更正「我们是CA侧」）。→ DingDong 是提供 Data Service 的对接方；文档里的 8 个 `/api/v1/ca/*` 是**我们要发起的调用**，7 个实体是**对方的数据模型**，`growth_v1`/`pw_v1` **由对方定义、我们只消费**。判定依据：文档表 12「**CA Backend** 请求头携带 `X-API-Key`」、表 13「**CA** 建议处理」、表 14「**CA 开发验收清单**」、第 11 章「**CA 侧**最小实现范围」；仓库侧 `ExternalAssociation.provider="dingdong"`、一期 P0-04「把画像发送给 DingDong」、前端是 CA 的 TalentRadar/CareerAcademy 血统。本文档首节原按 DingDong 立场写的部分已更正。
+
+已记入[已确认约束](需求/后台设计已确认约束.md)首节。**更正后不需要推翻任何既有约束**：「CA 主动获取 DingDong 数据」正是这 8 个接口的落地；「不下发画像/策略/任务」与「不接收推送」仍成立（我们只有 `bind` 与复测回写两个契约内写操作）；demo 边界「探索体验不产出天赋或能力分数」**无需松动**（八维成长代理、`match_score`、`health_score` 全部由对方产出，我们只展示）。指纹不留存、不采年级、`00000` mock 等继续有效。这是**约束层**决定，不等于已定排期或已通过验收。
+
+DingDong 交付的两份对接材料放在 `材料/文档/`（**不在 2026-09-09 那 5 个原始附件内**，到货即只读权限）：
+
+- `DingDong_CA_系统开发文档.docx`（221752B，sha256 `3a717c375245…`）——《DingDong × CA 系统开发接口文档》V1.0（CA 开发对接版），11 章 15 表：系统边界、架构、NFC 绑定、6 实体、字段、REST 清单、时序、复测机制、鉴权与错误码、**CA 开发验收清单**。
+- `DingDong_CA_数据库字段与接口.xlsx`（20841B，sha256 `e759a91b91e2…`）——7 表：开发说明、数据库表单、**80 字段定义**、CA查询接口、3 段 JSON 示例、**6 个 mock 账号**、**H01–H07 复测规则 + 5 个可配置参数**。
+
+已归档可检索文本 `材料/可检索文本/DingDong_CA_{系统开发文档,数据库字段与接口}.md`；`材料清单.md` 新增「2026-09-16 新增材料」一节（未改写 09-09 的缺失记录）。完整影响分析见 [`需求/CA对接文档V1.0_影响分析_20260916.md`](需求/CA对接文档V1.0_影响分析_20260916.md)。
+
+**核心结论（只读比对，未改运行代码/未改库/未部署）**：
+
+- **8 个接口全部是我们要发起的出站调用，目前一个都没实现**：`dingdong_ca` 里**没有任何出站 HTTP 客户端**（无 `requests`/`httpx`/`urlopen`），没有 `X-API-Key`，没有 `/api/v1/ca/*` 调用，没有 `{code,message,request_id}` 解析。我们现有的 44 条路径全是**我们自己服务端的** API（以 `child_id` 为键、面向家长端与运营后台）。
+- **7 个实体是对方的**：`ca_user_profile` 我们各持一份（字段要按对方口径对齐），`persona_public_view`/`user_persona_binding`/`growth_period`/`persona_health`/`reassessment_event`/`companion_snapshot` **我们只读，不建表、不实现引擎**。全仓检索 `learning_style`/`interest_primary`/persona/growth_period 等**全部无命中**。
+- **四个真实缺口（都在我们这一侧）**：① 没有 `ca_account_id`（我们只有 `child_id` 与家长账号）；② **`nfc_token` 全仓零命中**，NFC 入口承接完全缺失；③ 没有 DingDong 客户端；④ 人设 / 15-30 天成长报告 / 健康度四态 / 复测 CTA 与回写四个展示面全无。另有既有 `ExternalAssociation`(`provider="dingdong"`) + `SyncCheckpoint(cursor)` + `ObservationBatch` 这套按一期 P0-04/P0-05 双向设计的老集成层，与新契约（人设/成长/健康度/复测四类聚合结果）的取舍需定。
+- **`ca_user_profile` 字段口径不符**：对方要 `learning_style`、`interest_primary/secondary`、8 个 `*_score`、`assessment_time`、`assessment_id`、`profile_version`、`is_current`；我们的 `ProfileSnapshot(child, kind, result JSONB, schema_version, produced_at)` 分数埋在 JSON 里，无 `is_current`、无兴趣/学习风格字段。
+- **链路硬要求**：调用对方必须 **HTTPS + `X-API-Key`**，并按文档表 13 处理 7 个业务码（`42901` 延时重试、`40101` 停调告警、`40401` 当"暂无数据"）；绑定与复测回写要带 `request_id` 做幂等。**第一版说"公网明文 HTTP 与 HTTPS 要求硬冲突"是误判**——该条约束的是我们要调用的对方端点，不是我方入口。
+- **版本与算法归属（2026-09-16 用户明确「`growth_v1` / `pw_v1` 都由 DingDong 侧定义」）**：`growth_v1`（`growth_period.algorithm_version`）与 `pw_v1`（`persona_public_view.talent_weight_version`）**由对方定义**，我们只消费、存储、展示，**不定义、不实现、不得改名**。人设清单与八维成长代理同样归对方。第一版把它反记成"由我们定义实现"，已更正。
+- **两份文档自身有 4 处不一致**：接口 8(docx) vs 7(xlsx，无 account/bind)；实体 6(docx) vs 7(xlsx，多 `companion_snapshot`)；错误码只在 docx；`message` 在 xlsx 示例②③ 缺失。另 xlsx 有 8 处内部问题（7 个 datetime 示例存成 Excel 日期序列号、空值三种写法混用、`interest_*` code 表未定义、表 11 出现 `switch_candidate`/`keep_current` 但表 8 的 `status` 枚举里没有）。**最大缺口：`ca_user_profile` 标着"CA 写入"、表 0 说"DingDong 读取画像进行人设匹配"，但 8 个接口里没有提交画像的接口**，首次测评画像走什么通道没有定义。
+- **建议顺序（CA 侧）**：**C0 向 DingDong 提 20 个澄清问题——已完成，清单见 [`需求/CA-DingDong_对接澄清清单_V1.0_20260916.md`](需求/CA-DingDong_对接澄清清单_V1.0_20260916.md)（P0 七项已标优先级、带回复模板与可复制邮件正文，待发出）** → **C1 定 `ca_account_id` 形态——已定案（2026-09-16 用户：「账户级就可以了　一台机器人一个号」），设计见 [`设计/CA对接_C1_ca_account_id设计_20260916.md`](设计/CA对接_C1_ca_account_id设计_20260916.md)：账户级、机器人:号=1:1、`ca_`+26 位 ULID、生成后永不变不回收、跨设备稳定、对外不透明；载体是新表 `CaAccount`（`ca_account_id` / `nfc_token_hash`(不落明文) / `family` / `child` / `status`），因为现有 44 条 API 以 `child_id` 为键而 8 条对外调用以 `ca_account_id` 为键，两键域只能靠这张表建立唯一映射。其中 3 项决定已全部定案（另 2 项同日追加：「**一台机器人服务一个孩子**」→ `child` 必填 FK、账户:孩子=1:1；「**换机发新号**」→ 号码跟机器走不跟孩子走，旧号置 `retired` 归档永不重用，**已知代价是换机后对方侧 `growth_period`/复测事件无法延续、成长报告重新开始**，缓解为换机确认弹窗 + 我方保留旧号只读历史入口 + 旧号永久保留）** → C2 DingDong 客户端（HTTPS + `X-API-Key` + 业务码 + 幂等）→ C3 画像字段对齐与通道 → C4 NFC 承接 → C5 四个展示面 → C6 复测回写闭环 → C7 用 6 个 mock 账号逐条对表 14 的 10 项验收清单。
+
+## C1 `ca_account_id` 落地实现（2026-09-16，用户「你能不能直接干完」）
+
+**已实现的运行代码**（C1 从设计变成可运行系统；`deploy/` 与线上版本**未动**，未部署未发版）：
+
+- 模型与迁移：`backend/dingdong_ca/core/ca_models.py`、`core/migrations/0008_caaccount.py`。两个状态维度刻意分开——`status`(active/retired，我方用不用) 与 `bind_state`(unbound/bound，对方接通没接通)，**不许合并成一句"已绑定"**。四条约束：`ca_account_create_unique`(bound_by+request_key 幂等)、`ca_account_one_active_robot`(nfc_token_hash 条件唯一)、`ca_account_one_active_child`(child 条件唯一)、以及 3 个 check 约束。`nfc_token_hash` **不做无条件唯一**，唯一性挂在 `status='active'` 上。
+- 服务层：`core/services/ca_account.py` —— `new_ulid()`（48 位毫秒 + 80 位随机，Crockford Base32，无 I/L/O/U）、`nfc_token_digest()`（HMAC-SHA256，**明文不落库不进日志**）、`token_fingerprint()`（前 8 位给运营比对）、`issue_account()`（锁孩子串行化、按 `(bound_by, request_id)` 幂等、同机复用同号、异机返回 409 `ACCOUNT_REPLACEMENT_REQUIRED`、撞号重试 5 次）、`resolve_account()`（8 个对外调用共用的唯一解析入口）、`retire_account()`、`attempt_bind()`。**网络调用放在事务外**，绑定失败不回滚建号。
+- 出站客户端骨架：`core/services/dingdong_client.py` —— 强制 HTTPS、带 `X-API-Key` 与 `request_id`、7 个业务码映射、`is_configured()` 为假时**显式报"未配置"而不是伪造成功**。**8 个出站接口本身仍未实现**（等 D10 base URL / D12 key）。
+- 家长端 API：`core/api/ca_accounts.py` + `config/urls.py` 三条路由（`/children/{id}/ca-accounts`、`/ca-accounts/{号}`、`/ca-accounts/{号}/retire`）；只回短指纹，不回摘要原文。
+- 家长端界面：`frontend/ca-link.js`（纯函数：读/摘 `?nfc_token=`、状态词、换机信号判定）+ `frontend/app.js`（`?nfc_token=` 承接、绑定对话框选孩子、已绑/已归档列表、换机两步、归档）。**凭据读到就从地址栏 `replaceState` 摘掉**（否则会进浏览历史、截图与转发链接），且只留在内存，不进 localStorage/sessionStorage。
+- 运营后台只读页：`ops/templates/ops/ca_accounts.html` + `ops/views.py:ca_accounts` + `permissions.py`(`ca_account.view` → operations/technical/account_admin) + `labels.py` 中文动作码。
+
+**验证**：后端全量 **266 passed**（含新增 `tests/test_ca_accounts.py`、`tests/test_ops_ca_accounts.py`）；前端单测 13 条（`frontend/unit/ca-link.test.js`）；**真实 Chrome 闭环 4 条**（`frontend/tests/ca-account.spec.js`：凭据不在地址栏留下、新号如实显示"待接通"、同机复用同号、换机两步+旧号归档+390px 不溢出）；`设计/API/openapi.json` 55 operations / 65 schemas，`scripts/audit_documents.py` → `errors: []`。
+
+**五个踩过的坑（下次直接照做）**：
+
+1. **运营后台模板在本机 runserver 里是"进程级缓存"的**：实测 `DEBUG=True` 仍然用 `django.template.loaders.cached.Loader`。改 `ops/templates/**.html` 后，跑在 8017 的旧进程**继续吐旧 HTML**，表现为"改了没生效"、截图与源码对不上。**改模板后必须重启本地 runserver**（pytest 每次新进程，不受影响）。
+2. **Tabler 的 `.alert` 是 `display:flex`**：裸文本 + `<b>` + `<br>` 会被拆成一列一列的碎片（真实浏览器截图里才发现，pytest 断言字符串全绿也照样漏）。提示条内容必须包在一个块级 `<div>` 里，用 `alert-heading` + `<p>`。
+3. **前端新增顶层模块必须同步 `frontend/server.cjs` 的静态白名单**，否则本地预览直接 404。
+4. **临时隔离库手法**：postgres 角色 `dingdong` 有 CREATEDB，可 `CREATE DATABASE dd_wb_ui_check` → `migrate` → `seed_base` → 用完 `DROP DATABASE`，**不需要碰共享库里的演示数据**。注意本机无 docker、无 5432，`127.0.0.1:55439` 是既有实例；`sqlite` 不可行（代码用 `pg_advisory_xact_lock` + `hashtextextended`）。
+5. **家长端浏览器用例的机器人凭据必须每次随机**：`nfc_token_hash` 的"活跃唯一"约束是**全局**的，写死 `e2e-token-0001` 这类固定串，第二轮就会撞上第一轮留下的活跃号并全红（这是设计使然，不是缺陷）。

@@ -43,7 +43,7 @@ Running 9 tests using 1 worker
       322 |     await page.getByRole("radio").first().check();
       323 |     await page
       324 |       .getByRole("button", {
-        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/flows.spec.js:321:7
+        at frontend/tests/flows.spec.js:321:7
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     test-results/flows-探索四题、刷新恢复、返回修改、完成仅展示选择/test-failed-1.png

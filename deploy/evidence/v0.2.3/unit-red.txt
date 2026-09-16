@@ -1,4 +1,4 @@
-file:///Users/yihu/Documents/ChatGPT/%E5%8F%AE%E5%92%9A/frontend/unit/request-id.test.js:4
+file://frontend/unit/request-id.test.js:4
 import { createRequestId } from '../api.js';
          ^^^^^^^^^^^^^^^
 SyntaxError: The requested module '../api.js' does not provide an export named 'createRequestId'

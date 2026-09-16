@@ -1,0 +1,14 @@
+BEFORE: {"families_active": 21, "children_active": 14, "qv_published": 19, "acv_published": 11, "staff_active": 8, "parents_active": 21, "audit": 1117}
+AFTER : {"families_active": 10, "children_active": 3, "qv_published": 2, "acv_published": 8, "staff_active": 1, "parents_active": 10, "audit": 1166}
+matched_children: 11 ['P1跨入口家长mu2qk3zb-运营改', 'P1跨入口运营mu2qkd3z-运营改', '冲突保留mu2qlnzo-运营改', '冲突保留mu2qlx89-家长再改', '冲突保留mu2qm6ku-家长改', '冲突保留mu2qmh5u-运营改', '冲突保留mu2qmsx8-家长改', '演示验收儿童212903', '演示验收儿童212927-家长端', '演示验收儿童214656-家长端', '演示验收儿童215215-家长端']
+closed_families: 11 ['021337ff', '1fca22b5', '406a1835', '470fa133', '56ce1b6c', '8f8df221', '96f45d91', 'd3d5f546', 'e80955a3', 'eaf05d7c', 'fe014abb']
+archived_children: 11
+retired_questionnaires: 17 ['qn-mu2ppec7abc-baeb6ac24120/v1[published]', 'qn-mu2q3a3zabc-cdd25da8f3fb/v1[published]', 'qn-mu2qaw7cabc-ec9207fbc1d6/v1[published]', 'qn-p1mu2qklhcabc-ab28c1c6cb40/v1[published]', 'qn-p1mu2qkugl-408388297044-2/v1[published]', 'qn-mu2q3a3zabc-bca9078d2d8a/v1[published]', 'qn-mu2qaw7cabc-e0896a611df5/v1[published]', 'qn-mu2qho9gabc-5161350b6ec1/v1[published]', 'qn-mu2ppec7abc-0e14e0941af2/v1[published]', 'qn-p1mu2qklhcabc-b7b853f98be5/v1[published]', 'qn-mu2poxtm-101a2a21aacb/v1[published]', 'qn-mu2qh9ad-84302a7d18d5/v1[published]', 'qn-mu2q2t18-0bac045b42c3/v1[published]', 'qn-mu2qafxn-e25ffcb0b5e7/v1[published]', 'qn-mu2qho9gabc-ffeb598d5b7d/v1[published]', 'qn-p1mu2qkugl-408388297044/v1[published]', 'qn-p1mu2ql3mw-977512439ecb/v2[published]']
+retired_activities: 3 ['act-mu2q326k-071d09b77978/v1[published]', 'act-p1mu2qlcsaabc-7b8cc0ea99a9/v1[published]', 'act-p1mu2qlcsaabc-9df656b9e3cf/v1[published]']
+deactivated_accounts: 18 ['acptdemo_admin', 'acptdemo_content', 'acptdemo_operator', 'acptdemo_tmpmu2pr6fu', 'acptdemo_tmpmu2purnc', 'acptdemo_tmpmu2pyvm7', 'acptdemo_tmpmu2qbh2p', 'parent-4f8fb6f0bee745128c119f78f4bfd01d', 'parent-57f6d684e80c489faebc9a0e51149ccb', 'parent-72ec6781032a4deaa251eede3804547b', 'parent-77de6de045534b50af5e59f578705311', 'parent-7be578a5fae149099e70a5379400b149', 'parent-8c7da233e0bb4caaae4f32766efdcc84', 'parent-be0107ae328c4814a3121d874841ff9c', 'parent-c4598bfd70e04b64b9c2075f0ae42277', 'parent-d71cb11dab164a8d86ca6eb291292077', 'parent-db0425f0da334f09b781a9b450c32b0a', 'parent-e2dfcc5c22934eba97874fb90a70f0fe']
+audit_rows_added: 49
+published QV now: ['exploration/vreadable-v2', 'initial-assessment/vreadable-v2']
+published ACV now: ['test-activity-0/vreadable-v2', 'test-activity-1/vreadable-v2', 'test-activity-2/vreadable-v2', 'test-activity-3/vreadable-v2', 'test-activity-4/vreadable-v2', 'test-activity-5/vreadable-v2', 'test-activity-6/vreadable-v2', 'test-activity-7/vreadable-v2']
+active children now: ['合成儿童1', '合成儿童2', '小易']
+active families now: 10
+active staff now: ['dingdong_admin']

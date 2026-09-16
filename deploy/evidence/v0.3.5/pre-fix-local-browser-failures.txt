@@ -51,7 +51,7 @@ Running 5 tests using 1 worker
       91 |       await expect(editGender(parent)).toHaveValue("male");
       92 |       await expect(editBirth(parent)).toHaveValue("2021-05-06");
       93 |
-        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/deployment-tests/parent-conflict-recovery.spec.js:90:38
+        at frontend/deployment-tests/parent-conflict-recovery.spec.js:90:38
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     test-results/parent-conflict-recovery-家-d8f08-家长的称呼、性别、生日全部保留，服务端仍是对方保存的值-desktop/test-failed-1.png
@@ -79,7 +79,7 @@ Running 5 tests using 1 worker
       131 |       const diff = panel.locator("table.conflict-diff");
       132 |       await expect(diff).toBeVisible();
       133 |       await expect(diff).toContainText(child + "-运营改");
-        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/deployment-tests/parent-conflict-recovery.spec.js:130:43
+        at frontend/deployment-tests/parent-conflict-recovery.spec.js:130:43
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     test-results/parent-conflict-recovery-家-a27da-；取消保留输入；明确确认载入才替换表单，随后可保存成功-desktop/test-failed-1.png
@@ -109,7 +109,7 @@ Running 5 tests using 1 worker
       218 |     }
       219 |     expect(errors, `页面脚本错误：${errors.join(" | ")}`).toEqual([]);
       220 |   });
-        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/deployment-tests/parent-conflict-recovery.spec.js:217:7
+        at frontend/deployment-tests/parent-conflict-recovery.spec.js:217:7
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     test-results/parent-conflict-recovery-家-265fc-复期间对方又改了一次：仍然拒绝覆盖、输入不丢、提示更新-desktop/test-failed-1.png
@@ -139,7 +139,7 @@ Running 5 tests using 1 worker
       266 |     }
       267 |     expect(errors, `页面脚本错误：${errors.join(" | ")}`).toEqual([]);
       268 |   });
-        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/deployment-tests/parent-conflict-recovery.spec.js:265:7
+        at frontend/deployment-tests/parent-conflict-recovery.spec.js:265:7
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     test-results/parent-conflict-recovery-家-86787-实入口）-读取最新资料失败时：输入保留，不显示保存成功-desktop/test-failed-2.png

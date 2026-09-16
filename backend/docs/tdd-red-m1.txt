@@ -516,12 +516,12 @@ WARNING  django.request:log.py:249 Not Found: /api/v1/auth/csrf
 =============================== warnings summary ===============================
 tests/conftest.py:6
 tests/conftest.py:6
-  /Users/yihu/Documents/ChatGPT/叮咚/backend/tests/conftest.py:6: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.
+  backend/tests/conftest.py:6: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.
     from jsonschema import Draft202012Validator, RefResolver
 
 tests/test_auth.py: 12 warnings
 tests/test_children.py: 8 warnings
-  /Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/core/handlers/base.py:62: UserWarning: No directory at: /Users/yihu/Documents/ChatGPT/叮咚/backend/staticfiles/
+  backend/.venv/lib/python3.14/site-packages/django/core/handlers/base.py:62: UserWarning: No directory at: backend/staticfiles/
     mw_instance = middleware(adapted_handler)
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html

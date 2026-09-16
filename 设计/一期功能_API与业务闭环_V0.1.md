@@ -2,7 +2,7 @@
 
 > 文档状态：历史设计基线，保留当时的建议与判断，不能把下文“当前/尚未实现”当作现状。2026-09-12 已有 M1–M5 实现；当前入口见 [文档索引与当前状态](../文档/文档索引.md)，实际字段见 [模型字段清单](数据库实际字段_M5.md)。外部供应商尚未接入。
 
-> 请求响应已进一步细化，冲突时以[前后端交互规范](/Users/yihu/Documents/ChatGPT/叮咚/设计/API/前后端交互规范_V0.1.md)与 OpenAPI 为准。当前短信固定 `00000`，其他 API 用真实数据库及初始化/注入数据测试。
+> 请求响应已进一步细化，冲突时以[前后端交互规范](../设计/API/前后端交互规范_V0.1.md)与 OpenAPI 为准。当前短信固定 `00000`，其他 API 用真实数据库及初始化/注入数据测试。
 
 本轮为设计评估，不是已实现或已联调结论。已重新 fetch 参考仓库，origin/main 为 `d754a5bf9ea8e71ca64a850d2e26aa321fe8ab38`，仍为 V3 演示代码。以下前端指家长/儿童使用的 Web，后台管理指工作人员使用的 Django Admin，CA 后端指支撑两者的业务服务。
 
@@ -217,9 +217,9 @@ CA→算法：必要儿童年龄等非生物输入、固定问卷版本及答案
 
 ## 10 本轮材料依据
 
-- [参考仓库说明](/Users/yihu/Documents/ChatGPT/叮咚/参考代码/dingdong/README.md)
-- [页面与本地业务逻辑](/Users/yihu/Documents/ChatGPT/叮咚/参考代码/dingdong/app.js:52)
-- [API 占位代码](/Users/yihu/Documents/ChatGPT/叮咚/参考代码/dingdong/api.js:4)
-- [DingDong CA 侧接口草案](/Users/yihu/Documents/ChatGPT/叮咚/材料/可检索文本/DingDong_CA_接口协议与字段定义_CA侧.md)
-- [数据库设计（含本轮补充）](/Users/yihu/Documents/ChatGPT/叮咚/设计/数据库表结构_V0.1.md)
-- [后台总体设计](/Users/yihu/Documents/ChatGPT/叮咚/设计/后台总体设计_V0.2.md)
+- [参考仓库说明](../参考代码/dingdong/README.md)
+- [页面与本地业务逻辑](../参考代码/dingdong/app.js:52)
+- [API 占位代码](../参考代码/dingdong/api.js:4)
+- [DingDong CA 侧接口草案](../材料/可检索文本/DingDong_CA_接口协议与字段定义_CA侧.md)
+- [数据库设计（含本轮补充）](../设计/数据库表结构_V0.1.md)
+- [后台总体设计](../设计/后台总体设计_V0.2.md)

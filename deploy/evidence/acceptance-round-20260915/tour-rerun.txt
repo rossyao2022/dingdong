@@ -1,0 +1,48 @@
+
+Running 10 tests using 1 worker
+
+  ✓   1 [desktop] › deployment-tests/ops-demo-tour.spec.js:410:3 › 运营后台全量功能验收（逐项演示 · 公网真实入口 · 真实 Chrome） › 项目8：报告查看与隔离失败任务重试 (6.8s)
+  ✘   2 [desktop] › deployment-tests/ops-demo-tour.spec.js:479:3 › 运营后台全量功能验收（逐项演示 · 公网真实入口 · 真实 Chrome） › 项目10：临时账号创建、角色权限、停用与密码修改 (1.0m)
+  ✓   3 [desktop] › deployment-tests/ops-demo-tour.spec.js:544:3 › 运营后台全量功能验收（逐项演示 · 公网真实入口 · 真实 Chrome） › 项目11：操作审计权限、查询与非法筛选恢复 (6.5s)
+  ✓   4 [desktop] › deployment-tests/ops-demo-tour.spec.js:578:3 › 运营后台全量功能验收（逐项演示 · 公网真实入口 · 真实 Chrome） › 项目12：通用交互与视觉（确认弹窗、403、404、窄屏） (9.4s)
+  -   5 [desktop] › deployment-tests/ops-demo-tour.spec.js:631:3 › 运营后台全量功能验收（逐项演示 · 公网真实入口 · 真实 Chrome） › 项目13：家长端必要回归（登录→档案→保存）
+  -   6 [mobile] › deployment-tests/ops-demo-tour.spec.js:410:3 › 运营后台全量功能验收（逐项演示 · 公网真实入口 · 真实 Chrome） › 项目8：报告查看与隔离失败任务重试
+  -   7 [mobile] › deployment-tests/ops-demo-tour.spec.js:479:3 › 运营后台全量功能验收（逐项演示 · 公网真实入口 · 真实 Chrome） › 项目10：临时账号创建、角色权限、停用与密码修改
+  -   8 [mobile] › deployment-tests/ops-demo-tour.spec.js:544:3 › 运营后台全量功能验收（逐项演示 · 公网真实入口 · 真实 Chrome） › 项目11：操作审计权限、查询与非法筛选恢复
+  -   9 [mobile] › deployment-tests/ops-demo-tour.spec.js:578:3 › 运营后台全量功能验收（逐项演示 · 公网真实入口 · 真实 Chrome） › 项目12：通用交互与视觉（确认弹窗、403、404、窄屏）
+  ✓  10 [mobile] › deployment-tests/ops-demo-tour.spec.js:631:3 › 运营后台全量功能验收（逐项演示 · 公网真实入口 · 真实 Chrome） › 项目13：家长端必要回归（登录→档案→保存） (3.0s)
+
+
+  1) [desktop] › deployment-tests/ops-demo-tour.spec.js:479:3 › 运营后台全量功能验收（逐项演示 · 公网真实入口 · 真实 Chrome） › 项目10：临时账号创建、角色权限、停用与密码修改 
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for locator('table.ops-table tbody tr').filter({ hasText: 'acptdemo_tmpmu2purnc' }).getByRole('link', { name: 'acptdemo_tmpmu2purnc' }).first()
+
+
+      517 |     // 管理员停用该账号
+      518 |     await page.goto("/ops/accounts/");
+    > 519 |     await rowOf(page, username).getByRole("link", { name: username }).first().click();
+          |                                                                               ^
+      520 |     await shot(page, "account-detail");
+      521 |     await page.getByRole("button", { name: "停用账号", exact: true }).click();
+      522 |     await confirmDialog(page, "确定");
+        at frontend/deployment-tests/ops-demo-tour.spec.js:519:79
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/ops-demo-tour-运营后台全量功能验收（逐-7087a-e）-项目10：临时账号创建、角色权限、停用与密码修改-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/ops-demo-tour-运营后台全量功能验收（逐-7087a-e）-项目10：临时账号创建、角色权限、停用与密码修改-desktop/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/ops-demo-tour-运营后台全量功能验收（逐-7087a-e）-项目10：临时账号创建、角色权限、停用与密码修改-desktop/error-context.md
+
+  1 failed
+    [desktop] › deployment-tests/ops-demo-tour.spec.js:479:3 › 运营后台全量功能验收（逐项演示 · 公网真实入口 · 真实 Chrome） › 项目10：临时账号创建、角色权限、停用与密码修改 
+  5 skipped
+  4 passed (1.5m)
+exit=1

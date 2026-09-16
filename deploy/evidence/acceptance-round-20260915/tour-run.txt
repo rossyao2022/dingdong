@@ -1,0 +1,33 @@
+
+Running 26 tests using 1 worker
+
+  ✓   1 [desktop] › deployment-tests/ops-demo-tour.spec.js:125:3 › 运营后台全量功能验收（逐项演示 · 公网真实入口 · 真实 Chrome） › 项目1：登录、错误提示与退出后访问拦截 (7.9s)
+  ✓   2 [desktop] › deployment-tests/ops-demo-tour.spec.js:155:3 › 运营后台全量功能验收（逐项演示 · 公网真实入口 · 真实 Chrome） › 项目2：工作首页、角色导航与待办 (7.2s)
+  ✓   3 [desktop] › deployment-tests/ops-demo-tour.spec.js:189:3 › 运营后台全量功能验收（逐项演示 · 公网真实入口 · 真实 Chrome） › 项目3：家庭查询、家庭详情与儿童详情聚合 (6.4s)
+  ✓   4 [desktop] › deployment-tests/ops-demo-tour.spec.js:216:3 › 运营后台全量功能验收（逐项演示 · 公网真实入口 · 真实 Chrome） › 项目4：跨入口编辑冲突（家长端改档后运营旧页面保存被挡） (8.7s)
+  ✓   5 [desktop] › deployment-tests/ops-demo-tour.spec.js:251:3 › 运营后台全量功能验收（逐项演示 · 公网真实入口 · 真实 Chrome） › 项目5：题库新建→校验→发布→复制新版本→停用 (9.5s)
+  ✓   6 [desktop] › deployment-tests/ops-demo-tour.spec.js:316:3 › 运营后台全量功能验收（逐项演示 · 公网真实入口 · 真实 Chrome） › 项目6：活动新建→材料/步骤/风格→发布 (9.8s)
+  ✓   7 [desktop] › deployment-tests/ops-demo-tour.spec.js:363:3 › 运营后台全量功能验收（逐项演示 · 公网真实入口 · 真实 Chrome） › 项目7：不同内容独立、旧版本与编辑冲突保护 (10.4s)
+  ✓   8 [desktop] › deployment-tests/ops-demo-tour.spec.js:410:3 › 运营后台全量功能验收（逐项演示 · 公网真实入口 · 真实 Chrome） › 项目8：报告查看与隔离失败任务重试 (6.4s)
+  ✓   9 [desktop] › deployment-tests/ops-demo-tour.spec.js:451:3 › 运营后台全量功能验收（逐项演示 · 公网真实入口 · 真实 Chrome） › 项目9：服务事项筛选→详情→处理→留痕 (7.8s)
+  ✓  10 [desktop] › deployment-tests/ops-demo-tour.spec.js:479:3 › 运营后台全量功能验收（逐项演示 · 公网真实入口 · 真实 Chrome） › 项目10：临时账号创建、角色权限、停用与密码修改 (20.2s)
+  ✓  11 [desktop] › deployment-tests/ops-demo-tour.spec.js:546:3 › 运营后台全量功能验收（逐项演示 · 公网真实入口 · 真实 Chrome） › 项目11：操作审计权限、查询与非法筛选恢复 (9.4s)
+  ✓  12 [desktop] › deployment-tests/ops-demo-tour.spec.js:580:3 › 运营后台全量功能验收（逐项演示 · 公网真实入口 · 真实 Chrome） › 项目12：通用交互与视觉（确认弹窗、403、404、窄屏） (7.1s)
+  -  13 [desktop] › deployment-tests/ops-demo-tour.spec.js:633:3 › 运营后台全量功能验收（逐项演示 · 公网真实入口 · 真实 Chrome） › 项目13：家长端必要回归（登录→档案→保存）
+  ✓  14 [mobile] › deployment-tests/ops-demo-tour.spec.js:125:3 › 运营后台全量功能验收（逐项演示 · 公网真实入口 · 真实 Chrome） › 项目1：登录、错误提示与退出后访问拦截 (6.4s)
+  -  15 [mobile] › deployment-tests/ops-demo-tour.spec.js:155:3 › 运营后台全量功能验收（逐项演示 · 公网真实入口 · 真实 Chrome） › 项目2：工作首页、角色导航与待办
+  -  16 [mobile] › deployment-tests/ops-demo-tour.spec.js:189:3 › 运营后台全量功能验收（逐项演示 · 公网真实入口 · 真实 Chrome） › 项目3：家庭查询、家庭详情与儿童详情聚合
+  -  17 [mobile] › deployment-tests/ops-demo-tour.spec.js:216:3 › 运营后台全量功能验收（逐项演示 · 公网真实入口 · 真实 Chrome） › 项目4：跨入口编辑冲突（家长端改档后运营旧页面保存被挡）
+  -  18 [mobile] › deployment-tests/ops-demo-tour.spec.js:251:3 › 运营后台全量功能验收（逐项演示 · 公网真实入口 · 真实 Chrome） › 项目5：题库新建→校验→发布→复制新版本→停用
+  -  19 [mobile] › deployment-tests/ops-demo-tour.spec.js:316:3 › 运营后台全量功能验收（逐项演示 · 公网真实入口 · 真实 Chrome） › 项目6：活动新建→材料/步骤/风格→发布
+  -  20 [mobile] › deployment-tests/ops-demo-tour.spec.js:363:3 › 运营后台全量功能验收（逐项演示 · 公网真实入口 · 真实 Chrome） › 项目7：不同内容独立、旧版本与编辑冲突保护
+  -  21 [mobile] › deployment-tests/ops-demo-tour.spec.js:410:3 › 运营后台全量功能验收（逐项演示 · 公网真实入口 · 真实 Chrome） › 项目8：报告查看与隔离失败任务重试
+  -  22 [mobile] › deployment-tests/ops-demo-tour.spec.js:451:3 › 运营后台全量功能验收（逐项演示 · 公网真实入口 · 真实 Chrome） › 项目9：服务事项筛选→详情→处理→留痕
+  -  23 [mobile] › deployment-tests/ops-demo-tour.spec.js:479:3 › 运营后台全量功能验收（逐项演示 · 公网真实入口 · 真实 Chrome） › 项目10：临时账号创建、角色权限、停用与密码修改
+  -  24 [mobile] › deployment-tests/ops-demo-tour.spec.js:546:3 › 运营后台全量功能验收（逐项演示 · 公网真实入口 · 真实 Chrome） › 项目11：操作审计权限、查询与非法筛选恢复
+  -  25 [mobile] › deployment-tests/ops-demo-tour.spec.js:580:3 › 运营后台全量功能验收（逐项演示 · 公网真实入口 · 真实 Chrome） › 项目12：通用交互与视觉（确认弹窗、403、404、窄屏）
+  ✓  26 [mobile] › deployment-tests/ops-demo-tour.spec.js:633:3 › 运营后台全量功能验收（逐项演示 · 公网真实入口 · 真实 Chrome） › 项目13：家长端必要回归（登录→档案→保存） (2.4s)
+
+  12 skipped
+  14 passed (2.1m)
+exit=0

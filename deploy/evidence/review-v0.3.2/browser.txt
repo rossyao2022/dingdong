@@ -35,8 +35,8 @@ Running 8 tests using 1 worker
       38 | }
       39 |
       40 | async function confirmDialog(page, label) {
-        at login (/Users/yihu/Documents/ChatGPT/叮咚/frontend/deployment-tests/ops-public.spec.js:37:56)
-        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/deployment-tests/ops-public.spec.js:303:5
+        at login (frontend/deployment-tests/ops-public.spec.js:37:56)
+        at frontend/deployment-tests/ops-public.spec.js:303:5
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     test-results/ops-public-运营后台（公网）-窄屏下导航与列表基本可用-desktop/test-failed-1.png

@@ -46,7 +46,7 @@ Running 22 tests using 1 worker
       368 |     await firstRow.getByRole("link", { name: "查看内容" }).click();
       369 |     await expect(page.getByRole("heading", { name: /报告：/ })).toBeVisible();
       370 |     await expect(page.getByRole("heading", { name: "生成状态" })).toBeVisible();
-        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/deployment-tests/ops-public.spec.js:367:28
+        at frontend/deployment-tests/ops-public.spec.js:367:28
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     test-results/ops-public-运营后台（公网）-报告：查看已生成内容，失败任务用业务语言说明并可重试-desktop/test-failed-1.png

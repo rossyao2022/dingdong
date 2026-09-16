@@ -1,0 +1,43 @@
+WorkBuddy 内置浏览器控制工具 · 本会话可用性实测
+时间: 2026-09-15 21:26–21:32 CST（会话开始后第一次实测）
+目的: 用户要求"优先使用 browser use 控制内置浏览器逐项演示"。按要求先发现本会话
+      实际可用的浏览器控制工具，不预设其不可用。
+
+一、工具发现（ToolSearch，精确名与关键词两路）
+  1) tool_names = ["cua.createBrowserTab", "cua.getState", "open_in_codex", "browser_use"]
+     结果: cua.createBrowserTab / cua.getState / browser_use 均 "Not found"；
+           未返回任何内置浏览器控制类工具。
+  2) 关键词检索 "cua createBrowserTab getState iab" / "open_in_codex" /
+     "computer use 内置浏览器面板" / "browser tab control IDE panel"
+     结果: 只返回通用工具（connect_open_platform、workbuddy_sites_deploy、
+           workbuddy_cloud_service、agent-mail 等），无内置浏览器控制工具。
+
+二、直接调用实测（记录准确调用与返回）
+  调用 1  toolName = "open_in_codex"
+          params   = {"url": "http://110.42.225.196/ops/login/"}
+          返回     = Error: Tool "open_in_codex" is not available in the current
+                     environment or configuration.
+  调用 2  toolName = "cua.createBrowserTab"
+          params   = {"type": "iab", "visible": true,
+                      "url": "http://110.42.225.196/ops/login/"}
+          返回     = Error: Tool "cua.createBrowserTab" is not available in the current
+                     environment or configuration.
+  调用 3  toolName = "cua.getState"
+          返回     = 同前（工具未注册）。
+  说明: 本次是"工具未注册"（is not available），不是此前几轮的"调用超时/返回 queued"。
+        按用户要求只做有限次恢复尝试，未反复重试。
+
+三、本会话实际可用的浏览器自动化能力
+  - 技能 agent-browser（vercel-labs/agent-browser CLI）
+  - 技能 playwright-cli
+  这两者都会启动**真实 Chromium/Chrome 进程**（Playwright channel: chrome），
+  不是 WorkBuddy 内置浏览器面板，因此属于用户定义的"外部 Chrome"一类，
+  必须在交付记录里如实标注，不得冒充内置浏览器演示。
+
+四、结论（阻塞声明）
+  用户指定的"用 browser use 控制内置浏览器逐项演示"这一交付项，本会话**受工具阻塞**，
+  明确保留未完成状态。
+  已采取的不替代做法:
+  - 本轮全部交互与截图来自真实 Chrome（channel: chrome）访问公网入口，逐项留证；
+  - 截图文件名与 tour-log.jsonl 中逐条标注来源；
+  - 未使用外部 Chrome 结果或历史测试结果冒充内置浏览器演示。

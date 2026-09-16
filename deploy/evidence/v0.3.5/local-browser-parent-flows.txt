@@ -33,7 +33,7 @@ CommandError: Child does not exist
 
   1) tests/flows.spec.js:89:1 › 用途授权、22题、合成输入、真实初始报告 ───────────────────────────────────────────────
 
-    Error: Command failed: /Users/yihu/.local/bin/uv run --no-sync --directory /Users/yihu/Documents/ChatGPT/叮咚/backend python manage.py inject_fixture --child-id 51e287b1-666d-4d75-8b0f-7ca7e932466e --scenario assessment_success
+    Error: Command failed: uv run --no-sync --directory backend python manage.py inject_fixture --child-id 51e287b1-666d-4d75-8b0f-7ca7e932466e --scenario assessment_success
     CommandError: Child does not exist
 
 
@@ -44,8 +44,8 @@ CommandError: Child does not exist
       33 |     uvBin(),
       34 |     [
       35 |       "run",
-        at inject (/Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/flows.spec.js:32:3)
-        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/flows.spec.js:92:3
+        at inject (frontend/tests/flows.spec.js:32:3)
+        at frontend/tests/flows.spec.js:92:3
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     ../../../../../../tmp/dd-pw-out/flows-用途授权、22题、合成输入、真实初始报告/test-failed-1.png
@@ -55,7 +55,7 @@ CommandError: Child does not exist
 
   2) tests/flows.spec.js:126:1 › 机器人关联、阶段报告、撤回同步授权 ─────────────────────────────────────────────────
 
-    Error: Command failed: /Users/yihu/.local/bin/uv run --no-sync --directory /Users/yihu/Documents/ChatGPT/叮咚/backend python manage.py inject_fixture --child-id d505130d-c6c9-42f0-b526-2c23388f04cc --scenario sync_success
+    Error: Command failed: uv run --no-sync --directory backend python manage.py inject_fixture --child-id d505130d-c6c9-42f0-b526-2c23388f04cc --scenario sync_success
     CommandError: Child does not exist
 
 
@@ -66,8 +66,8 @@ CommandError: Child does not exist
       33 |     uvBin(),
       34 |     [
       35 |       "run",
-        at inject (/Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/flows.spec.js:32:3)
-        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/flows.spec.js:129:3
+        at inject (frontend/tests/flows.spec.js:32:3)
+        at frontend/tests/flows.spec.js:129:3
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     ../../../../../../tmp/dd-pw-out/flows-机器人关联、阶段报告、撤回同步授权/test-failed-1.png
@@ -96,7 +96,7 @@ CommandError: Child does not exist
       245 |     const cookies = await staff.cookies();
       246 |     const result = await staff.request.post(
       247 |       "http://127.0.0.1:8017/api/v1/staff/data-requests/" +
-        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/flows.spec.js:244:25
+        at frontend/tests/flows.spec.js:244:25
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     ../../../../../../tmp/dd-pw-out/flows-家长提交删除、后台实际处理、无儿童时查看回执/test-failed-1.png
