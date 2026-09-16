@@ -91,7 +91,11 @@ npm --prefix frontend run dev
 
 **凭据边界（2026-09-16 起写进 `.gitignore`）**：`.env` / `.env.*`（`.env.example` 例外）、`*.pem` / `*.key` / `*.p12`、`**/*creds*.env`、`**/credentials*.json`、`**/dd-ops-*.env`、`**/*-creds.sh`、SSH 私钥一律不进库；验收凭据只经环境变量传递（`frontend/deployment-tests/`）。已复核：跟踪文件里**没有**明文口令或密钥（`deploy/evidence/acceptance-round-20260915/prepare-accounts.py` 从 `os.environ["DD_PW"]` 取值），`deploy/.env`（360B/600）始终被忽略。
 
-`材料/` 是**对方提供的第三方文档与网页归档**（约 45MB），`参考代码/dingdong/` 是外部参考仓库快照（HEAD `d754a5bf9ea8e71ca64a850d2e26aa321fe8ab38`）——两者都不进库。**根仓库此前没有 Git remote、从未推送**；参考仓库 `rossyao2022/dingdong` 是**公开的原型演示仓库**（我们对其只有 `pull` 权限），与本仓库历史无关——两边没有共同祖先（本仓库根提交 `2a01b74`，对方最新 `d754a5bf` 在本仓库里不存在），所以**不存在能算得出 diff 的 PR 路径**，不能向它提 PR。详见本文末尾「推送记录」。
+`材料/` 是**对方提供的第三方文档与网页归档**（约 45MB），`参考代码/dingdong/` 是外部参考仓库快照（HEAD `d754a5bf9ea8e71ca64a850d2e26aa321fe8ab38`）——两者都不进库。
+
+**远端（2026-09-17 起）**：`origin` = **私有仓库 `ivesyi/dingdong-ca`**（`git@github.com:ivesyi/dingdong-ca.git`），已推送**完整前后端**共 38 个提交 + 13 个标签（`v0.2.0`–`v0.3.6`）+ 2 个分支（默认分支 `codex/release-v0.3.6`；另一条 `feat/parent-app-backend-integration` 是上游 PR 那个提交的保全）。**必须走 SSH**：HTTPS 经本机代理会 `502 CONNECT tunnel failed`（`~/.ssh/config` 里 github.com → ssh.github.com:443）。注意**被 `.gitignore` 排除的东西不在远端**——`材料/`、`参考代码/dingdong/`、`frontend/docs/`、`dist/`、`deploy/.env`（含真密钥）、`.workbuddy/`（项目记忆）换机要单独带。
+
+**参考仓库 `rossyao2022/dingdong`（公开的原型演示仓库，我们只有 `pull` 权限）**：与本仓库**代码上有血缘**——`frontend/` 里有 8 个文件与它逐字节相同（`styles.css`、`playful.css`、6 个 SVG），其余是衍生；**但 git 历史无共同祖先**（本仓库根提交 `2a01b74`，它整个仓库只有一个提交 `d754a5bf`，两个 sha 互不在对方对象库里），所以**直接提 PR 会被 GitHub 拒成 "There isn't anything to compare"**。要提 PR 必须**自己造出共同祖先**：fork 出 `ivesyi/dingdong`，用临时 worktree 以 `d754a5bf` 为第一个父提交放上要提的文件。已按此开了 **PR #1**（https://github.com/rossyao2022/dingdong/pull/1 ，11 文件 +3008/−237），但**内容刻意收窄为纯前端应用文件**——那个 PR 的 diff 是**公开**的，而本仓库含合作方材料文件名/哈希、内部预算与人天估算、待发澄清清单，以及本文档里的公网 IP、SSH 别名与内网地址，**这些一律不能进任何公开仓库**。要让对方看到完整前后端，应邀请对方作为协作者访问私有仓库，而不是往公开仓库塞。
 
 ## 仍需外部确认与下一次开始方式
 
