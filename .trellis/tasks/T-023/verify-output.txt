@@ -1,0 +1,48 @@
+### 命令1：按文件名扫描假 grok 包装脚本（排除 .git / node_modules / .trellis/tasks/T-022）
+$ find . -path ./.git -prune -o -path ./node_modules -prune -o -path ./.trellis/tasks/T-022 -prune -o -type f \( -name '*fake*grok*' -o -name '*grok*wrap*' -o -name 'fake-*' \) -print
+(无输出 = 0 个命中)
+
+### 命令2：内容级扫描 'fake-grok|FAKE_MODE'（排除 .git / node_modules / T-022 / T-023 证据目录）
+$ grep -rln 'fake-grok\|FAKE_MODE' --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=T-022 --exclude-dir=T-023 .
+./.trellis/tasks/R0d/report.md
+./.trellis/loop/queue.md
+./.trellis/loop/runs/20260917T071332Z-T-022-primary.json
+./.trellis/loop/runs/20260917T054913Z-T-001-primary.json
+判定：以上命中均为文档/JSON 里的文字提及，无一是可执行包装脚本（逐条 file 判定见下）
+  ./.trellis/tasks/R0d/report.md -> Unicode text, UTF-8 text
+  ./.trellis/loop/queue.md -> Unicode text, UTF-8 text, with very long
+  ./.trellis/loop/runs/20260917T071332Z-T-022-primary.json -> JSON data
+  ./.trellis/loop/runs/20260917T054913Z-T-001-primary.json -> JSON data
+
+### 命令3：T-022 目录内的假脚本（钩子自测证据，按任务说明保留不删）
+-rwxr-xr-x@ 1 yihu  staff  2039 Sep 17 15:17 [31m.trellis/tasks/T-022/fake-grok.sh[39;49m[0m
+-rwxr-xr-x@ 1 yihu  staff   319 Sep 17 15:20 [31m.trellis/tasks/T-022/fake-wake-fail.sh[39;49m[0m
+-rwxr-xr-x@ 1 yihu  staff   313 Sep 17 15:17 [31m.trellis/tasks/T-022/fake-wake.sh[39;49m[0m
+
+### 命令4：T-004 两行 runs.log 与 runs/ 记录核对
+$ grep 'T-004' .trellis/loop/runs.log
+2026-09-17T05:52:19Z ROUND T-004 RATE_LIMITED 5s d22eaf5 deepseek-v4-1-flash-260910 rc=42,dirty-worktree
+2026-09-17T06:00:35Z ROUND T-004 DONE 496s e42e25e deepseek-v4-pro rc=0,dirty-worktree
+$ ls -l .trellis/loop/runs/20260917T055213Z-T-004-primary.json .trellis/loop/runs/20260917T055219Z-T-004-fallback.json
+-rw-r--r--@ 1 yihu  staff     61 Sep 17 13:52 .trellis/loop/runs/20260917T055213Z-T-004-primary.json
+-rw-r--r--@ 1 yihu  staff  93928 Sep 17 14:00 .trellis/loop/runs/20260917T055219Z-T-004-fallback.json
+$ cat .trellis/loop/runs/20260917T055213Z-T-004-primary.json
+{"error":{"message":"TooManyRequests: rate limit exceeded"}}
+
+$ head -c 60 .trellis/loop/runs/20260917T055219Z-T-004-fallback.json
+{
+  "text": "TRELLIS-OK\n\n我是本轮一次性 worker。�
+推导：primary 记录 ts=05:52:13Z（文件名）→ 运行 5s → record_round 于 05:52:19Z 写 RATE_LIMITED 行（classify+sha 后写，晚 1s）
+推导：fallback 记录 ts=05:52:19Z（与 primary 的 ROUND 行同一秒）→ 运行 496s → 06:00:35Z 写 DONE 行，与 runs.log 完全一致
+
+### 命令5：ORCHESTRATOR.md 入库状态
+$ git status --short
+ M .trellis/loop/queue.md
+ M .trellis/loop/runs.log
+?? .trellis/loop/ORCHESTRATOR.md
+?? .trellis/tasks/T-023/
+$ git ls-files --error-unmatch .trellis/loop/ORCHESTRATOR.md
+error: pathspec '.trellis/loop/ORCHESTRATOR.md' did not match any file(s) known to git
+Did you forget to 'git add'?
+$ wc -l .trellis/loop/ORCHESTRATOR.md
+      58 .trellis/loop/ORCHESTRATOR.md
