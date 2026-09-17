@@ -7,8 +7,10 @@
 {% block content %}
   {% include "ops/_filter_problems.html" %}
 
-  {# 注意：Tabler 的 .alert 是 flex 容器，散落的文本节点会各占一列。
-     内容必须包在一个块级容器里，与其他页面保持一致。 #}
+  {% comment %}
+    注意：Tabler 的 .alert 是 flex 容器，散落的文本节点会各占一列。
+    内容必须包在一个块级容器里，与其他页面保持一致。
+  {% endcomment %}
   <div class="alert alert-info" role="note">
     <div>
       <h4 class="alert-heading">只读页 · 账户号一经生成不修改、不重用</h4>

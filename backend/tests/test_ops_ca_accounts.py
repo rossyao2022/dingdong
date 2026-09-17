@@ -1,6 +1,8 @@
 """运营后台：CA 账户只读页的展示、筛选与权限边界。"""
 
+import re
 import uuid
+from pathlib import Path
 
 import pytest
 from ops_helpers import make_family, make_staff, ops_client
@@ -10,6 +12,8 @@ from dingdong_ca.core.services import ca_account as service
 pytestmark = pytest.mark.django_db
 
 TOKEN = "ROBOT-TOKEN-PLAINTEXT-7788"
+
+OPS_TEMPLATES = Path(__file__).resolve().parents[1] / "dingdong_ca" / "ops" / "templates"
 
 
 def seed_account(child_name="小芽", token=TOKEN, phone="+8613800000007"):
@@ -80,6 +84,26 @@ def test_content_role_has_no_access():
     seed_account()
     staff = ops_client(make_staff("content"))
     assert staff.get("/ops/ca-accounts/").status_code == 403
+
+
+def test_page_does_not_render_template_comment_as_text():
+    seed_account()
+    staff = ops_client(make_staff("operations"))
+    body = staff.get("/ops/ca-accounts/").content.decode()
+    assert "{#" not in body
+    assert "内容必须包在一个块级容器里" not in body
+
+
+def test_ops_templates_have_no_multiline_django_comment():
+    """Django 的 tag_re 不带 re.DOTALL，跨行 {# … #} 不会当注释，会原样渲染成正文。"""
+    offenders = []
+    for path in sorted(OPS_TEMPLATES.rglob("*.html")):
+        text = path.read_text(encoding="utf-8")
+        for match in re.finditer(r"\{#(.*?)#\}", text, flags=re.DOTALL):
+            if "\n" in match.group(1):
+                line = text[: match.start()].count("\n") + 1
+                offenders.append(f"{path.relative_to(OPS_TEMPLATES)}:{line}")
+    assert offenders == []
 
 
 def test_parent_never_reaches_ops_page():
