@@ -1,0 +1,43 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_____________ test_audit_object_column_shows_chinese_target_names ______________
+
+    def test_audit_object_column_shows_chinese_target_names():
+        """审计「对象」列必须是运营看得懂的中文，不能出现表名或英文模型名。
+    
+        真实记录（本地合成库 2026-09-17 10:15）：家长登录一条写的是
+        「未知（login_grant） login grant（parent-a4f7a3365ec2479fbb61a3ffc9c6a5d4）」。
+        """
+        from django.utils import timezone
+    
+        from dingdong_ca.core.api.common import audit
+        from dingdong_ca.core.models import LoginGrant
+    
+        # 家长没填姓名时，describe_target 会退到内部账号名，正是线上那条记录的形状
+        _, _, parent = make_family(child_name="对象词条儿童", parent_name="")
+        grant = LoginGrant.objects.create(
+            user=parent,
+            current_refresh_jti=uuid.uuid4(),
+            expires_at=timezone.now() + timezone.timedelta(days=1),
+        )
+        audit(parent, "auth.login", grant)
+    
+        body = ops_client(make_staff("account_admin")).get("/ops/audit/").content.decode()
+        rows = body.split("<tbody>", 1)[1].split("</tbody>", 1)[0]
+    
+>       assert "登录凭据" in rows
+E       assert '登录凭据' in '\n            \n              <tr>\n                <td class="nowrap">2026-09-17 18:23:12</td>\n                <td ...</td>\n                <td>\n                  —\n                </td>\n              </tr>\n            \n          '
+
+tests/test_ops_audit_scope.py:232: AssertionError
+________________ test_audit_object_label_translates_model_names ________________
+
+    def test_audit_object_label_translates_model_names():
+        """`describe_target` 的「英文模型名（关联对象名）」写法在页面上要变成中文。"""
+>       from dingdong_ca.ops.templatetags.ops_labels import audit_target
+E       ImportError: cannot import name 'audit_target' from 'dingdong_ca.ops.templatetags.ops_labels' (/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/ops/templatetags/ops_labels.py)
+
+tests/test_ops_audit_scope.py:239: ImportError
+=========================== short test summary info ============================
+FAILED tests/test_ops_audit_scope.py::test_audit_object_column_shows_chinese_target_names - assert '登录凭据' in '\n            \n              <tr>\n                <td class="nowrap">2026-09-17 18:23:12</td>\n                <td ...</td>\n                <td>\n                  —\n                </td>\n              </tr>\n            \n          '
+FAILED tests/test_ops_audit_scope.py::test_audit_object_label_translates_model_names - ImportError: cannot import name 'audit_target' from 'dingdong_ca.ops.templatetags.ops_labels' (/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/ops/templatetags/ops_labels.py)
+2 failed, 9 deselected in 16.17s

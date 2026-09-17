@@ -1,6 +1,7 @@
 """模板过滤器：把内部代码翻译成运营看得懂的中文，避免在模板里写 if 链。"""
 
 import re
+from functools import lru_cache
 
 from django import template
 
@@ -80,6 +81,24 @@ def label(value, mapping_name):
 def tone(value):
     """状态 -> Tabler 浅色底色工具类。未知状态回退中性色，不显示成醒目颜色。"""
     return STATUS_TONE.get(value, "bg-secondary-lt")
+
+
+@register.filter
+def audit_target(value):
+    """审计「对象」名。describe_target 的兜底写成「英文模型名（关联对象名）」，运营看不懂。"""
+    return L.target_name(value, _model_names_by_verbose_name())
+
+
+@lru_cache(maxsize=1)
+def _model_names_by_verbose_name():
+    """英文模型名 -> 中文对象词条。取自模型注册表，不手抄一份英文名。"""
+    from django.apps import apps
+
+    return {
+        model._meta.verbose_name: L.TARGET_KIND[model._meta.db_table]
+        for model in apps.get_models()
+        if model._meta.db_table in L.TARGET_KIND
+    }
 
 
 @register.filter

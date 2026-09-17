@@ -1,0 +1,58 @@
+(node:4754) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:4785) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:4787) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/audit-object-labels.spec.js:76:1 › 运营审计页的对象列只出现中文词条 (13.0s)
+
+
+  1) tests/audit-object-labels.spec.js:76:1 › 运营审计页的对象列只出现中文词条 ─────────────────────────────────────
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('table.ops-table').locator('tbody tr').first().locator('td').nth(3)
+    Timeout: 5000ms
+    - Expected substring  - 1
+    + Received string     + 6
+
+    - 登录凭据
+    +
+    +                   未知（login_grant）
+    +                   
+    +                     login grant（parent-audit-mu5dsnns-72b641）
+    +                   
+    +                 
+
+    Call log:
+      - Expect "toContainText" locator('table.ops-table').locator('tbody tr').first().locator('td').nth(3) with timeout 5000ms
+      - waiting for locator('table.ops-table').locator('tbody tr').first().locator('td').nth(3)
+        14 × locator resolved to <td>…</td>
+           - unexpected value "
+                      未知（login_grant）
+                      
+                        login grant（parent-audit-mu5dsnns-72b641）
+                      
+                    "
+
+
+      93 |     // 刚写入的那条记录排在最前，验收的是它
+      94 |     const firstCell = table.locator("tbody tr").first().locator("td").nth(3);
+    > 95 |     await expect(firstCell).toContainText("登录凭据");
+         |                             ^
+      96 |     expect(await firstCell.textContent()).not.toContain("login grant");
+      97 |
+      98 |     // 整页：对象列不允许出现表名、英文模型名或「未知（…）」兜底
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/audit-object-labels.spec.js:95:29
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/audit-object-labels-运营审计页的对象列只出现中文词条/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/audit-object-labels-运营审计页的对象列只出现中文词条/error-context.md
+
+  1 failed
+    tests/audit-object-labels.spec.js:76:1 › 运营审计页的对象列只出现中文词条 ──────────────────────────────────────

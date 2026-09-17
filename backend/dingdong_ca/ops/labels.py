@@ -340,7 +340,27 @@ TARGET_KIND = {
     "activity_record": "活动记录",
     "profile_snapshot": "画像快照",
     "ca_account": "CA 账户",
+    "login_grant": "登录凭据",
+    "algorithm_attempt": "算法尝试",
 }
+
+
+def target_name(value, model_names=None):
+    """审计对象名里的英文模型名换回中文。
+
+    `core/api/common.py` 的 describe_target 在没有业务名称可借时写的是
+    「英文模型名（关联对象名）」（如 `login grant（parent-xxx）`），运营看不懂
+    英文模型名。这里按调用方给的「英文模型名 -> 中文对象词条」表换掉前缀，
+    换不掉的（已经是业务名称、或词表里没有的模型）原样返回。
+    """
+    text = (value or "").strip()
+    if not text:
+        return ""
+    prefix, sep, rest = text.partition("（")
+    if not sep:
+        return text
+    chinese = (model_names or {}).get(prefix.strip())
+    return f"{chinese}（{rest}" if chinese else text
 
 
 def label(mapping, code, fallback=None):

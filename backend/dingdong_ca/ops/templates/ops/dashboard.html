@@ -233,7 +233,7 @@
                   <li>
                     <div>
                       {{ row.action|audit_action }} ·
-                      {% if row.target_label %}{{ row.target_label }}{% else %}{{ row.target_kind|label:"TARGET_KIND" }}{% endif %}
+                      {% if row.target_label %}{{ row.target_label|audit_target }}{% else %}{{ row.target_kind|label:"TARGET_KIND" }}{% endif %}
                     </div>
                     <time>{{ row.created_at|date:"Y-m-d H:i" }} · {{ row.actor|display_name }}</time>
                   </li>
