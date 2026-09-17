@@ -1,0 +1,1138 @@
+{
+  "steps": [
+    {
+      "step": "bind",
+      "status": 201
+    },
+    {
+      "step": "verify",
+      "status": 201
+    },
+    {
+      "step": "inject",
+      "out": "Display scenario ready: ca_display_reassess for ca_01M2RM50TNJFWTRHAA2F6N5D65\nSynthetic database input injected"
+    },
+    {
+      "step": "after 重新测评",
+      "url": "http://127.0.0.1:4173/#reports",
+      "health": "互动健康度 | 建议重新测评 | 最近一段时间互动偏少。 | 机器人服务给出的原因：连续多期互动偏少 | 已观察 21 天。 | 已确认重新测评 | 开始一次新的测评，完成后我们会把结果回写。 | 建议时间 2026/09/22 01:00 · 这次建议的原因：近期互动偏少 | 开始复测",
+      "requests": [
+        {
+          "phase": "req",
+          "method": "POST",
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/reassessment/reassess_mock_001/response"
+        },
+        {
+          "phase": "res",
+          "status": 200,
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/reassessment/reassess_mock_001/response"
+        },
+        {
+          "phase": "req",
+          "method": "GET",
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/reports?page_size=100"
+        },
+        {
+          "phase": "req",
+          "method": "GET",
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/assessments?page_size=100"
+        },
+        {
+          "phase": "req",
+          "method": "GET",
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/growth-overview?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z"
+        },
+        {
+          "phase": "req",
+          "method": "GET",
+          "url": "/api/v1/assessment-config"
+        },
+        {
+          "phase": "req",
+          "method": "GET",
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/companion-persona"
+        },
+        {
+          "phase": "req",
+          "method": "GET",
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/companion-health"
+        },
+        {
+          "phase": "req",
+          "method": "GET",
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/growth-cycle?period=15d"
+        },
+        {
+          "phase": "req",
+          "method": "GET",
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/reassessment"
+        },
+        {
+          "phase": "res",
+          "status": 200,
+          "url": "/api/v1/assessment-config"
+        },
+        {
+          "phase": "res",
+          "status": 200,
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/reports?page_size=100"
+        },
+        {
+          "phase": "res",
+          "status": 200,
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/assessments?page_size=100"
+        },
+        {
+          "phase": "res",
+          "status": 200,
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/companion-health"
+        },
+        {
+          "phase": "res",
+          "status": 200,
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/companion-persona"
+        },
+        {
+          "phase": "res",
+          "status": 200,
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/growth-cycle?period=15d"
+        },
+        {
+          "phase": "res",
+          "status": 200,
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/growth-overview?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z"
+        },
+        {
+          "phase": "res",
+          "status": 200,
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/reassessment"
+        }
+      ]
+    },
+    {
+      "step": "开始复测 button count",
+      "count": 1
+    },
+    {
+      "step": "dialog open timeline",
+      "samples": [
+        [
+          101,
+          false,
+          false,
+          ""
+        ],
+        [
+          201,
+          false,
+          false,
+          ""
+        ],
+        [
+          301,
+          false,
+          false,
+          ""
+        ],
+        [
+          401,
+          false,
+          false,
+          ""
+        ],
+        [
+          501,
+          false,
+          false,
+          ""
+        ],
+        [
+          603,
+          false,
+          false,
+          ""
+        ],
+        [
+          701,
+          true,
+          true,
+          ""
+        ],
+        [
+          801,
+          true,
+          true,
+          ""
+        ],
+        [
+          902,
+          true,
+          true,
+          ""
+        ],
+        [
+          1002,
+          true,
+          true,
+          ""
+        ],
+        [
+          1101,
+          true,
+          true,
+          ""
+        ],
+        [
+          1203,
+          true,
+          true,
+          ""
+        ],
+        [
+          1302,
+          true,
+          true,
+          ""
+        ],
+        [
+          1403,
+          true,
+          true,
+          ""
+        ],
+        [
+          1502,
+          true,
+          true,
+          ""
+        ],
+        [
+          1601,
+          true,
+          true,
+          ""
+        ],
+        [
+          1703,
+          true,
+          true,
+          ""
+        ],
+        [
+          1802,
+          true,
+          true,
+          ""
+        ],
+        [
+          1902,
+          true,
+          true,
+          ""
+        ],
+        [
+          2002,
+          true,
+          true,
+          ""
+        ],
+        [
+          2103,
+          true,
+          true,
+          ""
+        ],
+        [
+          2202,
+          true,
+          true,
+          ""
+        ],
+        [
+          2302,
+          true,
+          true,
+          ""
+        ],
+        [
+          2401,
+          false,
+          false,
+          ""
+        ],
+        [
+          2501,
+          false,
+          false,
+          ""
+        ],
+        [
+          2601,
+          false,
+          false,
+          ""
+        ],
+        [
+          2702,
+          false,
+          false,
+          ""
+        ],
+        [
+          2801,
+          false,
+          false,
+          ""
+        ],
+        [
+          2902,
+          false,
+          false,
+          ""
+        ],
+        [
+          3002,
+          false,
+          false,
+          ""
+        ]
+      ]
+    },
+    {
+      "step": "dialog open timeline (full)",
+      "opened": 17,
+      "closedAfterOpen": true,
+      "samples": [
+        [
+          101,
+          false,
+          false,
+          ""
+        ],
+        [
+          201,
+          false,
+          false,
+          ""
+        ],
+        [
+          301,
+          false,
+          false,
+          ""
+        ],
+        [
+          401,
+          false,
+          false,
+          ""
+        ],
+        [
+          501,
+          false,
+          false,
+          ""
+        ],
+        [
+          603,
+          false,
+          false,
+          ""
+        ],
+        [
+          701,
+          true,
+          true,
+          ""
+        ],
+        [
+          801,
+          true,
+          true,
+          ""
+        ],
+        [
+          902,
+          true,
+          true,
+          ""
+        ],
+        [
+          1002,
+          true,
+          true,
+          ""
+        ],
+        [
+          1101,
+          true,
+          true,
+          ""
+        ],
+        [
+          1203,
+          true,
+          true,
+          ""
+        ],
+        [
+          1302,
+          true,
+          true,
+          ""
+        ],
+        [
+          1403,
+          true,
+          true,
+          ""
+        ],
+        [
+          1502,
+          true,
+          true,
+          ""
+        ],
+        [
+          1601,
+          true,
+          true,
+          ""
+        ],
+        [
+          1703,
+          true,
+          true,
+          ""
+        ],
+        [
+          1802,
+          true,
+          true,
+          ""
+        ],
+        [
+          1902,
+          true,
+          true,
+          ""
+        ],
+        [
+          2002,
+          true,
+          true,
+          ""
+        ],
+        [
+          2103,
+          true,
+          true,
+          ""
+        ],
+        [
+          2202,
+          true,
+          true,
+          ""
+        ],
+        [
+          2302,
+          true,
+          true,
+          ""
+        ],
+        [
+          2401,
+          false,
+          false,
+          ""
+        ],
+        [
+          2501,
+          false,
+          false,
+          ""
+        ],
+        [
+          2601,
+          false,
+          false,
+          ""
+        ],
+        [
+          2702,
+          false,
+          false,
+          ""
+        ],
+        [
+          2801,
+          false,
+          false,
+          ""
+        ],
+        [
+          2902,
+          false,
+          false,
+          ""
+        ],
+        [
+          3002,
+          false,
+          false,
+          ""
+        ],
+        [
+          3101,
+          false,
+          false,
+          ""
+        ],
+        [
+          3201,
+          false,
+          false,
+          ""
+        ],
+        [
+          3301,
+          false,
+          false,
+          ""
+        ],
+        [
+          3401,
+          false,
+          false,
+          ""
+        ],
+        [
+          3502,
+          false,
+          false,
+          ""
+        ],
+        [
+          3600,
+          false,
+          false,
+          ""
+        ],
+        [
+          3702,
+          false,
+          false,
+          ""
+        ],
+        [
+          3801,
+          false,
+          false,
+          ""
+        ],
+        [
+          3901,
+          false,
+          false,
+          ""
+        ],
+        [
+          4001,
+          false,
+          false,
+          ""
+        ],
+        [
+          4103,
+          false,
+          false,
+          ""
+        ],
+        [
+          4202,
+          false,
+          false,
+          ""
+        ],
+        [
+          4302,
+          false,
+          false,
+          ""
+        ],
+        [
+          4402,
+          false,
+          false,
+          ""
+        ],
+        [
+          4502,
+          false,
+          false,
+          ""
+        ],
+        [
+          4602,
+          false,
+          false,
+          ""
+        ],
+        [
+          4702,
+          false,
+          false,
+          ""
+        ],
+        [
+          4802,
+          false,
+          false,
+          ""
+        ],
+        [
+          4901,
+          false,
+          false,
+          ""
+        ],
+        [
+          5003,
+          false,
+          false,
+          ""
+        ],
+        [
+          5102,
+          false,
+          false,
+          ""
+        ],
+        [
+          5203,
+          false,
+          false,
+          ""
+        ],
+        [
+          5302,
+          false,
+          false,
+          ""
+        ],
+        [
+          5402,
+          false,
+          false,
+          ""
+        ],
+        [
+          5503,
+          false,
+          false,
+          ""
+        ],
+        [
+          5602,
+          false,
+          false,
+          ""
+        ],
+        [
+          5701,
+          false,
+          false,
+          ""
+        ],
+        [
+          5803,
+          false,
+          false,
+          ""
+        ],
+        [
+          5903,
+          false,
+          false,
+          ""
+        ],
+        [
+          6003,
+          false,
+          false,
+          ""
+        ]
+      ]
+    },
+    {
+      "step": "after 开始复测",
+      "url": "http://127.0.0.1:4173/#reports",
+      "dialogVisible": false,
+      "dialogText": "\n      本次测评用途关闭[合成测试]仅用于功能验证；不采集或保存真实指纹。处理目的生成这次测评的观察记录与报告，供你在「测评与报告」查看，并作为后续复测的对照。数据范围孩子的问卷选择、答题时间与所用题库版本；不采集真实指纹，不采集年级。数据去向处理在本项目服务端完成，结果保存在你的账户里；不会把孩子的测评结果或画像下发给 DingDong 侧。机器人行为观察是另一路，由本项目按你单独同意的「机器人数据同步」从 DingDong 侧获取，与测评结果分开展示、不合并成一个分数。保留与撤回记录保留在你的账户中。可在「账户与关联 → 用途授权」点「撤回授权」停止后续处理；撤回不会自动删除已经生成的报告，需要清除已有数据请提交删除事项。我已阅读并同意本次测评用途同意并开始\n    ",
+      "health": "互动健康度 | 建议重新测评 | 最近一段时间互动偏少。 | 机器人服务给出的原因：连续多期互动偏少 | 已观察 21 天。 | 已确认重新测评 | 开始一次新的测评，完成后我们会把结果回写。 | 建议时间 2026/09/22 01:00 · 这次建议的原因：近期互动偏少 | 开始复测",
+      "formError": "",
+      "requests": [
+        {
+          "phase": "req",
+          "method": "GET",
+          "url": "/api/v1/assessment-config?purpose=assessment"
+        },
+        {
+          "phase": "req",
+          "method": "GET",
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/consents?page_size=100"
+        },
+        {
+          "phase": "res",
+          "status": 200,
+          "url": "/api/v1/assessment-config?purpose=assessment"
+        },
+        {
+          "phase": "res",
+          "status": 200,
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/consents?page_size=100"
+        },
+        {
+          "phase": "req",
+          "method": "GET",
+          "url": "/api/v1/policies/current?purpose=assessment_processing"
+        },
+        {
+          "phase": "res",
+          "status": 200,
+          "url": "/api/v1/policies/current?purpose=assessment_processing"
+        },
+        {
+          "phase": "req",
+          "method": "GET",
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/reports?page_size=100"
+        },
+        {
+          "phase": "req",
+          "method": "GET",
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/assessments?page_size=100"
+        },
+        {
+          "phase": "req",
+          "method": "GET",
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/growth-overview?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z"
+        },
+        {
+          "phase": "req",
+          "method": "GET",
+          "url": "/api/v1/assessment-config"
+        },
+        {
+          "phase": "req",
+          "method": "GET",
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/companion-persona"
+        },
+        {
+          "phase": "req",
+          "method": "GET",
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/companion-health"
+        },
+        {
+          "phase": "req",
+          "method": "GET",
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/growth-cycle?period=15d"
+        },
+        {
+          "phase": "req",
+          "method": "GET",
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/reassessment"
+        },
+        {
+          "phase": "res",
+          "status": 200,
+          "url": "/api/v1/assessment-config"
+        },
+        {
+          "phase": "res",
+          "status": 200,
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/assessments?page_size=100"
+        },
+        {
+          "phase": "res",
+          "status": 200,
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/reports?page_size=100"
+        },
+        {
+          "phase": "res",
+          "status": 200,
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/companion-health"
+        },
+        {
+          "phase": "res",
+          "status": 200,
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/companion-persona"
+        },
+        {
+          "phase": "res",
+          "status": 200,
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/growth-cycle?period=15d"
+        },
+        {
+          "phase": "res",
+          "status": 200,
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/growth-overview?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z"
+        },
+        {
+          "phase": "res",
+          "status": 200,
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/reassessment"
+        },
+        {
+          "phase": "req",
+          "method": "GET",
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/reports?page_size=100"
+        },
+        {
+          "phase": "req",
+          "method": "GET",
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/assessments?page_size=100"
+        },
+        {
+          "phase": "req",
+          "method": "GET",
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/growth-overview?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z"
+        },
+        {
+          "phase": "req",
+          "method": "GET",
+          "url": "/api/v1/assessment-config"
+        },
+        {
+          "phase": "req",
+          "method": "GET",
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/companion-persona"
+        },
+        {
+          "phase": "req",
+          "method": "GET",
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/companion-health"
+        },
+        {
+          "phase": "req",
+          "method": "GET",
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/growth-cycle?period=15d"
+        },
+        {
+          "phase": "req",
+          "method": "GET",
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/reassessment"
+        },
+        {
+          "phase": "res",
+          "status": 200,
+          "url": "/api/v1/assessment-config"
+        },
+        {
+          "phase": "res",
+          "status": 200,
+          "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/reports?page_size=100"
+        }
+      ],
+      "console": [
+        "console: Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+      ]
+    },
+    {
+      "step": "agree checkbox count",
+      "count": 1
+    },
+    {
+      "step": "dialog dom state",
+      "dialogCount": 1,
+      "dialogVisible": false,
+      "dialogStyle": {
+        "className": "",
+        "hidden": false,
+        "display": "none",
+        "visibility": "visible",
+        "opacity": "1",
+        "innerHTMLHead": "\n      <div id=\"dialog-content\"><div class=\"dialog-wrap\"><div class=\"dialog-top\"><h2 id=\"dialog-title\">本次测评用途</h2><button class=\"text-button\" data-action=\"close"
+      }
+    },
+    {
+      "step": "agree step failed",
+      "error": "TimeoutError: locator.check: Timeout 5000ms exceeded."
+    }
+  ],
+  "requests": [
+    {
+      "phase": "req",
+      "method": "GET",
+      "url": "/api/v1/assessment-config?purpose=assessment"
+    },
+    {
+      "phase": "req",
+      "method": "GET",
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/consents?page_size=100"
+    },
+    {
+      "phase": "res",
+      "status": 200,
+      "url": "/api/v1/assessment-config?purpose=assessment"
+    },
+    {
+      "phase": "res",
+      "status": 200,
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/consents?page_size=100"
+    },
+    {
+      "phase": "req",
+      "method": "GET",
+      "url": "/api/v1/policies/current?purpose=assessment_processing"
+    },
+    {
+      "phase": "res",
+      "status": 200,
+      "url": "/api/v1/policies/current?purpose=assessment_processing"
+    },
+    {
+      "phase": "req",
+      "method": "GET",
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/reports?page_size=100"
+    },
+    {
+      "phase": "req",
+      "method": "GET",
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/assessments?page_size=100"
+    },
+    {
+      "phase": "req",
+      "method": "GET",
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/growth-overview?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z"
+    },
+    {
+      "phase": "req",
+      "method": "GET",
+      "url": "/api/v1/assessment-config"
+    },
+    {
+      "phase": "req",
+      "method": "GET",
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/companion-persona"
+    },
+    {
+      "phase": "req",
+      "method": "GET",
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/companion-health"
+    },
+    {
+      "phase": "req",
+      "method": "GET",
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/growth-cycle?period=15d"
+    },
+    {
+      "phase": "req",
+      "method": "GET",
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/reassessment"
+    },
+    {
+      "phase": "res",
+      "status": 200,
+      "url": "/api/v1/assessment-config"
+    },
+    {
+      "phase": "res",
+      "status": 200,
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/assessments?page_size=100"
+    },
+    {
+      "phase": "res",
+      "status": 200,
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/reports?page_size=100"
+    },
+    {
+      "phase": "res",
+      "status": 200,
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/companion-health"
+    },
+    {
+      "phase": "res",
+      "status": 200,
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/companion-persona"
+    },
+    {
+      "phase": "res",
+      "status": 200,
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/growth-cycle?period=15d"
+    },
+    {
+      "phase": "res",
+      "status": 200,
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/growth-overview?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z"
+    },
+    {
+      "phase": "res",
+      "status": 200,
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/reassessment"
+    },
+    {
+      "phase": "req",
+      "method": "GET",
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/reports?page_size=100"
+    },
+    {
+      "phase": "req",
+      "method": "GET",
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/assessments?page_size=100"
+    },
+    {
+      "phase": "req",
+      "method": "GET",
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/growth-overview?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z"
+    },
+    {
+      "phase": "req",
+      "method": "GET",
+      "url": "/api/v1/assessment-config"
+    },
+    {
+      "phase": "req",
+      "method": "GET",
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/companion-persona"
+    },
+    {
+      "phase": "req",
+      "method": "GET",
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/companion-health"
+    },
+    {
+      "phase": "req",
+      "method": "GET",
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/growth-cycle?period=15d"
+    },
+    {
+      "phase": "req",
+      "method": "GET",
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/reassessment"
+    },
+    {
+      "phase": "res",
+      "status": 200,
+      "url": "/api/v1/assessment-config"
+    },
+    {
+      "phase": "res",
+      "status": 200,
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/reports?page_size=100"
+    },
+    {
+      "phase": "res",
+      "status": 200,
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/assessments?page_size=100"
+    },
+    {
+      "phase": "res",
+      "status": 200,
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/companion-health"
+    },
+    {
+      "phase": "res",
+      "status": 200,
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/companion-persona"
+    },
+    {
+      "phase": "res",
+      "status": 200,
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/growth-cycle?period=15d"
+    },
+    {
+      "phase": "res",
+      "status": 200,
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/growth-overview?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z"
+    },
+    {
+      "phase": "res",
+      "status": 200,
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/reassessment"
+    },
+    {
+      "phase": "req",
+      "method": "GET",
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/reports?page_size=100"
+    },
+    {
+      "phase": "req",
+      "method": "GET",
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/assessments?page_size=100"
+    },
+    {
+      "phase": "req",
+      "method": "GET",
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/growth-overview?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z"
+    },
+    {
+      "phase": "req",
+      "method": "GET",
+      "url": "/api/v1/assessment-config"
+    },
+    {
+      "phase": "req",
+      "method": "GET",
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/companion-persona"
+    },
+    {
+      "phase": "req",
+      "method": "GET",
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/companion-health"
+    },
+    {
+      "phase": "req",
+      "method": "GET",
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/growth-cycle?period=15d"
+    },
+    {
+      "phase": "req",
+      "method": "GET",
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/reassessment"
+    },
+    {
+      "phase": "res",
+      "status": 200,
+      "url": "/api/v1/assessment-config"
+    },
+    {
+      "phase": "res",
+      "status": 200,
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/assessments?page_size=100"
+    },
+    {
+      "phase": "res",
+      "status": 200,
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/reports?page_size=100"
+    },
+    {
+      "phase": "res",
+      "status": 200,
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/companion-health"
+    },
+    {
+      "phase": "res",
+      "status": 200,
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/companion-persona"
+    },
+    {
+      "phase": "res",
+      "status": 200,
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/growth-cycle?period=15d"
+    },
+    {
+      "phase": "res",
+      "status": 200,
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/growth-overview?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z"
+    },
+    {
+      "phase": "res",
+      "status": 200,
+      "url": "/api/v1/children/7aed45e8-4725-422a-9998-3910c1dfc364/reassessment"
+    }
+  ],
+  "console": [
+    "console: Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+  ]
+}

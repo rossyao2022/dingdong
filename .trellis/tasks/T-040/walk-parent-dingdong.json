@@ -1,0 +1,36 @@
+{
+  "log": [
+    {
+      "step": "child",
+      "childId": "0e3ff7a5-47a4-49d8-9292-1fd4a1853e7f"
+    },
+    {
+      "step": "bind",
+      "status": 201
+    },
+    {
+      "step": "verify",
+      "status": 201
+    },
+    {
+      "step": "dingdong-mode reports",
+      "hasNotSynced": true,
+      "hasNoConsent": false,
+      "looksLikeSynthetic": true,
+      "text": "真源开关儿童 · 成长空间\n测评与报告\n\n初始测评、机器人观察与网页活动分别呈现。\n\n公网验收题库 mu5fthib\n\n非正式体验，只记录本次选择，不作能力评价。\n\n1 题 · 版本 v1\n\n开始这份问卷\n探索偏好体验\n\n从几个日常小情境开始，听听孩子此刻的想法。非正式测评，不做天赋或能力评分。\n\n开始探索体验\n\n题目来自后台已发布的体验题库，答案按儿童档案保存。\n\n初始测评\n合成测试数据\n\n正式算法与专业量表尚未接入。当前为日常情境测试题，只验证问卷和报告流程，不作专业结论。\n\n开始测评\n陪学伙伴\n\n机器人数据服务尚未接通\n\n稍后自动重试。\n\n互动健康度\n\n机器人数据服务尚未接通\n\n稍后自动重试。\n\n这是互动情况的提示，不是对孩子的评价。\n\n已生成报告\n还没有已生成的报告\n\n完成测评或关联后的同步处理后，报告会出现在这里。\n\n成长周期报告\n15 天\n30 天\n\n机器人数据服务尚未接通\n\n稍后自动重试。\n\n成长观察\n开始时间\n结束时间\n查看这个窗口\n\n按当前设备时区显示；结束时间不计入窗口。默认展示合成样例的观察窗口。\n\n机器人行为观察\n合成测试数据\n合成观察次数\n3 次\n\n最近成功同步：2026/09/18 05:28\n\n数据来源：这里是本机同步到的机器人行为观察；上面的「陪学伙伴」与「成长周期报告」来自机器人服务。两份来源不同，不能直接混成一个分数。\n\n阶段画像与变化\n\n正在处理最新观察。\n\n目前没有兼容、相邻且等长的两期结果，暂不展示变化。\n\n网页活动完成数不参与阶段画像计算。\n\n刷新观察状态"
+    },
+    {
+      "step": "probe done",
+      "apiProbe": null
+    },
+    {
+      "step": "console errors",
+      "errors": [
+        "console: Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+      ]
+    }
+  ],
+  "errors": [
+    "console: Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+  ]
+}

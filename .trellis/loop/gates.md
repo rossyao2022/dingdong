@@ -15,6 +15,7 @@ REQUEST T-003 review 产品体验与稳定性审计 backlog 已完成（家长�
 REQUEST T-021 review 四个展示面（人设 / 15–30 天成长报告 / 健康度四态 / 复测 CTA）设计文档已写完（`.trellis/tasks/T-021/design.md`，含 §7 逐条对照与 4 个实现任务拆分），需复看后再导入实现任务 2026-09-17T13:20Z
 REQUEST T-024 review 产品巡检 backlog 已写完（家长端 6 条 + 运营端 2 条 + T-003 未修复查 + 稳定性 1 条，含 P-10 复测回写 500 的真实响应体与截图证据），需复看后再决定导入哪些 2026-09-18T03:30Z
 REQUEST T-028 external 给 DingDong 的三层澄清清单已写完（`.trellis/tasks/T-028/dingdong-clarifications.md`，阻塞级 3 / 确认级 27 / 后置级 2，含 D1–D20 落点对照与 N1–N10 新增问题），只到「文档就绪待发」；发送属 external 动作，须 Yihu 放行后由人执行 2026-09-17T15:24Z
+REQUEST T-040 review 第三轮产品巡检 backlog 已写完（`.trellis/tasks/T-040/backlog.md`：家长端 2 条新条目，含 P-16 复测「开始复测」对话框被自动重渲染关掉的 100ms 采样证据与请求表；运营端 4 条新条目 O-08…O-11；T-037 两个儿童同 `event_id` 端到端复核 200/200；T-038/T-039/O-06/O-07 复核通过；源开关 `dingdong` 未配置支已复核），需复看后再决定导入哪些 2026-09-18T05:30Z
 
 ## 决定（orchestrator 追加）
 
