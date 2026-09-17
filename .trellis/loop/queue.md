@@ -146,7 +146,7 @@
 - goal: `frontend/tests/flows.spec.js`（3 项）与 `frontend/deployment-tests/ops-public.spec.js`（1 项）在本地要么通过、要么显式 skip 并打印原因，不再靠人分辨「产品坏了还是环境漂移」。
 - acceptance: 落地前置一致性处理（`server.cjs` 与 `inject_fixture` 指向同一库，或 spec 显式 skip + 打印原因）；`npx playwright test tests/flows.spec.js --reporter=list` 输出中不再有未解释的「Child does not exist」类失败；`cd frontend && npm run check && npm run test:unit` 通过；audit errors 为空；命令输出原文存 `.trellis/tasks/T-018/`。
 - gate: none
-- status: todo
+- status: doing
 - notes: 优先做「同一库」；不可行才选显式 skip 并在 report 说明为何不可行。属第二批：commit 后可直接 push 并补 EXECUTED 行。
 
 ## T-019 O-02 家长姓名为空不再回落内部账号 `parent-<uuid>`
@@ -154,7 +154,7 @@
 - acceptance: 5 处均不再出现 `parent-` 前缀；优先复用「账号与权限」页既有先例；`cd backend && uv run pytest tests/test_ops_console.py tests/test_ops_audit_scope.py tests/test_ops_ca_accounts.py` 通过（含新增断言）；audit errors 为空；真实 Chrome 5 处各截图到 `.trellis/tasks/T-019/shots/`。
 - gate: none
 - status: todo
-- notes: 优先抽公共函数，别在 5 个模板各写一份。属第二批：commit 后可直接 push 并补 EXECUTED 行。
+- notes: 优先抽公共函数，别在 5 个模板各写一份。属第二批：commit 后可直接 push 并补 EXECUTED 行。**orchestrator 补充（2026-09-17T11:48Z）**：第 5 处「操作审计」包含其「对象」列的副行（家长未填姓名时同样回落），T-017 轮 worker 发现该副行仍显示 `parent-<uuid>`，一并纳入本任务回落范围，不另开任务。
 
 ## T-020 S-04 阶段画像/同步失败在家长端的可见性
 - goal: 用 `inject_fixture` 注入真实失败任务，验证阶段画像/数据同步失败在家长端是否可见；不可见则补可见性，可见则只记证据。
@@ -163,12 +163,33 @@
 - status: todo
 - notes: 不许把测试数据流程说成真实供应商接入；注入的合成数据记进 report 供清理。属第二批：commit 后可直接 push 并补 EXECUTED 行。
 
+## T-026 刷新 T-012 过期截图（证据保鲜小任务）
+- goal: 重跑 `frontend/tests/ca-account.spec.js` 刷新 `.trellis/tasks/T-012/shots/` 三张入库截图（T-017 轮 worker 发现其相对当前代码已过期，且已验证与 T-017 改动无关）；核对截图内容仍满足 T-012 验收（账户页不含「指纹」字样、显示同一摘要前 8 位）。
+- acceptance: `cd frontend && npx playwright test tests/ca-account.spec.js` 全绿；三张截图更新且与新页面一致；本轮不改产品代码（用例本身的小适配允许，改动记录进 report）；`npm run check` 通过；audit errors 为空。
+- gate: none
+- status: todo
+- notes: 纯证据保鲜，不改产品。机制维护类：commit 后可直接 push 并补 EXECUTED 行。
+
+## T-027 存量测试文件过 ruff format（T-014 遗留）
+- goal: `backend/tests/test_ops_audit_scope.py` 通过 `ruff format --check --target-version py313`（T-014 轮新代码已格式化、存量文件未过），只做格式化，不改断言语义。
+- acceptance: `cd backend && uv run ruff format --check --target-version py313 tests/test_ops_audit_scope.py` 通过；`uv run pytest tests/test_ops_audit_scope.py` 结果与格式化前一致（全绿）；audit errors 为空。
+- gate: none
+- status: todo
+- notes: 纯格式化 chore。若 ruff 调用方式与 T-014 轮记录有出入，以仓库实际工具链为准并记录。机制维护类：commit 后可直接 push 并补 EXECUTED 行。
+
 ## T-021 G-01-设计 四个展示面的设计文档（先设计后实现）
 - goal: 只写 `.trellis/tasks/T-021/design.md`：人设 / 15–30 天成长报告 / 健康度四态 / 复测 CTA 四个展示面的数据形状、合成数据源放哪一层、空态与错误态、与 `设计/CA对接_C1_ca_account_id设计_20260916.md` §7 判定标准的逐条对照、拆成几个实现任务；不写代码。
 - acceptance: design.md 含上述五部分且对 §7 判定标准逐条对照；本轮无代码改动；audit errors 为空；本任务 `status` 为 `gated` 且 `gates.md` 申请段有 `REQUEST T-021 review ...`。
 - gate: review
 - status: todo
 - notes: 只写设计；不新增对对方接口的依赖。属第三批：逐条申请门禁，不适用直推规则。
+
+## T-028 起草给 DingDong 侧的澄清清单（只产出文档，不发送）
+- goal: 起草 `.trellis/tasks/T-028/dingdong-clarifications.md`，分三层：阻塞级（D10 base URL、D12 API key、D20 换机主动解绑规则）、确认级（儿童/设备映射与权属核验、窗口游标修订与指标单位、同步频率及阶段规则、甲方算法输入输出/超时幂等/一次性处理不留存约定）、后置级（真实短信与生产部署条件）；每条写清「我们为什么需要 / 没有它当前系统如何诚实降级 / 拿到后我方接入动作」。**只产出文档，不发送**。
+- acceptance: 文档三层齐全且每条含上述三要素；阻塞级与确认级条目与 `设计/CA对接_C1_ca_account_id设计_20260916.md` 及 PROJECT_MEMORY.md 待确认清单一一对应；不含内部预算、人天、公网 IP、SSH 别名等敏感信息；audit errors 为空；本任务 `status` 为 `gated` 且 `gates.md` 申请段有 `REQUEST T-028 external ...`。
+- gate: external
+- status: todo
+- notes: 发送属 external 动作，须 Yihu 放行后由人执行，本任务只到「文档就绪待发」。放 T-021 之后：T-021 gated 等 orchestrator review 时 worker 可先磨本任务不空转。
 
 ## T-024 产品巡检（常设循环任务：家长与运营双视角走查）
 - goal: 以家长第一视角（`http://127.0.0.1:4173/`，任意手机号 + 验证码 `00000`）与运营视角（`http://127.0.0.1:8017/ops/`，`admin` / `dingdong-admin`）把产品再完整走一遍，结合本批已合入的修复（T-005…T-021），找出**新的**真实卡点、困惑或不信任点，产出 `.trellis/tasks/T-024/backlog.md` 并申请 review。这是常设供给任务：每轮修复任务磨完后自动巡检一次，由 orchestrator 复看导入下一批，循环自己喂自己。
