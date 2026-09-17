@@ -57,3 +57,4 @@ EXECUTED T-013 push 按决定段「第一批每完成一个任务 commit 后可�
 EXECUTED T-013 push（第二次，收尾记录提交 8460ff8）：`git push origin codex/release-v0.3.6` → `452ce71..8460ff8`，远端 sha `8460ff85c2f9202821ec2324cf1dcd736082468b`（该提交含 queue/gates/status/experiment-log 收尾记录；本条记录提交随后同一轮再推，分支头以 origin 为准） 2026-09-17T10:19Z
 
 EXECUTED T-014 push 按决定段「第一批每完成一个任务 commit 后可直接 push origin/codex/release-v0.3.6，不必逐条申请」执行：`git push origin codex/release-v0.3.6` → `11ad793..f4a4d6c`，远端 sha `f4a4d6c014251e2b497be1990ab7f56150469b24`（含 `[T-014]` 修复提交 d351372 与收尾记录提交 f4a4d6c；本条记录提交随后同一轮再推，分支头以 origin 为准） 2026-09-17T10:55Z
+EXECUTED T-014 push（第二次，补记远端 sha 的收尾记录提交）：`git push origin codex/release-v0.3.6` → `f4a4d6c..1c37f14`，远端 sha `1c37f14e7c4a04971bb95fb919e2e0169d80f3ed`（该提交含 gates.md EXECUTED 行；本条记录与 progress 收尾提交随后同一轮再推，分支头以 origin 为准） 2026-09-17T10:57Z

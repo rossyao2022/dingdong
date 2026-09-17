@@ -43,4 +43,4 @@
 
 ## 下一步
 
-收尾：report.md、queue `status: done`、experiment-log、status.md、commit + push + gates.md 补 EXECUTED 行。
+无。任务已收尾：`status`=`done`，代码提交 `d351372`、收尾记录提交 `f4a4d6c`，已按第一批直推规则推送（远端 `11ad793..f4a4d6c`，分支头以 origin 为准）。
