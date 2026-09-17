@@ -9,6 +9,7 @@
 | R0c | 接手 R0b 未落盘的收尾：按 4 条决定处理（提交两个校验结果 JSON、hooks 现状写进 README、删项目 `.cursor/`、不碰 `~/.cursor`）、复跑审计、一条 `[R0c]` 提交并 push、补实验记录 | 27 / 27（采样于写记录前；此后只剩写记录 / 提交 / 推送等收尾调用） | 0 次（本轮没有提交被拦。门禁①的轮次号正则缺陷在 R0b 已事前修掉，本轮只做放行验证：`[R0c]` / `[R0b]` exit 0，无任务 id exit 1） | 2 个（卡点 9–10：上一会话 TPM 限流 ×3 + 上下文 248k；门禁①正则只认数字轮次号） | 0 | 完成（已 push） |
 | T-001 | 写 `.trellis/loop/README.md`（≤10 行，覆盖启停/批门禁/看状态/加任务四件事），不碰驱动脚本 | 21 / 21（本会话工具调用计数，采样于收尾提交前） | 0 次 | 0 个 | 0 | 完成（已本地提交，未 push） |
 | T-002 | 新建 `.trellis/tasks/T-002/hello.md`（门禁联调测试文件），在 `gates.md` 申请 push 门禁，任务停 `gated` 等批 | 24 / 24（本会话工具调用计数，采样于收尾提交前） | 0 次（本地 commit `b7e30d1` 一次通过 commit-msg 与 pre-commit） | 0 个 | 0 | 完成（本地已提交，push 待批；停在 `gated`） |
+| T-004 | 验证模型切换自测：PRIMARY 被假 grok 脚本伪造限流（`TooManyRequests`）后由 FALLBACK（Pro）重跑；worker 确认 FALLBACK 身份、写报告标 `done`、不改代码 | 30 / 18（`events.jsonl` 计数，采样于收尾提交前） | 0 次 | 0 个 | 0 | 完成（本地已提交，未 push） |
 
 ## 正面样本（orchestrator 2026-09-17 验收确认）
 

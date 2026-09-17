@@ -21,7 +21,7 @@
 - goal: R0e 机制自测。本任务第一轮 PRIMARY 调用会被假 grok 包装脚本伪造限流，驱动应当立即用 FALLBACK（Pro）重跑同一任务；worker 只需确认自己在 FALLBACK 重跑中正常完成、不改任何代码。
 - acceptance: `.trellis/tasks/T-004/report.md` 存在并写一句「本轮由 FALLBACK 重跑完成」；本任务 `status` 为 `done`；改动已用首行 `[T-004]` 的提交入库。（runs.log 里 PRIMARY RATE_LIMITED / FALLBACK DONE 两行记录由 R0d 会话在驱动跑完后核对，不在本任务内。）
 - gate: none
-- status: todo
+- status: done
 - notes: 自测任务，验证完由 R0d 会话删除假脚本、核对 runs.log。
 
 ## T-003 产品体验与稳定性审计
