@@ -181,15 +181,15 @@
 - goal: 只写 `.trellis/tasks/T-021/design.md`：人设 / 15–30 天成长报告 / 健康度四态 / 复测 CTA 四个展示面的数据形状、合成数据源放哪一层、空态与错误态、与 `设计/CA对接_C1_ca_account_id设计_20260916.md` §7 判定标准的逐条对照、拆成几个实现任务；不写代码。
 - acceptance: design.md 含上述五部分且对 §7 判定标准逐条对照；本轮无代码改动；audit errors 为空；本任务 `status` 为 `gated` 且 `gates.md` 申请段有 `REQUEST T-021 review ...`。
 - gate: review
-- status: gated
-- notes: 只写设计；不新增对对方接口的依赖。属第三批：逐条申请门禁，不适用直推规则。**2026-09-17 执行结果**：`.trellis/tasks/T-021/design.md` 已写完（六节：现状核查 / 四个展示面数据形状 / 合成数据源分层 / 空态与错误态 / C1 §7 逐条对照 / 4 个实现任务拆分 + 5 条未决待澄清）。无代码改动（`git status` 只有 queue.md、驱动追加的 runs.log、新建的 T-021 目录）；`python3 scripts/audit_documents.py` → `errors: []`。设计要点：合成数据源放后端服务层（新开关 `CA_DISPLAY_DATA_SOURCE`，`api/ca_display.py` → `services/ca_display.py` → `test_fixture` 表或 `dingdong_client`），扩 `inject_fixture` 新增 6 个场景对应 xlsx 表 6 的 6 个 mock 账号；可用性词表复用 `growth.py` 既有 7 值；四态按 xlsx 表 7.1 的 H01–H07（`insufficient_data`/`normal`/`watch`/`reassess`），`switch_candidate`/`keep_current` 不当作健康度状态；`auto_switch` 始终 `false`。建议实现任务 A（数据层+接口）/ B（人设+健康度）/ C（成长报告）/ D（复测 CTA），已按 gate=review 申请门禁。
+- status: done
+- notes: 只写设计；不新增对对方接口的依赖。属第三批：逐条申请门禁，不适用直推规则。**2026-09-17T13:16Z orchestrator APPROVE（gates.md 决定段）：设计复看通过，授权 T-021 收尾轮直推。执行结果：`git push origin codex/release-v0.3.6` → `1bf231c..d2b44c7`，远端 sha `d2b44c74d665539c123833d166355148a8affe11`（含 `e1e582e` 设计提交、`d2b44c7` 收尾记录提交，以及此前未推送的 `b533410` R0i 记账提交）；远端头即 `d2b44c7`。T-021 已随批准导入 T-032/T-033/T-034/T-035 四个实现任务。****2026-09-17 执行结果**：`.trellis/tasks/T-021/design.md` 已写完（六节：现状核查 / 四个展示面数据形状 / 合成数据源分层 / 空态与错误态 / C1 §7 逐条对照 / 4 个实现任务拆分 + 5 条未决待澄清）。无代码改动（`git status` 只有 queue.md、驱动追加的 runs.log、新建的 T-021 目录）；`python3 scripts/audit_documents.py` → `errors: []`。设计要点：合成数据源放后端服务层（新开关 `CA_DISPLAY_DATA_SOURCE`，`api/ca_display.py` → `services/ca_display.py` → `test_fixture` 表或 `dingdong_client`），扩 `inject_fixture` 新增 6 个场景对应 xlsx 表 6 的 6 个 mock 账号；可用性词表复用 `growth.py` 既有 7 值；四态按 xlsx 表 7.1 的 H01–H07（`insufficient_data`/`normal`/`watch`/`reassess`），`switch_candidate`/`keep_current` 不当作健康度状态；`auto_switch` 始终 `false`。建议实现任务 A（数据层+接口）/ B（人设+健康度）/ C（成长报告）/ D（复测 CTA），已按 gate=review 申请门禁。
 
 ## T-029 刷新 T-008 漂移截图（证据保鲜小任务）
 - goal: 重跑 `frontend/tests/ca-account.spec.js` 刷新 `.trellis/tasks/T-008/shots/empty-credential.png`（T-026 轮核实为真漂移：197704→188099 字节、可见差异 199203 px，成因是弹窗背后页面滚动位置变化，弹窗文案本身一致），核对截图仍满足 T-008 验收（空凭据提交时 `.form-error` 可见且非空、对话框不关）。
 - acceptance: `cd frontend && npx playwright test tests/ca-account.spec.js` 全绿；截图更新且与新页面一致；本轮不改产品代码；`npm run check` 通过；audit errors 为空。
 - gate: none
-- status: todo
-- notes: 纯证据保鲜，不改产品。机制维护类：commit 后可直接 push 并补 EXECUTED 行。
+- status: done
+- notes: 纯证据保鲜，不改产品。机制维护类：commit 后可直接 push 并补 EXECUTED 行。**2026-09-17 执行结果**：简报定性「真漂移」实测证伪——同一份代码连跑两次即得 197704 / 188099 两版（`3e4d692a…` / `2c1d7c64…`），是运行间不确定（进「账户与关联」会滚动到该面板，截图有时抢在滚动动画中间），像素比对显示可见差异全落在弹窗背后的页面滚动位置、弹窗正文区 `0` px。故在截图前加 1 行 `window.scrollTo({ top: 0, behavior: "instant" })` + 2 行注释（只改 `frontend/tests/ca-account.spec.js`，未改产品代码），改后单条连跑三次 + 全量一次共 4 次同字节 `46197db652aaef0275ada44ceefc5c76032eec6ea54565ce3d6fb8e976c7f6db`（189622 字节，原 197704）并入库。验收：`ca-account.spec.js` `8 passed (54.3s)`；`npm run check` exit 0；`test:unit` 16 pass 0 fail；audit errors `[]`。已按机制维护类直推 push：`d2b44c7..a1e1d56`，远端 sha `a1e1d5604c4c7999c35ef5481045ee470ebfad23`。**引用更正**：T-026 notes 里「T-008 是真漂移」的定性以 T-029 report 为准。同类未处理项：`robot-label.spec.js` 的 T-012 三张图含用例内随机值，每跑必变（属设计如此，未确定化）。
 
 ## T-030 T-020 注入合成数据的清理（状态变更，不物理删除）
 - goal: 按 `.trellis/tasks/T-020/report.md` 的注入清单（儿童/家庭/家长/关联/阶段画像/报告/后台任务）逐条以状态变更方式清理（归档/停用等既有状态字段），不物理 DELETE，处置写入审计。
@@ -210,7 +210,35 @@
 - acceptance: 文档三层齐全且每条含上述三要素；阻塞级与确认级条目与 `设计/CA对接_C1_ca_account_id设计_20260916.md` 及 PROJECT_MEMORY.md 待确认清单一一对应；不含内部预算、人天、公网 IP、SSH 别名等敏感信息；audit errors 为空；本任务 `status` 为 `gated` 且 `gates.md` 申请段有 `REQUEST T-028 external ...`。
 - gate: external
 - status: todo
-- notes: 发送属 external 动作，须 Yihu 放行后由人执行，本任务只到「文档就绪待发」。放 T-021 之后：T-021 gated 等 orchestrator review 时 worker 可先磨本任务不空转。
+- notes: 发送属 external 动作，须 Yihu 放行后由人执行，本任务只到「文档就绪待发」。放 T-021 之后：T-021 gated 等 orchestrator review 时 worker 可先磨本任务不空转。**orchestrator 并入（2026-09-17T13:16Z，随 T-021 批复）**：T-021 design §6 的 5 条待澄清并入本清单确认级——① `new_assessment_id` 取值语义与 `complete` 幂等窗口（标注：复测回写实源切换前置）；② `persona_health.status` 权威枚举是否含 `insufficient_data`（xlsx 表 3.6 与表 7.1 不一致）；③ `persona_type` 与 `learning_style_tags` 的 code 表；④ `growth_period` 八维可空时是否允许部分返回；⑤ `reassessment_event.persona_switched` 由谁写（标注：复测回写实源切换前置）。每条仍按本任务三层格式（为什么需要 / 没有它如何诚实降级 / 拿到后接入动作）展开。
+
+## T-032 展示面 A：四个面的数据层与家长端接口
+- goal: 按 `.trellis/tasks/T-021/design.md` 实现数据层：settings 新增 `CA_DISPLAY_DATA_SOURCE`（默认 `synthetic_fixture`，独立于既有 `INTEGRATION_DATA_SOURCE`，不共用值域）；`core/services/ca_display.py` 唯一分派出口（synthetic → `test_fixture` 表新 kind `ca_display_persona/growth/health/reassessment`；dingdong → `dingdong_client`，未配置返回 `not_synced` + `reason=upstream_not_configured`）；`core/api/ca_display.py` 四读两写（companion-persona / growth-cycle / companion-health / reassessment 读，response/complete 两写），一律以 `child_id` 为键 + `owned_child()` 家庭隔离，不向家长端暴露 `ca_account_id`；`inject_fixture` 新增 6 个场景对应 xlsx 表 6 的 6 个 mock 账号；响应统一带 availability / data_origin / source / fetched_at / reason 信封，availability 词表复用 `growth.py` 既有 7 值。
+- acceptance: 后端用例覆盖 7 个 availability 值与设计 §3.3 的业务码处置（42901/50001 重试、40101 停止、40401 当暂无数据、40901 conflict、40001 fatal）；两条 POST 幂等重放（同 request_id + 同 accepted 返回首次结果，不同 accepted 返回 422）；家庭隔离断言（非本人儿童 404）；`period` 非 15d|30d 返回 422；合成模式下断言零出站调用；未知健康 `status` 落「不做判断」分支；fixture 数据不含 nfc_token/凭据；`设计/API/openapi.json` 同步；`python3 scripts/audit_documents.py` errors 为空；改动以首行 `[T-032]` 提交。
+- gate: none
+- status: todo
+- notes: 设计已批（gates.md T-021 APPROVE 2026-09-17T13:16Z）。commit 后直接 push origin/codex/release-v0.3.6 并补 EXECUTED 行。收口项：PROJECT_MEMORY.md 同步（本任务无 UI 变化，frontend/README.md 不动）。实现任务 report 不得写成「已接通 DingDong」。
+
+## T-033 展示面 B：面一人设 + 面三健康度四态（家长端 UI）
+- goal: 按 design §1.1/§1.3 实现：`#reports` 新增「陪学伙伴」面板（人设卡 + 「互动健康度」区块，健康度位于人设卡下方）；四态分支按 design §1.3 表格（`insufficient_data` 只说还在收集不判断、`normal` 显分数与观察天数、`watch` 轻提示且不出复测 CTA、`reassess` 出复测入口）；`data_origin=synthetic` 时面板级挂「合成测试数据」徽标（复用 `testTag()`），availability≠ready 不显示任何数值；`trigger_reason` 两 code 由后端映射中文；面板底部固定「这是互动情况的提示，不是对孩子的评价」；`#settings` 机器人账户面板补一行只读当前人设名；换机后旧号人设只读展示并标「上一台机器人时期」。
+- acceptance: 真实 Chrome 用 6 个 ca_display 场景逐个走查并截图到 `.trellis/tasks/T-033/shots/`（含 390×844）；断言四态文案与是否显分符合 §1.3（`insufficient_data`/`watch` 界面不出现 health_score 数值）；`pageerror` 为空；`cd frontend && npm run check && npm run test:unit` 通过；audit errors 为空；依赖 T-032 接口与场景；改动以首行 `[T-033]` 提交。
+- gate: none
+- status: todo
+- notes: 设计已批，直推规则同 T-032。文案不得把 match_score 写成天赋分/适合度；不得把 not_synced 说成「暂无数据」。收口项：frontend/README.md 与 PROJECT_MEMORY.md 同步。
+
+## T-034 展示面 C：面二 15/30 天成长报告（家长端 UI）
+- goal: 按 design §1.2 实现：`#reports` 新增「成长周期报告」面板（置于既有「成长观察」之上），15/30 天固定 Tab（不提供任意区间，任意区间仍归成长观察）；companion delta 文案「陪伴值增长」、engagement 阶段中文名（映射表放后端）与 stage_progress、八维固定顺序条形（缺失维度显示「本周期无该维度数据」，不补 0 不插值）；八维标注「成长代理（对方算法产出，不是 CA 原始天赋分）」；合成徽标同 T-033。
+- acceptance: 真实 Chrome 三态截图到 `.trellis/tasks/T-034/shots/`（正常 15d/30d、new_user 空态、stale 陈旧态，含 390×844）；既有「成长观察」窗口功能回归通过（`tests/growth-window.spec.js` 全绿）；`cd frontend && npm run check && npm run test:unit` 通过；audit errors 为空；改动以首行 `[T-034]` 提交。
+- gate: none
+- status: todo
+- notes: 设计已批，直推规则同 T-032。收口项：frontend/README.md 与 PROJECT_MEMORY.md 同步。非法 period 的 422 行为在 T-032 已覆盖，UI 侧确认错误文案即可。
+
+## T-035 展示面 D：面四复测 CTA 与回写闭环（家长端 UI）
+- goal: 按 design §1.4 实现：`health.status == "reassess"` 且 `reassessment_recommended` 时在健康度面板内展示 CTA（全产品唯一入口）；「重新测评 / 先不测」→ POST response 回写（`accepted=false` 后不再重复打扰，一行说明 + 可再次展开）；`accepted=true` 承接既有测评流程（不建第二套测评入口），完成后 POST complete 回写；`switch_recommended` 真假两分支（真=新角色推荐卡、由家长确认后才切换；假=展示保留当前角色、不显新角色名）；`auto_switch` 恒为 false，任何路径不自动切换；合成模式下回写只落我方库 + AuditEvent、零出站，接口响应如实标 `data_origin`。
+- acceptance: 真实 Chrome 走完整四步并截图到 `.trellis/tasks/T-035/shots/`（含 390×844）；`switch_recommended` 真假两分支各断言一次（假分支断言不出现新角色名）；用例断言无任何自动切换；幂等与半截态约束有后端用例（同 event_id+同 accepted 重放返回首次结果；本地状态先落库、出站失败留重试）；`cd frontend && npm run check && npm run test:unit` 通过；audit errors 为空；依赖 T-032/T-033；改动以首行 `[T-035]` 提交。
+- gate: none
+- status: todo
+- notes: 设计已批，直推规则同 T-032。收口项：frontend/README.md 与 PROJECT_MEMORY.md 同步。注入的合成数据记 report 供清理；report 不得写成「已接通 DingDong」。
 
 ## T-024 产品巡检（常设循环任务：家长与运营双视角走查）
 - goal: 以家长第一视角（`http://127.0.0.1:4173/`，任意手机号 + 验证码 `00000`）与运营视角（`http://127.0.0.1:8017/ops/`，`admin` / `dingdong-admin`）把产品再完整走一遍，结合本批已合入的修复（T-005…T-021），找出**新的**真实卡点、困惑或不信任点，产出 `.trellis/tasks/T-024/backlog.md` 并申请 review。这是常设供给任务：每轮修复任务磨完后自动巡检一次，由 orchestrator 复看导入下一批，循环自己喂自己。

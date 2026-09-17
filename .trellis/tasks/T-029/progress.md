@@ -24,6 +24,8 @@
 ## 简报前提核对（与磁盘/实测不符）
 - 简报写「T-026 轮核实为真漂移：197704→188099 字节、可见差异 199203 px，成因是弹窗背后页面滚动位置变化」。前半段实测成立（188099 那版可复现），但「真漂移」的定性不成立：同一份代码连跑两次即出现该差异，两次运行之间没有任何代码变化 → 是运行间不确定，不是相对当前代码过期。滚动位置成因成立。
 
-## Finish（进行中）
-- 下一步：写 `report.md` → commit（首行 `[T-029]`）→ push（本任务 notes 授权机制维护类直推）→ 补 gates.md EXECUTED 行 → 追加 experiment-log → 重写 status.md。
-- 门禁动作执行（简报第 1 节，先于本任务）：决定段 `APPROVE T-021 review` 已执行，`git push origin codex/release-v0.3.6` → `1bf231c..d2b44c7`，远端 sha `d2b44c74d665539c123833d166355148a8affe11`；T-021 `status` 已改 `done`。
+## Finish（已完成）
+- `report.md` 已写；commit `a1e1d56`（首行 `[T-029] test: 固定空凭据截图滚动位置，刷新 T-008 截图`）已过 commit-msg 与 pre-commit；已 push：`d2b44c7..a1e1d56`，远端 sha `a1e1d5604c4c7999c35ef5481045ee470ebfad23`；`gates.md` 已补 `EXECUTED T-029 push` 行。
+- queue.md T-029 `status` 改 `done` 并记执行结果；experiment-log 追加 T-029 行；status.md 已重写。
+- 门禁动作执行（简报第 1 节，先于本任务）：决定段 `APPROVE T-021 review` 已执行，`git push origin codex/release-v0.3.6` → `1bf231c..d2b44c7`，远端 sha `d2b44c74d665539c123833d166355148a8affe11`；T-021 `status` 已改 `done`，`gates.md` 补 `EXECUTED T-021 push` 行。
+- 收尾记录提交（queue/gates/status/experiment-log/runs.log）随后同一轮再推。
