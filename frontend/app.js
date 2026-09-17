@@ -706,10 +706,15 @@ function robotPanel(rows) {
 function bindRobotDialog(token = "") {
   showDialog(
     "绑定机器人",
-    `<p>机器人上的标签会带着凭据打开这个页面。确认后，系统会为这台机器人生成一个账户号。</p><form id="bind-robot-form"><label class="field">这台机器人服务的孩子<select name="child_id">${state.children.map((c) => `<option value="${c.id}" ${c.id === state.child?.id ? "selected" : ""}>${esc(c.name)}</option>`).join("")}</select></label><label class="field">机器人凭据<input name="nfc_token" value="${esc(token)}" required maxlength="2048" autocomplete="off" spellcheck="false" placeholder="从机器人标签上取得"></label><p class="note">凭据只用于本次绑定：不保存在浏览器里，也不写进日志。一台机器人只服务一个孩子。</p><button class="button" type="submit">确认绑定</button></form>`,
+    `<p>用手机碰一下机器人上的标签，凭据会自动带回到这个页面；也可以手动输入。确认后，系统会为这台机器人生成一个账户号。</p><form id="bind-robot-form" novalidate><label class="field">这台机器人服务的孩子<select name="child_id">${state.children.map((c) => `<option value="${c.id}" ${c.id === state.child?.id ? "selected" : ""}>${esc(c.name)}</option>`).join("")}</select></label><label class="field">机器人凭据<input name="nfc_token" value="${esc(token)}" required maxlength="2048" autocomplete="off" spellcheck="false" placeholder="从机器人标签上取得"></label><p class="note">凭据通常是一串字母和数字，最长 2048 个字符；只用于本次绑定，不保存在浏览器里，也不写进日志。一台机器人只服务一个孩子。</p><button class="button" type="submit">确认绑定</button></form>`,
   );
   $("#bind-robot-form").onsubmit = (e) => {
     e.preventDefault();
+    if (!e.target.elements.nfc_token.value.trim()) {
+      $("#dialog .form-error").textContent =
+        "请先填写机器人凭据，或让手机碰一下机器人上的标签自动带进来。";
+      return;
+    }
     act(() => submitRobotBinding(e.target), e.submitter);
   };
 }

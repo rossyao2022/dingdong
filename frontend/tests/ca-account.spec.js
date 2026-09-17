@@ -208,6 +208,43 @@ test("新会话从标签进来：登录建档案后绑定，同样落在账户�
   );
 });
 
+test("手填绑定：空凭据就地提示，对话框不关", async ({ page }) => {
+  await login(page);
+  await child(page, "手填合成儿童");
+  // 建档后应用会落到探索页，等它稳定再点导航，避免和建档后的自动跳转赛跑。
+  await expect(
+    page.getByRole("heading", { name: "好奇心，准备出发！" }),
+  ).toBeVisible();
+  await page.locator("nav").getByRole("link", { name: "账户与关联" }).click();
+  await expect(page.getByRole("heading", { name: "机器人账户" })).toBeVisible();
+
+  const panel = page.locator(".panel", { hasText: "机器人账户" });
+  await panel.getByRole("button", { name: "绑定机器人" }).click();
+
+  const dialog = page.locator("#dialog");
+  await expect(
+    dialog.getByRole("heading", { name: "绑定机器人" }),
+  ).toBeVisible();
+  // 操作指引与格式/长度提示都在弹窗里。
+  await expect(dialog).toContainText("碰一下机器人上的标签");
+  await expect(dialog).toContainText("2048");
+
+  await dialog.getByRole("button", { name: "确认绑定" }).click();
+
+  const err = dialog.locator(".form-error");
+  await expect(err).toBeVisible();
+  await expect(err).not.toBeEmpty();
+  await expect(err).toContainText("请先填写机器人凭据");
+  // 对话框不关，家长补上凭据即可继续。
+  await expect(
+    dialog.getByRole("heading", { name: "绑定机器人" }),
+  ).toBeVisible();
+
+  await page.screenshot({
+    path: "../.trellis/tasks/T-008/shots/empty-credential.png",
+  });
+});
+
 test("绑定落点截图：桌面与 390×844", async ({ page }) => {
   await login(page);
   await child(page, "截图合成儿童");
