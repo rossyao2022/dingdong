@@ -1,5 +1,7 @@
 """模板过滤器：把内部代码翻译成运营看得懂的中文，避免在模板里写 if 链。"""
 
+import re
+
 from django import template
 
 from dingdong_ca.ops import labels as L
@@ -140,6 +142,18 @@ def display_name(value, fallback="系统"):
     if value is None:
         return fallback
     return getattr(value, "name", "") or getattr(value, "username", "") or fallback
+
+
+@register.filter
+def version_label(value, fallback="—"):
+    """内容版本代码的展示名：只留版本号（`readable-v2` → `v2`）。
+
+    内部 code 不进正文；模板需要时自己把它放进 `title` 属性。
+    """
+    if not value:
+        return fallback
+    found = re.findall(r"v\d+(?:\.\d+)*", str(value), re.IGNORECASE)
+    return found[-1] if found else str(value)
 
 
 @register.filter

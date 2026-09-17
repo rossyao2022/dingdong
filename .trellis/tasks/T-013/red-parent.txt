@@ -1,0 +1,45 @@
+(node:98967) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:98997) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:98998) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/questionnaire-version.spec.js:64:1 › 家长端答题页显示题库中文名与版本号，不把内部 code 写进正文 (10.0s)
+
+
+  1) tests/questionnaire-version.spec.js:64:1 › 家长端答题页显示题库中文名与版本号，不把内部 code 写进正文 ───────────────────
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('.question p.note').nth(1)
+    Expected substring: "题库「四个小情境：探索偏好体验」（v2）"
+    Received string:    "必填 · 单选 · 题库版本 readable-v2"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" locator('.question p.note').nth(1) with timeout 5000ms
+      - waiting for locator('.question p.note').nth(1)
+        8 × locator resolved to <p class="note">必填 · 单选 · 题库版本 readable-v2</p>
+          - unexpected value "必填 · 单选 · 题库版本 readable-v2"
+
+
+      88 |
+      89 |   const note = page.locator(".question p.note").nth(1);
+    > 90 |   await expect(note).toContainText("题库「四个小情境：探索偏好体验」（v2）");
+         |                      ^
+      91 |   // 正文（textContent 不含属性）里不该再有内部 code；它只活在 title 里。
+      92 |   expect(await page.locator("body").textContent()).not.toContain(RAW_VERSION);
+      93 |   await expect(page.locator(`.question [title="${RAW_VERSION}"]`)).toHaveCount(1);
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/questionnaire-version.spec.js:90:22
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/questionnaire-version-家长端答题页显示题库中文名与版本号，不把内部-code-写进正文/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/questionnaire-version-家长端答题页显示题库中文名与版本号，不把内部-code-写进正文/error-context.md
+
+  1 failed
+    tests/questionnaire-version.spec.js:64:1 › 家长端答题页显示题库中文名与版本号，不把内部 code 写进正文 ────────────────────

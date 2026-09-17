@@ -1,6 +1,7 @@
 """运营后台：登录、权限、工作首页、家庭与儿童、账号与审计。"""
 
 import json
+import re
 import uuid
 
 import pytest
@@ -231,6 +232,33 @@ def test_child_detail_aggregates_related_records():
     ]:
         assert section in body
     assert children[0].name in body
+
+
+def test_child_detail_shows_version_number_not_internal_code():
+    """答卷区给运营看版本号；内部 code 只留在 title 属性里，不进正文。"""
+    from dingdong_ca.core.models import QuestionnaireVersion
+    from ops_helpers import make_session
+
+    family, children, parent = make_family()
+    version = QuestionnaireVersion.objects.create(
+        code="ops-version-label",
+        version="readable-v2",
+        title="四个小情境：探索偏好体验",
+        purpose="exploration",
+        data_origin="synthetic",
+        status="published",
+        questions=[],
+    )
+    make_session(children[0], parent, version)
+    client = ops_client(make_staff("operations"))
+    response = client.get(reverse("ops:child_detail", args=[children[0].pk]))
+    assert response.status_code == 200
+    body = response.content.decode()
+    text = re.sub(r"<[^>]+>", "", body)
+    assert "四个小情境：探索偏好体验" in text
+    assert "版本 v2" in text
+    assert 'title="readable-v2"' in body
+    assert "readable-v2" not in text
 
 
 def test_family_freeze_requires_role_and_writes_audit():

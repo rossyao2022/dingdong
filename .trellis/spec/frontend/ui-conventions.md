@@ -42,6 +42,7 @@
   - `GENDER_TEXT`、`islands`、`moods`、`styles`
   - `ca-link.js` 的 `ACCOUNT_STATUS`（`active: "使用中"` / `retired: "已归档"`）与 `BIND_STATE`（`unbound: "待接通"` / `bound: "已绑定"`）——这两个必须与运营后台用同一套说法，`unit/ca-link.test.js` 最后一条用例就是在钉这一点。
 - 两个状态维度不许合并成一句话：`status` 说“我方还用不用这个号”，`bind_state` 说“对方接通没接通”（`accountRow` 的标签、`ROBOT_JOIN_NOTE` 的说明）。
+- 内部版本 code 不进正文：题库/内容的版本一律显示「中文名 + 版本号」（`versionLabel()`；运营端对应过滤器 `version_label`，见 `ops/templatetags/ops_labels.py`），原始 code（如 `readable-v2`）只放进 `title` 属性。中文名取服务端下发的 `title`，不在前端维护映射表。
 - 需要留在页面上、不能只是一闪而过的说明用 `.notice` 块（活动准备材料、换号代价、同步异常、合规提醒）；只在片刻确认用 `toast()`。
 
 ## 合规与边界必须显示在界面上

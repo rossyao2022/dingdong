@@ -87,7 +87,7 @@
               <span class="badge {{ session.status|tone }}">{{ session.status|label:"ASSESSMENT_STATUS" }}</span>
               <span class="text-secondary small">
                 · {{ session.questionnaire_version.purpose|label:"QUESTIONNAIRE_PURPOSE" }}
-                · 版本 {{ session.questionnaire_version.version }}
+                · 版本 <span title="{{ session.questionnaire_version.version }}">{{ session.questionnaire_version.version|version_label }}</span>
                 · {{ session.created_at|date:"Y-m-d H:i" }}
               </span>
             </summary>

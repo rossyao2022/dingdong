@@ -1,0 +1,13 @@
+(node:1104) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1140) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 1 worker
+
+(node:1142) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/questionnaire-version.spec.js:88:1 › 家长端答题页显示题库中文名与版本号，不把内部 code 写进正文 (8.4s)
+  ✓  2 tests/questionnaire-version.spec.js:156:1 › 运营端儿童详情的答卷区显示版本号，不把内部 code 写进正文 (5.2s)
+
+  2 passed (14.3s)

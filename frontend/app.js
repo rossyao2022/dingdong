@@ -18,6 +18,12 @@ const esc = (v) =>
         c
       ],
   );
+// 内部版本 code（如 readable-v2）不给家长看：正文只放版本号，原始 code 走 title 属性。
+// 题库中文名一律取服务端下发的 title，不在前端维护映射表。
+const versionLabel = (v) => {
+  const found = String(v ?? "").match(/v\d+(?:\.\d+)*/gi);
+  return found ? found[found.length - 1] : String(v ?? "");
+};
 const state = {
   user: null,
   children: [],
@@ -364,7 +370,7 @@ function sessionView(s) {
         s.title || "测评问卷",
         s.description || "题库与答案保存在当前儿童档案中。",
       ) +
-      `<section class="panel question">${testTag()}<p class="note">第 ${state.question + 1} / ${s.questions.length} 题 · ${s.missing_question_codes.length ? "尚有 " + s.missing_question_codes.length + " 题未完成" : "全部题目已保存"}</p><progress value="${state.question + 1}" max="${s.questions.length}" aria-label="问卷进度"></progress><form id="answer-form"><fieldset><legend>${esc(q.title)}</legend><p class="note">${q.required ? "必填" : "选填，可跳过"} · ${q.type === "single_choice" ? "单选" : "最多选 " + q.max_choices + " 项"} · 题库版本 ${esc(s.version)}</p>${q.options.map((o) => `<label class="answer-option"><input type="${q.type === "single_choice" ? "radio" : "checkbox"}" name="answer" value="${esc(o.code)}" ${answers.includes(o.code) ? "checked" : ""}>${esc(o.label)}</label>`).join("")}</fieldset><div class="form-error" role="alert"></div><div class="actions">${state.question ? button("previous-question", "上一题", "", true) : ""}<button type="submit" class="button">${state.question === s.questions.length - 1 ? "保存并完成" : "保存并下一题"}</button>${button("cancel-assessment", "取消本次测评", "", true)}</div></form></section>`
+      `<section class="panel question">${testTag()}<p class="note">第 ${state.question + 1} / ${s.questions.length} 题 · ${s.missing_question_codes.length ? "尚有 " + s.missing_question_codes.length + " 题未完成" : "全部题目已保存"}</p><progress value="${state.question + 1}" max="${s.questions.length}" aria-label="问卷进度"></progress><form id="answer-form"><fieldset><legend>${esc(q.title)}</legend><p class="note">${q.required ? "必填" : "选填，可跳过"} · ${q.type === "single_choice" ? "单选" : "最多选 " + q.max_choices + " 项"} · 题库「${esc(s.title)}」<span title="${esc(s.version)}">（${esc(versionLabel(s.version))}）</span></p>${q.options.map((o) => `<label class="answer-option"><input type="${q.type === "single_choice" ? "radio" : "checkbox"}" name="answer" value="${esc(o.code)}" ${answers.includes(o.code) ? "checked" : ""}>${esc(o.label)}</label>`).join("")}</fieldset><div class="form-error" role="alert"></div><div class="actions">${state.question ? button("previous-question", "上一题", "", true) : ""}<button type="submit" class="button">${state.question === s.questions.length - 1 ? "保存并完成" : "保存并下一题"}</button>${button("cancel-assessment", "取消本次测评", "", true)}</div></form></section>`
     );
   }
   return submissionView(s);
@@ -564,7 +570,7 @@ async function render() {
                 s.questionnaire_code === q.code &&
                 !["completed", "cancelled", "expired"].includes(s.status),
             );
-          return `<section class="panel"><h2>${esc(q.title)}</h2><p>${esc(q.description)}</p><p class="note">${q.question_count} 题 · ${esc(q.version)}</p>${resume ? button("continue-assessment", "继续这份问卷", `data-id="${resume.id}"`) : button("begin-bank", "开始这份问卷", `data-id="${q.id}" data-purpose="${q.purpose}"`)}</section>`;
+          return `<section class="panel"><h2>${esc(q.title)}</h2><p>${esc(q.description)}</p><p class="note">${q.question_count} 题 · 版本 <span title="${esc(q.version)}">${esc(versionLabel(q.version))}</span></p>${resume ? button("continue-assessment", "继续这份问卷", `data-id="${resume.id}"`) : button("begin-bank", "开始这份问卷", `data-id="${q.id}" data-purpose="${q.purpose}"`)}</section>`;
         })
         .join("");
       const history = sessions.filter(
