@@ -68,3 +68,20 @@ $ git ls-remote origin codex/release-v0.3.6
 a900a011ae04b518e82a920316093db05fa4ad36	refs/heads/codex/release-v0.3.6
 $ git rev-parse HEAD
 a900a011ae04b518e82a920316093db05fa4ad36
+
+### 命令8：收尾记录提交推送（含两次瞬时网络失败）
+$ git push origin codex/release-v0.3.6   # 第 1、2 次
+Connection closed by 198.18.0.10 port 443
+fatal: Could not read from remote repository.
+$ git push origin codex/release-v0.3.6   # 第 3 次（重试循环 attempt 1）
+To github.com:ivesyi/dingdong-ca.git
+   a900a01..b8e4bb0  codex/release-v0.3.6 -> codex/release-v0.3.6
+$ git ls-remote origin codex/release-v0.3.6
+b8e4bb090c323fd19c396be63d50ebf5a6de5985	refs/heads/codex/release-v0.3.6
+$ git rev-parse HEAD
+b8e4bb090c323fd19c396be63d50ebf5a6de5985
+$ git status --short
+ M .trellis/loop/gates.md
+ M .trellis/tasks/T-023/report.md
+ M .trellis/tasks/T-023/verify-output.txt
+ M .trellis/workspace/yihu/experiment-log.md

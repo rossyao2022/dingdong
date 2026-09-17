@@ -100,6 +100,10 @@ $ python3 scripts/audit_documents.py
 （errors: [] 见下方「收尾复跑」小节）
 ```
 
+## 卡点
+
+- 收尾记录提交推送时 ssh 走 `ssh.github.com:443`，被本机 TUN fake-ip 掐断两次：`Connection closed by 198.18.0.10 port 443` / `fatal: Could not read from remote repository.`（两次均为瞬时失败，非权限问题）。重试循环第 1 次即成功 `a900a01..b8e4bb0`，远端 sha `b8e4bb090c323fd19c396be63d50ebf5a6de5985`，与本地 HEAD 一致。首个提交 `a900a01` 的推送一次成功。
+
 ## 未验证项
 
 - `status.md` 里「环境事实：钩子从下次启动驱动起生效」那条按 bash 解析行为的推断，本轮未实测（不在本任务范围，原样保留在 status.md）。
@@ -107,4 +111,4 @@ $ python3 scripts/audit_documents.py
 
 ## 偏离与理由
 
-- 无偏离。未新增任何依赖、未改驱动与业务代码、未 push 之外触达远端；push 按本任务 `gate: push` + notes 的「机制任务直推」规则执行，并在 `gates.md` 补 EXECUTED 行。
+- 无偏离（唯一插曲是上面的网络瞬时失败，靠重试解决，未改任何配置）。未新增任何依赖、未改驱动与业务代码、未 push 之外触达远端；push 按本任务 `gate: push` + notes 的「机制任务直推」规则执行，并在 `gates.md` 补 EXECUTED 行。
