@@ -1,0 +1,53 @@
+{
+  "childId": "f51c2026-1b53-41c1-b2a7-d8e5466d2e41",
+  "pages": [
+    {
+      "scenario": "ca_display_normal_art",
+      "hash": "#home",
+      "innerWidth": 390,
+      "scrollWidth": 390,
+      "bodyScrollWidth": 390,
+      "overflowers": []
+    },
+    {
+      "scenario": "ca_display_normal_art",
+      "hash": "#reports",
+      "innerWidth": 390,
+      "scrollWidth": 390,
+      "bodyScrollWidth": 390,
+      "overflowers": []
+    },
+    {
+      "scenario": "ca_display_normal_art",
+      "hash": "#settings",
+      "innerWidth": 390,
+      "scrollWidth": 390,
+      "bodyScrollWidth": 390,
+      "overflowers": []
+    },
+    {
+      "scenario": "ca_display_normal_art",
+      "hash": "#journey",
+      "innerWidth": 390,
+      "scrollWidth": 390,
+      "bodyScrollWidth": 390,
+      "overflowers": []
+    },
+    {
+      "scenario": "ca_display_normal_art",
+      "hash": "#services",
+      "innerWidth": 390,
+      "scrollWidth": 390,
+      "bodyScrollWidth": 390,
+      "overflowers": []
+    },
+    {
+      "scenario": "ca_display_reassess",
+      "hash": "#reports",
+      "innerWidth": 390,
+      "scrollWidth": 390,
+      "bodyScrollWidth": 390,
+      "overflowers": []
+    }
+  ]
+}

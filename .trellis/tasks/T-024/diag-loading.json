@@ -1,0 +1,220 @@
+{
+  "childId": "733d24b7-d2ad-4d14-8bb8-ad3099662736",
+  "rounds": [
+    {
+      "round": 1,
+      "settledAtMs": 2070,
+      "settledText": "诊断儿童 · 成长空间\n今日陪伴\n\n跟着此刻的心情，开始一个小小的行动。\n\nHELLO, LITTLE EXPLORER\n诊断儿童，\n今天想发现什么？\n\n一点好奇，一点尝试。每一步，都有自己的意义。\n\n全部心情\n能量满满\n正在专注\n需要启发",
+      "samples": [
+        {
+          "t": 1047,
+          "text": "正在连接成长空间…",
+          "pending": [
+            "http://127.0.0.1:4173/api/v1/activities?page_size=100",
+            "http://127.0.0.1:4173/api/v1/children/733d24b7-d2ad-4d14-8bb8-ad3099662736/activity-records?status=active&page_size=100",
+            "http://127.0.0.1:4173/api/v1/activities?page_size=100",
+            "http://127.0.0.1:4173/api/v1/children/733d24b7-d2ad-4d14-8bb8-ad3099662736/activity-records?status=active&page_size=100"
+          ]
+        },
+        {
+          "t": 2070,
+          "text": "诊断儿童 · 成长空间\n今日陪伴\n\n跟着此刻的心情，开始一个小小的行动。\n\nHELLO, LITTLE EXPLORER\n诊断儿童，\n今天想发现什么？\n\n一点好奇，一点尝试。每一步，都有自己的意义。\n\n全部心情\n能量满满\n正在专注\n需要启发",
+          "pending": [
+            "http://127.0.0.1:4173/api/v1/activities?page_size=100",
+            "http://127.0.0.1:4173/api/v1/children/733d24b7-d2ad-4d14-8bb8-ad3099662736/activity-records?status=active&page_size=100"
+          ]
+        }
+      ],
+      "requests": [
+        {
+          "url": "/api/v1/runtime",
+          "ms": 2
+        },
+        {
+          "url": "/api/v1/auth/refresh",
+          "ms": 348
+        },
+        {
+          "url": "/api/v1/me",
+          "ms": 220
+        },
+        {
+          "url": "/api/v1/children?page_size=100",
+          "ms": 223
+        },
+        {
+          "url": "/api/v1/activities?page_size=100",
+          "ms": 275
+        },
+        {
+          "url": "/api/v1/children/733d24b7-d2ad-4d14-8bb8-ad3099662736/activity-records?status=active&page_size=100",
+          "ms": 409
+        }
+      ]
+    },
+    {
+      "round": 2,
+      "settledAtMs": 1015,
+      "settledText": "诊断儿童 · 成长空间\n今日陪伴\n\n跟着此刻的心情，开始一个小小的行动。\n\nHELLO, LITTLE EXPLORER\n诊断儿童，\n今天想发现什么？\n\n一点好奇，一点尝试。每一步，都有自己的意义。\n\n全部心情\n能量满满\n正在专注\n需要启发",
+      "samples": [
+        {
+          "t": 1015,
+          "text": "诊断儿童 · 成长空间\n今日陪伴\n\n跟着此刻的心情，开始一个小小的行动。\n\nHELLO, LITTLE EXPLORER\n诊断儿童，\n今天想发现什么？\n\n一点好奇，一点尝试。每一步，都有自己的意义。\n\n全部心情\n能量满满\n正在专注\n需要启发",
+          "pending": []
+        }
+      ],
+      "requests": [
+        {
+          "url": "/api/v1/runtime",
+          "ms": 1
+        },
+        {
+          "url": "/api/v1/auth/refresh",
+          "ms": 226
+        },
+        {
+          "url": "/api/v1/me",
+          "ms": 202
+        },
+        {
+          "url": "/api/v1/children?page_size=100",
+          "ms": 217
+        },
+        {
+          "url": "/api/v1/activities?page_size=100",
+          "ms": 223
+        },
+        {
+          "url": "/api/v1/children/733d24b7-d2ad-4d14-8bb8-ad3099662736/activity-records?status=active&page_size=100",
+          "ms": 347
+        }
+      ]
+    },
+    {
+      "round": 3,
+      "settledAtMs": 2040,
+      "settledText": "诊断儿童 · 成长空间\n今日陪伴\n\n跟着此刻的心情，开始一个小小的行动。\n\nHELLO, LITTLE EXPLORER\n诊断儿童，\n今天想发现什么？\n\n一点好奇，一点尝试。每一步，都有自己的意义。\n\n全部心情\n能量满满\n正在专注\n需要启发",
+      "samples": [
+        {
+          "t": 1019,
+          "text": "正在连接成长空间…",
+          "pending": [
+            "http://127.0.0.1:4173/api/v1/activities?page_size=100",
+            "http://127.0.0.1:4173/api/v1/children/733d24b7-d2ad-4d14-8bb8-ad3099662736/activity-records?status=active&page_size=100"
+          ]
+        },
+        {
+          "t": 2040,
+          "text": "诊断儿童 · 成长空间\n今日陪伴\n\n跟着此刻的心情，开始一个小小的行动。\n\nHELLO, LITTLE EXPLORER\n诊断儿童，\n今天想发现什么？\n\n一点好奇，一点尝试。每一步，都有自己的意义。\n\n全部心情\n能量满满\n正在专注\n需要启发",
+          "pending": []
+        }
+      ],
+      "requests": [
+        {
+          "url": "/api/v1/runtime",
+          "ms": 1
+        },
+        {
+          "url": "/api/v1/auth/refresh",
+          "ms": 248
+        },
+        {
+          "url": "/api/v1/me",
+          "ms": 249
+        },
+        {
+          "url": "/api/v1/children?page_size=100",
+          "ms": 249
+        },
+        {
+          "url": "/api/v1/activities?page_size=100",
+          "ms": 274
+        },
+        {
+          "url": "/api/v1/children/733d24b7-d2ad-4d14-8bb8-ad3099662736/activity-records?status=active&page_size=100",
+          "ms": 370
+        }
+      ]
+    },
+    {
+      "round": 4,
+      "settledAtMs": 2039,
+      "settledText": "诊断儿童 · 成长空间\n今日陪伴\n\n跟着此刻的心情，开始一个小小的行动。\n\nHELLO, LITTLE EXPLORER\n诊断儿童，\n今天想发现什么？\n\n一点好奇，一点尝试。每一步，都有自己的意义。\n\n全部心情\n能量满满\n正在专注\n需要启发",
+      "samples": [
+        {
+          "t": 1017,
+          "text": "正在连接成长空间…",
+          "pending": [
+            "http://127.0.0.1:4173/api/v1/children/733d24b7-d2ad-4d14-8bb8-ad3099662736/activity-records?status=active&page_size=100"
+          ]
+        },
+        {
+          "t": 2039,
+          "text": "诊断儿童 · 成长空间\n今日陪伴\n\n跟着此刻的心情，开始一个小小的行动。\n\nHELLO, LITTLE EXPLORER\n诊断儿童，\n今天想发现什么？\n\n一点好奇，一点尝试。每一步，都有自己的意义。\n\n全部心情\n能量满满\n正在专注\n需要启发",
+          "pending": []
+        }
+      ],
+      "requests": [
+        {
+          "url": "/api/v1/runtime",
+          "ms": 1
+        },
+        {
+          "url": "/api/v1/auth/refresh",
+          "ms": 221
+        },
+        {
+          "url": "/api/v1/me",
+          "ms": 190
+        },
+        {
+          "url": "/api/v1/children?page_size=100",
+          "ms": 241
+        },
+        {
+          "url": "/api/v1/activities?page_size=100",
+          "ms": 266
+        },
+        {
+          "url": "/api/v1/children/733d24b7-d2ad-4d14-8bb8-ad3099662736/activity-records?status=active&page_size=100",
+          "ms": 377
+        }
+      ]
+    }
+  ],
+  "bad": [
+    {
+      "status": 401,
+      "url": "http://127.0.0.1:4173/api/v1/auth/refresh",
+      "method": "POST",
+      "at": "2026-09-17T19:09:30.278Z"
+    }
+  ],
+  "pageErrors": [],
+  "finishedLast": [
+    {
+      "url": "http://127.0.0.1:4173/api/v1/runtime",
+      "ms": 1
+    },
+    {
+      "url": "http://127.0.0.1:4173/api/v1/auth/refresh",
+      "ms": 221
+    },
+    {
+      "url": "http://127.0.0.1:4173/api/v1/me",
+      "ms": 190
+    },
+    {
+      "url": "http://127.0.0.1:4173/api/v1/children?page_size=100",
+      "ms": 241
+    },
+    {
+      "url": "http://127.0.0.1:4173/api/v1/activities?page_size=100",
+      "ms": 266
+    },
+    {
+      "url": "http://127.0.0.1:4173/api/v1/children/733d24b7-d2ad-4d14-8bb8-ad3099662736/activity-records?status=active&page_size=100",
+      "ms": 377
+    }
+  ]
+}

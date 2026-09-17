@@ -1,0 +1,30 @@
+{
+  "verify": {
+    "status": [
+      422
+    ],
+    "body": [
+      "{\"code\":\"PROOF_INVALID\",\"message\":\"PROOF_INVALID\",\"field_errors\":[],\"trace_id\":\"fc600c69-c75c-473f-912f-afd7bb2656fd\"}"
+    ],
+    "post": [
+      "{\"request_id\":\"937749fc-c4c1-48aa-baf0-50ca00951419\",\"consent_grant_id\":\"5e997f1e-9343-4cea-bd12-17c1e1a264e8\",\"entry_proof\":\"TEST-PROOF-480a5cef-84da-4412-bccc-1bd172576193\"}"
+    ],
+    "toast": "",
+    "dialogStillOpen": true,
+    "main": "诊断乙 · 成长空间\n账户与关联\n\n管理档案、用途授权与机器人数据关联。\n\n伙伴引导\n家长支持\n儿童档案\n\n诊断乙\n\n性别未填写 · 出生日期未填写\n\n编辑档案\n添加儿童档案\n家长账户\n\n135****8964\n\n退出后清理当前页面数据，已保存的记录仍属于你的账户。\n\n退出登录\n用途授权\n本次测评处理\n尚未授权\n机器人数据同步\n尚未授权\n\n撤回会阻止后续处理；如果需要清除已有数据，请提交删除事项。\n\n机器人账户\n合成测试数据\n\n每台机器人配一个账户号，DingDong 侧按这个号交换这台机器人上属于 诊断乙 的观察数据。号由我方生成，对方只做不透明保存。\n\n当前机器人\nca_01M2RCKA7E9NM15CFA9WA6RA30\n使用中\n待接通\n\n机器人标识（前 8 位）59915d25 · 建立于 2026/9/18 03:13:21\n\n账户号已经生成，但机器人还没有确认接通（显示「待接通」）。在对方确认之前，这台机器人的数据不会开始同步——不用重复提交，也不影响网页陪伴。\n\n换一台机器人\n归档这个号\n\n一台机器人只服务一个孩子；同一台机器人再次绑定会复用原来的号，不换号。它与下面的「机器人数据关联」是两件事：账户号是我们给机器人的身份，关联是我们本地确认数据算谁。\n\n机器人数据关联\n\n使用数据提供方的核验凭据确认儿童归属。当前仅可使用合成测试凭据。\n\n核验并关联\n\n此处只管理 CA 的本地关联，不代表已修改机器人的设置。\n\n服务与数据处理\n\n需要帮助、资料修正或删除儿童数据时，可以登记事项并查看处理结果。\n\n需要帮助\n申请资料修正\n申请删除儿童数据\n处理回执\n\n还没有提交过服务事项。"
+  },
+  "ctaCount": 1,
+  "reassess": {
+    "status": [
+      500
+    ],
+    "body": [
+      "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\">\n  <meta name=\"robots\" content=\"NONE,NOARCHIVE\">\n  <title>IntegrityError\n          at /api/v1/children/480a5cef-84da-4412-bccc-1bd172576193/reassessment/reassess_mock_001/response</title>\n  <style>\n    html * { padding:0; margin:0; }\n    body * { padding:10px 20px; }\n    body * * { padding:0; }\n    body { font-family: sans-serif; background-color:#fff; color:#000; }\n    body > :where(header, main, footer) { border-bottom:1px solid #ddd; }\n    h1 { font-weight:normal; }\n    h2 { margin-bottom:.8em; }\n    h3 { margin:1em 0 .5em 0; }\n    h4 { margin:0 0 .5em 0; font-weight: normal; }\n    code, pre { font-size: 100%; white-space: pre-wrap; word-break: break-word; }\n    summary { cursor: pointer; }\n    table { border:1px solid #ccc; border-collapse: collapse; width:100%; background:white; }\n    tbody td, tbody th { vertical-align:top; padding:2px 3px; }\n    thead th {\n      padding:1px 6px 1px 3px; background:#fefefe; text-align:left;\n      font-weight:normal; font-size: 0.6875rem; border:1px solid #ddd;\n    }\n    tbody th { width:12em; text-align:right; color:#666; padding-right"
+    ],
+    "post": [
+      "{\"request_id\":\"52d6ed1e-8fdc-485d-8e39-9fc19acfc4e4\",\"accepted\":false}"
+    ],
+    "toast": "",
+    "ctaText": "最近一段时间互动偏少，要不要重新测一次？\n\n建议时间 2026/9/22 01:00:00 · 机器人服务给出的原因：近期互动偏少\n\n重新测评\n先不测"
+  }
+}

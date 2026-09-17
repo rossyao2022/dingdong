@@ -113,5 +113,7 @@
 - goal: 以家长第一视角（`http://127.0.0.1:4173/`，任意手机号 + 验证码 `00000`）与运营视角（`http://127.0.0.1:8017/ops/`，`admin` / `dingdong-admin`）把产品再完整走一遍，结合本批已合入的修复（T-005…T-021），找出**新的**真实卡点、困惑或不信任点，产出 `.trellis/tasks/T-024/backlog.md` 并申请 review。这是常设供给任务：每轮修复任务磨完后自动巡检一次，由 orchestrator 复看导入下一批，循环自己喂自己。
 - acceptance: backlog 每项含「用户在哪一步卡/困惑/不信任 / 现状 / 建议改法 / 完善还是扩散（判据同 T-003：不新增对对方接口的依赖、不改契约边界、不改数据模型语义）/ 工作量档位」；每条新缺陷有真实 Chrome 复现截图存 `.trellis/tasks/T-024/shots/`；不重复报 T-003 已修条目，除非已修处出现回归（回归单独标「回归」）；稳定性问题单列一节；只产出文档不改代码；本任务 `status` 为 `gated` 且 `gates.md` 有 `REQUEST T-024 review ...`；audit errors 为空。
 - gate: review
-- status: todo
+- status: gated
 - notes: 巡检是产品活，属正常队列，不算机制插队。orchestrator 复看批准后：按批次导入修复任务，并在队尾追加下一次巡检任务（编号顺延）；若某轮巡检产出为 0 条新问题，在 report 如实记录并照常 gated，由 orchestrator 决定下一轮巡检是否改走抽查模式。明确排除项不变：8 个出站接口、主动解绑、发版部署、external 类动作。
+
+- **2026-09-18 执行结果**：只产出文档，未改产品代码。走查方式与证据见 `.trellis/tasks/T-024/backlog.md` 的「审计方式」一节。产出：家长端 6 条新条目（P-10 真缺陷：复测「先不测」回写 `POST .../reassessment/reassess_mock_001/response` 得 **500 IntegrityError**（`CaReassessmentEvent.event_id` 全局唯一 + 两个复测场景共用 fixture），界面无提示、失败文案还被渲染进「成长观察」区块；P-11 同一区块两个「机器人服务给出的原因」互相矛盾；P-12 人设卡展示内部英文 `学习风格 code`；P-13 指标单位英文 `count`；P-14 同一页两种时间口径；P-15 同一页「已观察 15 天」与「尚未关联机器人数据」并列且无来源说明）、运营端 2 条（O-06 家庭列表「家长」列回落成手机号与「手机号」列重复；O-07 工作首页「近 7 天新增儿童 275」>「在册儿童 274」）、T-003 未修复查 1 条（O-05 仍在）、稳定性 1 条（S-06 5xx HTML 被当家长文案）。验证：`#home` 4 轮重载 `settledAtMs` 2070/1015/2040/2039（证伪「卡死」，第一轮 1s 采样拍到的加载态已删图不作为证据）；390×844 五页 `scrollWidth` 均 390 无横向溢出；运营端 26 个页面 `ERRORS []`；`python3 scripts/audit_documents.py` errors 为空。截图 15 张在 `.trellis/tasks/T-024/shots/`（含 390×844）。未验证：真源路径、生产、复测其余分支。**本任务 `status` 为 `gated` 并申请 review**。详见 `.trellis/tasks/T-024/report.md`。

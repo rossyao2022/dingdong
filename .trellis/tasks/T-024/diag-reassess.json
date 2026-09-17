@@ -1,0 +1,18 @@
+{
+  "childId": "36ac77d5-3e87-42b3-89c5-2b6af2c2fbe8",
+  "verifyStatus": 201,
+  "ctaBefore": "最近一段时间互动偏少，要不要重新测一次？\n\n建议时间 2026/9/22 01:00:00 · 机器人服务给出的原因：近期互动偏少\n\n重新测评\n先不测",
+  "postEvent": 500,
+  "postBody": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\">\n  <meta name=\"robots\" content=\"NONE,NOARCHIVE\">\n  <title>IntegrityError\n          at /api/v1/children/36ac77d5-3e87-42b3-89c5-2b6af2c2fbe8/reassessment/reassess_mock_001/response</title>\n  <style>\n    html * { padding:0; margin:0; }\n    body * { padding:10px 20px; }\n    body * * { padding:",
+  "ctaAfter": "最近一段时间互动偏少，要不要重新测一次？\n\n建议时间 2026/9/22 01:00:00 · 机器人服务给出的原因：近期互动偏少\n\n重新测评\n先不测",
+  "toast": "",
+  "panel": "陪学伙伴\n合成测试数据\nNewton\n科学\n\n科学探索陪学伙伴\n\n匹配度\n73 / 100\n\n匹配度是机器人服务按孩子的互动给出的（0–100），不是天赋分或能力分。\n\n学习风格 code：cognitive（按对方学习风格 code 展示，暂无中文对照）。\n\n绑定于 2026/9/1 02:05:00 · 权重版本 v1\n\n互动健康度\n\n建议重新测评\n\n最近一段时间互动偏少。\n\n机器人服务给出的原因：连续多期互动偏少\n\n已观察 21 天。\n\n最近一段时间互动偏少，要不要重新测一次？\n\n建议时间 2026/9/22 01:00:00 · 机器人服务给出的原因：近期互动偏少\n\n重新测评\n先不测\n\n这是互动情况的提示，不是对孩子的评价。\n\n已生成报告\n阶段报告\n合成测试数据\n\n生成于 2026/9/18 03:19:47\n\n2026/9/1 08:00:00 — 2026/9/8 08:00:00\n\n查看阶段报告\n成长周期报告\n合成测试数据\n15 天\n30 天\n\n本周期 2026-09-01 — 2026-09-15 · 当前陪学伙伴 Newton\n\n陪伴值增长\n3\n\n周期初 30 → 周期末 33。陪伴值是有效陪伴互动的代理量。\n\n陪学成长阶段：起步 · 阶段进度 18%\n\n八维成长代理\n语言成长代理\n40\n逻辑成长代理\n52\n音乐成长代理\n38\n空间成长代理\n47\n实践成长代理\n35\n自我认知成长代理\n44\n人际成长代理\n41\n自然成长代理\n39\n\n成长代理（对方算法产出，不是 CA 原始天赋分）。\n\n算法版本 v1 · 生成于 2026/9/23 00:10:00\n\n成长观察\n开始时间\n结束时间\n查看这个窗口\n\n按当前设备时区显示；结束时间不计入窗口。默认展示合成样例的观察窗口。\n\n机器人行为观察\n合成测试数据\n合成观察次数\n3 count\n\n最近成功同步：2026/9/18 03:19:43\n\n阶段画像与变化\n\n当前观察已生成阶段画像。\n\n目前没有兼容、相邻且等长的两期结果，暂不展示变化。\n\n网页活动完成数不参与阶段画像计算。\n\n刷新观察状态",
+  "bad": [
+    {
+      "status": 500,
+      "method": "POST",
+      "url": "/api/v1/children/36ac77d5-3e87-42b3-89c5-2b6af2c2fbe8/reassessment/reassess_mock_001/response",
+      "body": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\">\n  <meta name=\"robots\" content=\"NONE,NOARCHIVE\">\n  <title>IntegrityError\n          at /api/v1/children/36ac77d5-3e87-42b3-89c5-2b6af2c2fbe8/reassessment/reassess_mock_001/response</title>\n  <style>\n    html * { padding:0; margin:0; }\n    body * { padding:10px 20px; }\n    body * * { padding:"
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "childId": "214e1c85-6ebe-4ea3-a502-c489adffce85",
+  "verifyStatus": 422,
+  "postStatus": 500,
+  "before": {
+    "block": "成长观察\n开始时间\n结束时间\n查看这个窗口\n\n按当前设备时区显示；结束时间不计入窗口。默认展示合成样例的观察窗口。\n\n尚未关联机器人数据\n合成测试数据\n\n暂无可展示的指标。\n\n最近成功同步：尚无记录\n\n管理关联与授权\n阶段画像与变化\n\n还没有可处理的观察记录。\n\n目前没有兼容、相邻且等长的两期结果，暂不展示变化。\n\n网页活动完成数不参与阶段画像计算。\n\n刷新观察状态",
+    "trace": [
+      {
+        "at": "01.281Z",
+        "status": 422,
+        "url": "/api/v1/children/214e1c85-6ebe-4ea3-a502-c489adffce85/associations/verify",
+        "body": "{\"code\":\"PROOF_INVALID\",\"message\":\"PROOF_INVALID\",\"field_errors\":[],\"trace_id\":\"eb5e5988-4762-47ec-8fbf-8e67ee32fd98\"}"
+      },
+      {
+        "at": "01.612Z",
+        "status": 200,
+        "url": "/api/v1/assessment-config",
+        "body": ""
+      },
+      {
+        "at": "01.624Z",
+        "status": 200,
+        "url": "/api/v1/runtime",
+        "body": "{\"environment\":\"development\",\"sms_mode\":\"fixed_code\",\"data_source\":\"database_fixture\",\"fixture_dataset\":null}"
+      },
+      {
+        "at": "01.964Z",
+        "status": 200,
+        "url": "/api/v1/auth/refresh",
+        "body": "{\"access_token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzg5NjczNjQxLCJpYXQiOjE3ODk2NzMwNDEsImp0aSI6ImNiMTk4MjM2ZGNiYTQyNmI4MmRlMTljODFmYjFiMjRmIiwidXNlcl9pZCI6IjRhNjNmOGU1LTQwMjktNG"
+      },
+      {
+        "at": "02.233Z",
+        "status": 200,
+        "url": "/api/v1/me",
+        "body": "{\"id\":\"4a63f8e5-4029-4af1-a140-3a344e610917\",\"phone_masked\":\"131****7353\",\"family_id\":\"6de2cb8e-9d10-44ca-9ddb-50e31af161a4\"}"
+      },
+      {
+        "at": "02.458Z",
+        "status": 200,
+        "url": "/api/v1/children?page_size=100",
+        "body": "{\"items\":[{\"id\":\"214e1c85-6ebe-4ea3-a502-c489adffce85\",\"family_id\":\"6de2cb8e-9d10-44ca-9ddb-50e31af161a4\",\"name\":\"诊断己\",\"gender\":\"unknown\",\"birth_date\":null,\"status\":\"active\",\"revision\":1,\"created_at\":\"2026-09-17T19:23:49"
+      },
+      {
+        "at": "02.763Z",
+        "status": 200,
+        "url": "/api/v1/assessment-config",
+        "body": "{\"available\":true,\"questionnaires\":[{\"id\":\"3b380a88-0224-4aa1-bd21-f2a6d5a145b4\",\"code\":\"qn-mu5fthib-48d768662fe7\",\"purpose\":\"exploration\",\"title\":\"公网验收题库 mu5fthib\",\"description\":\"非正式体验，只记录本次选择，不作能力评价。\",\"version\":\"v1\",\"q"
+      },
+      {
+        "at": "02.799Z",
+        "status": 200,
+        "url": "/api/v1/children/214e1c85-6ebe-4ea3-a502-c489adffce85/reports?page_size=100",
+        "body": "{\"items\":[],\"next_cursor\":null}"
+      },
+      {
+        "at": "02.823Z",
+        "status": 200,
+        "url": "/api/v1/children/214e1c85-6ebe-4ea3-a502-c489adffce85/assessments?page_size=100",
+        "body": "{\"items\":[],\"next_cursor\":null}"
+      },
+      {
+        "at": "02.910Z",
+        "status": 200,
+        "url": "/api/v1/children/214e1c85-6ebe-4ea3-a502-c489adffce85/companion-health",
+        "body": "{\"availability\":\"ready\",\"data_origin\":\"synthetic\",\"source\":\"dingdong\",\"fetched_at\":\"2026-09-17T19:24:02.908452+00:00\",\"reason\":null,\"health\":{\"status\":\"reassess\",\"health_id\":\"health_mock_002\",\"persona_id\":\"persona_scienc"
+      },
+      {
+        "at": "02.911Z",
+        "status": 200,
+        "url": "/api/v1/children/214e1c85-6ebe-4ea3-a502-c489adffce85/growth-overview?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z",
+        "body": "{\"child_id\":\"214e1c85-6ebe-4ea3-a502-c489adffce85\",\"window\":{\"start\":\"2026-09-01T00:00:00+00:00\",\"end\":\"2026-09-08T00:00:00+00:00\"},\"web_activity_summary\":{\"completed_count\":0,\"active_days\":0},\"robot_observation\":{\"avail"
+      },
+      {
+        "at": "02.968Z",
+        "status": 200,
+        "url": "/api/v1/children/214e1c85-6ebe-4ea3-a502-c489adffce85/companion-persona",
+        "body": "{\"availability\":\"ready\",\"data_origin\":\"synthetic\",\"source\":\"dingdong\",\"fetched_at\":\"2026-09-17T19:24:02.964049+00:00\",\"reason\":null,\"persona\":{\"persona_id\":\"persona_science_01\",\"persona_name\":\"Newton\",\"persona_type\":\"sci"
+      },
+      {
+        "at": "03.263Z",
+        "status": 200,
+        "url": "/api/v1/children/214e1c85-6ebe-4ea3-a502-c489adffce85/growth-cycle?period=15d",
+        "body": "{\"availability\":\"ready\",\"data_origin\":\"synthetic\",\"source\":\"dingdong\",\"fetched_at\":\"2026-09-17T19:24:03.261226+00:00\",\"reason\":null,\"period\":{\"end\":\"2026-09-15\",\"days\":15,\"start\":\"2026-09-01\"},\"persona\":{\"persona_id\":\"pe"
+      },
+      {
+        "at": "03.342Z",
+        "status": 200,
+        "url": "/api/v1/children/214e1c85-6ebe-4ea3-a502-c489adffce85/reassessment",
+        "body": "{\"availability\":\"ready\",\"data_origin\":\"synthetic\",\"source\":\"dingdong\",\"fetched_at\":\"2026-09-17T19:24:03.327929+00:00\",\"reason\":null,\"event\":{\"event_id\":\"reassess_mock_001\",\"old_profile_id\":\"profile_mock_005\",\"old_persona"
+      }
+    ]
+  },
+  "after": {
+    "block": "成长观察\n开始时间\n结束时间\n服务返回了无法识别的响应。\n查看这个窗口\n\n按当前设备时区显示；结束时间不计入窗口。默认展示合成样例的观察窗口。\n\n尚未关联机器人数据\n合成测试数据\n\n暂无可展示的指标。\n\n最近成功同步：尚无记录\n\n管理关联与授权\n阶段画像与变化\n\n还没有可处理的观察记录。\n\n目前没有兼容、相邻且等长的两期结果，暂不展示变化。\n\n网页活动完成数不参与阶段画像计算。\n\n刷新观察状态",
+    "trace": [
+      {
+        "at": "05.688Z",
+        "status": 500,
+        "url": "/api/v1/children/214e1c85-6ebe-4ea3-a502-c489adffce85/reassessment/reassess_mock_001/response",
+        "body": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\">\n  <meta name=\"robots\" content=\"NONE,NOARCHIVE\">\n  <title>IntegrityError\n          at /api/v1/children/214e1c85"
+      }
+    ]
+  }
+}
