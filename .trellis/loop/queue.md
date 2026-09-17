@@ -111,8 +111,8 @@
 - goal: 家长端答题页与运营端儿童详情不再直接显示内部 code `readable-v2`，改显示中文名 + 版本号（如「四个小情境：探索偏好体验（v2）」），原始 code 收进悬停提示。
 - acceptance: 两处界面正文不出现裸 `readable-v2`（仅允许出现在 `title` 属性）；`cd frontend && npm run check && npm run test:unit` 与 `cd backend && uv run pytest tests/test_ops_console.py` 通过；audit errors 为空；真实 Chrome 两处各截图到 `.trellis/tasks/T-013/shots/`。
 - gate: none
-- status: todo
-- notes: 中文名要有稳定来源（题库元数据或既有标签表），别在前端硬编码两套映射。属第一批：commit 后可直接 push 并补 EXECUTED 行。
+- status: done
+- notes: 中文名要有稳定来源（题库元数据或既有标签表），别在前端硬编码两套映射。属第一批：commit 后可直接 push 并补 EXECUTED 行。 **2026-09-17 执行结果**：`frontend/app.js` 新增 `versionLabel()`（`readable-v2`→`v2`），答题页 note 与题库卡片 note 两处改用「中文名 + 版本号」、原始 code 进 `title` 属性；运营端 `ops_labels.py` 新增 `version_label` 过滤器，`child_detail.html` 版本行同理（中文标题本就在同一行）。中文名全部取服务端 `questionnaire_version.title`，未建映射表。TDD 红 `2 failed`（家长端 `Received string: "必填 · 单选 · 题库版本 readable-v2"`；运营端 summary 含 `· 版本 readable-v2`）→ 绿 `2 passed (14.3s)`（新增 `frontend/tests/questionnaire-version.spec.js` 2 条真实 Chrome 用例）；`backend/tests/test_ops_console.py` 新增 1 条 → `37 passed in 139.10s`；`npm run check` exit 0、`test:unit` 16 pass 0 fail（74.0375ms）、`audit_documents.py` errors `[]`；回归 `quiz-last-button.spec.js` `1 passed (13.8s)`；截图 5 张在 `.trellis/tasks/T-013/shots/`。题库卡片这处本地无第三份已发布题库，验收时由 spec 临时建 `e2e-version-label`/`draft-v7` 并 `finally` 删除（收尾核对计数 0）。已按第一批直推 push：`9cd1af5..452ce71`，远端 sha `452ce712e19a74b0ec791f32cf93f078467b5c4f`。
 
 ## T-014 O-03 审计页补「登录凭据」对象词条
 - goal: 审计页「对象」列不再显示未翻译内部码 `login_grant`，补「登录凭据」类对象词条与说明，不把表名/英文模型名给运营看。
