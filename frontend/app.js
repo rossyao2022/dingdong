@@ -70,6 +70,9 @@ const state = {
 let viewEpoch = 0,
   busy = false,
   pollTimer,
+  // 对话框打开期间不排轮询（重渲染会打断家长正在读的内容），但这一轮该排的那次要
+  // 记住：对话框关掉后由 close 事件补上，否则观察状态再也不刷新了。
+  pollPending = false,
   currentActivity,
   nextCursor,
   childDraft = null,
@@ -85,12 +88,34 @@ const formData = (form) => Object.fromEntries(new FormData(form));
 const hints = {};
 const channel =
   "BroadcastChannel" in window ? new BroadcastChannel("dingdong-auth") : null;
-function stopWork() {
-  clearTimeout(pollTimer);
-  window.speechSynthesis?.cancel();
+/**
+ * 离开当前上下文：关对话框、结束编辑会话。只有换路由/换儿童/退出登录才算离开，
+ * 重渲染不算——`render()` 每次进来都关对话框会让打开中的对话框被轮询渲染关掉
+ * （T-040 的 P-16：复测「开始复测」的同意对话框只闪现约 1.7 秒）。
+ */
+function leaveContext() {
   if ($("#dialog").open) $("#dialog").close();
   // 对话框一关，编辑会话就结束：不允许残留的基准修订号在下次打开时复用。
   childEdit = null;
+}
+/** 对话框流程走完：关掉它并结束编辑会话，供「提交成功后重渲染」的流程调用。 */
+function closeDialog() {
+  leaveContext();
+  window.speechSynthesis?.cancel();
+}
+function stopWork() {
+  clearTimeout(pollTimer);
+  closeDialog();
+}
+/** 观察未就绪时按固定间隔重渲染一次；对话框打开期间挂起，关闭后恢复。 */
+function schedulePoll(tick, delay) {
+  if ($("#dialog").open) {
+    pollPending = true;
+    return;
+  }
+  pollTimer = setTimeout(() => {
+    if (tick === viewEpoch) render();
+  }, delay);
 }
 function forget() {
   viewEpoch++;
@@ -214,6 +239,7 @@ async function act(fn, el) {
   }
 }
 function to(route) {
+  leaveContext();
   if (location.hash === "#" + route) render();
   else location.hash = route;
 }
@@ -625,7 +651,11 @@ function reportCards(rows) {
 }
 async function render() {
   const tick = ++viewEpoch;
-  stopWork();
+  // 重渲染只取消待执行的轮询与还在读的语音，不关对话框、不动编辑会话
+  // （T-041 的 P-16）。朗读不跟着重渲染停会盖住新一题/下一步的内容。
+  clearTimeout(pollTimer);
+  pollPending = false;
+  window.speechSynthesis?.cancel();
   header();
   if (!state.user) return loginPage();
   if (!state.child) {
@@ -719,9 +749,7 @@ async function render() {
         ["processing", "result_unknown"].includes(s.status) ||
         (s.status === "completed" && s.report_status === "processing")
       )
-        pollTimer = setTimeout(() => {
-          if (tick === viewEpoch) render();
-        }, 2500);
+        schedulePoll(tick, 2500);
     } else if (route === "report" && id) {
       const r = await API.request("/reports/" + id);
       if (r.child_id !== child) throw new Error("请先切换到对应的儿童档案。");
@@ -753,9 +781,7 @@ async function render() {
         (overview.stage_status === "ready" &&
           !reports.some((r) => r.kind === "stage"))
       )
-        pollTimer = setTimeout(() => {
-          if (tick === viewEpoch) render();
-        }, 3000);
+        schedulePoll(tick, 3000);
       const active = [...sessions]
         .reverse()
         .find(
@@ -1229,6 +1255,7 @@ async function linkRobot() {
       });
       e.target.reset();
       keys.clear();
+      closeDialog();
       toast("归属核验成功，正在等待同步结果。");
       await render();
     }, e.submitter);
@@ -1367,6 +1394,7 @@ async function saveChildEdit() {
   }
   childEdit = null;
   await loadChildren();
+  closeDialog();
   await render();
   toast("档案已更新。");
 }
@@ -1530,8 +1558,7 @@ async function handleAction(action, el) {
         renderChildConflict();
         break;
       }
-      $("#dialog").close();
-      window.speechSynthesis?.cancel();
+      closeDialog();
       break;
     case "child-conflict-view":
       await childConflictView();
@@ -1556,9 +1583,7 @@ async function handleAction(action, el) {
       await childConflictApplyMine();
       break;
     case "child-conflict-close-confirm":
-      childEdit = null;
-      $("#dialog").close();
-      window.speechSynthesis?.cancel();
+      closeDialog();
       break;
     case "refresh":
       await render();
@@ -1824,6 +1849,7 @@ async function handleAction(action, el) {
         method: "POST",
         body: {},
       });
+      closeDialog();
       toast("这个账户号已归档。");
       await render();
       break;
@@ -1861,6 +1887,7 @@ async function handleAction(action, el) {
         },
       });
       keys.clear();
+      closeDialog();
       await render();
       toast("申请已登记，可以在处理回执中查看状态。");
       break;
@@ -1906,7 +1933,16 @@ window.addEventListener("hashchange", () => {
     state.child = childDraft;
     childDraft = null;
   }
+  leaveContext();
   render();
+});
+// 对话框关闭后补上被挂起的那次轮询。推迟一个任务：换路由引起的关闭会紧接着重渲染
+// 一次（那时 pollPending 已清），只有「用完对话框还留在同一页」才需要在这里补。
+$("#dialog").addEventListener("close", () => {
+  if (!pollPending) return;
+  setTimeout(() => {
+    if (pollPending) render();
+  }, 0);
 });
 $("#child-select").onchange = (e) => {
   stopWork();

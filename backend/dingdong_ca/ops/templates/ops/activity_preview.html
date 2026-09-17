@@ -31,7 +31,7 @@
       <div>
         <h2 class="card-title">{{ row.title }}</h2>
         <div class="card-subtitle">
-          {{ row.island }} · {{ row.mood }} · {{ row.duration_minutes }} 分钟 · 版本 {{ row.version }}
+          <span title="{{ row.island }} · {{ row.mood }}">{{ row.island|known_label:"ACTIVITY_ISLAND" }} · {{ row.mood|known_label:"ACTIVITY_MOOD" }}</span> · {{ row.duration_minutes }} 分钟 · 版本 {{ row.version }}
         </div>
       </div>
     </div>

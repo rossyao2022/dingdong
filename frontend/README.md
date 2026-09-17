@@ -194,3 +194,19 @@ npx playwright test tests/reassessment-write-failure.spec.js --reporter=list # �
 浏览器用例覆盖：真/假两个 `switch_recommended` 分支各走一遍完整四步（含真实 22 题测评与两条真实 POST 的入参、响应断言）、`accepted=false` 后只剩一行且可展开、无建议时整块不出现、390×844 不横向溢出、结果卡上没有切换按钮、人设卡仍是原角色（没有自动切换），并收集 `pageerror`。截图 7 张在 `../.trellis/tasks/T-035/shots/`。
 
 **同一个 `event_id` 现在可以由多个账户各自回写**（T-037 改的模型约束）：`ca_reassessment_event.event_id` 的唯一性从**全局**收窄为 `(ca_account, event_id)`（迁移 `0010`）——事件 id 由对方发放、跨账户可能重名（两个复测 mock 账号就共用一份 fixture），而服务层的读写一直按这两键查，约束比服务语义更严会让第二个儿童回写时撞唯一约束拿 500。`reassessment-cta.spec.js` 里的 `scopeEvent()` 留着不影响，只是不再是必需；`reassessment-write-failure.spec.js` 就用 fixture 原样的 `reassess_mock_001`，两个不同家庭的儿童先后回写都通过。
+
+## T-041：复测承接对话框被轮询关掉 + 核验失败文案（2026-09-18）
+
+- **对话框不再被重渲染关掉（P-16）**：`render()` 以前一进来就调 `stopWork()`，而 `stopWork()` 会 `$("#dialog").close()`；`#reports` 在观察未就绪（`not_synced` / 阶段画像处理中）时每 3 秒重渲染一次，于是复测「开始复测」打开的同意对话框只开约 1.7 秒就被关掉，家长无从继续。现在把「离开上下文」与「重渲染」拆开：`leaveContext()`（关对话框 + 清 `childEdit`）只由 `to()` 与 `hashchange` 入口在 `render()` 之前调用；`render()` 自身只 `clearTimeout(pollTimer)`；对话框打开期间轮询由 `schedulePoll()` 挂起（置 `pollPending`），`<dialog>` 的 `close` 事件里再补一次渲染。「提交成功后重渲染」的对话框流程（核验关联、编辑儿童档案、归档账户号、提交申请事项、`case "close"`）改为自己显式调 `closeDialog()` 收尾。`render()` 仍保留取消待执行轮询与 `speechSynthesis.cancel()`（朗读不跟着重渲染停会盖住新一题/下一步的内容），拆开的只是「关对话框 + 清 `childEdit`」这两件属于「离开上下文」的事。
+- **核验凭据输错给中文（P-17）**：`PROOF_INVALID` 的文案改由后端给（`backend/dingdong_ca/core/api/robots.py` 的 `PROOF_INVALID_MESSAGE`：凭据无法核验，请核对机器人标签上的凭据，或重新绑定机器人。），前端照旧渲染 `message`，不再把内部码丢给家长。选后端而不是前端映射，是因为运营端与其它客户端读的是同一个 `message`。
+
+测试：
+
+```sh
+npm run check && npm run test:unit                                            # 单测 67 项
+npx playwright test tests/t041-dialog-and-labels.spec.js --reporter=list      # 真实 Chrome 3 项（P-16 / P-17 / 运营端四条）
+```
+
+P-16 用例的判定不靠截图：先等 `#reports` 的 `growth-overview` 轮询真实发生，点「开始复测」后断言对话框打开期间又跨过一次轮询周期且 `#dialog.open` 仍为 `true`，再完成「同意并开始」进入测评。回退 `app.js` 后该用例在 `#dialog.open` 处失败（逐字输出见 `../.trellis/tasks/T-041/shots/p16-before-fix-dialog-closed.log`）。截图 10 张在 `../.trellis/tasks/T-041/shots/`。
+
+**这条用例的已知脆弱点**：它靠「观察还没同步/阶段画像还没出」这段时间里真实存在的轮询，所以断言分两段——先要求轮询确实又走了一轮（`overviewCalls` 变大），再要求对话框还开着。如果点「开始复测」之前轮询已经停了（阶段报告已生成），它会卡在前一段而不是后一段，报 `Expected: > N / Received: N` 这种与对话框无关的失败。这类失败只会假红、不会假绿（对话框没打开或已被关掉时后一段必然失败）。要彻底去掉这个时序依赖，得让「观察未就绪」在断言窗口内可控（例如改用 `not_synced` 场景），留给下一次巡检评估。

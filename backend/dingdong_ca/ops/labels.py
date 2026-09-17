@@ -49,6 +49,29 @@ ACTIVITY_STYLE = {
     "exploratory": "探索",
 }
 
+# 岛屿与情绪是运营自由填写的标签（模型里是 CharField，不是 choices），
+# 这里的词表只覆盖已知取值，未命中的原样显示——见 ops_labels.known_label。
+# 取值与家长端的叫法对齐（`frontend/app.js` 的 islands / moods）。
+ACTIVITY_ISLAND = {
+    "science": "科学发现",
+    "story": "故事表达",
+    "nature": "自然观察",
+    "imagination": "创意想象",
+}
+
+ACTIVITY_MOOD = {
+    "energy": "能量满满",
+    "focus": "正在专注",
+    "inspire": "需要启发",
+    "calm": "平静如水",
+}
+
+# 家庭角色。模型约束里目前只有 owner 一个取值（`family_membership` 的
+# membership_role_owner），模板直接渲染会显示英文 `owner`。
+FAMILY_ROLE = {
+    "owner": "主要家长",
+}
+
 ACTIVITY_RECORD_STATUS = {
     "active": "进行中",
     "completed": "已完成",

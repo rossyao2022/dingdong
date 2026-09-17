@@ -65,7 +65,7 @@
               <tr>
                 <td>
                   <a href="{% url 'ops:activity_edit' row.pk %}" data-nav>{{ row.title }}</a>
-                  <div class="text-secondary small">{{ row.island }} · {{ row.mood }}</div>
+                  <div class="text-secondary small" title="{{ row.island }} · {{ row.mood }}">{{ row.island|known_label:"ACTIVITY_ISLAND" }} · {{ row.mood|known_label:"ACTIVITY_MOOD" }}</div>
                 </td>
                 <td class="nowrap">{{ row.duration_minutes }} 分钟</td>
                 <td class="nowrap">{{ row.version }}</td>

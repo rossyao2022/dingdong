@@ -104,7 +104,7 @@
                 <td class="nowrap">{{ row.kind|label:"SERVICE_KIND" }}</td>
                 <td>{% if row.child %}{{ row.child.name }}{% else %}<span class="badge bg-secondary-lt">儿童数据已删除</span>{% endif %}</td>
                 <td class="nowrap">
-                  {{ row.requester|display_name:"未登记" }}
+                  {{ row.requester|account_name:"未填写" }}
                   <span class="text-secondary small">{{ row.requester.phone|default:"未登记手机号" }}</span>
                 </td>
                 <td>{{ row.reason_code|label:"SERVICE_REASON" }}</td>

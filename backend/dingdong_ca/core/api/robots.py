@@ -17,6 +17,10 @@ from .children import owned_child
 from .common import ApiError, audit, endpoint, family_for, paginate, validate
 from .inputs import StrictSerializer
 
+# `PROOF_INVALID` 的默认文案就是 code 本身，家长在核验对话框里只会看到
+# 一行 `PROOF_INVALID`（T-040 的 P-17）。这里给一句能照做的中文。
+PROOF_INVALID_MESSAGE = "凭据无法核验，请核对机器人标签上的凭据，或重新绑定机器人。"
+
 
 class VerifyInput(StrictSerializer):
     request_id = serializers.UUIDField()
@@ -72,7 +76,7 @@ def verify(request, child_id):
                 .first()
             )
             if not fixture or fixture.consumed_at:
-                raise ApiError("PROOF_INVALID", 422)
+                raise ApiError("PROOF_INVALID", 422, PROOF_INVALID_MESSAGE)
             payload = fixture.payload
             try:
                 expiry = parse_datetime(payload["expires_at"])
@@ -91,7 +95,7 @@ def verify(request, child_id):
             except (KeyError, TypeError, ValueError):
                 valid = False
             if not valid:
-                raise ApiError("PROOF_INVALID", 422)
+                raise ApiError("PROOF_INVALID", 422, PROOF_INVALID_MESSAGE)
             a = ExternalAssociation.objects.create(
                 child=child,
                 requested_by=request.user,

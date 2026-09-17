@@ -28,7 +28,7 @@
                 · <a href="{% url 'ops:family_detail' row.child.family_id %}" data-nav>查看家庭</a>
               {% else %}儿童数据已按申请删除{% endif %}
             </dd>
-            <dt>提交家长</dt><dd>{{ row.requester|display_name:"未登记" }}（{{ row.requester.phone|default:"未登记手机号" }}）</dd>
+            <dt>提交家长</dt><dd>{{ row.requester|account_name:"未填写" }}（{{ row.requester.phone|default:"未登记手机号" }}）</dd>
             <dt>提交时间</dt><dd>{{ row.created_at|date:"Y-m-d H:i" }}</dd>
             <dt>完成时间</dt><dd>{{ row.completed_at|date:"Y-m-d H:i"|default:"—" }}</dd>
             <dt>处理结果</dt><dd>{{ row.resolution_code|label:"SERVICE_RESOLUTION" }}</dd>

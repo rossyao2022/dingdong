@@ -1,0 +1,35 @@
+P-16 先失败证据（本 worker 于 2026-09-18 06:41 用临时回退版 app.js 跑出来的真实输出）
+
+回退方式：把 `frontend/app.js` 的 `render()` 开头改回旧行为（`clearTimeout(pollTimer)` / 清 `pollPending` /
+`speechSynthesis.cancel()` 三行换回 `stopWork()`），其余代码不动；跑完立刻从备份还原并 `diff` 校验一致。
+
+命令：cd frontend && npx playwright test tests/t041-dialog-and-labels.spec.js --reporter=list -g 'P-16'
+
+输出（逐字抄自该次运行的 tail）：
+
+  1) tests/t041-dialog-and-labels.spec.js:131:1 › P-16：观察未就绪的轮询重渲染不再关掉复测承接对话框 ──────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      177 |   expect(
+      178 |     await page.evaluate(() => document.querySelector("#dialog").open),
+    > 179 |   ).toBe(true);
+          |     ^
+      180 |   await expect(
+      181 |     dialog.getByRole("heading", { name: "本次测评用途" }),
+      182 |   ).toBeVisible();
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/t041-dialog-and-labels.spec.js:179:5
+
+  1 failed
+    tests/t041-dialog-and-labels.spec.js:131:1 › P-16：观察未就绪的轮询重渲染不再关掉复测承接对话框
+
+说明：这次失败点正是用例设计的判定处——跨过一轮轮询周期后 `#dialog.open` 已是 false，即旧行为下
+对话框被重渲染关掉。修复版同一用例 3 项全过（见 report.md 的验证一节）。
+
+补充：该次失败截图未入库。收尾时想重拍一张同名截图，撞上本地短信频控（同一 IP 一小时 ≥50 次
+`SmsChallenge` ⇒ 429），重跑在登录步骤就失败（`登录` 按钮 disabled），拍到的只是登录页，已删除；
+第二次重跑落在「轮询已停」的前置断言（`Expected: > 3 / Received: 3`）而非本行，也未入库。
+两次原始日志：`.trellis/.runtime/t041-prefix-run.log`、`.trellis/.runtime/t041-prefix-run2.log`（gitignored）。

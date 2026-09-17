@@ -19,6 +19,9 @@ MAPS = {
     "DATA_ORIGIN": L.DATA_ORIGIN,
     "QUESTION_TYPE": L.QUESTION_TYPE,
     "ACTIVITY_STYLE": L.ACTIVITY_STYLE,
+    "ACTIVITY_ISLAND": L.ACTIVITY_ISLAND,
+    "ACTIVITY_MOOD": L.ACTIVITY_MOOD,
+    "FAMILY_ROLE": L.FAMILY_ROLE,
     "ACTIVITY_RECORD_STATUS": L.ACTIVITY_RECORD_STATUS,
     "ASSESSMENT_STATUS": L.ASSESSMENT_STATUS,
     "PROFILE_KIND": L.PROFILE_KIND,
@@ -75,6 +78,19 @@ STATUS_TONE = {
 @register.filter
 def label(value, mapping_name):
     return L.label(MAPS.get(mapping_name, {}), value)
+
+
+@register.filter
+def known_label(value, mapping_name):
+    """自由填写字段的中文优先显示：词表命中给中文，未命中原样返回。
+
+    不能直接用 `label`：它把未命中的取值渲染成「未知（观察岛）」，而岛屿与情绪
+    是运营自己填的自由文本（`Activity.island` / `mood` 没有 choices），把运营
+    写的标签说成「未知」比显示原文更糟。
+    """
+    if not value:
+        return "—"
+    return MAPS.get(mapping_name, {}).get(value) or value
 
 
 @register.filter

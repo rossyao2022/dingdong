@@ -106,6 +106,31 @@ def test_page_does_not_render_template_comment_as_text():
     assert "内容必须包在一个块级容器里" not in body
 
 
+def test_bound_parent_column_and_credential_label():
+    """O-08/O-11：绑定家长列不重复手机号；凭据摘要不再叫「指纹」。
+
+    「指纹」在家长端已因容易被理解成生物特征而去掉（T-012/P-09），运营端
+    同一份界面里还留着，两处口径不一致。
+    """
+    family, children, parent = make_family(
+        child_name="小芽", phone="+8613800000029", parent_name=""
+    )
+    service.issue_account(
+        child=children[0],
+        user=parent,
+        request_id=uuid.uuid4(),
+        nfc_token="ROBOT-TOKEN-PLAINTEXT-0041",
+        robot_ref="DD-ROBOT-0041",
+    )
+    staff = ops_client(make_staff("operations"))
+
+    body = staff.get("/ops/ca-accounts/").content.decode()
+    assert body.count(parent.phone) == 1
+    assert "未填写" in body
+    assert "凭据前 8 位" in body
+    assert "指纹" not in body
+
+
 def test_ops_templates_have_no_multiline_django_comment():
     """Django 的 tag_re 不带 re.DOTALL，跨行 {# … #} 不会当注释，会原样渲染成正文。"""
     offenders = []

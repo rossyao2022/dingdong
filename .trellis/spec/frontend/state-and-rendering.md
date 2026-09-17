@@ -8,8 +8,8 @@
 | --- | --- | --- |
 | `state` 对象 | 跨页面要用的服务端数据与界面选择：`user`、`children`、`child`、`runtime`、`challenge`、`mood`、`island`、`style`、`session`、`question`、`record`、`consents`、`window` | `app.js` 顶部 `const state = {…}` |
 | `hints` 对象 | 只给“当前这次操作/这一页”用的临时缓存：`hints.activities`、`hints.accounts`、`hints.config`、`hints.grant`、`hints.policy`、`hints.nfcToken`、`hints.replaceAccount` 等 | `app.js` 的 `const hints = {}`；`forget()` 里整个清空 |
-| 模块级局部变量 | 生命周期明确的单值：`childDraft`、`currentActivity`、`nextCursor`、`pollTimer`、`busy`、`viewEpoch` | `app.js` 顶部 `let viewEpoch = 0, busy = false, …` |
-| `childEdit` 对象 | 儿童档案**编辑会话**：基准 `revision`、冲突状态、已读到的最新档案 | `app.js` 的 `let childEdit = null`，`editChild()` 里建、`stopWork()` 里清 |
+| 模块级局部变量 | 生命周期明确的单值：`childDraft`、`currentActivity`、`nextCursor`、`pollTimer`、`pollPending`、`busy`、`viewEpoch` | `app.js` 顶部 `let viewEpoch = 0, busy = false, …` |
+| `childEdit` 对象 | 儿童档案**编辑会话**：基准 `revision`、冲突状态、已读到的最新档案 | `app.js` 的 `let childEdit = null`，`editChild()` 里建、`leaveContext()`（含 `closeDialog()` / `stopWork()`）里清 |
 | `keys` Map | 幂等键缓存（见 `api-conventions.md`） | `app.js` 的 `const keys = new Map()` |
 
 判定规则：服务端数据、需要跨页保留 → `state`；只服务当前页或一次对话框 → `hints`。`hints` 存在的意义就是**不要为了一个弹窗把 `state` 撑大**。
@@ -18,7 +18,7 @@
 
 `render()`（`app.js`）是唯一的整页渲染入口，顺序固定：
 
-1. `const tick = ++viewEpoch;` 然后 `stopWork()`；
+1. `const tick = ++viewEpoch;` 然后 `clearTimeout(pollTimer)`、清 `pollPending`、`speechSynthesis.cancel()`（**不**关对话框、**不**动 `childEdit`，见下节）；
 2. 没登录 → `loginPage()`；没有儿童档案 → `childForm()`（`#settings` 例外，会渲染只有家长账户与回执的页面）；
 3. 设 `$("#main").setAttribute("aria-busy", "true")`，按 `location.hash` 取 `[route, id]` 分派，拼 `html`；各分支用 `Promise.all` 并发取数据（例：`reports` 一支并发 4 个请求，`settings` 一支并发 4 个请求）；
 4. **写 DOM 前先验票**：`if (tick !== viewEpoch || state.child?.id !== child) return;`；
@@ -47,9 +47,14 @@
 
 ## 生命周期与跨标签页
 
-- `stopWork()`：清 `pollTimer`、取消 `speechSynthesis`、关闭已打开的对话框、把 `childEdit` 置空（防止过期基准修订号被下次复用）。调用它的地方是 `render()` 开头、`#child-select` 的 `onchange`、以及 `window` 的 `pagehide` 监听。
+- `stopWork()`：清 `pollTimer` + `closeDialog()`。调用它的地方是 `#child-select` 的 `onchange`、以及 `window` 的 `pagehide` 监听。
+- **「离开上下文」与「重渲染」是两件事**（T-041 的 P-16）：`leaveContext()` 关对话框并把 `childEdit` 置空（防止过期基准修订号被下次复用），`closeDialog()` = `leaveContext()` + 取消 `speechSynthesis`，`stopWork()` = `clearTimeout(pollTimer)` + `closeDialog()`。
+  - 换路由（`to()` 与 `hashchange` 入口）与换儿童才算「离开上下文」，要在 `render()` 之前调 `leaveContext()`；
+  - `render()` 自身**只**取消待执行的轮询与还在读的朗读，不关对话框。否则 `#reports` 的 3 秒轮询一重渲染就会把家长刚打开的对话框关掉（实测对话框只开约 1.7 秒）；
+  - 「提交成功后重渲染」的对话框流程（核验关联、编辑儿童档案、归档账户号、提交申请事项、`case "close"`）由自己显式调 `closeDialog()` 收尾，不能再指望 `render()` 顺手关掉。
+- 对话框打开期间挂起轮询：`schedulePoll(tick, delay)` 发现 `$("#dialog").open` 就只置 `pollPending = true`，不排 `setTimeout`；`<dialog>` 的 `close` 事件里再补一次 `render()`（推迟一个任务，让换路由引起的关闭被紧接着的那次渲染自然吸收）。
 - `forget()`：退出/401 时的整体复位——递增 `viewEpoch`、停轮询、清 `state`、清 `hints`、`keys.clear()`、`API.clearAuth()`。
-- 轮询只在必要时开：测评处于 `processing` / `result_unknown`（或报告处理中）时 `setTimeout(render, 2500)`；成长观察等待同步或阶段画像处理中时 `3000`。回调里必须再验 `tick === viewEpoch`。**不要**加常驻定时器。
+- 轮询只在必要时开：测评处于 `processing` / `result_unknown`（或报告处理中）时 `schedulePoll(tick, 2500)`；成长观察等待同步或阶段画像处理中时 `3000`。回调里必须再验 `tick === viewEpoch`。**不要**加常驻定时器，也不要绕开 `schedulePoll` 自己写 `setTimeout`（那会漏掉「对话框打开期间挂起」这条）。
 - 跨标签页同步用 `BroadcastChannel("dingdong-auth")`：登录成功 `postMessage({user})`、退出 `postMessage({logout:true})`，收到消息且身份不符就 `forget()` + `boot()`（`app.js` 末尾）。
 - `sessionStorage` 只存导航提示 `ca.navigation`（家长 id + 儿童 id），由 `saveHints()` 写、`loadChildren()` 读。**手机号、儿童姓名、答案、报告、图片、令牌一律不进 storage**（`frontend/README.md` 明确写了这条）。
 

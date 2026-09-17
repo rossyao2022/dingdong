@@ -26,7 +26,7 @@
         <dt>档案状态</dt><dd><span class="badge {{ child.status|tone }}">{{ child.status|label:"CHILD_STATUS" }}</span></dd>
         <dt>所属家庭</dt>
         <dd><a href="{% url 'ops:family_detail' family.pk %}" data-nav>查看家庭</a>
-          {% if member %} · 家长 {{ member.user|display_name:"未登记" }}（{{ member.user.phone|default:"未登记手机号" }}）{% endif %}
+          {% if member %} · 家长 {{ member.user|account_name:"未填写" }}（{{ member.user.phone|default:"未登记手机号" }}）{% endif %}
         </dd>
         <dt>机器人账户</dt>
         <dd>

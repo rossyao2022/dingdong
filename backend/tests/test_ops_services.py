@@ -54,6 +54,27 @@ def test_service_detail_uses_business_language_and_records_history():
     assert str(support.pk) in body  # 事项编号对运营可见，便于与家长沟通
 
 
+def test_requester_column_does_not_repeat_phone_when_name_is_blank():
+    """O-08：家长没填姓名时姓名列给「未填写」，手机号只出现一次。
+
+    姓名列原先用 `|display_name`，它在姓名为空时回落手机号，而紧邻的小字又是
+    同一个手机号，列表里就出现 `+8613… +8613…`。
+    """
+    _family, children, parent = make_family(
+        child_name="小满", phone="+8613800000019", parent_name=""
+    )
+    support = make_service_request(children[0], parent, kind="support", reason="support_needed")
+    staff = ops_client(make_staff("operations"))
+
+    body = staff.get("/ops/services/").content.decode()
+    assert body.count(parent.phone) == 1
+    assert "未填写" in body
+
+    detail = staff.get(f"/ops/services/{support.pk}/").content.decode()
+    assert detail.count(parent.phone) == 1
+    assert "未填写（" + parent.phone in detail
+
+
 def test_resolve_completes_request_and_writes_audit_note():
     _child, _parent, support, _correction, _deletion = seed_requests()
     operator = make_staff("operations")

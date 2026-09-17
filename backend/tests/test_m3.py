@@ -518,7 +518,13 @@ def test_expired_or_consumed_proof_cannot_create_new_association(client):
     proof.payload["expires_at"] = (timezone.now() - timedelta(seconds=1)).isoformat()
     proof.save()
     url = f"/api/v1/children/{child['id']}/associations/verify"
-    assert client.post(url, data, format="json").status_code == 422
+    rejected = client.post(url, data, format="json")
+    assert rejected.status_code == 422
+    # P-17：家长在核验对话框里看到的是这句中文，不是 `PROOF_INVALID` 本身。
+    assert rejected.json()["code"] == "PROOF_INVALID"
+    assert (
+        rejected.json()["message"] == "凭据无法核验，请核对机器人标签上的凭据，或重新绑定机器人。"
+    )
     proof.payload["expires_at"] = (timezone.now() + timedelta(hours=1)).isoformat()
     proof.save()
     association = client.post(url, data, format="json").json()

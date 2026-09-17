@@ -578,6 +578,32 @@ def test_families_list_does_not_repeat_phone_in_parent_column():
     assert named.name in body
 
 
+def test_family_detail_shows_role_in_chinese_and_blank_name_as_unfilled():
+    """O-09：家庭详情「家长」行不再显示内部英文角色 `owner`，手机号只在下行。
+
+    角色取值是模型约束里的 `owner`（`family_membership` 的 membership_role_owner），
+    模板直接渲染就会给运营看英文码。
+    """
+    family, _children, parent = make_family(phone="+8613800000012", parent_name="")
+    client = ops_client(make_staff("operations"))
+
+    body = client.get(reverse("ops:family_detail", args=[family.pk])).content.decode()
+    assert "（owner）" not in body
+    assert "主要家长" in body
+    assert "未填写" in body
+    assert body.count(parent.phone) == 1
+
+
+def test_child_detail_does_not_repeat_parent_phone():
+    """O-08：「所属家庭」行的家长姓名空时给「未填写」，号码不出现两遍。"""
+    _family, children, parent = make_family(phone="+8613800000013", parent_name="")
+    client = ops_client(make_staff("operations"))
+
+    body = client.get(reverse("ops:child_detail", args=[children[0].pk])).content.decode()
+    assert body.count(parent.phone) == 1
+    assert "未填写" in body
+
+
 def test_dashboard_new_children_metric_states_its_scope():
     """「近 7 天新建档案（含已归档）」与「在册儿童」不同口径，标签写全。"""
     _, children, _ = make_family(children=2)
