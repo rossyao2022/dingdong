@@ -38,7 +38,7 @@ uv run --no-sync --directory ../backend python manage.py inject_fixture --child-
 - 兴趣岛进入后端已发布活动；今日陪伴可筛选、开始、保存步骤、继续、完成或跳过。
 - 成长旅程显示真实活动记录和统计；儿童切换分别读取各自档案。
 - 测评固定服务端题库版本，答案逐题保存，刷新和再次登录可恢复会话；初始/阶段报告读取服务端版本。
-- 「测评与报告」的「陪学伙伴」面板展示当前人设与互动健康度四态（见下节）。
+- 「测评与报告」的「陪学伙伴」面板展示当前人设与互动健康度四态（见下节），「成长周期报告」面板展示对方的 15/30 天周期（见下下节）。
 - 账户页编辑儿童资料、管理用途授权和本地机器人关联、提交帮助/修正/删除事项。
 - 删除由后台技术人员执行；即使最后一个儿童被删除，家长账户页仍可查看去除儿童标识的回执。
 - 伙伴引导方式和朗读仅影响网页，未接入机器人配置功能。
@@ -149,3 +149,24 @@ npx playwright test tests/companion-panel.spec.js --reporter=list   # 真实 Chr
 浏览器用例走 6 个 `ca_display_*` 合成场景（`inject_fixture --scenario ca_display_normal_art` 等）逐个截图到 `../.trellis/tasks/T-033/shots/`，覆盖未绑定态、四态文案与是否显分、390×844 不横向溢出、账户页只读人设行，并收集 `pageerror`。
 
 两个踩过的坑：**同一个 hash 的 `page.goto()` 与点导航不会触发重渲染**（`to()` 只在 hash 变化时 render），用例要真正 `page.reload()` 才看得到新注入的输入；建档成功后应用会自己 `to("explore")`，不等它落稳就导航会被覆盖。
+
+## CA 对接 C3：成长周期报告（15 / 30 天，2026-09-18）
+
+「测评与报告」在「已生成报告」之后、「成长观察」之上新增**成长周期报告**面板。数据来自后端 `GET /api/v1/children/<child_id>/growth-cycle?period=15d|30d`（后端实现见 `backend/dingdong_ca/core/services/ca_display.py`），本目录只做呈现。
+
+- **两份数据、两个来源，不合并**：本面板是对方的 `growth_period`（固定 15 / 30 天，非正式算法、非家庭自报）；「成长观察」是我方观察记录 + 任意窗口，保持原样不动。面板内只给「15 天 / 30 天」两个固定 Tab，**不提供任意日期区间**——任意区间归「成长观察」。
+- **Tab 状态在 `state.growthPeriod`**：默认 `15d`，切 Tab 走 `data-action="growth-period"` 重新取该周期的报告。它是模块级状态，所以 `page.reload()` 会把它复位（浏览器用例每次重载后都要重新点 Tab）。
+- **判定逻辑在 `growth-cycle.js`**：`growthCycleSection()` 是纯函数（不碰 DOM），负责空态/错误态文案、哪些数值能显示、八维顺序与缺失维度，由 `unit/growth-cycle.test.js` 盯住；可用性文案与陈旧提示直接复用 `companion.js` 的 `AVAILABILITY_TEXT` / `STALE_NOTICE`，同一件事不出现两种说法。
+- **八维成长代理**：按固定顺序渲染条形（原生 `<progress>`），某一维为 `null` 时该行显示「本周期无该维度数据」，**不补 0、不插值**（值为 `0` 是数据，照常显示）；区块下方固定标注「成长代理（对方算法产出，不是 CA 原始天赋分）。」。中文维度名取对方字段注释（`材料/可检索文本/DingDong_CA_数据库字段与接口.md` 的 `*_growth` 行）——对方契约里只有英文键，没有下发中文名，所以这张表在前端而不是后端。
+- **空态分两句**：`reason == "period_incomplete"`（绑定不满 15 天）说「成长周期还没走完，满 15 天后会生成第一份周期报告。」；其余 `no_data` 说「这个周期还没有报告。」。真源模式下 404 只带回业务码 `40401`，区分不出两者，会落到后一句（只有合成模式会给 `period_incomplete`）。
+- **合成徽标与数值纪律同 C2**：`data_origin == "synthetic"` 时面板级挂 `testTag()`；`availability` 不是 `ready` / `stale` 时不显示任何数值（连 0 都不显示），也不出八维条形。`stale` 照常显示上次成功的数据并标注。
+- **不展示的字段**：`engagement.index`（互动参与指数）与 `period.days` 的原始字段名不进界面——设计 §1.2 的展示规则只要求 `companion.delta`、`engagement.stage` + `stage_progress` 与八维。
+
+测试：
+
+```sh
+npm run check && npm run test:unit                                  # 单测含 growth-cycle 17 项
+npx playwright test tests/growth-cycle-panel.spec.js --reporter=list # 真实 Chrome 1 项（11 步走查）
+```
+
+浏览器用例覆盖：未绑定与未授权两种空态、新用户空态、15 天与 30 天各自的正常态、Tab 切换后的两种空态（周期没走完 / 这个周期还没有报告）、缺失维度（改写单条 fixture 造出两个 `null`）、陈旧态、390×844 不横向溢出，并断言「成长周期报告」在「成长观察」之上、收集 `pageerror`。截图在 `../.trellis/tasks/T-034/shots/`。

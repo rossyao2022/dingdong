@@ -32,6 +32,10 @@
 - 截图写到 `frontend/docs/`（例如 `tests/flows.spec.js` 的 `docs/m5-mobile-<route>.png`）。该目录不进版本库，正式证据以 `deploy/evidence/**` 为准。
 - **同一个 hash 的导航不会重渲染**：`to()` 只在 `location.hash` 变化时 `render()`，所以用例里 `page.goto("/#reports")` 在已经处于该 hash 时是空操作，点同一条导航链接也一样——**换数据后要 `page.reload()` 才看得到**（T-033 因此白跑两轮）。另有同源竞态：建档成功后应用会自己 `to("explore")`，用例若在响应到达后立刻导航，会被这次跳转覆盖，必须等目标页 heading 出现再走（`tests/companion-panel.spec.js` 的 `child()` 就是等「好奇心，准备出发！」）。
 - **证据型 spec 会改写别人任务目录下的图**：`tests/robot-account-row.spec.js` 直接重写 `.trellis/tasks/T-015/shots/*.png`（逐字节不同）。把别人的 spec 当回归跑完，这些图会变脏——按需 `git checkout -- .trellis/tasks/<id>/shots/` 复原，不要混进本轮提交。
+- **`page.setViewportSize()` 不随 `page.reload()` 复位**：一个用例里先跑窄屏（390×844）再回到桌面步骤，后面的截图会**静默变成窄屏图**（T-034 的 `stale-desktop.png` 因此白拍一次）。改视口后要显式改回来，或者把窄屏步骤放到最后。
+- **改视口/重载也复位不了模块级状态**：`state` 是 `app.js` 的模块变量，`page.reload()` 会把它整体重置（`state.growthPeriod` 回到 `15d`、`state.window` 回到默认窗口）。用例在每次重载后都要重新选择 Tab / 重填窗口，不能假设上一轮的交互还在。
+- **6 个 `ca_display_*` 场景之外的分支靠改单条 fixture 覆盖**：`inject_fixture --scenario ca_display_*` 会打印 `Display scenario ready: <场景> for <ca_account_id>`，把这个账户号捞出来（`out.match(/Display scenario ready: \S+ for (\S+)/)`）就能用 `shell()` 精确改写该账户那一条 fixture 行——例如把某场景的 `growth_dimensions` 里两维改成 `null`，验证「缺失维度不补 0、不插值」这条渲染规则。这是真实 fixture 注入（与 `inject_fixture` 同一张表、同一机制），不是拦截假响应。
+- **`bound_at` 决定空态说哪一句**：展示面的周期空态文案由后端按「绑定满不满 15 天」选（`ca_display.growth_empty_reason`），而绑定是刚才在浏览器里做的，所以默认只会走到「周期还没走完」。要覆盖另一句，得用 `shell()` 把 `CaAccount.bound_at` 往前推（T-034 推 20 天）。
 - 跑完若 `frontend/test-results` 堆积失败截图，Playwright 清理可能被本地批量删除保护拦下，用 `--output=/tmp/dingdong-pw-out` 指定输出目录绕开（`frontend/README.md`）。
 
 ## 公网验收

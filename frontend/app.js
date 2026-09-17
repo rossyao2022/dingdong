@@ -15,6 +15,12 @@ import {
   healthSection,
   personaSection,
 } from "./companion.js";
+import {
+  DIMENSION_MISSING,
+  PERIODS,
+  PROXY_NOTE,
+  growthCycleSection,
+} from "./growth-cycle.js";
 const $ = (s) => document.querySelector(s);
 const esc = (v) =>
   String(v ?? "").replace(
@@ -44,6 +50,8 @@ const state = {
   record: null,
   consents: [],
   window: { from: "2026-09-01T00:00:00Z", to: "2026-09-08T00:00:00Z" },
+  // 「成长周期报告」的两个固定 Tab；任意区间归「成长观察」，两处不共用状态。
+  growthPeriod: "15d",
 };
 let viewEpoch = 0,
   busy = false,
@@ -449,6 +457,51 @@ function companionPanel(persona, health) {
   const badge = p.synthetic || h.synthetic ? testTag() : "";
   return `<section class="panel companion-panel"><div class="card-heading"><h2>陪学伙伴</h2>${badge}</div>${personaBlock(p)}${healthBlock(h)}<p class="note">${esc(HEALTH_FOOTER)}</p></section>`;
 }
+/** 面二的两个固定 Tab；任意区间由既有「成长观察」承担，不是同一份数据。 */
+function growthTabs() {
+  return `<div class="growth-tabs" role="group" aria-label="周期长度">${PERIODS.map(
+    ([value, label]) =>
+      `<button type="button" class="chip ${state.growthPeriod === value ? "active" : ""}" data-action="growth-period" data-value="${value}" aria-pressed="${state.growthPeriod === value}">${label}</button>`,
+  ).join("")}</div>`;
+}
+/** 八维条形。缺失维度只给一句说明：不出条形、不出 0、不插值。 */
+function dimensionBars(rows) {
+  return `<ul class="growth-dimensions">${rows
+    .map((d) =>
+      d.value === null
+        ? `<li class="missing"><span class="dim-label">${esc(d.label)}</span><span class="dim-note">${esc(DIMENSION_MISSING)}</span></li>`
+        : `<li><span class="dim-label">${esc(d.label)}</span><progress value="${d.value}" max="100" aria-label="${esc(d.label)}"></progress><strong>${d.value}</strong></li>`,
+    )
+    .join("")}</ul>`;
+}
+/**
+ * 「成长周期报告」面板（设计 §1.2）：对方的 `growth_period`，固定 15/30 天。
+ * 与「成长观察」（我方观察记录 + 任意窗口）是两份数据、两个来源，不合并。
+ */
+function growthCyclePanel(data) {
+  const v = growthCycleSection(data);
+  const head = `<div class="card-heading"><h2>成长周期报告</h2>${v.synthetic ? testTag() : ""}</div>${growthTabs()}`;
+  if (!v.showData)
+    return `<section class="panel growth-panel">${head}${faceEmpty(v)}</section>`;
+  const companion =
+    v.companionDelta === null
+      ? ""
+      : metrics([{ label: "陪伴值增长", value: v.companionDelta, unit: "" }]);
+  const range =
+    v.companionStart === null || v.companionEnd === null
+      ? ""
+      : `<p class="note">周期初 ${v.companionStart} → 周期末 ${v.companionEnd}。陪伴值是有效陪伴互动的代理量。</p>`;
+  const stage = v.stageNote
+    ? `<p class="note">${esc(v.stageNote)}</p>`
+    : `<p class="growth-stage">陪学成长阶段：<b>${esc(v.stageLabel)}</b>${v.stageProgress === null ? "" : ` · 阶段进度 ${v.stageProgress}%`}</p>`;
+  const meta = [
+    v.algorithmVersion
+      ? `算法版本 <span title="${esc(v.algorithmVersion)}">${esc(versionLabel(v.algorithmVersion))}</span>`
+      : "",
+    v.generatedAt ? `生成于 ${date(v.generatedAt)}` : "",
+  ].filter(Boolean);
+  return `<section class="panel growth-panel">${head}<p class="note">本周期 ${esc(v.period.start)} — ${esc(v.period.end)}${v.personaName ? ` · 当前陪学伙伴 ${esc(v.personaName)}` : ""}</p>${companion}${range}${stage}<h3>八维成长代理</h3>${dimensionBars(v.dimensions)}<p class="note">${esc(PROXY_NOTE)}</p>${meta.length ? `<p class="note">${meta.join(" · ")}</p>` : ""}${staleNotice(v)}</section>`;
+}
 function localValue(v) {
   const d = new Date(v);
   return new Date(d - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
@@ -573,7 +626,7 @@ async function render() {
         ) +
         `<article class="panel">${testTag()}<p class="note">生成于 ${date(r.generated_at)} · ${esc(r.template_version)}</p>${r.window ? `<p>观察窗口：${date(r.window.start)} — ${date(r.window.end)}</p>` : ""}${r.sections.map((s) => `<section class="report-section"><h2>${esc(s.title)}</h2>${s.paragraphs.map((p) => `<p>${esc(p)}</p>`).join("")}</section>`).join("")}<p class="notice">${esc(r.source_summary)}</p></article>`;
     } else if (route === "reports") {
-      const [reports, sessions, overview, catalog, companion, health] =
+      const [reports, sessions, overview, catalog, companion, health, cycle] =
         await Promise.all([
           API.all(`/children/${child}/reports`),
           API.all(`/children/${child}/assessments`),
@@ -581,6 +634,9 @@ async function render() {
           API.request("/assessment-config"),
           API.request(`/children/${child}/companion-persona`),
           API.request(`/children/${child}/companion-health`),
+          API.request(
+            `/children/${child}/growth-cycle?period=${state.growthPeriod}`,
+          ),
         ]);
       if (
         overview.robot_observation.availability === "not_synced" ||
@@ -627,7 +683,7 @@ async function render() {
       );
       html =
         head("测评与报告", "初始测评、机器人观察与网页活动分别呈现。") +
-        `<div class="grid">${bankCards}${explorationCard}<div class="panel"><div class="card-heading"><h2>${active ? "本次测评尚未结束" : "初始测评"}</h2>${testTag()}</div><p>${active ? esc(statusNames[active.status]) : "正式算法与专业量表尚未接入。当前为日常情境测试题，只验证问卷和报告流程，不作专业结论。"}</p>${active ? button("continue-assessment", "继续本次测评", `data-id="${active.id}"`) : button("begin-assessment", "开始测评")}</div></div>${companionPanel(companion, health)}${history.length ? `<section class="panel"><h2>已完成的探索体验</h2>${history.map((s) => button("continue-assessment", esc(s.title) + " · 查看选择", `data-id="${s.id}"`, true)).join("")}</section>` : ""}<h2 style="margin:28px 0 18px">已生成报告</h2>${reportCards(reports.reverse())}<h2 style="margin:30px 0 0">成长观察</h2>${windowForm()}<div class="grid">${observationBlock(overview.robot_observation)}<section class="panel"><h2>阶段画像与变化</h2><p>${{ no_data: "还没有可处理的观察记录。", waiting_rule: "观察已收到，等待发布处理规则。", processing: "正在处理最新观察。", ready: "当前观察已生成阶段画像。", failed: "处理暂未完成，请联系工作人员。" }[overview.stage_status]}</p>${overview.trend.available ? metrics(overview.trend.changes.map((m) => ({ label: m.code, value: m.delta, unit: m.unit }))) : '<p class="notice">目前没有兼容、相邻且等长的两期结果，暂不展示变化。</p>'}<p class="note">网页活动完成数不参与阶段画像计算。</p>${button("refresh", "刷新观察状态", "", true)}</section></div>`;
+        `<div class="grid">${bankCards}${explorationCard}<div class="panel"><div class="card-heading"><h2>${active ? "本次测评尚未结束" : "初始测评"}</h2>${testTag()}</div><p>${active ? esc(statusNames[active.status]) : "正式算法与专业量表尚未接入。当前为日常情境测试题，只验证问卷和报告流程，不作专业结论。"}</p>${active ? button("continue-assessment", "继续本次测评", `data-id="${active.id}"`) : button("begin-assessment", "开始测评")}</div></div>${companionPanel(companion, health)}${history.length ? `<section class="panel"><h2>已完成的探索体验</h2>${history.map((s) => button("continue-assessment", esc(s.title) + " · 查看选择", `data-id="${s.id}"`, true)).join("")}</section>` : ""}<h2 style="margin:28px 0 18px">已生成报告</h2>${reportCards(reports.reverse())}${growthCyclePanel(cycle)}<h2 style="margin:30px 0 0">成长观察</h2>${windowForm()}<div class="grid">${observationBlock(overview.robot_observation)}<section class="panel"><h2>阶段画像与变化</h2><p>${{ no_data: "还没有可处理的观察记录。", waiting_rule: "观察已收到，等待发布处理规则。", processing: "正在处理最新观察。", ready: "当前观察已生成阶段画像。", failed: "处理暂未完成，请联系工作人员。" }[overview.stage_status]}</p>${overview.trend.available ? metrics(overview.trend.changes.map((m) => ({ label: m.code, value: m.delta, unit: m.unit }))) : '<p class="notice">目前没有兼容、相邻且等长的两期结果，暂不展示变化。</p>'}<p class="note">网页活动完成数不参与阶段画像计算。</p>${button("refresh", "刷新观察状态", "", true)}</section></div>`;
     } else if (route === "settings") {
       const [consents, associations, receipts, accounts, companion] =
         await Promise.all([
@@ -1426,6 +1482,11 @@ async function handleAction(action, el) {
       break;
     case "style":
       state.style = el.dataset.value;
+      await render();
+      break;
+    case "growth-period":
+      // 两个固定 Tab；换 Tab 重新取该周期的报告，「成长观察」的窗口不受影响。
+      state.growthPeriod = el.dataset.value;
       await render();
       break;
     case "more-records": {
