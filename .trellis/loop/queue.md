@@ -118,8 +118,8 @@
 - goal: 审计页「对象」列不再显示未翻译内部码 `login_grant`，补「登录凭据」类对象词条与说明，不把表名/英文模型名给运营看。
 - acceptance: `cd backend && uv run pytest tests/test_ops_audit_scope.py` 通过（含新增断言：审计页对象列不含 `login_grant`、含中文词条）；audit errors 为空；真实 Chrome 打开运营审计页复现原记录截图到 `.trellis/tasks/T-014/shots/`。
 - gate: none
-- status: todo
-- notes: 只补 `ops/labels.py` 词条与必要测试，不改审计数据与模型。属第一批：commit 后可直接 push 并补 EXECUTED 行。
+- status: done
+- notes: 只补 `ops/labels.py` 词条与必要测试，不改审计数据与模型。属第一批：commit 后可直接 push 并补 EXECUTED 行。 **2026-09-17 执行结果**：`ops/labels.py` `TARGET_KIND` 增 `login_grant: 登录凭据`、`algorithm_attempt: 算法尝试`，新增纯函数 `target_name()`；`ops_labels.py` 新增 `audit_target` 过滤器（`lru_cache` 从模型注册表现取 `verbose_name -> 词条`）；`audit.html:66`、`dashboard.html:236` 的 `target_label` 改用该过滤器。TDD 红：后端 `2 failed, 9 deselected in 16.17s`（`assert '登录凭据' in ...未知（login_grant）...`、`ImportError: audit_target`）、真实 Chrome `1 failed`（对象列实测 `未知（login_grant） login grant（parent-audit-…）`，即 backlog 原记录形状）→ 绿：`tests/test_ops_audit_scope.py` `11 passed in 45.38s`、Chrome `1 passed (8.2s)`；后端全量回归 `273 passed in 1013.68s (0:16:53)`；`npm run check` exit 0、`test:unit` 16 pass 0 fail（71.041042ms）、`audit_documents.py` errors `[]`；截图 4 张（含改前失败截图）在 `.trellis/tasks/T-014/shots/`。补了 `algorithm_attempt` 与英文模型名改写两处超 acceptance 的范围（同一列同款内部码，库内均有真实记录），理由见 report。未改 `child_detail.html`/`account_detail.html` 的 `target_label`（那两处按业务对象过滤、标签本就是业务名）。开工时发现运营端 dev server 8017 进程已退出，已 `nohup` 重启并确认 200（日志 `/tmp/dingdong-ops-8017.log`）。已按第一批直推 push：见 gates.md EXECUTED 行。
 
 ## T-015 O-04 儿童详情加只读「机器人账户」一行
 - goal: 儿童详情页加一行只读「机器人账户」（账户号 + 绑定状态 + 跳 CA 账户页），运营排查同步问题时不必切页按手机号搜。
