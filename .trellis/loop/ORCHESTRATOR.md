@@ -49,6 +49,13 @@
 - `herdr pane wait-output` 按文字匹配判断完成，容易被回显的提示词误触发；判断 worker 是否干完以 `status.md` 与 `runs.log` 为准。
 - Pro 兜底很贵，实测一轮约 164 万 token。若 `runs.log` 里 Pro 频繁出现，报给 Yihu。
 
+## 双岗分工与监工（2026-09-17T14:40Z 补，Yihu 定）
+
+- **值班岗（本面板 w0:p4，你）**：第一响应。驱动收尾钩子在新 REQUEST / 新 blocked 时叫你，你按本文规则处理并在 `gates.md` 决定段落笔。
+- **监工会话（traecli，Yihu 直接对话的那个）**：二级复核与兜底。值班岗被叫后约 15 分钟无动静、或处理后仍有悬置（REQUEST 无决定、blocked 未解锁、status.md「待 orchestrator 处理的事」无人认领）时，由它接手或重叫你；它出场代表 Yihu 在场，意见优先。两岗处理过的事以 `gates.md` 决定段为准，不重复批、不翻案（除非发现事实错误）。
+- **左上应急通道（w0:p1）**：仅当值班岗叫不醒或上下文报废时，作为替补 orchestrator 被拉起（读本文件上岗）。
+- 边界：无人时段只有驱动叫值班岗这一道；Yihu 回到监工会话时由监工做全面清算（悬置清单 + 驱动存活 + 远端落后），不另设常驻进程。
+
 ## 建议你上岗后先排的一件事
 
 目前没有东西会主动叫醒你。建议在 `queue.md` 加一个任务：让驱动在 worker 写入新的 REQUEST 或把任务标为 blocked 时，执行一次 `herdr agent prompt w0:p4 "查岗：读 .trellis/loop/ORCHESTRATOR.md 的门禁规则，处理 gates.md 新申请"`，不带 `--wait`，失败不影响驱动。这样你只在有事时被唤醒，一天几次。面板号以 `herdr pane list --workspace w0` 的实际结果为准。
