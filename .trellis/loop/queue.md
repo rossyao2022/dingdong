@@ -3,207 +3,70 @@
 字段：`goal` 目标 · `acceptance` 可客观验证的验收 · `gate` 门禁类型（`none` | `push` | `external` | `deploy` | `review`）· `status`（`todo` | `doing` | `done` | `blocked` | `gated`）· `notes` 备注。
 规则：驱动每轮取第一个 `status: todo` 的任务；`gated` / `blocked` 跳过。任务定义由 orchestrator 写，执行结果由 worker 写回。
 
+瘦身（T-036）：已 done 任务压成两行（`## T-xxx` 标题 + 一行指针，指针行首 token 仍是 `done`），逐条执行结果见 `.trellis/tasks/<id>/report.md`，压缩前全文留档 `.trellis/loop/queue-archive-20260917.md`；done 块连续排布不空行（行数预算所限）；todo / doing / gated / blocked 任务保持全文。
+
 ## T-025 机制盘活：驱动长程 7×24 语义（每日上限睡到零点）+ 限流退避与 Pro 日限 + 唤醒重试 + 探活 watchdog
-- goal: 让自循环真正可 7×24：1) `worker-loop.sh` 每日上限到点不再退出，改睡到 UTC 零点继续（每 300s 检查 STOP，STOP 仍为唯一停机方式）；2) 双限流退避按连续次数翻倍（180→360→720→…封顶 1800s，成功清零）；3) Pro 兜底加单日次数上限（`LOOP_FALLBACK_DAILY_LIMIT`，默认 6），超限不再切 Pro、按失败走连续失败→blocked 路径控成本；4) 唤醒 orchestrator 失败间隔 5s 重试一次、连续 3 次失败写 status.md 告警，启动时自检 orchestrator 面板是否在 herdr 会话；5) 新增 `scripts/loop-watchdog.sh` 探活（驱动不在且无 STOP 时优先在原面板 w0:p3 重启、面板没了走 nohup 后台拉起）与 `scripts/com.yihu.dingdong.loop-watchdog.plist`（launchd 每 5 分钟模板）。
-- acceptance: `bash -n` 两个脚本通过；`fallbacks_today` / `seconds_until_utc_midnight` 对真实 `runs.log` 验证；驱动重启后启动行带新参数（到点睡到零点 + Pro兜底日限）且正常开轮；驱动活着时 watchdog 手动执行 exit 0 且 `runs.log` 无新 WATCHDOG 行；旧驱动 STOP 优雅退出路径不受影响。
-- gate: push
-- status: done
-- notes: 由 orchestrator 会话按 Yihu「把模式盘活」指令直接执行。**已知坑（重要）**：改正在运行的 bash 脚本会导致字节错位执行——本次旧驱动 STOP 退出后报过一行无害的 `line 301: $5: unbound variable`（发生在 break 之后，轮次已记录、无实质影响）；以后改驱动脚本先 `mv` 原子替换再写新内容，并等旧进程完全退出后多留缓冲。launchd 安装（写 `~/Library/LaunchAgents`）与 `git push` 属仓库外副作用，NEED-GATE 留 Yihu 放行。**2026-09-17 执行结果**：`worker-loop.sh` 5 项全落地（新增 `fallbacks_today` / `seconds_until_utc_midnight` / `sleep_with_stop_check`，`_rl_streak`/`_wake_fails` 全局计数，LIMIT 分支改 `continue`，空转 sleep 换 `sleep_with_stop_check`，唤醒重试+告警，启动自检面板）；实测 fallbacks_today 对当日 runs.log 解析 Pro=3（T-004/T-007/T-008），到零点 54252s；08:56:05Z 新驱动以新参数重启（PID 68713）并开跑 T-009；watchdog 存活分支实测 exit 0 无动作。待 Yihu 事项已全部关闭（2026-09-17）：push 已事后追认（见 gates.md 2026-09-17T11:48Z 两行）；launchd 不安装——Yihu 明确不需要，`loop-watchdog.sh` 保留为手动工具、plist 模板留档，不再催装。
-
+- status: done · 见 `.trellis/loop/queue-archive-20260917.md`（本任务无 report.md，原文留档）
 ## T-022 驱动加「有新门禁申请或任务 blocked 时叫醒 orchestrator」的钩子
-- goal: 给 `scripts/worker-loop.sh` 加收尾钩子：每轮 worker 退出后，与本轮开工时的基线对比，若 `gates.md` 申请段新增了 REQUEST 行、或 `queue.md` 有任务被标为 `blocked`，就执行一次 `herdr agent prompt w0:p4 "查岗：读 .trellis/loop/ORCHESTRATOR.md 的门禁规则，处理 gates.md 新申请"`；不带 `--wait`；该命令失败只记一行日志，不改变驱动退出码、不影响后续轮询。
-- acceptance: 钩子只在出现上述两类变化时触发且每轮至多一次；用一条测试 REQUEST 实测钩子能真实触发一次（测试行末尾标注「T-022 钩子自测，可忽略」，orchestrator 收到后忽略该行），驱动随后正常进入下一轮；`bash -n scripts/worker-loop.sh` 通过；`python3 scripts/audit_documents.py` errors 为空；实测命令输出存 `.trellis/tasks/T-022/`。
-- gate: push
-- status: done
-- notes: 只改 `scripts/worker-loop.sh` 这一个文件。面板号已核对：w0:p4 为 orchestrator 会话所在面板（2026-09-17 `herdr pane list --workspace w0` 实测；若面板有变以实际结果为准并更新本条）。属机制任务：commit 后直接 push origin/codex/release-v0.3.6 并在 `gates.md` 补 EXECUTED 行（岗位说明：push 类直接 APPROVE），不必另开 REQUEST。 **2026-09-17 执行结果**：钩子已加（`loop_gate_snapshot` / `wake_orchestrator` / `notify_orchestrator_if_needed`，`run_round` 开工取基线收尾调一次；新增 `LOOP_ORCH_PANE` 默认 `w0:p4`、`LOOP_WAKE_CMD` 联调替代命令）。实测四场景：A 真 herdr 唤醒一次（面板 rev 30→39、agent_status=working）、B 无变化两轮 0 次唤醒、C 新 blocked 唤醒一次、D 唤醒命令失败只记 `WAKE FAIL ... rc=3` 且驱动 exit 0；`bash -n` 通过、`audit_documents.py` errors `[]`；证据在 `.trellis/tasks/T-022/`（transcript + 驱动原始输出 + `runs.log.after`），自测轮次行已从 `runs.log` 清理。已按机制任务直推规则 push：`dbf2870..2cfca23`，远端 sha `2cfca23e404794ff8f13cc3243c31e4c56bf4568`。
-
+- status: done · 见 `.trellis/tasks/T-022/report.md`
 ## T-023 机制收尾：ORCHESTRATOR.md 入库 + 关闭 R0d 遗留核对项
-- goal: 把 `.trellis/loop/ORCHESTRATOR.md`（orchestrator 岗位说明，目前仍是未跟踪文件）用首行 `[T-023]` 的提交入库；并把 status.md 里反复出现的「R0d 会话收尾」核对项正式关闭：确认全仓已无假 grok 包装脚本残留（2026-09-17T07:22Z orchestrator 已核实 `.trellis/loop/runs/fake-grok.sh` 不存在；`.trellis/tasks/T-022/` 下的 fake-* 是钩子自测证据，保留不删），核对 `runs.log` 中 T-004 的 PRIMARY RATE_LIMITED / FALLBACK DONE 两行与 `runs/` 下 `20260917T055213Z-T-004-primary`、`20260917T055219Z-T-004-fallback` 两个记录一致。
-- acceptance: `git status --short` 不再出现 `?? .trellis/loop/ORCHESTRATOR.md`；全仓（排除 `.git`、`node_modules`、`.trellis/tasks/T-022/`）找不到假 grok 包装脚本；核对结论写入 `.trellis/tasks/T-023/report.md`；`python3 scripts/audit_documents.py` errors 为空；gate push：commit 后直接 push origin/codex/release-v0.3.6 并在 `gates.md` 补 EXECUTED 行。
-- gate: push
-- status: done
-- notes: 只入库 ORCHESTRATOR.md 这一个新文件，不改其内容。给 status.md 第 2 条待办的正式答复：混轮提交账本类文件（runs.log / queue.md 的驱动与 orchestrator 记录行）可接受，不必严格分轮。做完后下次重写 status.md 时把「R0d 会话收尾」从待办划掉。 **2026-09-17 执行结果**：`.trellis/loop/ORCHESTRATOR.md` 已入库（58 行，内容未改，入库前后 sha256 均 `bec3d5cba9345674b077b06094ff0aef5ee2e174f2d6dff5fd1969f254268ec9`）；假 grok 包装脚本按文件名扫描 0 命中，按内容命中的 4 处全为文档/JSON 文字提及（`file` 判定无脚本），`.trellis/loop/` 下无 `fake-grok.sh`，`.trellis/tasks/T-022/` 内 3 个 fake-* 按任务说明保留；T-004 两行 `runs.log` 与 `runs/20260917T055213Z-T-004-primary.json`（61B，`TooManyRequests`）、`runs/20260917T055219Z-T-004-fallback.json`（93928B）核对一致（05:52:19Z+496s=06:00:35Z 秒级对齐）；证据 `.trellis/tasks/T-023/verify-output.txt` + `verify.sh`；`audit_documents.py` errors `[]`。已按 gate push 直推：`531737e..a900a01`，远端 sha `a900a011ae04b518e82a920316093db05fa4ad36`。 status.md 原第 2 条待办的正式答复：混轮提交账本类文件（`runs.log` / `queue.md` 的驱动行与 orchestrator 记录行）可接受，不必严格分轮。
+- status: done · 见 `.trellis/tasks/T-023/report.md`
 ## T-001 写 .trellis/loop/README.md
-- goal: 给 `.trellis/loop/` 写一份操作说明，让 orchestrator 一看就知道怎么启停、怎么批门禁、怎么看状态、怎么加任务。
-- acceptance: `.trellis/loop/README.md` 存在且不超过 10 行；四件事（启停 / 批门禁 / 看状态 / 加任务）各至少一条；本文件已用首行 `[T-001]` 的提交入库。
-- gate: none
-- status: done
-- notes: 只写这一个文件。别复述整套设计，别改驱动脚本。已入库 commit 6e89463（7 行，四要素齐）。
-
+- status: done · 见 `.trellis/tasks/T-001/report.md`
 ## T-002 在 .trellis/tasks/T-002/ 写一份 hello.md 并申请 push
-- goal: 新建 `.trellis/tasks/T-002/hello.md`（一句话说明这是自循环门禁联调用的测试文件），并走 push 门禁流程。
-- acceptance: `.trellis/tasks/T-002/hello.md` 存在；`.trellis/loop/gates.md` 申请段出现 `REQUEST T-002 push ...`；本任务 `status` 为 `gated`；改动已用首行 `[T-002]` 的提交入库。
-- gate: push
-- status: done
-- notes: 申请后**不要**自己 push。push 是本仓库的门禁动作，等 orchestrator 在 `gates.md` 决定段写 `APPROVE` 后才执行。2026-09-17 已执行：`git push origin codex/release-v0.3.6` 成功，远端 sha `de9a3d36f445313336496cb4f801842fc72cb8c1`（6edd418..de9a3d3）。
-
+- status: done · 见 `.trellis/tasks/T-002/report.md`
 ## T-004 验证模型切换
-- goal: R0e 机制自测。本任务第一轮 PRIMARY 调用会被假 grok 包装脚本伪造限流，驱动应当立即用 FALLBACK（Pro）重跑同一任务；worker 只需确认自己在 FALLBACK 重跑中正常完成、不改任何代码。
-- acceptance: `.trellis/tasks/T-004/report.md` 存在并写一句「本轮由 FALLBACK 重跑完成」；本任务 `status` 为 `done`；改动已用首行 `[T-004]` 的提交入库。（runs.log 里 PRIMARY RATE_LIMITED / FALLBACK DONE 两行记录由 R0d 会话在驱动跑完后核对，不在本任务内。）
-- gate: none
-- status: done
-- notes: 自测任务，验证完由 R0d 会话删除假脚本、核对 runs.log。
-
+- status: done · 见 `.trellis/tasks/T-004/report.md`
 ## T-003 产品体验与稳定性审计
-- goal: 以家长用户第一视角走一遍家长端（`http://127.0.0.1:4173/`，任意手机号 + 验证码 `00000`）与运营后台（`http://127.0.0.1:8017/ops/`，`admin` / `dingdong-admin`），结合 `PROJECT_MEMORY.md`、`需求/`、`设计/`，产出 `.trellis/tasks/T-003/backlog.md`。
-- acceptance: backlog.md 每项含「用户在哪一步卡/困惑/不信任 / 现状 / 建议改法 / 完善还是扩散 / 工作量档位」；「完善/扩散」判据写成：不新增对对方接口的依赖、不改契约边界、不改数据模型语义；稳定性问题单列一节（错误态、空数据态、网络慢/断、celery 失败可见性、e2e 因本地数据漂移失败的 4 项）；只产出文档、不改任何代码；本任务 `status` 为 `gated`，`gates.md` 有 `REQUEST T-003 review ...`。
-- gate: review
-- status: done
-- notes: 已知候选先放进去——人设/成长报告/健康度四态/复测 CTA 四个展示面（mock 数据源，判定标准见 `设计/CA对接_C1_ca_account_id设计_20260916.md` §7）、授权血缘声明（`frontend/README.md` + `参考代码/来源说明.md`，来源 commit `d754a5bf`）、PR #1 转 draft。明确排除：`PROJECT_MEMORY.md` 里列的 8 个出站接口、主动解绑、发版部署。走产品体验需真实浏览器，遵守仓库浏览器验收纪律。**2026-09-17 执行结果**：backlog.md 已产出（家长端 9 条 / 运营端 5 条 / 缺口 3 条 / 稳定性 5 条），4 张截图在 `.trellis/tasks/T-003/shots/`；坐实 1 个真缺陷（CA 账户页跨行 `{# #}` 注释被渲染成正文，根因 `tag_re` 无 DOTALL）与 1 处家长端报错文案未本地化（422 透传 `ErrorDetail(...)`）；只读审计，未改代码，本地库新增 1 条 CaAccount（`ca_01M2PZQM5RNBPNVQXJ5CXEWDMN`，合成凭据）+ 1 份探索答卷 + 1 条授权，明细见 backlog 第六节。**2026-09-17 门禁执行**：orchestrator 批准 review 后，本轮已按批准顺序把 backlog 条目导入为本文件 T-005…T-021（第一批 13 条 / 第二批 3 条 / 第三批 1 条），O-05 与 G-03 未导入，见 `gates.md` 决定段与 EXECUTED 行。
-
+- status: done · 见 `.trellis/tasks/T-003/report.md`
 ## T-005 O-01 修掉 CA 账户页跨行模板注释被当正文渲染
-- goal: 修掉运营后台「CA 账户」页把跨行 `{# … #}` 注释渲染成正文的真缺陷（`backend/dingdong_ca/ops/templates/ops/ca_accounts.html` 第 10–11 行），改成 `{% comment %}` 或压成单行。
-- acceptance: 新增一条会先失败的用例，断言 `/ops/ca-accounts/` 渲染结果不含 `{#`、不含注释原文，并断言 `backend/dingdong_ca/ops/templates/` 下不存在跨行 `{# … #}`；`cd backend && uv run pytest tests/test_ops_ca_accounts.py` 通过；`python3 scripts/audit_documents.py` errors 为空；真实 Chrome 打开 `http://127.0.0.1:8017/ops/ca-accounts/`（`admin` / `dingdong-admin`）页面顶部不再出现 `{# 注意：Tabler… #}`，截图存 `.trellis/tasks/T-005/shots/`。
-- gate: none
-- status: done
-- notes: 纯缺陷修复，只动这一个模板 + 测试；同页其他文案问题各有任务（P-04 / O-02 / O-04），别顺手改。属第一批：commit 后可直接 push origin/codex/release-v0.3.6 并在 `gates.md` 补 EXECUTED 行。**2026-09-17 执行结果**：模板跨行 `{# … #}` 改 `{% comment %}…{% endcomment %}`；`tests/test_ops_ca_accounts.py` 新增 2 条用例（渲染结果不含 `{#` 与注释原文；ops 模板无跨行 `{# … #}`）。修复前 `2 failed, 5 passed in 27.37s`（`assert ['ops/ca_accounts.html:10'] == []`），修复后 `7 passed in 28.84s`，加跑 `test_ops_console.py` 共 `43 passed in 148.68s`；`scripts/audit_documents.py` errors `[]`；真实 Chrome 打开 `/ops/ca-accounts/` 原缺陷文本消失（截图 `.trellis/tasks/T-005/shots/ops-ca-accounts-after.jpeg`）。已按第一批直推规则 push：`de9a3d3..618925e`，远端 sha `618925ef4e53d96fb339562bb8e3589789032a53`。
-
+- status: done · 见 `.trellis/tasks/T-005/report.md`
 ## T-006 P-05 空手机号获取验证码不再丢后端原始报错
-- goal: 手机号为空点「获取验证码」时给中文提示，不再把 `ErrorDetail(string='该字段不能为空。', code='blank')` 透传到界面：前端先做非空校验，后端 422 统一兜底成中文。
-- acceptance: 空号提交时界面出现中文提示且不含 `ErrorDetail(`；`cd frontend && npm run check && npm run test:unit` 与 `cd backend && uv run pytest tests/test_auth.py` 通过；audit errors 为空；真实 Chrome 在 `http://127.0.0.1:4173/` 复现原路径并截图到 `.trellis/tasks/T-006/shots/`。
-- gate: none
-- status: done
-- notes: 属第一批：commit 后可直接 push origin/codex/release-v0.3.6 并补 EXECUTED 行。**2026-09-17 执行结果**：根因两处——`core/api/common.py` 的 `endpoint()` 对 DRF `detail`（`{"phone": [ErrorDetail(...)]}`）直接 `str(v)`，把 list 内部 repr 当字段文案；`frontend/app.js` 的 `#send-code` 不做非空校验、照发请求。后端新增 `detail_text()`/`field_errors()` 递归取 message，`tests/test_auth.py` 新增 2 条参数化用例（改前 `2 failed, 12 deselected in 13.07s`，改后 `14 passed in 22.26s`）；前端空号先拦并给「请先填写手机号，再获取验证码。」、不发请求。新增 `frontend/tests/login-validation.spec.js`（4 条真实 Chrome，含 390×844），改前临时还原 HEAD 版 `app.js` 跑出 `1 failed`（文案 `请求字段不合法 该字段不能为空。`），改后 `4 passed (5.8s)`；回归 `tests/ca-account.spec.js` `4 passed (30.4s)`；全量后端 `270 passed in 1000.72s`；`npm run check` 通过 / `test:unit` `16 pass 0 fail` / `audit_documents.py` errors `[]`。4 张截图在 `.trellis/tasks/T-006/shots/`。已按第一批直推规则 push：`f07a7c7..876b2dd`，远端 sha `876b2dd9d031650e57e576ea7fc6b8d04a1beae7`。
-
+- status: done · 见 `.trellis/tasks/T-006/report.md`
 ## T-007 P-01 绑定机器人成功后留在账户页并给反馈
-- goal: 绑定成功后留在「账户与关联」页、高亮新生成的账户号，并显示一行「账户号已生成，等机器人接通后开始同步」，不再无提示跳回首页。
-- acceptance: 绑定成功后 `location.hash` 仍指向账户页、页面出现新账户号与成功提示；`cd frontend && npm run check && npm run test:unit` 通过；audit errors 为空；真实 Chrome 走完整绑定流程（合成凭据）截图到 `.trellis/tasks/T-007/shots/`。
-- gate: none
-- status: done
-- notes: 只改家长端；本轮产生的合成 CaAccount 记进 report 供清理。属第一批：commit 后可直接 push 并补 EXECUTED 行。**2026-09-17 执行结果**：绑定成功后由 `await render()` 改为记 `hints.newAccountId` + `to("settings")`，裸标签链接（无 hash 路由）绑定后落在账户页并高亮新号（`.account-row.is-new` + 「刚生成」标签，`render()` 在账户页渲染后清 hint 保证只高亮一次）；`submitRobotReplacement` 同改。`npm run check` exit 0、`test:unit` 16 pass 0 fail、`audit_documents.py` errors `[]`；真实 Chrome 3 条新用例通过 `3 passed (19.4s)`（既有 1/2 条 NFC 承接、复用同号回归通过），截图 `.trellis/tasks/T-007/shots/`（桌面 1280×720 + 390×844）。中途全量 7 条一次跑挂 5 条，根因是 `/auth/sms` 同 IP 限流 50/小时（本地经 ssh 隧道 `dell` 连 dev 库、计数已到 50），等窗口滑出后重跑新用例通过，未重置远端库。已按第一批直推：`36592bf..1770127`，远端 sha `1770127279374804383929c3bbe1dffda31632bc`。
-
+- status: done · 见 `.trellis/tasks/T-007/report.md`
 ## T-008 P-02 手填绑定的家长要知道该填什么
-- goal: 绑定对话框补操作指引（用手机碰机器人上的标签会自动带凭据回到这里），手填时给格式/长度提示，校验错误落到 `.form-error` 而不是只靠浏览器原生气泡。
-- acceptance: 凭据留空点「确认绑定」时 `.form-error` 可见且非空、对话框不关；文案含操作指引；`cd frontend && npm run check && npm run test:unit` 通过；audit errors 为空；真实 Chrome 复现空凭据提交并截图到 `.trellis/tasks/T-008/shots/`。
-- gate: none
-- status: done
-- notes: 属第一批：commit 后可直接 push 并补 EXECUTED 行。**2026-09-17 执行结果（本轮为 FALLBACK 重跑，PRIMARY 08:26:06Z 限流 rc=1）**：`frontend/app.js` `bindRobotDialog()` 表单加 `novalidate`、正文补「碰一下机器人上的标签」指引、note 补「最长 2048 个字符」格式提示、`onsubmit` 空凭据守卫写 `#dialog .form-error`；`tests/ca-account.spec.js` 新增 1 条用例。TDD 红（1 failed，断言新文案缺失）→ 绿（1 passed 4.7s/4.9s）；全量 `ca-account.spec.js` `8 passed (51.4s)` 一次全绿；`npm run check` exit 0、`test:unit` 16 pass 0 fail、`audit_documents.py` errors `[]`；截图 `.trellis/tasks/T-008/shots/empty-credential.png`。已按第一批直推 push：`8348ef8..c58bfe3`，远端 sha `c58bfe32aec5d01ad9156da66b188b03bc568308`。
-
+- status: done · 见 `.trellis/tasks/T-008/report.md`
 ## T-009 P-06 成长观察非法时间区间要就地提示
-- goal: 「成长观察」起止时间非法（起 ≥ 止）时就地提示「结束时间要晚于开始时间」并把两个输入框标红，不再零请求零提示。
-- acceptance: 非法区间下界面出现可见中文提示与错误态样式；`cd frontend && npm run check && npm run test:unit` 通过；audit errors 为空；真实 Chrome 填 起>止 点「查看这个窗口」截图到 `.trellis/tasks/T-009/shots/`。
-- gate: none
-- status: done
-- notes: 属第一批：commit 后可直接 push 并补 EXECUTED 行。**2026-09-17 执行结果（FALLBACK 重跑，PRIMARY 08:56:05Z 起 757s 限流 rc=1）**：前任 progress.md 声称已改的 `app.js`/`client.css` 实际未落盘，本轮重做——`windowForm()` 加 `.form-error`、`bindForms()` 里窗口表单非法区间就地提示「结束时间要晚于开始时间」+ 两输入框 `aria-invalid`+`.is-invalid`，`oninput` 清错；`client.css` 加对应规则。`npm run check` exit 0、`test:unit` 16 pass 0 fail、`audit_documents.py` errors `[]`；真实 Chrome `tests/growth-window.spec.js` 首跑因 `/auth/sms` 同 IP 限流 2 failed（计数=50），DB 只读计数滑到 47 后重跑 `2 passed (12.0s)`；截图 `.trellis/tasks/T-009/shots/`。全量回归 ca-account+flows 受同一限流未全绿，未采信。已按第一批直推 push：`919350b..6a5efa2`，远端 sha `6a5efa2a3760877c6ca6bfb675d8640796eea346`（连带推送 T-025 的 b862317，见 status.md 待处理项）。
-
+- status: done · 见 `.trellis/tasks/T-009/report.md`
 ## T-010 P-07 慢网提交要有进行中提示
-- goal: 提交期间给进行中提示（按钮文案如「登录中…」或轻量进度指示），避免家长以为按钮点空了反复点。
-- acceptance: 提交中按钮文案变化或出现可见进度指示（`aria-busy` 或等效可见态）；`cd frontend && npm run check && npm run test:unit` 通过；audit errors 为空；真实 Chrome 用 CDP `Network.emulateNetworkConditions`（latency 4000ms）复现并截图到 `.trellis/tasks/T-010/shots/`。
-- gate: none
-- status: done
-- notes: 属第一批：commit 后可直接 push 并补 EXECUTED 行。**2026-09-17 执行结果**：`frontend/app.js` 新增 `busyButton(el, label)`（换文案 + `aria-busy` + `disabled`，返回恢复函数，恢复前判 `isConnected`），登录 `onsubmit` 改用它显示「登录中…」（原 `b.disabled=true/false` 两行移除，顺带消掉 `e.submitter` 为 null 时的未捕获 TypeError）；`frontend/client.css` 加 `.button[aria-busy="true"]` 转圈（`@keyframes busy-spin`）、`cursor: progress`，并把 disabled 的 `opacity` 从 0.5 提到 0.85（原淡化正是"按钮像死了"的观感来源）。新增 `frontend/tests/slow-network.spec.js` 2 条真实 Chrome 用例（CDP `Network.emulateNetworkConditions` latency 4000ms）：TDD 红为 `1 failed`（`Expected "登录中…" / Received "登录"`，14 次轮询按钮均为 `<button disabled ...>登录</button>`），改后 `2 passed (16.8s)`；加 390×844 截图后单条重跑 `1 passed (10.9s)`；回归 `tests/login-validation.spec.js` `4 passed (6.2s)`；`npm run check` exit 0、`test:unit` 16 pass 0 fail（71.6555ms）、`audit_documents.py` errors `[]`；截图 3 张在 `.trellis/tasks/T-010/shots/`。未跑全量 e2e：开工时 `/auth/sms` 同 IP 近 1 小时计数 39/50，全量必撞 429，数字不可采信。已按第一批直推 push：`5cf77b9..b3ebefc`，远端 sha `b3ebefc59f52924221082e11e70f35c85b8d700d`。
-
+- status: done · 见 `.trellis/tasks/T-010/report.md`
 ## T-011 P-08 最后一题按钮文案改成「保存并完成」
-- goal: 答题最后一题按钮由「保存并继续」改成「保存并完成」，与进入提交确认页的实际动作一致。
-- acceptance: 第 4/4 题按钮文案为「保存并完成」、第 1–3 题仍为「保存并下一题」；`cd frontend && npm run check && npm run test:unit` 通过；audit errors 为空；真实 Chrome 走到第 4 题截图到 `.trellis/tasks/T-011/shots/`。
-- gate: none
-- status: done
-- notes: 属第一批：commit 后可直接 push 并补 EXECUTED 行。**2026-09-17 执行结果**：`frontend/app.js` `sessionView()` 末题文案改「保存并完成」（全仓仅此一处决定该文案）；新增 `frontend/tests/quiz-last-button.spec.js` 1 条真实 Chrome 用例（第 1–3 题断言「保存并下一题」且无「保存并完成」，第 4/4 题反之，点击后落在「准备好留下这次选择了吗？」提交确认页）；同步 `flows.spec.js:104/:325` 与 `questionnaire-admin.spec.js:116` 三处受影响的期望。TDD 红 `1 failed`（element(s) not found）→ 绿 `1 passed (15.0s)`，加全页截图后重跑 `1 passed (14.1s)`、`1 passed (14.9s)`；`npm run check` exit 0、`test:unit` 16 pass 0 fail（71.932041ms）、`audit_documents.py` errors `[]`；截图 3 张在 `.trellis/tasks/T-011/shots/`。未复跑 `flows.spec.js` / `questionnaire-admin.spec.js`（前者本地 3 项库漂移失败见 S-05，后者需建 staff 用户 + 耗限流）。已按第一批直推 push：`37e8342..84a699e`，远端 sha `84a699efa1dd7e34f57b929e3845f7e11a3df09d`。
-
+- status: done · 见 `.trellis/tasks/T-011/report.md`
 ## T-012 P-09 「机器人指纹」文案去掉「指纹」二字
-- goal: 账户页把「机器人指纹 6948909c」改成不含「指纹」的说法（如「机器人标识（前 8 位）」），避免撞上「不采集真实指纹」的承诺。
-- acceptance: 账户页不再出现「指纹」字样且仍显示同一摘要前 8 位；`cd frontend && npm run check && npm run test:unit` 通过；audit errors 为空；真实 Chrome 截图到 `.trellis/tasks/T-012/shots/`。
-- gate: none
-- status: done
-- notes: 只改家长端文案；运营端若也有同词，只在 report 记录，不在本任务改。属第一批：commit 后可直接 push 并补 EXECUTED 行。 **2026-09-17 执行结果**：`frontend/app.js` 两处改文案——`accountRow()` 账户行 note 改「机器人标识（前 8 位）」，`replaceRobotDialog()` 换机弹窗改「机器人标识前 8 位」（同一页同一流程，只改一处会留两种说法）；摘要值未动（仍为服务端 `token_fingerprint()` 的 `digest[:8]`）。新增 `frontend/tests/robot-label.spec.js` 1 条真实 Chrome 用例。TDD 红 `1 failed`（Received `…待接通机器人指纹 d542007b…`）→ 绿 `1 passed (9.0s)`，等 toast 收起后补拍干净截图 `1 passed (12.9s)`；`npm run check` exit 0、`test:unit` 16 pass 0 fail（77.74225ms）、`audit_documents.py` errors `[]`；全仓检索「机器人指纹」「（指纹」0 命中；截图 3 张在 `.trellis/tasks/T-012/shots/`。未跑 `ca-account.spec.js` 全量与 `flows.spec.js`：开工时 `/auth/sms` 同 IP 近 1 小时计数 48/50，等窗口滑到 46 才够跑 3 次登录（红 1 + 绿 2），已用检索替代。运营端 `ops/templates/ops/ca_accounts.html:99/:129` 仍有「指纹」字样，按 notes 只记录未改。已按第一批直推 push：`eabb0f2..9bfb49a`，远端 sha `9bfb49a4226ad58a40504d496cd669846bc6cb1d`。
-
+- status: done · 见 `.trellis/tasks/T-012/report.md`
 ## T-013 P-04 不再把内部 code `readable-v2` 给家长看
-- goal: 家长端答题页与运营端儿童详情不再直接显示内部 code `readable-v2`，改显示中文名 + 版本号（如「四个小情境：探索偏好体验（v2）」），原始 code 收进悬停提示。
-- acceptance: 两处界面正文不出现裸 `readable-v2`（仅允许出现在 `title` 属性）；`cd frontend && npm run check && npm run test:unit` 与 `cd backend && uv run pytest tests/test_ops_console.py` 通过；audit errors 为空；真实 Chrome 两处各截图到 `.trellis/tasks/T-013/shots/`。
-- gate: none
-- status: done
-- notes: 中文名要有稳定来源（题库元数据或既有标签表），别在前端硬编码两套映射。属第一批：commit 后可直接 push 并补 EXECUTED 行。 **2026-09-17 执行结果**：`frontend/app.js` 新增 `versionLabel()`（`readable-v2`→`v2`），答题页 note 与题库卡片 note 两处改用「中文名 + 版本号」、原始 code 进 `title` 属性；运营端 `ops_labels.py` 新增 `version_label` 过滤器，`child_detail.html` 版本行同理（中文标题本就在同一行）。中文名全部取服务端 `questionnaire_version.title`，未建映射表。TDD 红 `2 failed`（家长端 `Received string: "必填 · 单选 · 题库版本 readable-v2"`；运营端 summary 含 `· 版本 readable-v2`）→ 绿 `2 passed (14.3s)`（新增 `frontend/tests/questionnaire-version.spec.js` 2 条真实 Chrome 用例）；`backend/tests/test_ops_console.py` 新增 1 条 → `37 passed in 139.10s`；`npm run check` exit 0、`test:unit` 16 pass 0 fail（74.0375ms）、`audit_documents.py` errors `[]`；回归 `quiz-last-button.spec.js` `1 passed (13.8s)`；截图 5 张在 `.trellis/tasks/T-013/shots/`。题库卡片这处本地无第三份已发布题库，验收时由 spec 临时建 `e2e-version-label`/`draft-v7` 并 `finally` 删除（收尾核对计数 0）。已按第一批直推 push：`9cd1af5..452ce71`，远端 sha `452ce712e19a74b0ec791f32cf93f078467b5c4f`。
-
+- status: done · 见 `.trellis/tasks/T-013/report.md`
 ## T-014 O-03 审计页补「登录凭据」对象词条
-- goal: 审计页「对象」列不再显示未翻译内部码 `login_grant`，补「登录凭据」类对象词条与说明，不把表名/英文模型名给运营看。
-- acceptance: `cd backend && uv run pytest tests/test_ops_audit_scope.py` 通过（含新增断言：审计页对象列不含 `login_grant`、含中文词条）；audit errors 为空；真实 Chrome 打开运营审计页复现原记录截图到 `.trellis/tasks/T-014/shots/`。
-- gate: none
-- status: done
-- notes: 只补 `ops/labels.py` 词条与必要测试，不改审计数据与模型。属第一批：commit 后可直接 push 并补 EXECUTED 行。 **2026-09-17 执行结果**：`ops/labels.py` `TARGET_KIND` 增 `login_grant: 登录凭据`、`algorithm_attempt: 算法尝试`，新增纯函数 `target_name()`；`ops_labels.py` 新增 `audit_target` 过滤器（`lru_cache` 从模型注册表现取 `verbose_name -> 词条`）；`audit.html:66`、`dashboard.html:236` 的 `target_label` 改用该过滤器。TDD 红：后端 `2 failed, 9 deselected in 16.17s`（`assert '登录凭据' in ...未知（login_grant）...`、`ImportError: audit_target`）、真实 Chrome `1 failed`（对象列实测 `未知（login_grant） login grant（parent-audit-…）`，即 backlog 原记录形状）→ 绿：`tests/test_ops_audit_scope.py` `11 passed in 45.38s`、Chrome `1 passed (8.2s)`；后端全量回归 `273 passed in 1013.68s (0:16:53)`；`npm run check` exit 0、`test:unit` 16 pass 0 fail（71.041042ms）、`audit_documents.py` errors `[]`；截图 4 张（含改前失败截图）在 `.trellis/tasks/T-014/shots/`。补了 `algorithm_attempt` 与英文模型名改写两处超 acceptance 的范围（同一列同款内部码，库内均有真实记录），理由见 report。未改 `child_detail.html`/`account_detail.html` 的 `target_label`（那两处按业务对象过滤、标签本就是业务名）。开工时发现运营端 dev server 8017 进程已退出，已 `nohup` 重启并确认 200（日志 `/tmp/dingdong-ops-8017.log`）。已按第一批直推 push：见 gates.md EXECUTED 行。
-
+- status: done · 见 `.trellis/tasks/T-014/report.md`
 ## T-015 O-04 儿童详情加只读「机器人账户」一行
-- goal: 儿童详情页加一行只读「机器人账户」（账户号 + 绑定状态 + 跳 CA 账户页），运营排查同步问题时不必切页按手机号搜。
-- acceptance: 有账户时儿童详情出现账户号与绑定状态、无账户时显示空态；`cd backend && uv run pytest tests/test_ops_console.py tests/test_ops_ca_accounts.py` 通过；audit errors 为空；真实 Chrome 打开儿童详情截图到 `.trellis/tasks/T-015/shots/`。
-- gate: none
-- status: done
-- notes: 只读展示，不动契约与数据模型。属第一批：commit 后可直接 push 并补 EXECUTED 行。 **2026-09-17 执行结果**：`ops/services.py` `child_bundle()` 增 `ca_account`（该孩子活跃号，无则 None）与 `retired_accounts`（换机后旧号计数），`ops/views.py` `child_detail()` 传入模板；`child_detail.html` 「基本信息」加一行「机器人账户」——有活跃号显示 `ca_account_id` + 绑定状态词条 + 状态词条 + 「在 CA 账户页查看」（`/ops/ca-accounts/?q=<账户号>`）+ 接通口径说明，无活跃号显示「还没有机器人账户」空态（有旧号时附「已归档 N 个旧号」）。TDD 红 `2 failed, 37 deselected in 18.27s` → 绿 `2 passed, 37 deselected in 19.24s`；验收文件 `46 passed in 156.21s (0:02:36)`（格式整理后复跑 `46 passed in 154.39s (0:02:34)`）；新增 `frontend/tests/robot-account-row.spec.js` 1 条真实 Chrome 用例 `1 passed (10.7s)`（含点链接落 `/ops/ca-accounts/?q=…` 筛选结果、空态、390×844 窄屏），截图 5 张在 `.trellis/tasks/T-015/shots/`；`npm run check` exit 0、`test:unit` 16 pass 0 fail（74.191417ms）、`audit_documents.py` errors `[]`、`manage.py check` 无问题、`ruff check .` All checks passed；Chrome 合成数据清理核对全 0。同文件内顺手修掉 T-013 遗留的 ruff `I001`（一行 import 排序），存量 `tests/test_ops_audit_scope.py` 的 format 遗留未动，理由见 report。已按第一批直推 push：`0a77472..f9287bc`，远端 sha `f9287bcd4b572c8b634c1bea2e77262efdab8dcd`。
-
+- status: done · 见 `.trellis/tasks/T-015/report.md`
 ## T-016 P-03 授权同意框补齐四要素（保留「合成测试」标注）
-- goal: 测评授权同意框补齐四要素（处理目的 / 数据范围 / 数据去向含 DingDong 侧 / 保留与撤回后果），保留「[合成测试]」标注，并点明已有「撤回授权」入口。
-- acceptance: 弹窗正文含四要素、仍含「合成测试」标注与撤回说明；`cd frontend && npm run check && npm run test:unit` 通过；audit errors 为空；真实 Chrome 打开测评同意框截图到 `.trellis/tasks/T-016/shots/`。
-- gate: none
-- status: done
-- notes: 文案 + 模板，不得改动授权契约字段，不许去掉或弱化「合成测试」标注。属第一批：commit 后可直接 push 并补 EXECUTED 行。 **2026-09-17 执行结果**：只改 `frontend/app.js` `beginAssessment()` 的 `showDialog` 正文——在服务端政策正文（`policy.body`，保留其 `[合成测试]` 标注）后新增 `.notice` 块（沿用「活动准备材料」的 `<b>标题</b><p>正文</p>` 写法），四要素：处理目的 / 数据范围（问卷选择、答题时间、题库版本；不采集指纹与年级）/ 数据去向（本项目服务端处理，不下发测评结果或画像给 DingDong 侧；行为观察另走「机器人数据同步」、分开展示不合并成分数）/ 保留与撤回（写导航实名「账户与关联 → 用途授权」的「撤回授权」，并写明撤回不自动删除已生成报告、需清除数据请提交删除事项）。事实依据为已有确认约束转述（`PROJECT_MEMORY.md`、`设计/数据库表结构_V0.1.md:129`、`设计/一期功能_API与业务闭环_V0.1.md`），未新增承诺、未改契约字段、未动政策数据与同步用途弹窗、未加 CSS/依赖。新增 `frontend/tests/consent-copy.spec.js` 1 条真实 Chrome 用例（登录→建档案→测评与报告→开始探索体验，断言四要素标签 + `DingDong 侧` + `合成测试` + `撤回授权`/`账户与关联`，桌面与 390×844 截图，窄屏断言滚进视口后「同意并开始」在视口内并真实点进第 1/4 题）。TDD 红 `1 failed`（`getByText('处理目的')` element(s) not found，`consent-copy.spec.js:48`）→ 绿 `1 passed (8.7s)`；补窄屏断言后加回归 `2 passed (20.3s)`（`quiz-last-button` `1 passed (13.1s)`）；`npm run check` exit 0、`test:unit` 16 pass 0 fail（71.056667ms）、`audit_documents.py` errors `[]`；截图 3 张在 `.trellis/tasks/T-016/shots/`。已按第一批直推规则 push：`ad78a47..92827af`，远端 sha `92827aff0aafdf80ac63dfe8169119d9e6039b07`。
-
+- status: done · 见 `.trellis/tasks/T-016/report.md`
 ## T-017 G-02 产品内加一行授权血缘来源声明
-- goal: 家长端产品内（页脚或「家长支持」）加一行来源与使用声明：沿用参考项目 `d754a5bf9ea8e71ca64a850d2e26aa321fe8ab38` 的视觉与插画及许可范围，措辞与 `frontend/README.md` 一致。
-- acceptance: 声明可见且与 `frontend/README.md` 不矛盾；`cd frontend && npm run check && npm run test:unit` 通过；audit errors 为空；真实 Chrome 桌面 + 390×844 各截图到 `.trellis/tasks/T-017/shots/`。
-- gate: none
-- status: done
-- notes: 只写声明，不动素材与许可文件，不引入新的对外依赖。属第一批：commit 后可直接 push 并补 EXECUTED 行。 **2026-09-17 执行结果**：`frontend/app.js` 新增 `SOURCE_CREDIT` 常量，`route === "services"` 分支两张卡片后渲染 `<p class="note" data-source-credit>`（措辞与 `frontend/README.md` 第 3 行一致，只声明视觉与插画沿用、业务逻辑自实现、参考项目未修改）；新增 `frontend/tests/source-credit.spec.js`（sha 从 README 现读不写死）。TDD 先红 `1 failed`（`locator('[data-source-credit]')` element(s) not found）→ 绿 `1 passed (8.2s)`；临时路由巡检 7 页 `1 passed (6.7s)`（声明只在 services 页）跑完已删；回归 `ca-account.spec.js` + `robot-label.spec.js` `9 passed (1.1m)`；`npm run check` 通过 / `test:unit` `16 pass 0 fail` / `audit_documents.py` errors `[]`；截图 3 张在 `.trellis/tasks/T-017/shots/`（桌面 + 390×844 全页 + 滚到底）。已按第一批直推规则 push：`0b6b6fe..10d4353`，远端 sha `10d435392442a35d8761a1a920f786c9170e8fa9`。
-
+- status: done · 见 `.trellis/tasks/T-017/report.md`
 ## T-018 S-05 本地 e2e 4 项数据漂移失败变成可判定
-- goal: `frontend/tests/flows.spec.js`（3 项）与 `frontend/deployment-tests/ops-public.spec.js`（1 项）在本地要么通过、要么显式 skip 并打印原因，不再靠人分辨「产品坏了还是环境漂移」。
-- acceptance: 落地前置一致性处理（`server.cjs` 与 `inject_fixture` 指向同一库，或 spec 显式 skip + 打印原因）；`npx playwright test tests/flows.spec.js --reporter=list` 输出中不再有未解释的「Child does not exist」类失败；`cd frontend && npm run check && npm run test:unit` 通过；audit errors 为空；命令输出原文存 `.trellis/tasks/T-018/`。
-- gate: none
-- status: done
-- notes: 优先做「同一库」；不可行才选显式 skip 并在 report 说明为何不可行。属第二批：commit 后可直接 push 并补 EXECUTED 行。 **2026-09-17 执行结果（跨两轮完成，第二轮为核对式续跑）**：`frontend/tests/support.js` 增 `cliDatabaseIdentity()`/`cliPolicyVersionId()`；`flows.spec.js` 增 `test.beforeAll` 前置一致性检查（浏览器侧经 `server.cjs` 代理读 `/api/v1/policies/current?purpose=assessment_processing` 主键，与 CLI 侧 `manage.py` 读同一记录主键比对，逐库不同故一致即同库）并把 `inject()` 的 `Child does not exist` 转成带库标识的诊断；`ops-public.spec.js` 增 `LOCAL_ENTRY` 与 `skipLocalDataGap()`，「报告」用例两处本地数据前置改为打印原因后显式 skip（公网入口缺数据仍失败）。本轮实测：`npx playwright test tests/flows.spec.js --reporter=list` → `8 passed (2.4m)`，输出全篇无 `Child does not exist`（原文 `flows-green-rerun.txt`）；`ops-public.spec.js -g "报告：查看已生成内容"` 本地 → 打印 `[ops-public] 跳过：…` 后 `1 skipped`（原文 `ops-public-local-report-after-fix-rerun.txt`）；`npm run check` exit 0、`test:unit` 16 pass 0 fail（84.85ms）、`audit_documents.py` errors `[]`。前置限流核对：`SmsChallenge` 近 1 小时 `0`（上限 50）。上一轮 report 里「8 passed（原文存 `flows-green.txt`）」与磁盘不符（该文件实为限流那次的 `2 failed / 6 passed`），已在本轮重跑重取并在 report/progress 记录。未验证项：`beforeAll` 的「两侧 id 不一致」分支仍需第二个已 seed 的库（建库属仓库外副作用），未端到端跑到；公网入口未跑（external）。
-
+- status: done · 见 `.trellis/tasks/T-018/report.md`
 ## T-019 O-02 家长姓名为空不再回落内部账号 `parent-<uuid>`
-- goal: 家长姓名为空时 5 处界面（家庭列表、家庭详情、儿童详情、CA 账户页、操作审计）统一回落到手机号或「（未填写姓名）」，不再显示内部账号 `parent-<uuid>`。
-- acceptance: 5 处均不再出现 `parent-` 前缀；优先复用「账号与权限」页既有先例；`cd backend && uv run pytest tests/test_ops_console.py tests/test_ops_audit_scope.py tests/test_ops_ca_accounts.py` 通过（含新增断言）；audit errors 为空；真实 Chrome 5 处各截图到 `.trellis/tasks/T-019/shots/`。
-- gate: none
-- status: done
-- notes: 优先抽公共函数，别在 5 个模板各写一份。属第二批：commit 后可直接 push 并补 EXECUTED 行。**orchestrator 补充（2026-09-17T11:48Z）**：第 5 处「操作审计」包含其「对象」列的副行（家长未填姓名时同样回落），T-017 轮 worker 发现该副行仍显示 `parent-<uuid>`，一并纳入本任务回落范围，不另开任务。**2026-09-17 执行结果**：给 `User` 加 `display_name` property（`name → 家长phone → username`），模板 `display_name` 过滤器、审计 `describe_target`、家庭标签 `_family_label` 三处共用；3 条新后端用例红 `3 failed, 57 deselected in 18.42s` → 绿 `60 passed in 192.05s`；真实 Chrome `1 passed (12.5s)` 5 处截图；`audit_documents.py` errors `[]`；`ruff check` All checks passed。已按第二批直推 push：`7ee99a7..2c00ac1`，远端 sha `2c00ac1d3208ac4e574eaebe21f7b0e0540ebc4f`。
-
+- status: done · 见 `.trellis/tasks/T-019/report.md`
 ## T-020 S-04 阶段画像/同步失败在家长端的可见性
-- goal: 用 `inject_fixture` 注入真实失败任务，验证阶段画像/数据同步失败在家长端是否可见；不可见则补可见性，可见则只记证据。
-- acceptance: 注入失败任务后家长端出现可见失败提示，或 report 明确记录「已可见」并附截图/响应原文；`cd frontend && npm run check && npm run test:unit` 通过；audit errors 为空；证据存 `.trellis/tasks/T-020/`。
-- gate: none
-- status: done
-- notes: 不许把测试数据流程说成真实供应商接入；注入的合成数据记进 report 供清理。属第二批：commit 后可直接 push 并补 EXECUTED 行。**2026-09-17 执行结果**：数据同步失败在家长端已可见，无需改产品代码；新增 `frontend/tests/sync-failure-visibility.spec.js` 1 条真实 Chrome 用例留作回归。流程：登录建档 → `inject_fixture --scenario sync_failure` → 核验关联 → 第一轮同步成功生成阶段报告 → `schedule_sync` 触发第二轮（UPSTREAM_TIMEOUT）→ 断言「成长观察」面板标题「显示上次成功同步的观察」+ 提示「同步未取得最新结果，已有数据不会当作最新数据展示。」（桌面 + 390×844 各截图，`pageerror` 为空）。验证数字：`sync-failure-visibility.spec.js` `1 passed (26.7s)`；`npm run check` exit 0；`test:unit` 16 pass 0 fail；`audit_documents.py` errors `[]`；证据 `growth-overview-after-failure.json`（`availability=stale / reason=UPSTREAM_TIMEOUT`）+ 2 张截图在 `.trellis/tasks/T-020/`。未验证项：`stage_status=failed` 分支（「处理暂未完成，请联系工作人员。」）代码存在，但现有 23 个 fixture 场景无一个能真实产生 `status=failed` 的 `stage_profile` 任务，故该分支只做代码级确认、未端到端验证（详见 report）。合成数据明细见 report 供清理。**本轮未 push**：worker 硬规则「不许 push（唯一例外是 gated+APPROVE 门禁动作）」，T-020 `gate: none` 不属例外，只本地 commit；queue 备注的「第二批可直推」留待 orchestrator 复核后由主会话 push。
-
+- status: done · 见 `.trellis/tasks/T-020/report.md`
 ## T-026 刷新 T-012 过期截图（证据保鲜小任务）
-- goal: 重跑 `frontend/tests/ca-account.spec.js` 刷新 `.trellis/tasks/T-012/shots/` 三张入库截图（T-017 轮 worker 发现其相对当前代码已过期，且已验证与 T-017 改动无关）；核对截图内容仍满足 T-012 验收（账户页不含「指纹」字样、显示同一摘要前 8 位）。
-- acceptance: `cd frontend && npx playwright test tests/ca-account.spec.js` 全绿；三张截图更新且与新页面一致；本轮不改产品代码（用例本身的小适配允许，改动记录进 report）；`npm run check` 通过；audit errors 为空。
-- gate: none
-- status: done
-- notes: 纯证据保鲜，不改产品。机制维护类：commit 后可直接 push 并补 EXECUTED 行。 **2026-09-17 执行结果**：三张图已刷新入库（字节数 144227→142118、88340→88248、182021→181841），未改产品代码、未改用例代码。**两处 brief 前提与磁盘不符，已在 report 记明**：①写这三张图的用例是 `frontend/tests/robot-label.spec.js`（第 68/75/96 行），不是 `ca-account.spec.js`（后者只写 T-008 的图），T-017 报告的归因有误；②「相对当前代码已过期」不成立——字节差异全部来自用例每轮随机值（手机号/凭据 `Math.random()`），无代码改动连跑两次三张图 md5 两两不同，像素级比对（阈值 12）可见差异仅 3399/3167/6851 px 且全落在随机值文本带，文案版式一字未动（证据 `shots-run1.sha256`、`diff-analysis.txt`、`card-old/new.png`、`dlg-old/new.png`）。验收：`npx playwright test tests/robot-label.spec.js --reporter=list` → `1 passed (12.9s)`（无代码改动复跑 `1 passed (13.4s)`）；`tests/ca-account.spec.js` → `8 passed (51.1s)`；`npm run check` exit 0；`test:unit` 16 pass 0 fail（82.047834ms）；`audit_documents.py` errors `[]`。**连带发现（未在本轮处理，按「只做一个任务」还原）**：`ca-account.spec.js` 会重写 `.trellis/tasks/T-008/shots/empty-credential.png`（197704→188099 字节），那是**真漂移**（可见差异 199203 px 遍布整页，成因是弹窗背后页面滚动位置变化，弹窗文案一致），已 `git checkout --` 还原；建议 orchestrator 另开一个证据保鲜任务。（orchestrator 2026-09-17 决定：该建议已由 T-029 销项；另 status.md 提问的 T-012 三张截图用例内随机值**不做确定化**——截图是一次性入库证据，逐跑差异仅在随机值文本带、文案版式不变（T-026 像素归因），同类证据保鲜照此口径，不再单开任务。）
-
+- status: done · 见 `.trellis/tasks/T-026/report.md`
 ## T-027 存量测试文件过 ruff format（T-014 遗留）
-- goal: `backend/tests/test_ops_audit_scope.py` 通过 `ruff format --check --target-version py313`（T-014 轮新代码已格式化、存量文件未过），只做格式化，不改断言语义。
-- acceptance: `cd backend && uv run ruff format --check --target-version py313 tests/test_ops_audit_scope.py` 通过；`uv run pytest tests/test_ops_audit_scope.py` 结果与格式化前一致（全绿）；audit errors 为空。
-- gate: none
-- status: done
-- notes: 纯格式化 chore。若 ruff 调用方式与 T-014 轮记录有出入，以仓库实际工具链为准并记录。机制维护类：commit 后可直接 push 并补 EXECUTED 行。 **2026-09-17 执行结果**：唯一格式差异是文件末尾缺行尾换行——`ruff format --check --target-version py313 tests/test_ops_audit_scope.py` 改前报 `unformatted --> tests/test_ops_audit_scope.py:275:36`（`wc -l` = 274），`ruff format` 后 `git diff` 仅 1 处（`\ No newline at end of file` → 有换行），断言语义未改。改后 `1 file already formatted` rc=0、`ruff check` `All checks passed!`、`pytest tests/test_ops_audit_scope.py` 改前 `12 passed in 49.07s` → 改后 `12 passed in 46.87s`、`audit_documents.py` errors `[]`。基线用例数与 T-014 记录的 `11 passed` 不同（T-019 又加过用例），本任务只与格式化前基线比对。**连带发现（未在本轮处理）**：全后端 `ruff format --check --target-version py313 .` 仍报 `dingdong_ca/core/api/common.py:189` 未格式化（HEAD 上即如此，最后一次改动它的是 T-019 提交 `2c00ac1`），建议另开存量格式化任务。已按机制维护类直推 push：`3966cb0..a9d00de`，远端 sha `a9d00de06771a6c4e5873896cdcd7380061b1e92`。
-
+- status: done · 见 `.trellis/tasks/T-027/report.md`
 ## T-021 G-01-设计 四个展示面的设计文档（先设计后实现）
-- goal: 只写 `.trellis/tasks/T-021/design.md`：人设 / 15–30 天成长报告 / 健康度四态 / 复测 CTA 四个展示面的数据形状、合成数据源放哪一层、空态与错误态、与 `设计/CA对接_C1_ca_account_id设计_20260916.md` §7 判定标准的逐条对照、拆成几个实现任务；不写代码。
-- acceptance: design.md 含上述五部分且对 §7 判定标准逐条对照；本轮无代码改动；audit errors 为空；本任务 `status` 为 `gated` 且 `gates.md` 申请段有 `REQUEST T-021 review ...`。
-- gate: review
-- status: done
-- notes: 只写设计；不新增对对方接口的依赖。属第三批：逐条申请门禁，不适用直推规则。**2026-09-17T13:16Z orchestrator APPROVE（gates.md 决定段）：设计复看通过，授权 T-021 收尾轮直推。执行结果：`git push origin codex/release-v0.3.6` → `1bf231c..d2b44c7`，远端 sha `d2b44c74d665539c123833d166355148a8affe11`（含 `e1e582e` 设计提交、`d2b44c7` 收尾记录提交，以及此前未推送的 `b533410` R0i 记账提交）；远端头即 `d2b44c7`。T-021 已随批准导入 T-032/T-033/T-034/T-035 四个实现任务。****2026-09-17 执行结果**：`.trellis/tasks/T-021/design.md` 已写完（六节：现状核查 / 四个展示面数据形状 / 合成数据源分层 / 空态与错误态 / C1 §7 逐条对照 / 4 个实现任务拆分 + 5 条未决待澄清）。无代码改动（`git status` 只有 queue.md、驱动追加的 runs.log、新建的 T-021 目录）；`python3 scripts/audit_documents.py` → `errors: []`。设计要点：合成数据源放后端服务层（新开关 `CA_DISPLAY_DATA_SOURCE`，`api/ca_display.py` → `services/ca_display.py` → `test_fixture` 表或 `dingdong_client`），扩 `inject_fixture` 新增 6 个场景对应 xlsx 表 6 的 6 个 mock 账号；可用性词表复用 `growth.py` 既有 7 值；四态按 xlsx 表 7.1 的 H01–H07（`insufficient_data`/`normal`/`watch`/`reassess`），`switch_candidate`/`keep_current` 不当作健康度状态；`auto_switch` 始终 `false`。建议实现任务 A（数据层+接口）/ B（人设+健康度）/ C（成长报告）/ D（复测 CTA），已按 gate=review 申请门禁。
-
+- status: done · 见 `.trellis/tasks/T-021/report.md`
 ## T-029 刷新 T-008 漂移截图（证据保鲜小任务）
-- goal: 重跑 `frontend/tests/ca-account.spec.js` 刷新 `.trellis/tasks/T-008/shots/empty-credential.png`（T-026 轮核实为真漂移：197704→188099 字节、可见差异 199203 px，成因是弹窗背后页面滚动位置变化，弹窗文案本身一致），核对截图仍满足 T-008 验收（空凭据提交时 `.form-error` 可见且非空、对话框不关）。
-- acceptance: `cd frontend && npx playwright test tests/ca-account.spec.js` 全绿；截图更新且与新页面一致；本轮不改产品代码；`npm run check` 通过；audit errors 为空。
-- gate: none
-- status: done
-- notes: 纯证据保鲜，不改产品。机制维护类：commit 后可直接 push 并补 EXECUTED 行。**2026-09-17 执行结果**：简报定性「真漂移」实测证伪——同一份代码连跑两次即得 197704 / 188099 两版（`3e4d692a…` / `2c1d7c64…`），是运行间不确定（进「账户与关联」会滚动到该面板，截图有时抢在滚动动画中间），像素比对显示可见差异全落在弹窗背后的页面滚动位置、弹窗正文区 `0` px。故在截图前加 1 行 `window.scrollTo({ top: 0, behavior: "instant" })` + 2 行注释（只改 `frontend/tests/ca-account.spec.js`，未改产品代码），改后单条连跑三次 + 全量一次共 4 次同字节 `46197db652aaef0275ada44ceefc5c76032eec6ea54565ce3d6fb8e976c7f6db`（189622 字节，原 197704）并入库。验收：`ca-account.spec.js` `8 passed (54.3s)`；`npm run check` exit 0；`test:unit` 16 pass 0 fail；audit errors `[]`。已按机制维护类直推 push：`d2b44c7..a1e1d56`，远端 sha `a1e1d5604c4c7999c35ef5481045ee470ebfad23`。**引用更正**：T-026 notes 里「T-008 是真漂移」的定性以 T-029 report 为准。同类未处理项：`robot-label.spec.js` 的 T-012 三张图含用例内随机值，每跑必变（属设计如此，未确定化）。
-
+- status: done · 见 `.trellis/tasks/T-029/report.md`
 ## T-030 T-020 注入合成数据的清理（状态变更，不物理删除）
-- goal: 按 `.trellis/tasks/T-020/report.md` 的注入清单（儿童/家庭/家长/关联/阶段画像/报告/后台任务）逐条以状态变更方式清理（归档/停用等既有状态字段），不物理 DELETE，处置写入审计。
-- acceptance: 清单逐条处置并在 `.trellis/tasks/T-030/report.md` 记录处置方式与审计证据；家长端与运营端不再把该批数据显示为活跃态（真实 Chrome 截图核对）；`cd backend && uv run pytest` 相关用例通过；audit errors 为空。
-- gate: none
-- status: done
-- notes: 不改契约与数据模型；清单与库内实际有出入以实际为准并记录。属运维 chore：commit 后可直接 push 并补 EXECUTED 行。**2026-09-17 执行结果**：清单逐条处置完毕（状态变更，无物理删除），处置前库内对照、处置方案、逐条证据见 `.trellis/tasks/T-030/report.md`；运营端「失败任务」归零（1→0）、家庭「已关闭」、儿童「已归档」、关联「已撤回」、游标「已暂停」，家长端登录被拒「账号已停用」（真实 Chrome 截图 11 张在 `.trellis/tasks/T-030/shots/`）；`uv run pytest tests/test_ops_console.py` → `41 passed in 150.08s`，`tests/test_ops_audit_scope.py tests/test_ca_accounts.py` → `36 passed in 81.30s`；`audit_documents.py` errors `[]`。续跑补做两件：①上一轮处置后残留 2 条该家长未失效登录凭据（续跑核对发现，脚本复跑回收，末次快照 `家长未失效登录凭据=0 条`）；②首次写库的审计 detail 是 Python repr（运营端显示「编号 T-020 合成」、说明列被撑坏），按当前形态原地修正 10 条，只改 detail 文案不动动作/对象/时间，前后逐条留 `audit-rows-before-repair.txt` / `audit-rows-after-repair.txt`。**orchestrator 2026-09-17T14:25Z 解锁**：上一轮（13:22–13:33Z）干了大半后撞 Flash TPM 限流中断（Pro 兜底当日 6/6 已用完），`status` 停在 doing 被驱动一直跳过，现改回 todo。工作区有该轮未提交半成品：`backend/dingdong_ca/ops/labels.py`（+4 行词条）、`backend/tests/test_ops_console.py`（+13 行用例）、`.trellis/tasks/T-030/`（dispose_synthetic_batch.py、dry-run 输出、状态快照、shots/）、`frontend/tests/t030-batch-disposal.spec.js`。下一轮开工先 `git status` + 逐个 review 这些改动：符合本任务意图（状态变更不物理删除、写审计）就接着做完并提交，不要盲目重做也不要丢弃；半成品有错就修正后继续。
-
+- status: done · 见 `.trellis/tasks/T-030/report.md`
 ## T-036 loop 账本瘦身：压 worker 每轮上下文，降 TPM 限流频率
 - goal: 本日 Flash TPM 限流已打断 T-021/T-030/T-031 多轮（Pro 兜底 6/6 提前耗尽），诱因之一是 `queue.md`（约 250 行、done 任务 notes 超长）与 `gates.md`（约 100 行 EXECUTED 长行）每轮被 worker 全文读入。把账本瘦身为「活跃任务全文 + 历史归档」：①`gates.md` 决定段的 EXECUTED 历史行移入 `.trellis/loop/gates-archive-20260917.md`，决定段只保留仍生效的常设许可（T-003 批准的第一/二批直推规则、T-021 批复及其收尾授权、DENY T-099）；②`queue.md` 已 done 任务的超长执行结果 notes 压成一行指针（先核对 `.trellis/tasks/<id>/report.md` 已覆盖再压，不得丢信息）；③`status.md`/`runs.log` 的驱动格式不动。
 - acceptance: 瘦身后 `wc -l` `queue.md` ≤ 120 行、`gates.md` ≤ 60 行；`## T-xxx` 标题与 `- status:` 行格式不变（驱动 grep 依赖）；归档文件含被移除的 EXECUTED 行原文；抽查 3 处被压缩的 done notes 均能在 report 或归档中找到对应内容；`python3 scripts/audit_documents.py` errors 为空；改动以首行 `[T-036]` 提交。
 - gate: push
-- status: todo
-- notes: 机制维护类：commit 后直接 push 并补 EXECUTED 行。只动 `queue.md`/`gates.md`/新建归档文件，不改驱动脚本与 prompt.md；todo/doing/gated/blocked 任务的 notes 保持全文不压。
+- status: done
+- notes: 机制维护类：commit 后直接 push 并补 EXECUTED 行。只动 `queue.md`/`gates.md`/新建归档文件，不改驱动脚本与 prompt.md；todo/doing/gated/blocked 任务的 notes 保持全文不压。**2026-09-17 执行结果**：`gates.md` 95→34 行（22056→5098 字节）、`queue.md` 257→119 行（65969→16508 字节），两文件每轮读入 88025→21606 字节（-75.5%）；决定段 47 行历史移入 `.trellis/loop/gates-archive-20260917.md`（43 条 EXECUTED + 4 条一次性事后追认，逐行原文），决定段只留 T-003 常设直推规则 / T-021 批复 / DENY T-099；28 个 done 任务压成「标题 + 一行指针」（指针行首 token 仍是 `done`，指向各自 `report.md`；T-025 无 report.md，指向 queue 留档），压缩前全文 257 行留档 `.trellis/loop/queue-archive-20260917.md`；todo 任务（T-031/T-028/T-032..T-035/T-024）notes 逐字未压。验证：`python3 .trellis/tasks/T-036/verify.py` 全 PASS（含直接跑驱动脚本里真实的 `next_task`/`classify`/`loop_gate_snapshot` 解析块：`next_task` 返回 T-031、`classify(T-036)`/`classify(T-030)` 返回 DONE、`classify(T-031)` 非 DONE、门禁快照 2 行且 blocked 列表空），归档 47 行逐行核对 0 缺失且行序一致，抽查 T-030/T-022/T-025 被压缩内容均能在 report.md 或留档中找到；`python3 scripts/audit_documents.py` errors `[]`；未改驱动脚本、prompt.md、status.md、runs.log。
 
 ## T-031 存量 `core/api/common.py` 过 ruff format（T-027 连带发现）
 - goal: `backend/dingdong_ca/core/api/common.py:189` 通过 `ruff format`（HEAD 上即未格式化，最后一次改动是 T-019 提交 `2c00ac1`），只做格式化不改语义。
@@ -254,4 +117,3 @@
 - gate: review
 - status: todo
 - notes: 巡检是产品活，属正常队列，不算机制插队。orchestrator 复看批准后：按批次导入修复任务，并在队尾追加下一次巡检任务（编号顺延）；若某轮巡检产出为 0 条新问题，在 report 如实记录并照常 gated，由 orchestrator 决定下一轮巡检是否改走抽查模式。明确排除项不变：8 个出站接口、主动解绑、发版部署、external 类动作。
-

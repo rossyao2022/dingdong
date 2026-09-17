@@ -1,0 +1,33 @@
+[PASS] queue.md ≤ 120 行 — 实测 119
+[PASS] gates.md ≤ 60 行 — 实测 34
+[PASS] `## T-xxx 标题` 计数 36 — 实测 36
+[PASS] `- status:` 行计数 36 — 实测 36
+[PASS] 36 个 status 值全在词表内 — 值分布 ['done', 'todo']
+[PASS] 驱动 next_task 正常返回 — rc=0 返回 'T-031' 
+[PASS] 驱动 classify(T-036) 判 DONE — 返回 'DONE' 
+[PASS] 驱动 classify(T-030) 判 DONE — 返回 'DONE' 
+[PASS] 驱动 classify(T-031) 不再判 DONE（status=todo） — 返回 'FAIL'
+[PASS] 驱动 loop_gate_snapshot 正常（申请段指纹 + blocked 列表） — rc=0 
+      loop_gate_snapshot 输出：
+        '7cbe1215c54dc634a0d1b98b365845fd'
+        ''
+[PASS] blocked 列表为空（T-031 已解锁） — 第二行 ['']
+[PASS] 归档含全部被移除行原文 — 移除 47 行，缺失 0 行
+[PASS] 归档行序与原文一致 — 索引单调=True
+[PASS] 全部 EXECUTED 行（含被移除的）在归档中 — EXECUTED 43 行
+[PASS] gates.md 仍含 `## 申请` / `## 决定` 两个切分锚点
+[PASS] 决定段保留的 APPROVE 仅 T-003 / T-021 — 实测 ['T-003', 'T-021']
+[PASS] 决定段保留 DENY T-099
+
+== 抽查：被压缩 done 任务的原文留档 + report 覆盖 ==
+  T-030: 原文留档命中 ['已归档', '已暂停', '账号已停用', '登录凭据']；report.md 命中 ['已归档', '已暂停', '账号已停用', '登录凭据']
+[PASS] T-030 被压缩内容可在原文留档中找到 — ['已归档', '已暂停', '账号已停用', '登录凭据']
+[PASS] T-030 关键事实在 report.md 或原文留档中 — report=['已归档', '已暂停', '账号已停用', '登录凭据']
+  T-022: 原文留档命中 ['LOOP_ORCH_PANE', 'WAKE FAIL', 'w0:p4']；report.md 命中 ['LOOP_ORCH_PANE', 'WAKE FAIL', 'w0:p4']
+[PASS] T-022 被压缩内容可在原文留档中找到 — ['LOOP_ORCH_PANE', 'WAKE FAIL', 'w0:p4']
+[PASS] T-022 关键事实在 report.md 或原文留档中 — report=['LOOP_ORCH_PANE', 'WAKE FAIL', 'w0:p4']
+  T-025: 原文留档命中 ['line 301: $5: unbound variable', 'fallbacks_today', 'watchdog']；report.md 命中 []
+[PASS] T-025 被压缩内容可在原文留档中找到 — ['line 301: $5: unbound variable', 'fallbacks_today', 'watchdog']
+[PASS] T-025 关键事实在 report.md 或原文留档中 — report=[]
+
+结果：全部通过
