@@ -64,3 +64,6 @@ EXECUTED T-016 push 按决定段「第一批每完成一个任务 commit 后可�
 EXECUTED T-016 push（第二次，收尾记录提交 ea06a2f）：`git push origin codex/release-v0.3.6` → `92827af..ea06a2f`，远端 sha `ea06a2fe1fa2647c1a0307886802d8f1e1eb342c`（该提交含 queue/gates/status/experiment-log 收尾记录；本条补记提交随后同一轮再推，分支头以 origin 为准） 2026-09-17T11:36Z
 EXECUTED T-017 push 按决定段「第一批与第二批每完成一个任务 commit 后可直接 push origin/codex/release-v0.3.6，不必逐条申请」执行：`git push origin codex/release-v0.3.6` → `0b6b6fe..10d4353`，远端 sha `10d435392442a35d8761a1a920f786c9170e8fa9`（`[T-017]` 功能提交 10d4353；收尾记录提交紧随其后同一轮再推，分支头以 origin 为准） 2026-09-17T11:14Z
 EXECUTED T-017 push（第二次，收尾记录提交 d42edf7）：`git push origin codex/release-v0.3.6` → `10d4353..d42edf7`，远端 sha `d42edf77c7f84472b2d2d8facf8a8c43ee5e3307`（该提交含 queue/gates/status/experiment-log/runs.log 收尾记录；本条补记提交随后同一轮再推，分支头以 origin 为准） 2026-09-17T11:18Z
+
+APPROVE T-025 push（事后追认）：`[T-025]` 机制提交 `b862317` 已随 T-009 直推连带上远端（push 语义推整个分支，非越权单推）；内容为 Yihu 2026-09-17「把模式盘活」指令下的 5 项机制改动，Yihu 复核本条时口头追认（「OK，继续推进」）。watchdog 的 launchd 安装仍待 Yihu 执行，不属本追认范围。 2026-09-17T11:48Z
+EXECUTED T-025 push（追认补记）：随 T-009 直推 `git push origin codex/release-v0.3.6` → `919350b..6a5efa2`，远端 sha `6a5efa2a3760877c6ca6bfb675d8640796eea346`（含 `[T-025]` b862317） 2026-09-17T11:48Z
