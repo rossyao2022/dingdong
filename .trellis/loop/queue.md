@@ -7,7 +7,7 @@
 - goal: 给 `.trellis/loop/` 写一份操作说明，让 orchestrator 一看就知道怎么启停、怎么批门禁、怎么看状态、怎么加任务。
 - acceptance: `.trellis/loop/README.md` 存在且不超过 10 行；四件事（启停 / 批门禁 / 看状态 / 加任务）各至少一条；本文件已用首行 `[T-001]` 的提交入库。
 - gate: none
-- status: todo
+- status: doing
 - notes: 只写这一个文件。别复述整套设计，别改驱动脚本。
 
 ## T-002 在 .trellis/tasks/T-002/ 写一份 hello.md 并申请 push
