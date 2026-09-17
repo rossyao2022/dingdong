@@ -20,10 +20,12 @@
 - 源开关：`dingdong` 未配置支（8018/4174）三面「机器人数据服务尚未接通」、无伪造数值，成长观察照常；实例与临时文件已清理，4173/8017 未动。
 - `python3 scripts/audit_documents.py` → `{"markdown_files": 80, "local_links_checked": 511, "archived_files_checked": 85, "operations": 61, "schemas": 83, "errors": []}`。
 
-## 阶段：Finish（进行中）
+## 阶段：Finish（已完成）
 
 - 产出 `.trellis/tasks/T-040/backlog.md`、`report.md`、本文件。
-- 待办：commit（首行 `[T-040]`）→ `gates.md` 追加 `REQUEST T-040 review` → `queue.md` 的 T-040 `status` 改 `gated` → `experiment-log.md` 追加一行 → 重写 `status.md`。
+- 已执行：`gates.md` 追加 `REQUEST T-040 review 2026-09-18T05:30Z` → `queue.md` 的 T-040 `status` 改 `gated`（附执行结果全文）→ `experiment-log.md` 追加一行（工具调用 156 / 轮次 133、门禁 0 次、卡点 3 个、右侧介入 0）→ 重写 `status.md`（保留末尾 `## 驱动告警` 一节）→ `git commit` 首行 `[T-040]`，提交 `8a918e6`。
+- **未 push**（本任务 `gate: review`，等 orchestrator 复看）。
+- 收尾核对：`git status --short` 干净；`git show --stat HEAD` 除 `.trellis/` 外无文件（未改任何产品代码）。
 
 ## 改动文件列表
 
