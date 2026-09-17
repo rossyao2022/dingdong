@@ -871,7 +871,7 @@ async function beginAssessment(purpose = "assessment", versionId = "") {
   hints.policy = policy;
   showDialog(
     "本次测评用途",
-    `<div class="policy-body">${esc(policy.body)}</div><label class="checkline"><input id="consent-check" type="checkbox">我已阅读并同意本次测评用途</label><div class="actions">${button("agree-assessment", "同意并开始")}</div>`,
+    `<div class="policy-body">${esc(policy.body)}</div><div class="notice"><b>处理目的</b><p>生成这次测评的观察记录与报告，供你在「测评与报告」查看，并作为后续复测的对照。</p><b>数据范围</b><p>孩子的问卷选择、答题时间与所用题库版本；不采集真实指纹，不采集年级。</p><b>数据去向</b><p>处理在本项目服务端完成，结果保存在你的账户里；不会把孩子的测评结果或画像下发给 DingDong 侧。机器人行为观察是另一路，由本项目按你单独同意的「机器人数据同步」从 DingDong 侧获取，与测评结果分开展示、不合并成一个分数。</p><b>保留与撤回</b><p>记录保留在你的账户中。可在「账户与关联 → 用途授权」点「撤回授权」停止后续处理；撤回不会自动删除已经生成的报告，需要清除已有数据请提交删除事项。</p></div><label class="checkline"><input id="consent-check" type="checkbox">我已阅读并同意本次测评用途</label><div class="actions">${button("agree-assessment", "同意并开始")}</div>`,
   );
 }
 async function createAssessment(grant) {
