@@ -14,9 +14,8 @@
 - goal: 把 `.trellis/loop/ORCHESTRATOR.md`（orchestrator 岗位说明，目前仍是未跟踪文件）用首行 `[T-023]` 的提交入库；并把 status.md 里反复出现的「R0d 会话收尾」核对项正式关闭：确认全仓已无假 grok 包装脚本残留（2026-09-17T07:22Z orchestrator 已核实 `.trellis/loop/runs/fake-grok.sh` 不存在；`.trellis/tasks/T-022/` 下的 fake-* 是钩子自测证据，保留不删），核对 `runs.log` 中 T-004 的 PRIMARY RATE_LIMITED / FALLBACK DONE 两行与 `runs/` 下 `20260917T055213Z-T-004-primary`、`20260917T055219Z-T-004-fallback` 两个记录一致。
 - acceptance: `git status --short` 不再出现 `?? .trellis/loop/ORCHESTRATOR.md`；全仓（排除 `.git`、`node_modules`、`.trellis/tasks/T-022/`）找不到假 grok 包装脚本；核对结论写入 `.trellis/tasks/T-023/report.md`；`python3 scripts/audit_documents.py` errors 为空；gate push：commit 后直接 push origin/codex/release-v0.3.6 并在 `gates.md` 补 EXECUTED 行。
 - gate: push
-- status: doing
-- notes: 只入库 ORCHESTRATOR.md 这一个新文件，不改其内容。给 status.md 第 2 条待办的正式答复：混轮提交账本类文件（runs.log / queue.md 的驱动与 orchestrator 记录行）可接受，不必严格分轮。做完后下次重写 status.md 时把「R0d 会话收尾」从待办划掉。
-
+- status: done
+- notes: 只入库 ORCHESTRATOR.md 这一个新文件，不改其内容。给 status.md 第 2 条待办的正式答复：混轮提交账本类文件（runs.log / queue.md 的驱动与 orchestrator 记录行）可接受，不必严格分轮。做完后下次重写 status.md 时把「R0d 会话收尾」从待办划掉。 **2026-09-17 执行结果**：`.trellis/loop/ORCHESTRATOR.md` 已入库（58 行，内容未改，入库前后 sha256 均 `bec3d5cba9345674b077b06094ff0aef5ee2e174f2d6dff5fd1969f254268ec9`）；假 grok 包装脚本按文件名扫描 0 命中，按内容命中的 4 处全为文档/JSON 文字提及（`file` 判定无脚本），`.trellis/loop/` 下无 `fake-grok.sh`，`.trellis/tasks/T-022/` 内 3 个 fake-* 按任务说明保留；T-004 两行 `runs.log` 与 `runs/20260917T055213Z-T-004-primary.json`（61B，`TooManyRequests`）、`runs/20260917T055219Z-T-004-fallback.json`（93928B）核对一致（05:52:19Z+496s=06:00:35Z 秒级对齐）；证据 `.trellis/tasks/T-023/verify-output.txt` + `verify.sh`；`audit_documents.py` errors `[]`。已按 gate push 直推：`531737e..a900a01`，远端 sha `a900a011ae04b518e82a920316093db05fa4ad36`。 status.md 原第 2 条待办的正式答复：混轮提交账本类文件（`runs.log` / `queue.md` 的驱动行与 orchestrator 记录行）可接受，不必严格分轮。
 ## T-001 写 .trellis/loop/README.md
 - goal: 给 `.trellis/loop/` 写一份操作说明，让 orchestrator 一看就知道怎么启停、怎么批门禁、怎么看状态、怎么加任务。
 - acceptance: `.trellis/loop/README.md` 存在且不超过 10 行；四件事（启停 / 批门禁 / 看状态 / 加任务）各至少一条；本文件已用首行 `[T-001]` 的提交入库。

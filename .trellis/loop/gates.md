@@ -42,3 +42,4 @@ EXECUTED T-006 push 按决定段「第一批每完成一个任务 commit 后可�
 DENY T-099 push T-022 钩子自测行，orchestrator 已于 07:20Z 真实收到唤醒，链路验证通过，按 T-022 验收约定忽略，不对应任何真实推送 2026-09-17T07:22Z
 EXECUTED T-022 push 成功：`git push origin codex/release-v0.3.6` → `dbf2870..2cfca23`，远端 sha `2cfca23e404794ff8f13cc3243c31e4c56bf4568`（按 T-022 notes 的机制任务直推规则执行，未另开 REQUEST；收尾记录提交紧随其后同一轮再推）2026-09-17T07:22Z
 EXECUTED T-022 push（第二次，收尾记录提交）：`git push origin codex/release-v0.3.6` → `2cfca23..b55244d`，远端 sha `b55244de32456feb019e34f8ed4d57cc955d19df`（本条记录提交自身随后同一轮再推，分支头以 origin 为准）2026-09-17T07:24Z
+EXECUTED T-023 push 按本任务 `gate: push` 与机制任务直推规则执行：`git push origin codex/release-v0.3.6` → `531737e..a900a01`，远端 sha `a900a011ae04b518e82a920316093db05fa4ad36`（含 `[T-023]` ORCHESTRATOR.md 入库提交 a900a01；收尾记录提交紧随其后同一轮再推，分支头以 origin 为准） 2026-09-17T07:44Z

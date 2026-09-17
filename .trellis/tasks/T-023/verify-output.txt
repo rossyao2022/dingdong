@@ -46,3 +46,25 @@ error: pathspec '.trellis/loop/ORCHESTRATOR.md' did not match any file(s) known 
 Did you forget to 'git add'?
 $ wc -l .trellis/loop/ORCHESTRATOR.md
       58 .trellis/loop/ORCHESTRATOR.md
+
+### 命令5（提交后复跑，commit a900a01）
+$ git status --short
+ M .trellis/tasks/T-023/verify-output.txt
+$ git ls-files --error-unmatch .trellis/loop/ORCHESTRATOR.md
+.trellis/loop/ORCHESTRATOR.md
+$ git show a900a01:.trellis/loop/ORCHESTRATOR.md | shasum -a 256   # 与入库前 sha256 比对
+bec3d5cba9345674b077b06094ff0aef5ee2e174f2d6dff5fd1969f254268ec9  -
+入库前记录：bec3d5cba9345674b077b06094ff0aef5ee2e174f2d6dff5fd1969f254268ec9  .trellis/loop/ORCHESTRATOR.md
+$ wc -l .trellis/loop/ORCHESTRATOR.md
+      58 .trellis/loop/ORCHESTRATOR.md
+$ python3 scripts/audit_documents.py
+{"markdown_files": 80, "local_links_checked": 497, "archived_files_checked": 85, "operations": 55, "schemas": 65, "errors": []}
+
+### 命令7：push（gate: push 直推）
+$ git push origin codex/release-v0.3.6
+To github.com:ivesyi/dingdong-ca.git
+   531737e..a900a01  codex/release-v0.3.6 -> codex/release-v0.3.6
+$ git ls-remote origin codex/release-v0.3.6
+a900a011ae04b518e82a920316093db05fa4ad36	refs/heads/codex/release-v0.3.6
+$ git rev-parse HEAD
+a900a011ae04b518e82a920316093db05fa4ad36

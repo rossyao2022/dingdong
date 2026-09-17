@@ -53,3 +53,4 @@
 - 合并提交消息形如 `Merge branch ...`，不带任务 id，会被门禁①拒；需要时给 `commit-msg` 加 `MERGE_HEAD` 豁免。
 - 引入 Trellis 后 `scripts/audit_documents.py` 的扫描面从 79 个 markdown 涨到 200 个（Trellis 自己的 `.md` 全进来了），是否把 `.trellis/`、`.claude/`、`.cursor/` 加进审计 SKIP 值得拍板。→ **已拍板（R0b 决定③、R0c 收尾）**：四个脚手架目录 `.trellis` / `.claude` / `.cursor` / `.grok` 全部进 SKIP，审计面回到项目文档本身（R0c 复跑：80 篇、errors 空）。
 - **每个执行会话收尾必须落盘再交棒**：R0b 因限流 ×3 + 上下文 248k 未提交就中断，R0c 花了一整轮做「捡起来 + 提交 + 推送」。后续轮次把「审计 → 提交」提前到会话中段做，别攒到最后。
+| T-023 | 机制收尾：把 `.trellis/loop/ORCHESTRATOR.md`（orchestrator 岗位说明，未跟踪文件）入库并关闭 status.md 反复出现的「R0d 会话收尾」核对项——全仓扫假 grok 包装脚本残留、核对 T-004 的 PRIMARY 限流 / FALLBACK 重跑两行与 `runs/` 记录一致 | ≈35 / ≈35（本会话工具调用计数，采样于收尾提交前） | 0 次（本地提交一次过 commit-msg 与 pre-commit） | 0 个 | 0（按本任务 `gate: push` 的机制任务直推规则自行 push 并回填 EXECUTED） | 完成（已 push，远端 sha `a900a01`） |
