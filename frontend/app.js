@@ -123,6 +123,20 @@ function showError(e) {
         : "");
   else toast(errorMessage(e));
 }
+/** 提交期间给按钮一个可见的进行中态：换文案 + `aria-busy`，返回恢复函数。 */
+function busyButton(el, label) {
+  if (!el) return () => {};
+  const idle = el.textContent;
+  el.disabled = true;
+  el.setAttribute("aria-busy", "true");
+  el.textContent = label;
+  return () => {
+    if (!el.isConnected) return;
+    el.disabled = false;
+    el.removeAttribute("aria-busy");
+    el.textContent = idle;
+  };
+}
 async function act(fn, el) {
   if (busy) return;
   busy = true;
@@ -234,8 +248,8 @@ function loginPage() {
   };
   $("#login-form").onsubmit = async (e) => {
     e.preventDefault();
-    const b = e.submitter;
-    b.disabled = true;
+    // 慢网下登录要几秒，按钮只变灰会让家长以为点空了、反复点。
+    const restore = busyButton(e.submitter, "登录中…");
     try {
       if (!state.challenge) throw new Error("请先获取验证码。");
       state.user = await API.login(state.challenge, e.target.code.value);
@@ -245,7 +259,7 @@ function loginPage() {
     } catch (err) {
       $(".form-error").textContent = errorMessage(err);
     } finally {
-      b.disabled = false;
+      restore();
     }
   };
 }

@@ -168,6 +168,28 @@ p {
   padding: 8px 14px;
   font-size: 14px;
 }
+/* 进行中：文案已换（「登录中…」），再加个转圈，并压掉 disabled 的淡化，免得读成"不可用" */
+.button[aria-busy="true"] {
+  cursor: progress;
+}
+.button[aria-busy="true"]:disabled {
+  opacity: 0.85;
+}
+.button[aria-busy="true"]::after {
+  content: "";
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: busy-spin 0.7s linear infinite;
+}
+@keyframes busy-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 .text-button {
   font-size: 15px;
   background: none;
