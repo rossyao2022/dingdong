@@ -83,8 +83,8 @@
 - goal: 「成长观察」起止时间非法（起 ≥ 止）时就地提示「结束时间要晚于开始时间」并把两个输入框标红，不再零请求零提示。
 - acceptance: 非法区间下界面出现可见中文提示与错误态样式；`cd frontend && npm run check && npm run test:unit` 通过；audit errors 为空；真实 Chrome 填 起>止 点「查看这个窗口」截图到 `.trellis/tasks/T-009/shots/`。
 - gate: none
-- status: todo
-- notes: 属第一批：commit 后可直接 push 并补 EXECUTED 行。
+- status: done
+- notes: 属第一批：commit 后可直接 push 并补 EXECUTED 行。**2026-09-17 执行结果（FALLBACK 重跑，PRIMARY 08:56:05Z 起 757s 限流 rc=1）**：前任 progress.md 声称已改的 `app.js`/`client.css` 实际未落盘，本轮重做——`windowForm()` 加 `.form-error`、`bindForms()` 里窗口表单非法区间就地提示「结束时间要晚于开始时间」+ 两输入框 `aria-invalid`+`.is-invalid`，`oninput` 清错；`client.css` 加对应规则。`npm run check` exit 0、`test:unit` 16 pass 0 fail、`audit_documents.py` errors `[]`；真实 Chrome `tests/growth-window.spec.js` 首跑因 `/auth/sms` 同 IP 限流 2 failed（计数=50），DB 只读计数滑到 47 后重跑 `2 passed (12.0s)`；截图 `.trellis/tasks/T-009/shots/`。全量回归 ca-account+flows 受同一限流未全绿，未采信。已按第一批直推 push：`919350b..6a5efa2`，远端 sha `6a5efa2a3760877c6ca6bfb675d8640796eea346`（连带推送 T-025 的 b862317，见 status.md 待处理项）。
 
 ## T-010 P-07 慢网提交要有进行中提示
 - goal: 提交期间给进行中提示（按钮文案如「登录中…」或轻量进度指示），避免家长以为按钮点空了反复点。
