@@ -5,8 +5,13 @@
 #   scripts/worker-loop.sh                          # 前台常驻（空转轮询 600s）
 #   LOOP_IDLE_SLEEP=15 scripts/worker-loop.sh       # 联调时空转调短
 # 停止：touch .trellis/loop/STOP（当前轮跑完即退出）
+#
+# 双模型（R0e）：启动时读 .trellis/loop/models.env 的 MODEL_PRIMARY / MODEL_FALLBACK。
+#   - 每轮先用 PRIMARY 跑；该轮 grok 进程疑似限流（TooManyRequests / rate limit / 429）时，
+#     立刻用 FALLBACK 重跑同一任务；下一轮回到 PRIMARY。两个都限流才 sleep 退避。
+#   - 只允许 Flash→Pro 升级，不写降级路径。
 # 可调环境变量：LOOP_IDLE_SLEEP / LOOP_ROUND_TIMEOUT / LOOP_RATE_LIMIT_SLEEP /
-#              LOOP_DAILY_LIMIT / LOOP_MODEL（留空 = 沿用 grok 当前配置的默认模型）/ LOOP_GROK_BIN
+#              LOOP_DAILY_LIMIT / LOOP_GROK_BIN（联调可指向假 grok 包装脚本）
 # 只用 bash + git + python3（stdlib），无新依赖。
 set -u
 
@@ -16,6 +21,7 @@ QUEUE="$LOOP_DIR/queue.md"
 GATES="$LOOP_DIR/gates.md"
 STATUS="$LOOP_DIR/status.md"
 PROMPT="$LOOP_DIR/prompt.md"
+MODELS_ENV="$LOOP_DIR/models.env"
 RUNS="$LOOP_DIR/runs"
 RUNS_LOG="$LOOP_DIR/runs.log"
 STOP="$LOOP_DIR/STOP"
@@ -25,7 +31,18 @@ IDLE_SLEEP="${LOOP_IDLE_SLEEP:-600}"
 ROUND_TIMEOUT="${LOOP_ROUND_TIMEOUT:-2400}"
 RATE_SLEEP="${LOOP_RATE_LIMIT_SLEEP:-180}"
 DAILY_LIMIT="${LOOP_DAILY_LIMIT:-40}"
-MODEL="${LOOP_MODEL:-}"
+
+MODEL_PRIMARY="deepseek-v4-1-flash-260910"
+MODEL_FALLBACK="deepseek-v4-pro"
+if [ -f "$MODELS_ENV" ]; then
+  # models.env 只有 `KEY=VALUE` 与注释，安全 source（不执行任意命令：逐行读取）。
+  while IFS='=' read -r key val; do
+    case "$key" in
+      MODEL_PRIMARY) MODEL_PRIMARY="$val" ;;
+      MODEL_FALLBACK) MODEL_FALLBACK="$val" ;;
+    esac
+  done < <(grep -vE '^\s*#|^\s*$' "$MODELS_ENV")
+fi
 
 cd "$PROJECT_ROOT" || exit 1
 mkdir -p "$RUNS"
@@ -68,7 +85,7 @@ for t in tasks:
 PY
 }
 
-# 判定本轮结果：DONE / GATED / BLOCKED / FAIL / RATE_LIMITED
+# 判定一次 grok 调用的结果：DONE / GATED / BLOCKED / FAIL / RATE_LIMITED
 classify() {
   python3 - "$QUEUE" "$1" "$2" "$3" "$4" "$5" <<'PY'
 import re, sys
@@ -111,7 +128,7 @@ else:
 PY
 }
 
-# 同一任务尾部连续失败次数（FAIL / RATE_LIMITED）
+# 同一任务尾部连续失败次数（FAIL / RATE_LIMITED），用于「连续 2 次 → blocked」。
 consecutive_failures() {
   python3 - "$RUNS_LOG" "$1" <<'PY'
 import sys
@@ -167,52 +184,79 @@ PY
   } >>"$STATUS"
 }
 
-run_round() {
-  local task="$1" ts out err rc dur start pid timed_out=0 result sha note
-  ts="$(date -u +%Y%m%dT%H%M%SZ)"
-  out="$RUNS/$ts-$task.json"
-  err="$RUNS/$ts-$task.err"
+# 跑一次 grok。输出到 $3/$4；全局 _rc / _timed_out / _dur 返回。
+run_once() {
+  local task="$1" model="$2" out="$3" err="$4" start pid
+  local args=(-p "$(cat "$PROMPT")" --cwd "$PROJECT_ROOT" --always-approve --no-auto-update --output-format json --model "$model")
+
   start=$SECONDS
-
-  local args=(-p "$(cat "$PROMPT")" --cwd "$PROJECT_ROOT" --always-approve --no-auto-update --output-format json)
-  if [ -n "$MODEL" ]; then
-    args+=(--model "$MODEL")
-  fi
-
-  say "轮次开始：${task}（超时上限 ${ROUND_TIMEOUT}s）"
+  export LOOP_TASK_ID="$task"
   "$GROK_BIN" "${args[@]}" >"$out" 2>"$err" &
   pid=$!
 
+  _timed_out=0
   while kill -0 "$pid" 2>/dev/null; do
     if [ $((SECONDS - start)) -ge "$ROUND_TIMEOUT" ]; then
-      say "单轮超时，终止 pid=$pid"
+      say "单轮超时，终止 pid=${pid}（模型=${model}）"
       pkill -TERM -P "$pid" 2>/dev/null || true
       kill -TERM "$pid" 2>/dev/null || true
       sleep 5
       pkill -KILL -P "$pid" 2>/dev/null || true
       kill -KILL "$pid" 2>/dev/null || true
-      timed_out=1
+      _timed_out=1
       break
     fi
     sleep 5
   done
   wait "$pid"
-  rc=$?
-  dur=$((SECONDS - start))
+  _rc=$?
+  _dur=$((SECONDS - start))
+}
 
-  result="$(classify "$task" "$rc" "$out" "$err" "$timed_out")"
+record_round() {
+  # $1 task, $2 result, $3 dur, $4 model, $5 note
+  local sha note
   sha="$(git rev-parse --short HEAD 2>/dev/null || echo -)"
-  note="rc=$rc"
-  [ "$timed_out" = 1 ] && note="$note,timeout"
-
+  note="$5"
   if [ -n "$(git status --short)" ]; then
     note="$note,dirty-worktree"
     say "警告：本轮结束工作区仍有未提交改动（worker 应自己 commit 干净）"
   fi
+  printf '%s ROUND %s %s %ss %s %s %s\n' \
+    "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$1" "$2" "$3" "$sha" "$4" "$note" >>"$RUNS_LOG"
+  say "轮次记录：$1 $2（${3}s，模型=$4，HEAD=${sha}）"
+}
 
-  printf '%s ROUND %s %s %ss %s %s\n' \
-    "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$task" "$result" "$dur" "$sha" "$note" >>"$RUNS_LOG"
-  say "轮次结束：${task} ${result}（${dur}s，HEAD=${sha}）"
+run_round() {
+  local task="$1" ts out err result
+  ts="$(date -u +%Y%m%dT%H%M%SZ)"
+
+  # 第一次：PRIMARY
+  out="$RUNS/$ts-$task-primary.json"
+  err="$RUNS/$ts-$task-primary.err"
+  say "轮次开始：${task}（模型=${MODEL_PRIMARY}，超时上限 ${ROUND_TIMEOUT}s）"
+  run_once "$task" "$MODEL_PRIMARY" "$out" "$err"
+  result="$(classify "$task" "$_rc" "$out" "$err" "$_timed_out")"
+  record_round "$task" "$result" "$_dur" "$MODEL_PRIMARY" "rc=$_rc"
+
+  # 限流 → 立即用 FALLBACK 重跑同一任务（只做 Flash→Pro 升级）
+  if [ "$result" = "RATE_LIMITED" ]; then
+    local ts2 out2 err2 result2
+    ts2="$(date -u +%Y%m%dT%H%M%SZ)"
+    out2="$RUNS/$ts2-$task-fallback.json"
+    err2="$RUNS/$ts2-$task-fallback.err"
+    say "疑似限流，立即用 FALLBACK（${MODEL_FALLBACK}）重跑 ${task}"
+    run_once "$task" "$MODEL_FALLBACK" "$out2" "$err2"
+    result2="$(classify "$task" "$_rc" "$out2" "$err2" "$_timed_out")"
+    record_round "$task" "$result2" "$_dur" "$MODEL_FALLBACK" "rc=$_rc"
+    result="$result2"
+
+    if [ "$result" = "RATE_LIMITED" ]; then
+      logline "RATE_LIMITED $task 两个模型都限流，sleep ${RATE_SLEEP}s"
+      say "两个模型都限流，sleep ${RATE_SLEEP}s"
+      sleep "$RATE_SLEEP"
+    fi
+  fi
 
   case "$result" in
     FAIL | RATE_LIMITED)
@@ -223,17 +267,12 @@ run_round() {
         logline "BLOCKED $task 连续失败 $fails 次，已标 blocked 并记入 status.md"
         say "$task 连续失败 $fails 次 → 已标 blocked，继续下一个任务"
       fi
-      if [ "$result" = RATE_LIMITED ]; then
-        logline "RATE_LIMITED $task sleep ${RATE_SLEEP}s"
-        say "疑似限流，sleep ${RATE_SLEEP}s"
-        sleep "$RATE_SLEEP"
-      fi
       ;;
   esac
 }
 
-say "驱动启动：root=$PROJECT_ROOT 空转间隔=${IDLE_SLEEP}s 单轮上限=${ROUND_TIMEOUT}s 每日上限=${DAILY_LIMIT} 模型=${MODEL:-沿用默认}"
-logline "START 驱动启动 idle=${IDLE_SLEEP}s round_timeout=${ROUND_TIMEOUT}s daily_limit=${DAILY_LIMIT} model=${MODEL:-default}"
+say "驱动启动：root=$PROJECT_ROOT 空转间隔=${IDLE_SLEEP}s 单轮上限=${ROUND_TIMEOUT}s 每日上限=${DAILY_LIMIT} PRIMARY=$MODEL_PRIMARY FALLBACK=$MODEL_FALLBACK"
+logline "START 驱动启动 idle=${IDLE_SLEEP}s round_timeout=${ROUND_TIMEOUT}s daily_limit=${DAILY_LIMIT} primary=$MODEL_PRIMARY fallback=$MODEL_FALLBACK"
 
 while :; do
   if [ -f "$STOP" ]; then

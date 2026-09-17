@@ -27,6 +27,15 @@
 
 **本轮只做这一个任务。** 不要顺手做第二个，不要「顺便」改别的文件。
 
+### 核对式续跑（任务 status 是 `doing` 且已有 progress.md 时）
+
+若取到的任务 `status: doing` 且 `.trellis/tasks/T-xxx/progress.md` 存在，先核对再继续：
+
+1. `git status --short` 与 `git diff --stat`，把 `progress.md` 里声明的改动文件**逐条**与磁盘现状对照。
+2. 重跑 `progress.md` 里记录的**最后一个**验证命令，把新结果记进 progress.md。
+3. 对不上的以磁盘为准，在 `progress.md` 追加一行 `前任声明与磁盘不符：…`（说清哪几条、差异是什么）。
+4. `progress.md` 里标为已完成的阶段**不重做**，从下一个未完成阶段接着做。
+
 ## 3. 做：Plan → Implement → Verify → Finish
 
 - **Plan**：读懂任务 goal / acceptance / notes，先想清验收标准怎么客观验证，再动手。
@@ -37,6 +46,8 @@
   - 改 markdown → `python3 scripts/audit_documents.py`（`errors` 必须为空）；
   - 其它类型 → 至少跑一个能证伪这次改动的检查。
 - **Finish**：见下面第 4–7 节。
+
+**阶段检查点**：每完成一个阶段（Plan / Implement / Verify / Finish）就重写 `.trellis/tasks/T-xxx/progress.md`，只写可核对事实：已完成阶段（逐个列出）· 改动文件列表 · 跑过的命令与结果数字（原样抄）· 下一步（一句话）。禁止叙述、禁止推测，不许出现「看起来」「应该」这类词。
 
 ## 4. 提交
 
