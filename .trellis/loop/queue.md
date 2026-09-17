@@ -181,8 +181,8 @@
 - goal: 只写 `.trellis/tasks/T-021/design.md`：人设 / 15–30 天成长报告 / 健康度四态 / 复测 CTA 四个展示面的数据形状、合成数据源放哪一层、空态与错误态、与 `设计/CA对接_C1_ca_account_id设计_20260916.md` §7 判定标准的逐条对照、拆成几个实现任务；不写代码。
 - acceptance: design.md 含上述五部分且对 §7 判定标准逐条对照；本轮无代码改动；audit errors 为空；本任务 `status` 为 `gated` 且 `gates.md` 申请段有 `REQUEST T-021 review ...`。
 - gate: review
-- status: todo
-- notes: 只写设计；不新增对对方接口的依赖。属第三批：逐条申请门禁，不适用直推规则。
+- status: gated
+- notes: 只写设计；不新增对对方接口的依赖。属第三批：逐条申请门禁，不适用直推规则。**2026-09-17 执行结果**：`.trellis/tasks/T-021/design.md` 已写完（六节：现状核查 / 四个展示面数据形状 / 合成数据源分层 / 空态与错误态 / C1 §7 逐条对照 / 4 个实现任务拆分 + 5 条未决待澄清）。无代码改动（`git status` 只有 queue.md、驱动追加的 runs.log、新建的 T-021 目录）；`python3 scripts/audit_documents.py` → `errors: []`。设计要点：合成数据源放后端服务层（新开关 `CA_DISPLAY_DATA_SOURCE`，`api/ca_display.py` → `services/ca_display.py` → `test_fixture` 表或 `dingdong_client`），扩 `inject_fixture` 新增 6 个场景对应 xlsx 表 6 的 6 个 mock 账号；可用性词表复用 `growth.py` 既有 7 值；四态按 xlsx 表 7.1 的 H01–H07（`insufficient_data`/`normal`/`watch`/`reassess`），`switch_candidate`/`keep_current` 不当作健康度状态；`auto_switch` 始终 `false`。建议实现任务 A（数据层+接口）/ B（人设+健康度）/ C（成长报告）/ D（复测 CTA），已按 gate=review 申请门禁。
 
 ## T-029 刷新 T-008 漂移截图（证据保鲜小任务）
 - goal: 重跑 `frontend/tests/ca-account.spec.js` 刷新 `.trellis/tasks/T-008/shots/empty-credential.png`（T-026 轮核实为真漂移：197704→188099 字节、可见差异 199203 px，成因是弹窗背后页面滚动位置变化，弹窗文案本身一致），核对截图仍满足 T-008 验收（空凭据提交时 `.form-error` 可见且非空、对话框不关）。
