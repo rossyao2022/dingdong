@@ -1,0 +1,20 @@
+== HEAD 版 vs 第二次运行版 ==
+--- size (1280, 720) -> (1280, 720)
+  visible-diff rows=403 px=51299
+  rows (2, 21) cols 323-537 px 2784
+  rows (29, 59) cols 277-882 px 3087
+  rows (69, 111) cols 275-1236 px 3091
+  rows (124, 141) cols 275-279 px 66
+  rows (151, 167) cols 1128-1208 px 1250
+  rows (201, 220) cols 1000-1212 px 3232
+  rows (228, 247) cols 1000-1196 px 3026
+  rows (284, 302) cols 1000-1203 px 2668
+  rows (309, 328) cols 1000-1172 px 3026
+  rows (422, 439) cols 1000-1193 px 2718
+  rows (445, 463) cols 1003-1184 px 2927
+  rows (468, 499) cols 1000-1208 px 4034
+  rows (534, 553) cols 1000-1212 px 3180
+  rows (562, 579) cols 1000-1194 px 2541
+  rows (618, 635) cols 996-1203 px 2481
+  rows (647, 670) cols 303-988 px 3339
+  rows (674, 719) cols 300-922 px 7849

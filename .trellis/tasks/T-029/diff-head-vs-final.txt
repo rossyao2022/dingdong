@@ -1,0 +1,19 @@
+== HEAD 版 vs 固定滚动后版 ==
+--- size (1280, 720) -> (1280, 720)
+  visible-diff rows=357 px=56007
+  rows (2, 21) cols 322-538 px 2934
+  rows (28, 52) cols 274-1240 px 7661
+  rows (61, 64) cols 804-897 px 271
+  rows (122, 133) cols 277-279 px 29
+  rows (147, 189) cols 275-1237 px 3413
+  rows (201, 219) cols 275-1211 px 2790
+  rows (229, 246) cols 1000-1194 px 2581
+  rows (284, 303) cols 1000-1203 px 2947
+  rows (386, 404) cols 1000-1172 px 2879
+  rows (422, 441) cols 1000-1194 px 3197
+  rows (444, 463) cols 1003-1184 px 3112
+  rows (468, 487) cols 1000-1180 px 3142
+  rows (561, 577) cols 1128-1208 px 1232
+  rows (611, 629) cols 1000-1211 px 2732
+  rows (639, 719) cols 300-1203 px 17087
+  弹窗区域内可见差异 px = 271

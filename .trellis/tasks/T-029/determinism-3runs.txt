@@ -1,0 +1,9 @@
+  1 passed (5.1s)
+46197db652aaef0275ada44ceefc5c76032eec6ea54565ce3d6fb8e976c7f6db  ../.trellis/tasks/T-008/shots/empty-credential.png
+bytes 189622
+  1 passed (5.8s)
+46197db652aaef0275ada44ceefc5c76032eec6ea54565ce3d6fb8e976c7f6db  ../.trellis/tasks/T-008/shots/empty-credential.png
+bytes 189622
+  1 passed (4.8s)
+46197db652aaef0275ada44ceefc5c76032eec6ea54565ce3d6fb8e976c7f6db  ../.trellis/tasks/T-008/shots/empty-credential.png
+bytes 189622

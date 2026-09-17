@@ -1,0 +1,14 @@
+Running 8 tests using 1 worker
+
+(node:67489) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ca-account.spec.js:55:1 › NFC 承接：凭据不在地址栏留下，新号如实显示待接通 (6.0s)
+  ✓  2 tests/ca-account.spec.js:91:1 › 同一台机器人再次绑定复用同一个号，不换号 (7.1s)
+  ✓  3 tests/ca-account.spec.js:103:1 › 换机：确认弹窗讲清代价，旧号归档可查，新号重新开始 (10.3s)
+  ✓  4 tests/ca-account.spec.js:145:1 › 绑定成功后停在账户页并高亮新号，标签不带路由也不跳回探索页 (6.7s)
+  ✓  5 tests/ca-account.spec.js:189:1 › 新会话从标签进来：登录建档案后绑定，同样落在账户页 (5.8s)
+  ✓  6 tests/ca-account.spec.js:211:1 › 手填绑定：空凭据就地提示，对话框不关 (5.5s)
+  ✓  7 tests/ca-account.spec.js:251:1 › 绑定落点截图：桌面与 390×844 (6.0s)
+  ✓  8 tests/ca-account.spec.js:283:1 › 窄屏下账户号不撑破页面 (6.3s)
+
+  8 passed (54.3s)

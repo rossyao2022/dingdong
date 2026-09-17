@@ -240,6 +240,9 @@ test("手填绑定：空凭据就地提示，对话框不关", async ({ page }) 
     dialog.getByRole("heading", { name: "绑定机器人" }),
   ).toBeVisible();
 
+  // 进「账户与关联」会滚动到该面板，落点取决于滚动动画的时序；弹窗是浮层，
+  // 背景滚动位置只影响这张图的背景。固定到页首，避免同一份代码两次运行出不同的图。
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
   await page.screenshot({
     path: "../.trellis/tasks/T-008/shots/empty-credential.png",
   });
