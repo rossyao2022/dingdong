@@ -37,4 +37,6 @@ EXECUTED T-036 push 按本任务 notes「机制维护类：commit 后直接 push
 
 EXECUTED T-031 push 按本任务 notes「机制维护类：commit 后可直接 push 并补 EXECUTED 行」执行：`git push origin codex/release-v0.3.6` → `dc54fea..bfe9dcd`，远端 sha `bfe9dcdc93c0d1488175a375288209345a9d8d56`（`[T-031]` 格式化提交 bfe9dcd：`backend/dingdong_ca/core/api/common.py` +5/−3 行，唯一 hunk 是 `describe_target` 内 name 表达式按 ruff 重排；收尾记录提交紧随其后同一轮再推，分支头以 origin 为准） 2026-09-17T15:30Z
 
+EXECUTED T-031 push（第二次，收尾记录提交 8f9a6d6）：`git push origin codex/release-v0.3.6` → `bfe9dcd..8f9a6d6`，远端 sha `8f9a6d60f86c56f887169516c2c7b9737c4f7ddd`（该提交含 queue/gates/status/experiment-log/progress 收尾记录：T-031 `status` 改 `done` 并压成一行指针移入 done 块、`EXECUTED T-031 push` 首条、status.md 重写；本条补记提交随后同一轮再推，分支头以 origin 为准） 2026-09-17T15:42Z
+
 EXECUTED T-036 push（第二次，收尾记录提交 87f1029）：`git push origin codex/release-v0.3.6` → `2dff105..87f1029`，远端 sha `87f1029411e983823b9ff1cf44c94a4d5200d318`（该提交含 queue/gates/status/experiment-log/progress 收尾记录；本条补记与 verify 输出刷新提交随后同一轮再推，分支头以 origin 为准） 2026-09-17T15:14Z
