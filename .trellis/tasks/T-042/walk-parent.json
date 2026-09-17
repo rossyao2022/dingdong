@@ -1,0 +1,179 @@
+{
+  "steps": [
+    {
+      "step": "switch: 建议出现",
+      "text": "最近一段时间互动偏少，要不要重新测一次？ | 建议时间 2026/09/30 17:00 · 这次建议的原因：近期互动偏少 | 重新测评 | 先不测"
+    },
+    {
+      "step": "switch: 「重新测评」回写",
+      "status": 200,
+      "request": {
+        "request_id": "250927dd-de25-4ed5-bd60-5bbbab81ed27",
+        "accepted": true
+      }
+    },
+    {
+      "step": "switch: 对话框跨过轮询",
+      "before": 0,
+      "after": 1,
+      "dialogOpen": true
+    },
+    {
+      "step": "switch: 回写完成",
+      "assessmentId": "4f9c1fba-aab2-4fe8-965f-8303b46f10dd"
+    },
+    {
+      "step": "switch: 结果卡",
+      "cardText": "这次复测的结果已经回写。 | 新角色推荐 | 新角色 Socrates · 匹配度 86 / 100 | 当前角色匹配度 | 69 / 100 | 匹配度变化 | 17 | 换人设需要你确认，我们不会自动更换；确认入口尚未开放，现在只展示建议。 | 建议时间 2026/09/30 17:00 · 这次建议的原因：近期互动偏少",
+      "personaText": "",
+      "expectSwitch": true,
+      "overflow": 0
+    },
+    {
+      "step": "switch: 人设卡现状（无自动切换的证据）",
+      "autoSwitch": ""
+    },
+    {
+      "step": "keep: 建议出现",
+      "text": "最近一段时间互动偏少，要不要重新测一次？ | 建议时间 2026/09/22 01:00 · 这次建议的原因：近期互动偏少 | 重新测评 | 先不测"
+    },
+    {
+      "step": "keep: 「重新测评」回写",
+      "status": 200,
+      "request": {
+        "request_id": "4730921a-357e-4a6e-ac0f-227c68d09ba5",
+        "accepted": true
+      }
+    },
+    {
+      "step": "keep: 对话框跨过轮询",
+      "before": 0,
+      "after": 0,
+      "dialogOpen": true
+    },
+    {
+      "step": "keep: 回写完成",
+      "assessmentId": "d80da1d3-56a0-4c77-b832-6c86db09d5a7"
+    },
+    {
+      "step": "keep: 结果卡",
+      "cardText": "这次复测的结果已经回写。 | 保留当前角色 | 当前角色匹配度 | 73 / 100 | 新角色与当前角色的匹配度差别不大，继续用现在的陪学伙伴。 | 建议时间 2026/09/22 01:00 · 这次建议的原因：近期互动偏少",
+      "personaText": "",
+      "expectSwitch": false,
+      "overflow": 0
+    },
+    {
+      "step": "keep: 人设卡现状（无自动切换的证据）",
+      "autoSwitch": ""
+    },
+    {
+      "step": "page home",
+      "overflow": 0
+    },
+    {
+      "step": "page explore",
+      "overflow": 0
+    },
+    {
+      "step": "page journey",
+      "overflow": 0
+    },
+    {
+      "step": "page reports",
+      "overflow": 0
+    },
+    {
+      "step": "page companion",
+      "overflow": 0
+    },
+    {
+      "step": "page settings",
+      "overflow": 0
+    },
+    {
+      "step": "page services",
+      "overflow": 0
+    }
+  ],
+  "pages": [
+    {
+      "route": "home",
+      "label": "今日陪伴",
+      "text": "正在连接成长空间…"
+    },
+    {
+      "route": "home",
+      "label": "今日陪伴 (390×844)",
+      "overflow": 0
+    },
+    {
+      "route": "explore",
+      "label": "天赋探索",
+      "text": "THE LITTLE WORLD OF BIG POSSIBILITIES\n好奇心，准备出发！\n\n和 DingDong 一起，去看看你还没发现的自己。\n\n测评与报告\n我的探索手账\n每个发现都值得收藏\n兴趣岛 · 探索地图\n下一站，你的热爱。\n\n点一点小岛，看看今天有什么新奇的冒险。\n\n别担心，我会陪你一起！\n就去这里！\nSCIENCE\n科学发现岛\n给好奇一个答案\n就去这里！\nSTORY\n故事表达岛\n让想象开口说话\n就去这里！\nNATURE\n自然观察岛\n收藏世界的小细节\n就去这里！\nIMAGINATION\n创意想象岛\n让不可能变成可能\nREADY WHEN YOU ARE\n选一座小岛，给好奇心一个方向。\n\n科学、故事、自然、创意……今天想试哪一种？\n\n先点一点小岛\nDINGDONG EXPLORER CLUB · EST. 2026\n从一个小行动开始\n\n选一个适合此刻心情的活动，和孩子一起试试看。\n\n今日陪伴\n把观察慢慢积累下来\n\n查看测评进度和成长报告，读懂每份记录的来源。\n\n测评与报告"
+    },
+    {
+      "route": "explore",
+      "label": "天赋探索 (390×844)",
+      "overflow": 0
+    },
+    {
+      "route": "journey",
+      "label": "成长旅程",
+      "text": "正在连接成长空间…"
+    },
+    {
+      "route": "journey",
+      "label": "成长旅程 (390×844)",
+      "overflow": 0
+    },
+    {
+      "route": "reports",
+      "label": "测评与报告",
+      "text": "正在连接成长空间…"
+    },
+    {
+      "route": "reports",
+      "label": "测评与报告 (390×844)",
+      "overflow": 0
+    },
+    {
+      "route": "companion",
+      "label": "我的 DingDong",
+      "text": "巡检假分支儿童 · 成长空间\n我的 DingDong\n\n这里的引导方式只影响网页陪伴，不会更改机器人配置。\n\n你好呀，我在这里。\n\n今天想听一句引导，还是安静地试一试？\n\n听伙伴打个招呼\n选择网页引导方式\n多问一个为什么\n留意自己的感受\n试一个新点子\n一起观察与发现\n去做一个小行动"
+    },
+    {
+      "route": "companion",
+      "label": "我的 DingDong (390×844)",
+      "overflow": 0
+    },
+    {
+      "route": "settings",
+      "label": "账户与关联",
+      "text": "正在连接成长空间…"
+    },
+    {
+      "route": "settings",
+      "label": "账户与关联 (390×844)",
+      "overflow": 0
+    },
+    {
+      "route": "services",
+      "label": "家长支持",
+      "text": "巡检假分支儿童 · 成长空间\n家长支持\n\n不急着下结论，先陪孩子多看一眼、多试一次。\n\n陪伴时，可以这样做\n\n把指令换成邀请：“要不要一起试试看？”\n\n先问孩子看到了什么，再说自己的观察。\n\n活动没有做完也没关系，允许休息、跳过与重新尝试。\n\n如何阅读成长记录\n\n网页活动是家庭自报记录。机器人行为观察与测评报告使用各自的来源，不能直接混成一个分数。\n\n当前报告全部是合成测试结果，不应用来评价孩子。\n\n服务与数据处理\n\n界面沿用参考项目 d754a5bf9ea8e71ca64a850d2e26aa321fe8ab38 的兴趣岛、伙伴插画与视觉布局；业务逻辑为本项目实现，参考项目未修改。"
+    },
+    {
+      "route": "services",
+      "label": "家长支持 (390×844)",
+      "overflow": 0
+    },
+    {
+      "route": "help",
+      "label": "帮助",
+      "text": "没有找到这个页面\n\n可以回到探索页继续。\n\n返回探索"
+    }
+  ],
+  "errors": [
+    "console: Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+    "console: Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+  ]
+}

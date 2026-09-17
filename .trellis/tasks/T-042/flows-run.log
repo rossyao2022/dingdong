@@ -1,0 +1,57 @@
+(node:75029) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:75069) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 8 tests using 1 worker
+
+(node:75070) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/flows.spec.js:119:1 › 真实登录、活动完成、刷新恢复、退出清理 (11.1s)
+
+  ✘  2 tests/flows.spec.js:151:1 › 用途授权、22题、合成输入、真实初始报告 (1.0m)
+(node:75508) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✓  3 tests/flows.spec.js:188:1 › 机器人关联、阶段报告、撤回同步授权 (18.1s)
+  ✓  4 tests/flows.spec.js:219:1 › 移动端布局、儿童切换与跨页退出 (12.1s)
+  ✓  5 tests/flows.spec.js:259:1 › 家长提交删除、后台实际处理、无儿童时查看回执 (14.3s)
+  ✓  6 tests/flows.spec.js:337:1 › 登录后首页小岛出发与全部菜单可点击 (8.4s)
+  ✓  7 tests/flows.spec.js:364:1 › 探索四题、刷新恢复、返回修改、完成仅展示选择 (21.7s)
+  ✓  8 tests/flows.spec.js:421:1 › 移动端各页面、无效关联提示、资料编辑与帮助回执 (16.0s)
+
+
+  1) tests/flows.spec.js:151:1 › 用途授权、22题、合成输入、真实初始报告 ──────────────────────────────────────────────
+
+    Test timeout of 60000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: '查看初始报告', exact: true })
+    Expected: visible
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('button', { name: '查看初始报告', exact: true }) with timeout 20000ms
+      - waiting for getByRole('button', { name: '查看初始报告', exact: true })
+      - Test timeout of 60000ms exceeded.
+
+
+      179 |   await expect(
+      180 |     page.getByRole("button", { name: "查看初始报告", exact: true }),
+    > 181 |   ).toBeVisible({ timeout: 20000 });
+          |     ^
+      182 |   await page.getByRole("button", { name: "查看初始报告", exact: true }).click();
+      183 |   await expect(
+      184 |     page.getByText("专业测评结果（尚未接入）: 暂无数据", { exact: true }),
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/flows.spec.js:181:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/flows-用途授权、22题、合成输入、真实初始报告/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/flows-用途授权、22题、合成输入、真实初始报告/error-context.md
+
+  1 failed
+    tests/flows.spec.js:151:1 › 用途授权、22题、合成输入、真实初始报告 ───────────────────────────────────────────────
+  7 passed (2.8m)

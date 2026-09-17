@@ -1,0 +1,22 @@
+(node:78968) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+STEP 准备完成 {"phone":"13970262008","childId":"8be7aaf0-778a-46a6-965b-5cfb7ff01aea"}
+STEP page home {"overflow":0,"len":678}
+STEP page explore {"overflow":0,"len":450}
+STEP page journey {"overflow":0,"len":95}
+STEP page reports {"overflow":0,"len":1107}
+STEP page companion {"overflow":0,"len":140}
+STEP page settings {"overflow":0,"len":749}
+STEP page services {"overflow":0,"len":294}
+STEP page nonexistent-route-probe {"overflow":0,"len":26}
+STEP 人设卡正文 {"persona":"Mia | 艺术 | 艺术创作陪学伙伴 | 匹配度 | 82 / 100 | 匹配度是机器人服务按孩子的互动给出的（0–100），不是天赋分或能力分。 | 学习风格：模仿、开放（中文对照由我方按取值直译，对方 code 表确认后核对；悬停可看原始取值）。 | 绑定于 2026/09/01 02:05 · 权重版本 v1"}
+FAILED [
+  {
+    "status": 401,
+    "url": "http://127.0.0.1:4173/api/v1/auth/refresh",
+    "method": "POST"
+  }
+]
+ERRORS [
+  "console: Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+]

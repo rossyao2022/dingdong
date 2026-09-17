@@ -1,0 +1,46 @@
+(node:76504) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:76536) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:76544) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✘  1 tests/flows.spec.js:151:1 › 用途授权、22题、合成输入、真实初始报告 (1.0m)
+
+
+  1) tests/flows.spec.js:151:1 › 用途授权、22题、合成输入、真实初始报告 ──────────────────────────────────────────────
+
+    Test timeout of 60000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: '查看初始报告', exact: true })
+    Expected: visible
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('button', { name: '查看初始报告', exact: true }) with timeout 20000ms
+      - waiting for getByRole('button', { name: '查看初始报告', exact: true })
+      - Test timeout of 60000ms exceeded.
+
+
+      179 |   await expect(
+      180 |     page.getByRole("button", { name: "查看初始报告", exact: true }),
+    > 181 |   ).toBeVisible({ timeout: 20000 });
+          |     ^
+      182 |   await page.getByRole("button", { name: "查看初始报告", exact: true }).click();
+      183 |   await expect(
+      184 |     page.getByText("专业测评结果（尚未接入）: 暂无数据", { exact: true }),
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/flows.spec.js:181:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/flows-用途授权、22题、合成输入、真实初始报告/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/flows-用途授权、22题、合成输入、真实初始报告/error-context.md
+
+  1 failed
+    tests/flows.spec.js:151:1 › 用途授权、22题、合成输入、真实初始报告 ───────────────────────────────────────────────

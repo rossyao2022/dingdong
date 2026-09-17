@@ -84,3 +84,4 @@
 2026-09-17T21:35:45Z WAKE OK T-040 gates.md 新增 REQUEST
 2026-09-17T22:25:51Z ROUND T-041 FAIL 2406s dbbba00 deepseek-v4-1-flash-260910 rc=143,dirty-worktree
 2026-09-17T22:25:51Z RESET T-041 doing→todo（本轮未收口，复位供下一轮重取）
+2026-09-17T23:05:57Z ROUND T-041 DONE 2406s 9954d2e deepseek-v4-1-flash-260910 rc=143

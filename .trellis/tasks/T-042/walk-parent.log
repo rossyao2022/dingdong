@@ -1,0 +1,22 @@
+(node:77663) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+STEP switch: 建议出现 {"text":"最近一段时间互动偏少，要不要重新测一次？ | 建议时间 2026/09/30 17:00 · 这次建议的原因：近期互动偏少 | 重新测评 | 先不测"}
+STEP switch: 「重新测评」回写 {"status":200,"request":{"request_id":"250927dd-de25-4ed5-bd60-5bbbab81ed27","accepted":true}}
+STEP switch: 对话框跨过轮询 {"before":0,"after":1,"dialogOpen":true}
+STEP switch: 回写完成 {"assessmentId":"4f9c1fba-aab2-4fe8-965f-8303b46f10dd"}
+STEP switch: 结果卡 {"cardText":"这次复测的结果已经回写。 | 新角色推荐 | 新角色 Socrates · 匹配度 86 / 100 | 当前角色匹配度 | 69 / 100 | 匹配度变化 | 17 | 换人设需要你确认，我们不会自动更换；确认入口尚未开放，现在只展示建议。 | 建议时间 2026/09/30 17:00 · 这次建议的原因：近期互动偏少","personaText":"","expectSwitch":true,"overflow":0}
+STEP switch: 人设卡现状（无自动切换的证据） {"autoSwitch":""}
+STEP keep: 建议出现 {"text":"最近一段时间互动偏少，要不要重新测一次？ | 建议时间 2026/09/22 01:00 · 这次建议的原因：近期互动偏少 | 重新测评 | 先不测"}
+STEP keep: 「重新测评」回写 {"status":200,"request":{"request_id":"4730921a-357e-4a6e-ac0f-227c68d09ba5","accepted":true}}
+STEP keep: 对话框跨过轮询 {"before":0,"after":0,"dialogOpen":true}
+STEP keep: 回写完成 {"assessmentId":"d80da1d3-56a0-4c77-b832-6c86db09d5a7"}
+STEP keep: 结果卡 {"cardText":"这次复测的结果已经回写。 | 保留当前角色 | 当前角色匹配度 | 73 / 100 | 新角色与当前角色的匹配度差别不大，继续用现在的陪学伙伴。 | 建议时间 2026/09/22 01:00 · 这次建议的原因：近期互动偏少","personaText":"","expectSwitch":false,"overflow":0}
+STEP keep: 人设卡现状（无自动切换的证据） {"autoSwitch":""}
+STEP page home {"overflow":0}
+STEP page explore {"overflow":0}
+STEP page journey {"overflow":0}
+STEP page reports {"overflow":0}
+STEP page companion {"overflow":0}
+STEP page settings {"overflow":0}
+STEP page services {"overflow":0}
+ERRORS ["console: Failed to load resource: the server responded with a status of 401 (Unauthorized)","console: Failed to load resource: the server responded with a status of 401 (Unauthorized)"]
