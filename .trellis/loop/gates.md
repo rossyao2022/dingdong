@@ -72,3 +72,4 @@ EXECUTED G-03 external Yihu 2026-09-17 拍板「干掉」：`gh pr close 1 --rep
 EXECUTED R0g push Yihu 明确指令「提交并 push」：`git push origin codex/release-v0.3.6` → `9b96c4d..fce3f67`，远端头 `fce3f67`（三笔 orchestrator 账面：`905ea3e` T-025 追认 / `fceab02` R0f 补给 / `fce3f67` R0g launchd 销项）。另核实：`feat/ca-full-stack-v0.3.6` 为早期 squash 快照（1 个独有提交，内容已被当前分支 106 个提交演进取代），经说明后不推。
 
 EXECUTED T-019 push 按决定段「第二批每完成一个任务 commit 后可直接 push origin/codex/release-v0.3.6，不必逐条申请」执行：`git push origin codex/release-v0.3.6` → `7ee99a7..2c00ac1`，远端 sha `2c00ac1d3208ac4e574eaebe21f7b0e0540ebc4f`（`[T-019]` 修复提交；收尾记录提交紧随其后同一轮再推） 2026-09-17T12:25Z
+EXECUTED T-019 push（第二次，收尾记录提交 f61828f）：`git push origin codex/release-v0.3.6` → `2c00ac1..f61828f`，远端 sha `f61828ff378ccbdb56693b8d12cf941f00f8fc49`（该提交含 queue/gates/status/experiment-log 收尾记录；本条记录提交随后同一轮再推，分支头以 origin 为准） 2026-09-17T12:27Z
