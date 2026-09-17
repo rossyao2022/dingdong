@@ -3,6 +3,13 @@
 字段：`goal` 目标 · `acceptance` 可客观验证的验收 · `gate` 门禁类型（`none` | `push` | `external` | `deploy` | `review`）· `status`（`todo` | `doing` | `done` | `blocked` | `gated`）· `notes` 备注。
 规则：驱动每轮取第一个 `status: todo` 的任务；`gated` / `blocked` 跳过。任务定义由 orchestrator 写，执行结果由 worker 写回。
 
+## T-022 驱动加「有新门禁申请或任务 blocked 时叫醒 orchestrator」的钩子
+- goal: 给 `scripts/worker-loop.sh` 加收尾钩子：每轮 worker 退出后，与本轮开工时的基线对比，若 `gates.md` 申请段新增了 REQUEST 行、或 `queue.md` 有任务被标为 `blocked`，就执行一次 `herdr agent prompt w0:p4 "查岗：读 .trellis/loop/ORCHESTRATOR.md 的门禁规则，处理 gates.md 新申请"`；不带 `--wait`；该命令失败只记一行日志，不改变驱动退出码、不影响后续轮询。
+- acceptance: 钩子只在出现上述两类变化时触发且每轮至多一次；用一条测试 REQUEST 实测钩子能真实触发一次（测试行末尾标注「T-022 钩子自测，可忽略」，orchestrator 收到后忽略该行），驱动随后正常进入下一轮；`bash -n scripts/worker-loop.sh` 通过；`python3 scripts/audit_documents.py` errors 为空；实测命令输出存 `.trellis/tasks/T-022/`。
+- gate: push
+- status: todo
+- notes: 只改 `scripts/worker-loop.sh` 这一个文件。面板号已核对：w0:p4 为 orchestrator 会话所在面板（2026-09-17 `herdr pane list --workspace w0` 实测；若面板有变以实际结果为准并更新本条）。属机制任务：commit 后直接 push origin/codex/release-v0.3.6 并在 `gates.md` 补 EXECUTED 行（岗位说明：push 类直接 APPROVE），不必另开 REQUEST。
+
 ## T-001 写 .trellis/loop/README.md
 - goal: 给 `.trellis/loop/` 写一份操作说明，让 orchestrator 一看就知道怎么启停、怎么批门禁、怎么看状态、怎么加任务。
 - acceptance: `.trellis/loop/README.md` 存在且不超过 10 行；四件事（启停 / 批门禁 / 看状态 / 加任务）各至少一条；本文件已用首行 `[T-001]` 的提交入库。
@@ -42,8 +49,8 @@
 - goal: 手机号为空点「获取验证码」时给中文提示，不再把 `ErrorDetail(string='该字段不能为空。', code='blank')` 透传到界面：前端先做非空校验，后端 422 统一兜底成中文。
 - acceptance: 空号提交时界面出现中文提示且不含 `ErrorDetail(`；`cd frontend && npm run check && npm run test:unit` 与 `cd backend && uv run pytest tests/test_auth.py` 通过；audit errors 为空；真实 Chrome 在 `http://127.0.0.1:4173/` 复现原路径并截图到 `.trellis/tasks/T-006/shots/`。
 - gate: none
-- status: todo
-- notes: 属第一批：commit 后可直接 push origin/codex/release-v0.3.6 并补 EXECUTED 行。
+- status: done
+- notes: 属第一批：commit 后可直接 push origin/codex/release-v0.3.6 并补 EXECUTED 行。**2026-09-17 执行结果**：根因两处——`core/api/common.py` 的 `endpoint()` 对 DRF `detail`（`{"phone": [ErrorDetail(...)]}`）直接 `str(v)`，把 list 内部 repr 当字段文案；`frontend/app.js` 的 `#send-code` 不做非空校验、照发请求。后端新增 `detail_text()`/`field_errors()` 递归取 message，`tests/test_auth.py` 新增 2 条参数化用例（改前 `2 failed, 12 deselected in 13.07s`，改后 `14 passed in 22.26s`）；前端空号先拦并给「请先填写手机号，再获取验证码。」、不发请求。新增 `frontend/tests/login-validation.spec.js`（4 条真实 Chrome，含 390×844），改前临时还原 HEAD 版 `app.js` 跑出 `1 failed`（文案 `请求字段不合法 该字段不能为空。`），改后 `4 passed (5.8s)`；回归 `tests/ca-account.spec.js` `4 passed (30.4s)`；全量后端 `270 passed in 1000.72s`；`npm run check` 通过 / `test:unit` `16 pass 0 fail` / `audit_documents.py` errors `[]`。4 张截图在 `.trellis/tasks/T-006/shots/`。已按第一批直推规则 push：`f07a7c7..876b2dd`，远端 sha `876b2dd9d031650e57e576ea7fc6b8d04a1beae7`。
 
 ## T-007 P-01 绑定机器人成功后留在账户页并给反馈
 - goal: 绑定成功后留在「账户与关联」页、高亮新生成的账户号，并显示一行「账户号已生成，等机器人接通后开始同步」，不再无提示跳回首页。

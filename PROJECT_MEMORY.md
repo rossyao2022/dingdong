@@ -380,3 +380,4 @@ DingDong 交付的两份对接材料放在 `材料/文档/`（**不在 2026-09-0
 3. **前端新增顶层模块必须同步 `frontend/server.cjs` 的静态白名单**，否则本地预览直接 404。
 4. **临时隔离库手法**：postgres 角色 `dingdong` 有 CREATEDB，可 `CREATE DATABASE dd_wb_ui_check` → `migrate` → `seed_base` → 用完 `DROP DATABASE`，**不需要碰共享库里的演示数据**。注意本机无 docker、无 5432，`127.0.0.1:55439` 是既有实例；`sqlite` 不可行（代码用 `pg_advisory_xact_lock` + `hashtextextended`）。
 5. **家长端浏览器用例的机器人凭据必须每次随机**：`nfc_token_hash` 的"活跃唯一"约束是**全局**的，写死 `e2e-token-0001` 这类固定串，第二轮就会撞上第一轮留下的活跃号并全红（这是设计使然，不是缺陷）。
+6. **8017 的 runserver 可能被 autoreload 弄卡死**（2026-09-17 T-006 实测）：改 `core/api/common.py` 后 curl 从 200 变成 exit 7，`lsof` 里 8017 已无 LISTEN，但 reloader 与子进程仍在（子进程无网络 fd），全程不报错。**改完后端源码后、验证前先 curl 一次确认 8017 真的在监听**，卡死就 kill 掉旧进程组重启；本地日志可落 `.trellis/.runtime/runserver-*.log`。

@@ -13,6 +13,7 @@
 | T-004 | 验证模型切换自测：PRIMARY 被假 grok 脚本伪造限流（`TooManyRequests`）后由 FALLBACK（Pro）重跑；worker 确认 FALLBACK 身份、写报告标 `done`、不改代码 | 30 / 18（`events.jsonl` 计数，采样于收尾提交前） | 0 次 | 0 个 | 0 | 完成（本地已提交，未 push） |
 | T-003 | 产品体验与稳定性审计：真实浏览器走家长端七视图 + 探索体验全流程 + NFC 承接绑定 + 登录/退出 + 断网慢网 + 390px 视口，运营后台十页 + 家庭/儿童详情 + 筛选与空态；产出 backlog.md（22 条，含稳定性专节），坐实 1 个真缺陷（CA 账户页跨行 `{# #}` 注释渲染成正文）+ 1 处 422 报错文案未本地化 | ≈96 / ≈96（本会话工具调用计数，采样于收尾提交前） | 0 次（本地提交一次过 `.githooks`） | 0 个（无 TPM 限流；运营后台十页初扫改用会话内 fetch 以免几十次导航，未计入卡点） | 0 | 完成（本地已提交，`review` 门禁待批；停在 `gated`） |
 | T-005 | 执行已批准的 T-003 review 门禁（导入 T-005…T-021 并回填 EXECUTED）+ 修 backlog O-01 真缺陷：CA 账户页跨行 `{# #}` 注释被当正文渲染（模板改 `{% comment %}` + 2 条守卫用例，TDD 先红后绿） | 54 / 45（`events.jsonl` 计数，采样于收尾提交前） | 0 次（两次本地提交均一次过 commit-msg 与 pre-commit） | 0 个 | 0（按决定段第一批「可直推」规则自行 push 并回填 EXECUTED，未走申请） | 完成（已 push，远端 sha `618925e`） |
+| T-006 | 修 backlog P-05：空手机号点「获取验证码」把后端 `ErrorDetail(...)` 内部 repr 当文案透到家长端。根因两处——`core/api/common.py` 对 DRF `detail`（字段→错误列表）直接 `str(v)`；`frontend/app.js` 不做非空校验照发请求。后端加 `detail_text()`/`field_errors()` 递归取 message + 2 条参数化用例，前端空号先拦并给专门中文提示 | ≈95 / ≈95（本会话工具调用计数，采样于收尾提交前） | 0 次（本地提交一次过 commit-msg 与 pre-commit） | 1 个（卡点 14：8017 上非本会话启动的 runserver 被 autoreload 弄卡死、不再监听端口，重启后继续；另发现未加 trim 会在成功后静默 return 的隐患，一并收口） | 0（按决定段第一批「可直推」规则自行 push 并回填 EXECUTED，未走申请） | 完成（已 push，远端 sha `876b2dd`） |
 
 ## 正面样本（orchestrator 2026-09-17 验收确认）
 
@@ -38,6 +39,7 @@
 11. **R0d：模型限流又打断一次，自救是把「限流韧性」做进机制。** grok 的切模型通道查清：TUI 里 `/model <id>` 或 `Ctrl+M`，无头用 `-m/--model <id>`；Ark 模型用 `grok models` 列出的 id（`deepseek-v4-pro` 实际解析到 `deepseek-v4-pro-ga-260813`，`deepseek-v4-1-flash-260910` 同理）。`~/.grok/config.toml` 的 `models.default` 已切到 Pro（新会话默认 Pro）。据此 R0e 给驱动加双模型：Flash 日常、Pro 兜底，只升级不降级——把「被打断就停」变成「这轮限流下轮 Pro 顶上」。
 12. **R0d：macOS bash 3.2 把紧跟全角字符的 `$var` 解析进变量名。** `$task（` 里的 `（` 字节被算进变量名，`set -u` 下直接 `task<乱码>: unbound variable` 崩掉整个驱动，且只在运行时暴露（静态 `bash -n` 不报）。烟测（假 grok）才抓到。教训：脚本里所有紧跟中文/全角标点的变量都必须写 `${var}`，写完用正则扫一遍 `$[A-Za-z_][A-Za-z0-9_]*[^\x00-\x7f]`。
 13. **R0d：驱动自己 append `runs.log` 造成每轮「dirty-worktree」误报。** `record_round` 里 `git status --short` 检查未提交改动，但驱动刚写完 `runs.log`（该文件入库、每轮追加），所以每轮都判「worker 没 commit 干净」——假阳性。修法：检查时用 pathspec 排除 `.trellis/loop/runs.log`。
+14. **T-006：8017 上「不是本会话启动的」runserver 被 autoreload 弄卡死，不报错也不再监听端口。** 改完 `core/api/common.py` 后 curl 从 200 变 exit 7（connection refused），`lsof` 里 8017 已无 LISTEN，但 reloader 与子进程都还在（子进程无任何网络 fd）——表现为「服务静默死掉」。`PROJECT_MEMORY.md` 只记过「改模板后必须重启 runserver」（进程级模板缓存），没记「autoreload 可能卡死」。本轮处理：kill 旧进程组并在仓库内重启（日志落 `.trellis/.runtime/runserver-t006.log`）。教训：**改动后端源码后，验证前先用 curl 确认 8017 真的在监听**，别默认 autoreload 成功。
 
 ## 简报与实况不符（未硬凑，照实记）
 
