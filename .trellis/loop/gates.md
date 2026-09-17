@@ -73,3 +73,5 @@ EXECUTED R0g push Yihu 明确指令「提交并 push」：`git push origin codex
 
 EXECUTED T-019 push 按决定段「第二批每完成一个任务 commit 后可直接 push origin/codex/release-v0.3.6，不必逐条申请」执行：`git push origin codex/release-v0.3.6` → `7ee99a7..2c00ac1`，远端 sha `2c00ac1d3208ac4e574eaebe21f7b0e0540ebc4f`（`[T-019]` 修复提交；收尾记录提交紧随其后同一轮再推） 2026-09-17T12:25Z
 EXECUTED T-019 push（第二次，收尾记录提交 f61828f）：`git push origin codex/release-v0.3.6` → `2c00ac1..f61828f`，远端 sha `f61828ff378ccbdb56693b8d12cf941f00f8fc49`（该提交含 queue/gates/status/experiment-log 收尾记录；本条记录提交随后同一轮再推，分支头以 origin 为准） 2026-09-17T12:27Z
+
+EXECUTED T-018 push 按决定段「第一批与第二批每完成一个任务 commit 后可直接 push origin/codex/release-v0.3.6，不必逐条申请」执行：`git push origin codex/release-v0.3.6` → `715979c..c092dee`，远端 sha `c092dee5e3e296d9d3f0f9787e35d65523256d6f`（`[T-018]` 代码+任务证据提交 c092dee，含 `flows-green-rerun.txt` 等原文；本条记录提交紧随其后同一轮再推，分支头以 origin 为准） 2026-09-17T12:45Z
