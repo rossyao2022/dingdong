@@ -21,6 +21,7 @@ import {
   PROXY_NOTE,
   growthCycleSection,
 } from "./growth-cycle.js";
+import { reassessmentSection } from "./reassessment.js";
 const $ = (s) => document.querySelector(s);
 const esc = (v) =>
   String(v ?? "").replace(
@@ -52,6 +53,16 @@ const state = {
   window: { from: "2026-09-01T00:00:00Z", to: "2026-09-08T00:00:00Z" },
   // 「成长周期报告」的两个固定 Tab；任意区间归「成长观察」，两处不共用状态。
   growthPeriod: "15d",
+  // 复测面：`reassessment` 是读到的建议，`write`/`result` 是两条回写的响应，
+  // 只有 `result`（`complete` 的响应）带得出新角色名与匹配度差。
+  reassessment: null,
+  reassessmentWrite: null,
+  reassessmentResult: null,
+  reassessmentExpanded: false,
+  // 这次「开始复测」承接的是哪一次测评：回写只认它，避免把别的测评 id 回写过去。
+  reassessmentSession: null,
+  reassessmentStart: false,
+  reassessmentWriteError: "",
 };
 let viewEpoch = 0,
   busy = false,
@@ -89,6 +100,13 @@ function forget() {
   state.consents = [];
   state.challenge = null;
   state.question = 0;
+  state.reassessment = null;
+  state.reassessmentWrite = null;
+  state.reassessmentResult = null;
+  state.reassessmentExpanded = false;
+  state.reassessmentSession = null;
+  state.reassessmentStart = false;
+  state.reassessmentWriteError = "";
   childDraft = null;
   currentActivity = null;
   for (const k of Object.keys(hints)) delete hints[k];
@@ -433,7 +451,7 @@ function personaBlock(view) {
   return `<div class="companion-persona"><div class="companion-head"><h3>${esc(p.persona_name)}</h3>${p.type_label ? `<span class="tag">${esc(p.type_label)}</span>` : ""}</div>${p.public_description ? `<p>${esc(p.public_description)}</p>` : ""}${view.matchScore === null ? "" : metrics([{ label: "匹配度", value: view.matchScore, unit: "/ 100" }])}<p class="note">匹配度是机器人服务按孩子的互动给出的（0–100），不是天赋分或能力分。</p>${tags ? `<p class="note">学习风格 code：${tags}（按对方学习风格 code 展示，暂无中文对照）。</p>` : ""}<p class="note">绑定于 ${date(view.binding?.bind_time)} · 权重版本 <span title="${esc(p.talent_weight_version)}">${esc(versionLabel(p.talent_weight_version))}</span></p>${staleNotice(view)}</div>`;
 }
 /** 面三：互动健康度四态。分数只在 `normal` 出现，且必须与观察天数一起给。 */
-function healthBlock(view) {
+function healthBlock(view, reassessment = { show: false }) {
   const state = `<p class="companion-state"><b>${esc(view.label)}</b></p>${view.note ? `<p>${esc(view.note)}</p>` : ""}`;
   const facts = view.showScore
     ? metrics([
@@ -443,19 +461,68 @@ function healthBlock(view) {
     : view.observationDays === null
       ? ""
       : `<p class="note">已观察 ${view.observationDays} 天。</p>`;
-  return `<div class="companion-health"><h3>互动健康度</h3>${view.showData ? state + (view.triggerLabel ? `<p class="note">机器人服务给出的原因：${esc(view.triggerLabel)}</p>` : "") + facts + staleNotice(view) : faceEmpty(view)}</div>`;
+  return `<div class="companion-health"><h3>互动健康度</h3>${view.showData ? state + (view.triggerLabel ? `<p class="note">机器人服务给出的原因：${esc(view.triggerLabel)}</p>` : "") + facts + staleNotice(view) : faceEmpty(view)}${reassessmentBlock(reassessment)}</div>`;
 }
 /**
- * 「陪学伙伴」面板：人设卡在上、互动健康度在下。
+ * 「陪学伙伴」面板：人设卡在上、互动健康度在下，复测 CTA 落在健康度这一段内。
  *
- * 复测 CTA（`health.status == "reassess"` 时的回写闭环）不在这里，见设计 §5 的 D
- * 任务；本面板只呈现四态本身。
+ * 复测是产品里唯一的入口（设计 §1.4），合成数据的面板级徽标只挂一次，
+ * 三个面共用同一个 `testTag()`。
  */
-function companionPanel(persona, health) {
+function companionPanel(persona, health, reassessment) {
   const p = personaSection(persona);
   const h = healthSection(health);
-  const badge = p.synthetic || h.synthetic ? testTag() : "";
-  return `<section class="panel companion-panel"><div class="card-heading"><h2>陪学伙伴</h2>${badge}</div>${personaBlock(p)}${healthBlock(h)}<p class="note">${esc(HEALTH_FOOTER)}</p></section>`;
+  const r = reassessmentSection(reassessment, {
+    expanded: state.reassessmentExpanded,
+    sync: state.reassessmentWrite,
+    completion: state.reassessmentResult,
+  });
+  const badge = p.synthetic || h.synthetic || r.synthetic ? testTag() : "";
+  return `<section class="panel companion-panel"><div class="card-heading"><h2>陪学伙伴</h2>${badge}</div>${personaBlock(p)}${healthBlock(h, r)}<p class="note">${esc(HEALTH_FOOTER)}</p></section>`;
+}
+/** 面四：复测建议与回写。没有待处理建议时整块不出现（设计 §3.2）。 */
+function reassessmentBlock(view) {
+  if (!view.show) return "";
+  const when = view.recommendedAt
+    ? `<p class="note">建议时间 ${date(view.recommendedAt)}${view.triggerLabel ? ` · 机器人服务给出的原因：${esc(view.triggerLabel)}` : ""}</p>`
+    : "";
+  const sync = view.syncNote ? `<p class="note">${esc(view.syncNote)}</p>` : "";
+  const actions = view.actions.length
+    ? `<div class="actions">${view.actions
+        .map((a) =>
+          a === "accept"
+            ? button("reassessment-accept", "重新测评")
+            : a === "decline"
+              ? button("reassessment-decline", "先不测", "", true)
+              : button("start-reassessment", "开始复测"),
+        )
+        .join("")}</div>`
+    : "";
+  if (view.phase === "declined")
+    return `<div class="reassessment"><p class="companion-state">${esc(view.title)}</p>${view.expanded ? when + `<p class="note">${esc(view.expandedNote)}</p>` : ""}<div class="actions">${button("reassessment-expand", view.expanded ? "收起" : "查看当时的建议", "", true)}</div>${sync}</div>`;
+  if (view.phase === "done")
+    return `<div class="reassessment"><p class="companion-state"><b>${esc(view.title)}</b></p>${view.completion ? completionBlock(view.completion) : `<p>${esc(view.note)}</p>`}${when}${sync}</div>`;
+  return `<div class="reassessment"><p class="reassessment-suggest">${esc(view.title)}</p>${view.note ? `<p>${esc(view.note)}</p>` : ""}${when}${actions}${sync}</div>`;
+}
+/** `complete` 响应里的新角色建议：假分支不展示新角色名（设计 §1.4 第 4 步）。 */
+function completionBlock(card) {
+  const name = card.newPersonaName
+    ? `<p>新角色 <b>${esc(card.newPersonaName)}</b>${card.matchScore === null ? "" : ` · 匹配度 ${card.matchScore} / 100`}</p>`
+    : "";
+  const rows = [];
+  if (card.currentScore !== null)
+    rows.push({ label: "当前角色匹配度", value: card.currentScore, unit: "/ 100" });
+  if (card.delta !== null)
+    rows.push({ label: "匹配度变化", value: card.delta, unit: "" });
+  return `<p class="companion-state"><b>${esc(card.title)}</b></p>${name}${rows.length ? metrics(rows) : ""}<p class="note">${esc(card.note)}</p>`;
+}
+/** 复测承接的这次测评跑完后，把结果回写；失败如实说，不静默。 */
+function reassessmentWriteBackBlock() {
+  if (state.reassessmentResult)
+    return `<div class="notice"><b>本次复测的结果已经回写。</b><p>是否更换陪学伙伴，去「测评与报告」的陪学伙伴面板看建议。</p></div>`;
+  if (state.reassessmentWriteError)
+    return `<div class="notice error"><b>复测结果还没有回写成功。</b><p>${esc(state.reassessmentWriteError)}</p><div class="actions">${button("refresh", "重试", "", true)}</div></div>`;
+  return "";
 }
 /** 面二的两个固定 Tab；任意区间由既有「成长观察」承担，不是同一份数据。 */
 function growthTabs() {
@@ -604,10 +671,14 @@ async function render() {
       }
       state.session = s;
       state.question = Math.min(state.question, s.questions.length - 1);
+      await writeBackReassessment(child, s);
       html =
-        hints.showSubmission !== false && s.status === "ready"
+        (hints.showSubmission !== false && s.status === "ready"
           ? submissionView(s)
-          : sessionView(s);
+          : sessionView(s)) +
+        (s.purpose === "assessment" && s.status === "completed"
+          ? reassessmentWriteBackBlock()
+          : "");
       if (
         ["processing", "result_unknown"].includes(s.status) ||
         (s.status === "completed" && s.report_status === "processing")
@@ -626,7 +697,7 @@ async function render() {
         ) +
         `<article class="panel">${testTag()}<p class="note">生成于 ${date(r.generated_at)} · ${esc(r.template_version)}</p>${r.window ? `<p>观察窗口：${date(r.window.start)} — ${date(r.window.end)}</p>` : ""}${r.sections.map((s) => `<section class="report-section"><h2>${esc(s.title)}</h2>${s.paragraphs.map((p) => `<p>${esc(p)}</p>`).join("")}</section>`).join("")}<p class="notice">${esc(r.source_summary)}</p></article>`;
     } else if (route === "reports") {
-      const [reports, sessions, overview, catalog, companion, health, cycle] =
+      const [reports, sessions, overview, catalog, companion, health, cycle, reassessment] =
         await Promise.all([
           API.all(`/children/${child}/reports`),
           API.all(`/children/${child}/assessments`),
@@ -637,7 +708,9 @@ async function render() {
           API.request(
             `/children/${child}/growth-cycle?period=${state.growthPeriod}`,
           ),
+          API.request(`/children/${child}/reassessment`),
         ]);
+      state.reassessment = reassessment;
       if (
         overview.robot_observation.availability === "not_synced" ||
         overview.stage_status === "processing" ||
@@ -683,7 +756,7 @@ async function render() {
       );
       html =
         head("测评与报告", "初始测评、机器人观察与网页活动分别呈现。") +
-        `<div class="grid">${bankCards}${explorationCard}<div class="panel"><div class="card-heading"><h2>${active ? "本次测评尚未结束" : "初始测评"}</h2>${testTag()}</div><p>${active ? esc(statusNames[active.status]) : "正式算法与专业量表尚未接入。当前为日常情境测试题，只验证问卷和报告流程，不作专业结论。"}</p>${active ? button("continue-assessment", "继续本次测评", `data-id="${active.id}"`) : button("begin-assessment", "开始测评")}</div></div>${companionPanel(companion, health)}${history.length ? `<section class="panel"><h2>已完成的探索体验</h2>${history.map((s) => button("continue-assessment", esc(s.title) + " · 查看选择", `data-id="${s.id}"`, true)).join("")}</section>` : ""}<h2 style="margin:28px 0 18px">已生成报告</h2>${reportCards(reports.reverse())}${growthCyclePanel(cycle)}<h2 style="margin:30px 0 0">成长观察</h2>${windowForm()}<div class="grid">${observationBlock(overview.robot_observation)}<section class="panel"><h2>阶段画像与变化</h2><p>${{ no_data: "还没有可处理的观察记录。", waiting_rule: "观察已收到，等待发布处理规则。", processing: "正在处理最新观察。", ready: "当前观察已生成阶段画像。", failed: "处理暂未完成，请联系工作人员。" }[overview.stage_status]}</p>${overview.trend.available ? metrics(overview.trend.changes.map((m) => ({ label: m.code, value: m.delta, unit: m.unit }))) : '<p class="notice">目前没有兼容、相邻且等长的两期结果，暂不展示变化。</p>'}<p class="note">网页活动完成数不参与阶段画像计算。</p>${button("refresh", "刷新观察状态", "", true)}</section></div>`;
+        `<div class="grid">${bankCards}${explorationCard}<div class="panel"><div class="card-heading"><h2>${active ? "本次测评尚未结束" : "初始测评"}</h2>${testTag()}</div><p>${active ? esc(statusNames[active.status]) : "正式算法与专业量表尚未接入。当前为日常情境测试题，只验证问卷和报告流程，不作专业结论。"}</p>${active ? button("continue-assessment", "继续本次测评", `data-id="${active.id}"`) : button("begin-assessment", "开始测评")}</div></div>${companionPanel(companion, health, reassessment)}${history.length ? `<section class="panel"><h2>已完成的探索体验</h2>${history.map((s) => button("continue-assessment", esc(s.title) + " · 查看选择", `data-id="${s.id}"`, true)).join("")}</section>` : ""}<h2 style="margin:28px 0 18px">已生成报告</h2>${reportCards(reports.reverse())}${growthCyclePanel(cycle)}<h2 style="margin:30px 0 0">成长观察</h2>${windowForm()}<div class="grid">${observationBlock(overview.robot_observation)}<section class="panel"><h2>阶段画像与变化</h2><p>${{ no_data: "还没有可处理的观察记录。", waiting_rule: "观察已收到，等待发布处理规则。", processing: "正在处理最新观察。", ready: "当前观察已生成阶段画像。", failed: "处理暂未完成，请联系工作人员。" }[overview.stage_status]}</p>${overview.trend.available ? metrics(overview.trend.changes.map((m) => ({ label: m.code, value: m.delta, unit: m.unit }))) : '<p class="notice">目前没有兼容、相邻且等长的两期结果，暂不展示变化。</p>'}<p class="note">网页活动完成数不参与阶段画像计算。</p>${button("refresh", "刷新观察状态", "", true)}</section></div>`;
     } else if (route === "settings") {
       const [consents, associations, receipts, accounts, companion] =
         await Promise.all([
@@ -1007,7 +1080,68 @@ async function createAssessment(grant) {
   state.session = result;
   state.question = 0;
   hints.showSubmission = false;
+  // 这次测评如果是「开始复测」承接来的，记下它的 id：完成后只回写它。
+  if (state.reassessmentStart) {
+    state.reassessmentSession = result.id;
+    state.reassessmentStart = false;
+  }
   to("assessment/" + result.id);
+}
+/**
+ * 复测回写（设计 §1.4 第 2 步）：本地状态先落库，出站没确认就如实说一句。
+ *
+ * 同一个 `event_id` + 同一个 `accepted` 重放返回首次结果，所以重试安全；
+ * 换个答案会被后端按 422 拒绝，前端因此不给第二个「重新测评」按钮。
+ */
+async function respondReassessment(accepted) {
+  const view = reassessmentSection(state.reassessment);
+  if (!view.eventId) throw new Error("这条复测建议已经失效，请刷新页面。");
+  state.reassessmentWrite = await API.request(
+    `/children/${state.child.id}/reassessment/${encodeURIComponent(view.eventId)}/response`,
+    {
+      method: "POST",
+      body: {
+        request_id: requestKey(`reassessment-response:${view.eventId}:${accepted}`),
+        accepted,
+      },
+    },
+  );
+  state.reassessmentExpanded = false;
+  await render();
+}
+/**
+ * 复测承接（设计 §1.4 第 3 步）：这次测评跑完后，把它的 id 作为
+ * `new_assessment_id` 回写 `POST .../complete`，结果供结果卡展示。
+ *
+ * 只回写「开始复测」承接的那一次测评（`state.reassessmentSession`），
+ * 刷新过页面就认不出来，宁可不回写也不把别的测评 id 写过去。
+ */
+async function writeBackReassessment(child, session) {
+  const view = reassessmentSection(state.reassessment);
+  if (
+    session.purpose !== "assessment" ||
+    session.status !== "completed" ||
+    view.phase !== "accepted" ||
+    state.reassessmentSession !== session.id
+  )
+    return;
+  try {
+    state.reassessmentResult = await API.request(
+      `/children/${child}/reassessment/${encodeURIComponent(view.eventId)}/complete`,
+      {
+        method: "POST",
+        body: {
+          request_id: requestKey("reassessment-complete:" + view.eventId),
+          assessment_id: session.id,
+        },
+      },
+    );
+    state.reassessmentWriteError = "";
+    // 回写成功后不再重复 POST；失败则保留标记，重试走同一个 `request_id`。
+    state.reassessmentSession = null;
+  } catch (e) {
+    state.reassessmentWriteError = errorMessage(e);
+  }
 }
 async function consent(purpose, policy) {
   const result = await API.request(`/children/${state.child.id}/consents`, {
@@ -1488,6 +1622,22 @@ async function handleAction(action, el) {
       // 两个固定 Tab；换 Tab 重新取该周期的报告，「成长观察」的窗口不受影响。
       state.growthPeriod = el.dataset.value;
       await render();
+      break;
+    case "reassessment-accept":
+      await respondReassessment(true);
+      break;
+    case "reassessment-decline":
+      await respondReassessment(false);
+      break;
+    case "reassessment-expand":
+      state.reassessmentExpanded = !state.reassessmentExpanded;
+      await render();
+      break;
+    case "start-reassessment":
+      // 承接既有测评流程，不新建第二套测评入口。
+      state.reassessmentStart = true;
+      state.reassessmentWriteError = "";
+      await beginAssessment();
       break;
     case "more-records": {
       const r = await API.request(

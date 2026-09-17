@@ -20,6 +20,7 @@ const files = new Set([
   "ca-link.js",
   "companion.js",
   "growth-cycle.js",
+  "reassessment.js",
   "playworld.js",
 ]);
 http

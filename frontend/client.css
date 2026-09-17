@@ -801,6 +801,22 @@ dialog::backdrop {
 .companion-panel .metric-list {
   margin: 4px 0 12px;
 }
+/* 面四：复测建议与回写。位置固定在健康度这一段内，是全产品唯一的复测入口。 */
+.reassessment {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--line);
+}
+.reassessment-suggest {
+  margin: 0 0 6px;
+  font-weight: 600;
+}
+.reassessment .actions {
+  margin-top: 10px;
+}
+.reassessment .metric-list {
+  margin: 6px 0 8px;
+}
 .growth-tabs {
   display: flex;
   flex-wrap: wrap;

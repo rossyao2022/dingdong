@@ -170,3 +170,25 @@ npx playwright test tests/growth-cycle-panel.spec.js --reporter=list # 真实 Ch
 ```
 
 浏览器用例覆盖：未绑定与未授权两种空态、新用户空态、15 天与 30 天各自的正常态、Tab 切换后的两种空态（周期没走完 / 这个周期还没有报告）、缺失维度（改写单条 fixture 造出两个 `null`）、陈旧态、390×844 不横向溢出，并断言「成长周期报告」在「成长观察」之上、收集 `pageerror`。截图在 `../.trellis/tasks/T-034/shots/`。
+
+## CA 对接 C4：复测 CTA 与回写闭环（2026-09-18）
+
+「测评与报告」的**陪学伙伴面板 → 互动健康度**这一段里新增复测区块（设计 §1.4 规定的位置，全产品唯一的复测入口）。数据来自后端 `GET /api/v1/children/<child_id>/reassessment` 与两条回写 `POST .../reassessment/<event_id>/response`、`POST .../reassessment/<event_id>/complete`（后端实现见 `backend/dingdong_ca/core/services/ca_display.py`），本目录只做呈现与承接。
+
+- **四步状态机**：`accepted` 为 `null` → 建议文案 + 建议时间 + 原因 + 「重新测评 / 先不测」；`accepted=false` → 一行「已选择暂不重新测评」+「查看当时的建议」（**不再给第二个「重新测评」按钮**：同一事件换个答案会被后端按 422 拒绝，给按钮就是给死路）；`accepted=true` 未回写 → 「开始复测」；已回写 → 结果卡。没有待处理建议（含 `no_data`：契约里 404 就是「没有建议」）时整块不出现，不留空框、不报错。
+- **承接既有测评流程**：点「开始复测」走的就是 `beginAssessment()`（用途授权 → 22 题 → 合成样例），不新建第二套测评入口；这次测评跑完后由 `writeBackReassessment()` 用它的 id 回写 `complete`，`request_id` 用 `reassessment-complete:<event_id>`（重放安全）。
+- **只回写本次承接的那次测评**：`state.reassessmentSession` 记下「开始复测」创建出来的测评 id，回写只认它——刷新过页面就认不出来，宁可不回写也不把别的测评 id 写过去。
+- **结果卡两个分支**：`switch_recommended=true` 展示新角色名 + 匹配度 + 当前角色匹配度 + 匹配度变化，并注明「确认入口尚未开放」；`false` 只说「保留当前角色」，**不展示新角色名**。`auto_switch` 恒为 `false`：对方响应里出现别的值也不照抄，前端没有任何自动切换路径（设计 §1.4 的不变量）。设计第 4 步的「由家长确认后才切换」在已冻结的三条接口里没有落点（澄清清单 D9 待对方答复），所以这里只呈现建议、不做假按钮。
+- **刷新后只剩中性说明**：`GET` 的事件字段里没有 `new_persona_name` / `match_score` / `switch_recommended`（只有 `new_assessment_id` / `new_persona_id`），完整结果只存在于本轮会话的 `complete` 响应里；重载后说「这次复测的结果已经回写。换不换陪学伙伴由你决定，我们不会自动更换。」
+- **判定逻辑在 `reassessment.js`**：`reassessmentSection()` / `completionCard()` 是纯函数（不碰 DOM），由 `unit/reassessment.test.js` 盯住；合成徽标沿用面板级那一个 `testTag()`（同一个面板不挂第二个）。
+
+测试：
+
+```sh
+npm run check && npm run test:unit                                   # 单测含 reassessment 9 项
+npx playwright test tests/reassessment-cta.spec.js --reporter=list    # 真实 Chrome 3 项
+```
+
+浏览器用例覆盖：真/假两个 `switch_recommended` 分支各走一遍完整四步（含真实 22 题测评与两条真实 POST 的入参、响应断言）、`accepted=false` 后只剩一行且可展开、无建议时整块不出现、390×844 不横向溢出、结果卡上没有切换按钮、人设卡仍是原角色（没有自动切换），并收集 `pageerror`。截图 7 张在 `../.trellis/tasks/T-035/shots/`。
+
+**用例为什么要给每次注入换一个 `event_id`**：本地表 `ca_reassessment_event.event_id` 是**全局**唯一（T-032 的模型），而两个复测 mock 账号共用一份 fixture，所以同一个合成场景在全库只能被一个儿童回写一次——第二个儿童会在回写时撞唯一约束拿到 500。用例按「不写死测试数据」的纪律用 `scopeEvent()` 给这次注入换成独有 id，于是在任何库上都能重复跑。这条约束本身是后端的数据模型问题，已记在任务报告里交给编排侧决定。

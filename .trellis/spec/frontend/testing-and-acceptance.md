@@ -75,6 +75,8 @@
 ## 验收纪律
 
 - 只报本轮真正跑过的用例与数字；不要拿历史绿灯当本轮结果（`PROJECT_MEMORY.md`）。
+- **合成场景的写入用例要给每次注入换独有标识**（T-035 踩坑）：`inject_fixture --scenario ca_display_*` 的 mock 事件 id 是固定串，而本地表 `ca_reassessment_event.event_id` 是全局唯一，所以同一个场景在全库只能被一个儿童回写一次，第二个儿童回写时拿 500 `IntegrityError`。用例照「不写死测试数据」的纪律，注入后用 `manage.py shell` 把这条 fixture 的 `event.event_id` 改成独有值（`frontend/tests/reassessment-cta.spec.js` 的 `scopeEvent()`），这样任何库上都能重复跑。
+- 浏览器用例断言回写结果时注意**会话态与刷新态的区别**：只存在于 POST 响应里的内容（如复测结果卡的名字与分数）刷新后就没了，断言要分两段——先走 hash 路由（`#main-nav` 点链接）看会话态，再 `reload()` 看刷新后的说法。
 - 本地与公网的差异要如实区分，别当成缺陷：`http-profile.spec.js` 断言 `window.isSecureContext === false`，在 `127.0.0.1` 上不成立，只有真实 HTTP 公网入口能跑。
 - 失败任务重试、服务事项处理这类**一次性状态变更**只能做一次；整轮重跑要重新准备隔离对象（`PROJECT_MEMORY.md` v0.3.6 全量验收一节）。
 - 测试用到的临时账号与隔离数据，验收后按“只做状态变更、不物理删除、补写审计”的方式收尾。
