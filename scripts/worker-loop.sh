@@ -179,7 +179,7 @@ run_round() {
     args+=(--model "$MODEL")
   fi
 
-  say "轮次开始：$task（超时上限 ${ROUND_TIMEOUT}s）"
+  say "轮次开始：${task}（超时上限 ${ROUND_TIMEOUT}s）"
   "$GROK_BIN" "${args[@]}" >"$out" 2>"$err" &
   pid=$!
 
@@ -212,7 +212,7 @@ run_round() {
 
   printf '%s ROUND %s %s %ss %s %s\n' \
     "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$task" "$result" "$dur" "$sha" "$note" >>"$RUNS_LOG"
-  say "轮次结束：$task $result（${dur}s，HEAD=$sha）"
+  say "轮次结束：${task} ${result}（${dur}s，HEAD=${sha}）"
 
   case "$result" in
     FAIL | RATE_LIMITED)

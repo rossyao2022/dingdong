@@ -6,7 +6,7 @@
 
 1. `AGENTS.md` 顶部的「TRELLIS 约束」与「权限边界」两段 —— 硬规矩，违反即本轮失败。
 2. `.trellis/workflow.md` 的 Phase 1 Plan / Phase 2 Execute / Phase 3 Finish（本轮对应 Plan → Implement → Verify → Finish）。
-3. `.trellis/spec/index.md`，以及任务涉及的包：`.trellis/spec/backend/index.md` / `.trellis/spec/frontend/index.md`。
+3. spec 索引（本仓库没有顶层 `spec/index.md`）：按任务涉及的包读 `.trellis/spec/backend/index.md` / `.trellis/spec/frontend/index.md`，跨包任务再读 `.trellis/spec/guides/index.md`。
 4. `.trellis/loop/gates.md`、`.trellis/loop/queue.md`。
 
 读文件要节制：先 `grep -n` / `sed -n 'a,bp'` 取需要的段落，**不要整篇灌进上下文**（上下文涨到 240k 会触发限流，今天已经栽过三次）。
