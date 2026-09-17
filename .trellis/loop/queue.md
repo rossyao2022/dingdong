@@ -184,6 +184,27 @@
 - status: todo
 - notes: 只写设计；不新增对对方接口的依赖。属第三批：逐条申请门禁，不适用直推规则。
 
+## T-029 刷新 T-008 漂移截图（证据保鲜小任务）
+- goal: 重跑 `frontend/tests/ca-account.spec.js` 刷新 `.trellis/tasks/T-008/shots/empty-credential.png`（T-026 轮核实为真漂移：197704→188099 字节、可见差异 199203 px，成因是弹窗背后页面滚动位置变化，弹窗文案本身一致），核对截图仍满足 T-008 验收（空凭据提交时 `.form-error` 可见且非空、对话框不关）。
+- acceptance: `cd frontend && npx playwright test tests/ca-account.spec.js` 全绿；截图更新且与新页面一致；本轮不改产品代码；`npm run check` 通过；audit errors 为空。
+- gate: none
+- status: todo
+- notes: 纯证据保鲜，不改产品。机制维护类：commit 后可直接 push 并补 EXECUTED 行。
+
+## T-030 T-020 注入合成数据的清理（状态变更，不物理删除）
+- goal: 按 `.trellis/tasks/T-020/report.md` 的注入清单（儿童/家庭/家长/关联/阶段画像/报告/后台任务）逐条以状态变更方式清理（归档/停用等既有状态字段），不物理 DELETE，处置写入审计。
+- acceptance: 清单逐条处置并在 `.trellis/tasks/T-030/report.md` 记录处置方式与审计证据；家长端与运营端不再把该批数据显示为活跃态（真实 Chrome 截图核对）；`cd backend && uv run pytest` 相关用例通过；audit errors 为空。
+- gate: none
+- status: todo
+- notes: 不改契约与数据模型；清单与库内实际有出入以实际为准并记录。属运维 chore：commit 后可直接 push 并补 EXECUTED 行。
+
+## T-031 存量 `core/api/common.py` 过 ruff format（T-027 连带发现）
+- goal: `backend/dingdong_ca/core/api/common.py:189` 通过 `ruff format`（HEAD 上即未格式化，最后一次改动是 T-019 提交 `2c00ac1`），只做格式化不改语义。
+- acceptance: `cd backend && uv run ruff format --check --target-version py313 .` 全绿；`git diff` 仅格式差异；相关测试（如 `tests/test_auth.py`）通过；audit errors 为空。
+- gate: none
+- status: todo
+- notes: 纯格式化 chore。机制维护类：commit 后可直接 push 并补 EXECUTED 行。
+
 ## T-028 起草给 DingDong 侧的澄清清单（只产出文档，不发送）
 - goal: 起草 `.trellis/tasks/T-028/dingdong-clarifications.md`，分三层：阻塞级（D10 base URL、D12 API key、D20 换机主动解绑规则）、确认级（儿童/设备映射与权属核验、窗口游标修订与指标单位、同步频率及阶段规则、甲方算法输入输出/超时幂等/一次性处理不留存约定）、后置级（真实短信与生产部署条件）；每条写清「我们为什么需要 / 没有它当前系统如何诚实降级 / 拿到后我方接入动作」。**只产出文档，不发送**。
 - acceptance: 文档三层齐全且每条含上述三要素；阻塞级与确认级条目与 `设计/CA对接_C1_ca_account_id设计_20260916.md` 及 PROJECT_MEMORY.md 待确认清单一一对应；不含内部预算、人天、公网 IP、SSH 别名等敏感信息；audit errors 为空；本任务 `status` 为 `gated` 且 `gates.md` 申请段有 `REQUEST T-028 external ...`。
