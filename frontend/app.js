@@ -206,8 +206,14 @@ function loginPage() {
   };
   $("#send-code").onclick = async (e) => {
     const b = e.currentTarget;
+    const form = $("#login-form");
+    const requestedPhone = form.phone.value.trim();
+    if (!requestedPhone) {
+      $(".form-error").textContent = "请先填写手机号，再获取验证码。";
+      form.phone.focus();
+      return;
+    }
     b.disabled = true;
-    const requestedPhone = $("#login-form").phone.value;
     try {
       await API.request("/auth/csrf", { auth: false });
       const r = await API.request("/auth/sms", {
@@ -215,7 +221,7 @@ function loginPage() {
         auth: false,
         body: { phone: requestedPhone },
       });
-      if ($("#login-form").phone.value !== requestedPhone) return;
+      if (form.phone.value.trim() !== requestedPhone) return;
       state.challenge = r.challenge_id;
       $("#login-form button[type=submit]").disabled = false;
       $(".form-error").textContent = "";

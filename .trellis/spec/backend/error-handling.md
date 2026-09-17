@@ -15,6 +15,8 @@
 
 `message` 是**要给人看的完整中文句子**，能直接上界面；`code` 才是机器判断依据。测试应断言 `response.json()["code"]`，不要只断言状态码（范例：`backend/tests/test_ca_accounts.py`）。
 
+`field_errors[].message` 同理，必须是能直接上界面的中文。入参校验失败由 `endpoint()` 的 `ValidationError` 分支经 `field_errors(exc.detail)` 生成：DRF 的 `detail` 是 `ErrorDetail` / list / dict 的任意嵌套，`ErrorDetail` 是 `str` 子类但 `str()` 一个 list 会得到内部 repr —— 实测空手机号取码曾把 `"[ErrorDetail(string='该字段不能为空。', code='blank')]"` 当文案透到家长端界面（P-05，`frontend/app.js` 的 `errorMessage()` 会把它拼进提示）。所以文字一律走 `detail_text()` 递归取 message、用 `；` 连接；断言写法见 `backend/tests/test_auth.py::test_blank_phone_error_is_chinese_without_internal_repr`。
+
 ## 本仓库在用的 code → status
 
 | status | code | 用在什么场景 | 出处 |

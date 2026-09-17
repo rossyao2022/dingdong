@@ -101,22 +101,13 @@ def endpoint(methods, *, anonymous=False, csrf=False, parsers=None, staff_roles=
                     headers=exc.headers,
                 )
             except (ValidationError, ParseError) as exc:
-                detail = exc.detail
-                fields = (
-                    [
-                        {"field": str(k), "code": "invalid", "message": str(v)}
-                        for k, v in detail.items()
-                    ]
-                    if isinstance(detail, dict)
-                    else []
-                )
                 response = Response(
                     {
                         "code": "INVALID_JSON"
                         if isinstance(exc, ParseError)
                         else "VALIDATION_ERROR",
                         "message": "请求字段不合法",
-                        "field_errors": fields,
+                        "field_errors": field_errors(exc.detail),
                         "trace_id": trace,
                     },
                     status=400 if isinstance(exc, ParseError) else 422,
@@ -161,6 +152,27 @@ def validate(serializer, data, **kwargs):
     s = serializer(data=data, **kwargs)
     s.is_valid(raise_exception=True)
     return s.validated_data
+
+
+def detail_text(detail):
+    """DRF 的 detail 是 ErrorDetail / list / dict 的任意嵌套。
+
+    ErrorDetail 本身是 str 子类，取文字就是它的 message；但直接 str() 一个 list 会得到
+    "[ErrorDetail(string='该字段不能为空。', code='blank')]" 这种内部 repr，不能当文案。
+    """
+    if isinstance(detail, dict):
+        return "；".join(detail_text(v) for v in detail.values())
+    if isinstance(detail, (list, tuple)):
+        return "；".join(detail_text(v) for v in detail)
+    return str(detail)
+
+
+def field_errors(detail):
+    return (
+        [{"field": str(k), "code": "invalid", "message": detail_text(v)} for k, v in detail.items()]
+        if isinstance(detail, dict)
+        else []
+    )
 
 
 def describe_target(obj):
