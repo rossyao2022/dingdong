@@ -7,6 +7,7 @@
 | R0 | 装 Trellis、手工接线（AGENTS.md 约束段 + 哨兵、`.githooks` 提交门禁）、实验记录、门禁自测、基线复跑、收尾提交（不 push） | 79 / 64 | 4 次，全部由自测产生： 首个 pre-commit 版本把合规提交也拒了（hook 放错阶段）；① 无任务 id；② 暂存 `.pem`；③ 暂存 `.md` 时审计有 error | 4 个（见下） | 0 | 完成（除 push 等待放行） |
 | R0b | 按验收结论打补丁：push 放行、门禁①豁免 merge、审计跳过工具脚手架并回滚模板改动、补 `init --grok`、写 backend/frontend 真 spec、把 Trellis hooks 改挂项目级 `.grok/hooks/` | 72 / 65（本会话两轮累计 171 / 146） | 0 次（本轮没有正常提交被拦；一次收尾提交因文档里引用了坏链接语法被门禁③拦下，属自伤，见卡点 3 附注） | 4 个（卡点 5–8：TPM 限流 ×2、hook 变量展开、SessionStart matcher） | 0 | 完成（已 push） |
 | R0c | 接手 R0b 未落盘的收尾：按 4 条决定处理（提交两个校验结果 JSON、hooks 现状写进 README、删项目 `.cursor/`、不碰 `~/.cursor`）、复跑审计、一条 `[R0c]` 提交并 push、补实验记录 | 27 / 27（采样于写记录前；此后只剩写记录 / 提交 / 推送等收尾调用） | 0 次（本轮没有提交被拦。门禁①的轮次号正则缺陷在 R0b 已事前修掉，本轮只做放行验证：`[R0c]` / `[R0b]` exit 0，无任务 id exit 1） | 2 个（卡点 9–10：上一会话 TPM 限流 ×3 + 上下文 248k；门禁①正则只认数字轮次号） | 0 | 完成（已 push） |
+| R0d | 建「左侧自循环」驱动（queue / gates / status / prompt + worker-loop.sh），R0e 追加双模型、阶段检查点、核对式续跑；真跑 T-001 / T-002 / T-004 三轮实测 | 主会话只做机制构建与验收；任务由一次性 grok 子进程执行（3 轮真跑 + 1 次伪造限流重跑，见 report） | 0 次（三轮均正常过 `.githooks`，没有被拦的提交） | 3 个（卡点 11–13：TPM 再断一次 + 自救切 Pro、macOS bash 3.2 unbound 坑、dirty-worktree 误报） | 0 | 完成（不 push，已写 gates 申请） |
 | T-001 | 写 `.trellis/loop/README.md`（≤10 行，覆盖启停/批门禁/看状态/加任务四件事），不碰驱动脚本 | 21 / 21（本会话工具调用计数，采样于收尾提交前） | 0 次 | 0 个 | 0 | 完成（已本地提交，未 push） |
 | T-002 | 新建 `.trellis/tasks/T-002/hello.md`（门禁联调测试文件），在 `gates.md` 申请 push 门禁，任务停 `gated` 等批 | 24 / 24（本会话工具调用计数，采样于收尾提交前） | 0 次（本地 commit `b7e30d1` 一次通过 commit-msg 与 pre-commit） | 0 个 | 0 | 完成（本地已提交，push 待批；停在 `gated`） |
 | T-004 | 验证模型切换自测：PRIMARY 被假 grok 脚本伪造限流（`TooManyRequests`）后由 FALLBACK（Pro）重跑；worker 确认 FALLBACK 身份、写报告标 `done`、不改代码 | 30 / 18（`events.jsonl` 计数，采样于收尾提交前） | 0 次 | 0 个 | 0 | 完成（本地已提交，未 push） |
@@ -32,6 +33,9 @@
 8. **R0b：Trellis 生成的 `.cursor/hooks.json` 在 grok 里解析失败。** grok 读项目与全局的 `.cursor/hooks.json` 时报 `invalid matcher groups for event 'sessionStart': missing field 'hooks'`（Cursor 的扁平格式与 grok 期望的 matcher-group 结构不同）。不影响本仓库的 grok 接线（我们用的是 `.grok/hooks/`），但这条会在每次会话启动时刷警告。**R0c 已处置**：项目内 `.cursor/` 整个删掉（本轮不再出现该警告）；`~/.cursor/hooks.json` 在 home 下、按边界未碰，警告仍会刷。
 9. **R0c：上一会话（R0b）的结构性卡点——TPM 限流 ×3 + 上下文涨到 248k。** R0b 单会话内被模型限流打断三次（第一次是后端 spec 子代理输入 136 万 token 后 429，后两次在收尾阶段），同时会话上下文涨到 248k，逼近单会话可继续操作的边界。直接后果：**R0b 的全部改动只落在工作区，未 commit、未 push，收尾被整体拆到新会话（R0c）才完成**。教训：①重活串行、不并派多个「要通读代码」的子代理（同卡点 5）；②收尾动作（审计 → 提交 → 推送 → 写记录）要尽早做，一旦拖到会话末尾被打断，代价从「丢一段分析」变成「整轮成果未落盘」；③长任务切成「产出即落盘」的小段，每段结束就提交。
 10. **R0c：门禁①的轮次号正则只认纯数字，会误拒 `[R0b]` / `[R0c]`。** 原正则 `\[R[0-9]+\]` 只匹配 `[R0]`，轮次号一旦带字母后缀就被判「缺少任务 id」——这是**门禁自身的缺陷**，不是使用者的错。R0b 已事前把正则改成 `\[R[0-9]+[A-Za-z]*\]` 并同步了拒绝提示文案（**未实际触发**，因为 R0b 的提交一直没做成）。R0c 做放行验证：首行 `[R0c]` exit 0、`[R0b]` exit 0、`chore: no id` exit 1。
+11. **R0d：模型限流又打断一次，自救是把「限流韧性」做进机制。** grok 的切模型通道查清：TUI 里 `/model <id>` 或 `Ctrl+M`，无头用 `-m/--model <id>`；Ark 模型用 `grok models` 列出的 id（`deepseek-v4-pro` 实际解析到 `deepseek-v4-pro-ga-260813`，`deepseek-v4-1-flash-260910` 同理）。`~/.grok/config.toml` 的 `models.default` 已切到 Pro（新会话默认 Pro）。据此 R0e 给驱动加双模型：Flash 日常、Pro 兜底，只升级不降级——把「被打断就停」变成「这轮限流下轮 Pro 顶上」。
+12. **R0d：macOS bash 3.2 把紧跟全角字符的 `$var` 解析进变量名。** `$task（` 里的 `（` 字节被算进变量名，`set -u` 下直接 `task<乱码>: unbound variable` 崩掉整个驱动，且只在运行时暴露（静态 `bash -n` 不报）。烟测（假 grok）才抓到。教训：脚本里所有紧跟中文/全角标点的变量都必须写 `${var}`，写完用正则扫一遍 `$[A-Za-z_][A-Za-z0-9_]*[^\x00-\x7f]`。
+13. **R0d：驱动自己 append `runs.log` 造成每轮「dirty-worktree」误报。** `record_round` 里 `git status --short` 检查未提交改动，但驱动刚写完 `runs.log`（该文件入库、每轮追加），所以每轮都判「worker 没 commit 干净」——假阳性。修法：检查时用 pathspec 排除 `.trellis/loop/runs.log`。
 
 ## 简报与实况不符（未硬凑，照实记）
 

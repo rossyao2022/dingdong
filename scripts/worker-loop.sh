@@ -218,7 +218,7 @@ record_round() {
   local sha note
   sha="$(git rev-parse --short HEAD 2>/dev/null || echo -)"
   note="$5"
-  if [ -n "$(git status --short)" ]; then
+  if [ -n "$(git status --short -- . ':(exclude).trellis/loop/runs.log')" ]; then
     note="$note,dirty-worktree"
     say "警告：本轮结束工作区仍有未提交改动（worker 应自己 commit 干净）"
   fi

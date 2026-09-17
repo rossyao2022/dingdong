@@ -1,0 +1,6 @@
+2026-09-17T05:49:13Z START 驱动启动 idle=15s round_timeout=2400s daily_limit=40 primary=deepseek-v4-1-flash-260910 fallback=deepseek-v4-pro
+2026-09-17T05:50:38Z ROUND T-001 DONE 85s 1351692 deepseek-v4-1-flash-260910 rc=0,dirty-worktree
+2026-09-17T05:52:13Z ROUND T-002 GATED 95s d22eaf5 deepseek-v4-1-flash-260910 rc=0,dirty-worktree
+2026-09-17T05:52:19Z ROUND T-004 RATE_LIMITED 5s d22eaf5 deepseek-v4-1-flash-260910 rc=42,dirty-worktree
+2026-09-17T06:00:35Z ROUND T-004 DONE 496s e42e25e deepseek-v4-pro rc=0,dirty-worktree
+2026-09-17T06:00:35Z STOP 驱动退出
