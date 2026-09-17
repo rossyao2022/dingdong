@@ -186,9 +186,11 @@ def describe_target(obj):
     for attr in ("child", "family", "user", "started_by", "actor"):
         related = getattr(obj, attr, None)
         if related is not None:
-            name = getattr(related, "display_name", "") or getattr(
-                related, "name", ""
-            ) or getattr(related, "username", "")
+            name = (
+                getattr(related, "display_name", "")
+                or getattr(related, "name", "")
+                or getattr(related, "username", "")
+            )
             if name:
                 return f"{obj._meta.verbose_name}（{name}）"
     # 最后的兜底也只给短编号：运营不需要看完整的内部 UUID。
