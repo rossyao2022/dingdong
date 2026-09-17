@@ -37,3 +37,15 @@
 2026-09-17T13:10:51Z FALLBACK_LIMIT T-021 Pro 兜底单日上限已到（6/6），本轮不切 Pro，按限流失败处理
 2026-09-17T13:10:51Z RATE_LIMITED T-021 两个模型都限流（连续第 1 次），sleep 180s
 2026-09-17T13:13:52Z WAKE OK T-021 gates.md 新增 REQUEST
+2026-09-17T13:22:53Z ROUND T-029 DONE 541s c893a3d deepseek-v4-1-flash-260910 rc=0
+2026-09-17T13:33:20Z ROUND T-030 RATE_LIMITED 627s c893a3d deepseek-v4-1-flash-260910 rc=1,dirty-worktree
+2026-09-17T13:33:20Z FALLBACK_LIMIT T-030 Pro 兜底单日上限已到（6/6），本轮不切 Pro，按限流失败处理
+2026-09-17T13:33:20Z RATE_LIMITED T-030 两个模型都限流（连续第 2 次），sleep 360s
+2026-09-17T13:40:55Z ROUND T-031 RATE_LIMITED 95s c893a3d deepseek-v4-1-flash-260910 rc=1,dirty-worktree
+2026-09-17T13:40:55Z FALLBACK_LIMIT T-031 Pro 兜底单日上限已到（6/6），本轮不切 Pro，按限流失败处理
+2026-09-17T13:40:55Z RATE_LIMITED T-031 两个模型都限流（连续第 3 次），sleep 720s
+2026-09-17T13:58:17Z ROUND T-031 RATE_LIMITED 320s c893a3d deepseek-v4-1-flash-260910 rc=1,dirty-worktree
+2026-09-17T13:58:17Z FALLBACK_LIMIT T-031 Pro 兜底单日上限已到（6/6），本轮不切 Pro，按限流失败处理
+2026-09-17T13:58:17Z RATE_LIMITED T-031 两个模型都限流（连续第 4 次），sleep 1440s
+2026-09-17T14:22:17Z BLOCKED T-031 连续失败 2 次，已标 blocked 并记入 status.md
+2026-09-17T14:22:17Z WAKE OK T-031 新 blocked 任务 T-031

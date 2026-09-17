@@ -91,3 +91,5 @@ EXECUTED T-021 push 按决定段「授权 T-021 收尾轮：已提交的 `[T-021
 
 EXECUTED T-029 push 按本任务 notes「机制维护类：commit 后可直接 push 并补 EXECUTED 行」执行：`git push origin codex/release-v0.3.6` → `d2b44c7..a1e1d56`，远端 sha `a1e1d5604c4c7999c35ef5481045ee470ebfad23`（`[T-029]` 提交 a1e1d56：`frontend/tests/ca-account.spec.js` 截图前固定滚动位置 1 行 + 刷新后的 `.trellis/tasks/T-008/shots/empty-credential.png` 189622 字节 + T-029 任务证据；收尾记录提交紧随其后同一轮再推，分支头以 origin 为准） 2026-09-17T13:21Z
 EXECUTED T-029 push（第二次，收尾记录提交 c177781）：`git push origin codex/release-v0.3.6` → `a1e1d56..c177781`，远端 sha `c17778120464cbf170b020c5720a82633352c85d`（该提交含 queue/gates/status/experiment-log 收尾记录，并带入 orchestrator 本轮追加的 T-021 APPROVE 记账与 T-032..T-035 导入；本条补记自身亦随本轮推送，分支头以 origin 为准） 2026-09-17T13:24Z
+
+EXECUTED T-030 push 按本任务 notes「运维 chore：commit 后可直接 push 并补 EXECUTED 行」执行：`git push origin codex/release-v0.3.6` → `c893a3d..b95ecf2`，远端 sha `b95ecf2d3d9351666d7d822b8ecb81cca9c9b211`（`[T-030]` 处置提交 b95ecf2：词表 3 条 + 用例 1 条 + 任务脚本/证据/11 张截图 + 未跟踪的 `frontend/tests/t030-batch-disposal.spec.js`；收尾记录提交紧随其后同一轮再推，分支头以 origin 为准） 2026-09-17T14:32Z

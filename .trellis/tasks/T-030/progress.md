@@ -5,7 +5,8 @@
 - Plan
 - 核对（续跑核对：上一轮 2026-09-17T13:33Z 被限流中断，本轮接着做）
 - Implement
-- Verify（进行中：主用例已跑，见下）
+- Verify
+- Finish
 
 ## 续跑核对（前任声明与磁盘对照）
 
@@ -32,8 +33,9 @@
 - `cd backend && T030_APPLY=1 uv run python manage.py shell < ../.trellis/tasks/T-030/dispose_synthetic_batch.py`（末次幂等复跑）→ `汇总：状态变更 0 项，已是目标状态 4 项，无状态字段 3 项`。
 - `cd backend && uv run pytest tests/test_ops_console.py` → `41 passed in 150.08s (0:02:30)`。
 - `python3 scripts/audit_documents.py` → `{"markdown_files": 80, "local_links_checked": 497, "archived_files_checked": 85, "operations": 55, "schemas": 65, "errors": []}`。
+- `cd backend && uv run pytest tests/test_ops_audit_scope.py tests/test_ca_accounts.py` → `36 passed in 81.30s (0:01:21)`。
 - 末次快照：`家长未失效登录凭据=0 条`、`家长 is_active=False`、`AuditEvent(synthetic.dispose)=10`。
 
 ## 下一步
 
-跑 `tests/test_ops_audit_scope.py` + `tests/test_ca_accounts.py`（同样引用词表），然后写 `report.md`、提交并推送、收尾记录。
+无（任务完成）：`status` 改 `done`，`gates.md` 补 `EXECUTED T-030 push`，提交并推送 `c893a3d..b95ecf2`，远端 sha `b95ecf2d3d9351666d7d822b8ecb81cca9c9b211`。
