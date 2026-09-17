@@ -26,7 +26,7 @@
 
 - 共用工具在 `tests/support.js`：`root`、`uvBin()`、`shell(source)`。`uvBin()` 存在的理由：Playwright 子进程的 PATH 不含 `~/.local/bin`，直接写 `uv` 会 `spawnSync uv ENOENT`。要执行后端命令就用 `uvBin()` + `shell()`。
 - 供应商输入必须靠真实命令注入，不能自己造成品数据：`tests/flows.spec.js` 用 `execFileSync(uvBin(), [… "manage.py", "inject_fixture", "--child-id", id, "--scenario", scenario])`。
-- 已知环境坑：`tests/flows.spec.js` 的页面请求走 `server.cjs` 代理到 8017，而用例内部的 `inject_fixture` 走 `uv run manage.py`——**两者必须连同一个本地数据库**，否则注入报 “Child does not exist”。v0.3.5 就因此把该 spec 的 3 项记为环境问题而非通过（`PROJECT_MEMORY.md` v0.3.5 节）。
+- 已知环境坑：`tests/flows.spec.js` 的页面请求走 `server.cjs` 代理到 8017，而用例内部的 `inject_fixture` 走 `uv run manage.py`——**两者必须连同一个本地数据库**，否则注入报 “Child does not exist”。v0.3.5 就因此把该 spec 的 3 项记为环境问题而非通过（`PROJECT_MEMORY.md` v0.3.5 节）。 **这条现在不再靠人分辨**：`flows.spec.js` 的 `test.beforeAll` 先做前置一致性检查——经代理匿名读 `/api/v1/policies/current?purpose=assessment_processing` 的主键，与 CLI 侧 `manage.py` 读同一条记录的主键比对（主键逐库不同），不一致就直接失败并打印两侧库标识；`inject()` 也把 `Child does not exist` 转成带库标识的诊断。同类「环境没数据」的用例（如 `deployment-tests/ops-public.spec.js` 的「报告」用例）用 `skipLocalDataGap`：本地入口（`LOCAL_ENTRY`）数据前置不满足时 `console.log` 打印原因再显式 skip，公网入口缺数据仍按失败处理。
 - 机器人凭据每次运行都要随机：后端对“活跃账户的机器人凭据”是**全局**唯一约束，写死 `e2e-token-0001` 这类固定串，第二轮会撞上第一轮留下的活跃号而全红（`tests/ca-account.spec.js` 顶部注释与 `frontend/README.md`）。
 - 用例会真实建家长/儿童/答卷/报告并**保留记录**；临时工作人员、临时发布题库在验收后停用而不是删除（`frontend/README.md`）。
 - 截图写到 `frontend/docs/`（例如 `tests/flows.spec.js` 的 `docs/m5-mobile-<route>.png`）。该目录不进版本库，正式证据以 `deploy/evidence/**` 为准。

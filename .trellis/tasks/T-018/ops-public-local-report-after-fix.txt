@@ -1,0 +1,13 @@
+(node:27151) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:27186) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:27195) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[ops-public] 跳过：本地入口没有处于失败态的报告任务（冷启动种子不生成后台任务），本用例需要真实失败任务
+  -  1 [desktop] › deployment-tests/ops-public.spec.js:379:3 › 运营后台（公网） › 报告：查看已生成内容，失败任务用业务语言说明并可重试
+
+  1 skipped

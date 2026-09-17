@@ -1,0 +1,60 @@
+
+  5) [mobile] › deployment-tests/ops-public.spec.js:138:3 › 运营后台（公网） › 家庭按称呼查询并进入儿童详情，一页聚合真实业务数据 ───
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('table.ops-table tbody tr').first()
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('table.ops-table tbody tr').first() with timeout 5000ms
+      - waiting for locator('table.ops-table tbody tr').first()
+
+
+      143 |
+      144 |     const rows = page.locator("table.ops-table tbody tr");
+    > 145 |     await expect(rows.first()).toBeVisible();
+          |                                ^
+      146 |     expect(await rows.count()).toBeGreaterThan(0);
+      147 |
+      148 |     await rows.first().getByRole("link", { name: "查看家庭" }).click();
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/deployment-tests/ops-public.spec.js:145:32
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../tmp/dingdong-pw-out-t018-ops/ops-public-运营后台（公网）-家庭按称呼查询并进入儿童详情，一页聚合真实业务数据-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../tmp/dingdong-pw-out-t018-ops/ops-public-运营后台（公网）-家庭按称呼查询并进入儿童详情，一页聚合真实业务数据-mobile/error-context.md
+
+  6) [mobile] › deployment-tests/ops-public.spec.js:426:3 › 运营后台（公网） › 越权拦截：普通运营看不到技术页，也不能执行技术动作 ───
+
+    Error: locator.fill: value: expected string, got undefined
+
+      52 | async function fillLogin(page, account) {
+      53 |   await page.goto("/ops/login/");
+    > 54 |   await page.locator("#id_username").fill(account.username);
+         |                                      ^
+      55 |   await page.locator("#id_password").fill(account.password);
+      56 |   await page.getByRole("button", { name: "登录", exact: true }).click();
+      57 |   await expect(page).toHaveURL(/\/ops\/$/);
+        at fillLogin (/Users/yihu/Documents/ChatGPT/叮咚/frontend/deployment-tests/ops-public.spec.js:54:38)
+        at login (/Users/yihu/Documents/ChatGPT/叮咚/frontend/deployment-tests/ops-public.spec.js:62:3)
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/deployment-tests/ops-public.spec.js:427:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../tmp/dingdong-pw-out-t018-ops/ops-public-运营后台（公网）-越权拦截：普通运营看不到技术页，也不能执行技术动作-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../tmp/dingdong-pw-out-t018-ops/ops-public-运营后台（公网）-越权拦截：普通运营看不到技术页，也不能执行技术动作-mobile/error-context.md
+
+  6 failed
+    [desktop] › deployment-tests/ops-public.spec.js:138:3 › 运营后台（公网） › 家庭按称呼查询并进入儿童详情，一页聚合真实业务数据 ───
+    [desktop] › deployment-tests/ops-public.spec.js:219:3 › 运营后台（公网） › 题库：同一草稿在两个页面编辑，旧页面保存必须报冲突且不覆盖 
+    [desktop] › deployment-tests/ops-public.spec.js:361:3 › 运营后台（公网） › 报告：查看已生成内容，失败任务用业务语言说明并可重试 ──
+    [desktop] › deployment-tests/ops-public.spec.js:426:3 › 运营后台（公网） › 越权拦截：普通运营看不到技术页，也不能执行技术动作 ───
+    [mobile] › deployment-tests/ops-public.spec.js:138:3 › 运营后台（公网） › 家庭按称呼查询并进入儿童详情，一页聚合真实业务数据 ────
+    [mobile] › deployment-tests/ops-public.spec.js:426:3 › 运营后台（公网） › 越权拦截：普通运营看不到技术页，也不能执行技术动作 ────
+  9 skipped
+  7 passed (1.1m)

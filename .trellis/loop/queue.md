@@ -146,8 +146,8 @@
 - goal: `frontend/tests/flows.spec.js`（3 项）与 `frontend/deployment-tests/ops-public.spec.js`（1 项）在本地要么通过、要么显式 skip 并打印原因，不再靠人分辨「产品坏了还是环境漂移」。
 - acceptance: 落地前置一致性处理（`server.cjs` 与 `inject_fixture` 指向同一库，或 spec 显式 skip + 打印原因）；`npx playwright test tests/flows.spec.js --reporter=list` 输出中不再有未解释的「Child does not exist」类失败；`cd frontend && npm run check && npm run test:unit` 通过；audit errors 为空；命令输出原文存 `.trellis/tasks/T-018/`。
 - gate: none
-- status: doing
-- notes: 优先做「同一库」；不可行才选显式 skip 并在 report 说明为何不可行。属第二批：commit 后可直接 push 并补 EXECUTED 行。
+- status: done
+- notes: 优先做「同一库」；不可行才选显式 skip 并在 report 说明为何不可行。属第二批：commit 后可直接 push 并补 EXECUTED 行。 **2026-09-17 执行结果（跨两轮完成，第二轮为核对式续跑）**：`frontend/tests/support.js` 增 `cliDatabaseIdentity()`/`cliPolicyVersionId()`；`flows.spec.js` 增 `test.beforeAll` 前置一致性检查（浏览器侧经 `server.cjs` 代理读 `/api/v1/policies/current?purpose=assessment_processing` 主键，与 CLI 侧 `manage.py` 读同一记录主键比对，逐库不同故一致即同库）并把 `inject()` 的 `Child does not exist` 转成带库标识的诊断；`ops-public.spec.js` 增 `LOCAL_ENTRY` 与 `skipLocalDataGap()`，「报告」用例两处本地数据前置改为打印原因后显式 skip（公网入口缺数据仍失败）。本轮实测：`npx playwright test tests/flows.spec.js --reporter=list` → `8 passed (2.4m)`，输出全篇无 `Child does not exist`（原文 `flows-green-rerun.txt`）；`ops-public.spec.js -g "报告：查看已生成内容"` 本地 → 打印 `[ops-public] 跳过：…` 后 `1 skipped`（原文 `ops-public-local-report-after-fix-rerun.txt`）；`npm run check` exit 0、`test:unit` 16 pass 0 fail（84.85ms）、`audit_documents.py` errors `[]`。前置限流核对：`SmsChallenge` 近 1 小时 `0`（上限 50）。上一轮 report 里「8 passed（原文存 `flows-green.txt`）」与磁盘不符（该文件实为限流那次的 `2 failed / 6 passed`），已在本轮重跑重取并在 report/progress 记录。未验证项：`beforeAll` 的「两侧 id 不一致」分支仍需第二个已 seed 的库（建库属仓库外副作用），未端到端跑到；公网入口未跑（external）。
 
 ## T-019 O-02 家长姓名为空不再回落内部账号 `parent-<uuid>`
 - goal: 家长姓名为空时 5 处界面（家庭列表、家庭详情、儿童详情、CA 账户页、操作审计）统一回落到手机号或「（未填写姓名）」，不再显示内部账号 `parent-<uuid>`。

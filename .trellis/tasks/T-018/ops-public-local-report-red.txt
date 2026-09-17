@@ -1,0 +1,43 @@
+(node:27353) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:27388) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:27393) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › deployment-tests/ops-public.spec.js:379:3 › 运营后台（公网） › 报告：查看已生成内容，失败任务用业务语言说明并可重试 (7.5s)
+
+
+  1) [desktop] › deployment-tests/ops-public.spec.js:379:3 › 运营后台（公网） › 报告：查看已生成内容，失败任务用业务语言说明并可重试 ─
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('报告内容生成失败').first()
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText('报告内容生成失败').first() with timeout 5000ms
+      - waiting for getByText('报告内容生成失败').first()
+
+
+      391 |
+      392 |     await page.goto("/ops/jobs/?only_problem=1");
+    > 393 |     await expect(page.getByText("报告内容生成失败").first()).toBeVisible();
+          |                                                      ^
+      394 |
+      395 |     test.skip(!FAILED_JOB, "未提供 DD_OPS_FAILED_JOB");
+      396 |     await page.goto(`/ops/jobs/${FAILED_JOB}/`);
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/deployment-tests/ops-public.spec.js:393:54
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../tmp/dingdong-pw-out-t018-red/ops-public-运营后台（公网）-报告：查看已生成内容，失败任务用业务语言说明并可重试-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../tmp/dingdong-pw-out-t018-red/ops-public-运营后台（公网）-报告：查看已生成内容，失败任务用业务语言说明并可重试-desktop/error-context.md
+
+  1 failed
+    [desktop] › deployment-tests/ops-public.spec.js:379:3 › 运营后台（公网） › 报告：查看已生成内容，失败任务用业务语言说明并可重试 ──
