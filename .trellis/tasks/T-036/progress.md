@@ -18,6 +18,8 @@
 - `python3 .trellis/tasks/T-036/verify.py` → 23 PASS / 0 FAIL，原文 `verify-output.txt`（含直接跑驱动脚本里真实 `next_task` / `classify` / `loop_gate_snapshot` 解析块的结果）。
 - `python3 scripts/audit_documents.py` → `{"markdown_files": 80, "local_links_checked": 497, "archived_files_checked": 85, "operations": 55, "schemas": 65, "errors": []}`。
 
-## Finish（进行中）
+## Finish（已完成）
 
-- 下一步：写 report.md → commit `[T-036]` → push origin/codex/release-v0.3.6 → gates.md 补 EXECUTED 行 → 收尾记录（status.md / experiment-log）。
+- report.md 已写；commit `2dff105`（首行 `[T-036] chore(loop): loop 账本瘦身（gates 决定段归档 + queue done 任务压一行指针）`）；`git push origin codex/release-v0.3.6` → `d80891c..2dff105`，远端 sha `2dff1056288e78045e7f458154a4dc39c17cfa9f`；`gates.md` 补 EXECUTED 行。
+- 收尾记录：`status.md` 整文件重写（`## 驱动告警` 一节原样保留）、`.trellis/workspace/yihu/experiment-log.md` 追加 T-036 一行（工具调用计数 ≈53 / ≈44，采样于收尾提交前）。
+- 无新门禁申请（机制维护类直推）。

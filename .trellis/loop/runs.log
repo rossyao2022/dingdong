@@ -49,3 +49,6 @@
 2026-09-17T13:58:17Z RATE_LIMITED T-031 两个模型都限流（连续第 4 次），sleep 1440s
 2026-09-17T14:22:17Z BLOCKED T-031 连续失败 2 次，已标 blocked 并记入 status.md
 2026-09-17T14:22:17Z WAKE OK T-031 新 blocked 任务 T-031
+2026-09-17T14:33:59Z ROUND T-028 RATE_LIMITED 702s d80891c deepseek-v4-1-flash-260910 rc=0
+2026-09-17T14:33:59Z FALLBACK_LIMIT T-028 Pro 兜底单日上限已到（6/6），本轮不切 Pro，按限流失败处理
+2026-09-17T14:33:59Z RATE_LIMITED T-028 两个模型都限流（连续第 5 次），sleep 1800s
