@@ -1,5 +1,18 @@
 # 叮咚项目：新会话入口
 
+## TRELLIS 约束（2026-09-17 起，先读这段）
+
+- **新会话首条回复必须包含 `TRELLIS-OK`**（哨兵，用来证明这段约束真的被读到）。
+- 任何 agent 开工前先读 [.trellis/workflow.md](.trellis/workflow.md)，按 **Plan → Implement → Verify → Finish** 四阶段推进。对应 workflow.md 里的 Phase 1 Plan / Phase 2 Execute / Phase 3 Finish，其中 Verify 是 Phase 2 的 `trellis-check` 环节。
+- 收尾时执行 [.claude/commands/trellis/finish-work.md](.claude/commands/trellis/finish-work.md) 的内容（归档任务 + 记录 journal）。
+- 提交门禁：本仓库启用了 `.githooks/`（`core.hooksPath` 指向它），两个 hook 分工：`commit-msg` 要求 commit message 首行带 `[R<n>]` 或 `[T-<id>]` 任务 id；`pre-commit` 要求暂存文件不含 `.env`/`*.pem`/`*.key`/私钥，且暂存 `.md` 时 `python3 scripts/audit_documents.py` 的 errors 为空。
+- **权限边界（违反即视为实验失败）**：
+  - 本仓库目录内：读写、跑测试、本地 commit 全部自主，做完报告。
+  - 任何触达仓库目录之外的副作用 → 立刻停下并报 NEED-GATE，等放行：`git push` / 改 PR 状态 / merge；ssh 到任何远端做写操作或部署；`~` 下任何写入（含 `~/.grok`、`~/.claude`、全局 `npm -g`）；给对方发消息；读取、复制或打印 `deploy/.env`、`*.pem`、私钥内容。
+  - 实现与预期不符时不许硬凑，停下如实报告。
+
+---
+
 本文件是本仓库的新会话工作指引。开始继续项目之前：
 
 1. 阅读 [项目记忆](PROJECT_MEMORY.md)，获取已确认约束、当前状态、验收证据及续接方式。

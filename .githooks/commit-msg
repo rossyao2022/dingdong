@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# 仓库门禁①：commit message 首行必须带任务 id（形如 [R0] 或 [T-<id>]）。
+#
+# 为什么单独放在 commit-msg、而不是 pre-commit：
+# git 2.39.5 在 pre-commit 阶段还没把 `-m` 传入的消息写进 COMMIT_EDITMSG（那时文件里还是
+# 上一条提交的主题），实测会把合规提交也拒掉。只有 commit-msg 阶段拿到的 $1 是新消息。
+set -u
+
+msg_file="${1:-}"
+subject="$(head -n 1 "$msg_file" 2>/dev/null || true)"
+
+if printf '%s' "$subject" | grep -qE '\[R[0-9]+\]|\[T-[A-Za-z0-9._-]+\]'; then
+  exit 0
+fi
+
+echo "commit-msg 拒绝①：commit message 首行缺少任务 id（形如 [R0] 或 [T-<id>]）。" >&2
+echo "  首行内容：${subject:-（空）}" >&2
+echo "  可临时绕过：git commit --no-verify" >&2
+exit 1
