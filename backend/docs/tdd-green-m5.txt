@@ -1,0 +1,63 @@
+........................................................................ [ 73%]
+..........................                                               [100%]
+================================ tests coverage ================================
+_______________ coverage: platform darwin, python 3.14.6-final-0 _______________
+
+Name                                                                                            Stmts   Miss  Cover   Missing
+-----------------------------------------------------------------------------------------------------------------------------
+dingdong_ca/__init__.py                                                                             0      0   100%
+dingdong_ca/core/__init__.py                                                                        0      0   100%
+dingdong_ca/core/admin.py                                                                          77      7    91%   74-80, 151
+dingdong_ca/core/admin_actions.py                                                                  35     11    69%   16, 40, 48-62, 70-76
+dingdong_ca/core/api/__init__.py                                                                    0      0   100%
+dingdong_ca/core/api/accounts.py                                                                  160      7    96%   103, 121, 141, 176, 209, 231-232
+dingdong_ca/core/api/activities.py                                                                102     14    86%   69, 83-85, 88-100, 139, 147, 169
+dingdong_ca/core/api/assessments.py                                                               126     15    88%   95, 105-106, 114, 181, 187, 192, 196, 232, 234, 247, 283, 285, 289, 291
+dingdong_ca/core/api/children.py                                                                   41      0   100%
+dingdong_ca/core/api/common.py                                                                    116      2    98%   55, 202
+dingdong_ca/core/api/consents.py                                                                   54      4    93%   36, 39, 68, 75
+dingdong_ca/core/api/data_requests.py                                                              35      2    94%   28, 69
+dingdong_ca/core/api/growth.py                                                                     79      5    94%   80, 129-130, 172, 176
+dingdong_ca/core/api/inputs.py                                                                     75      4    95%   8, 13, 31, 33
+dingdong_ca/core/api/reports.py                                                                    32      3    91%   44-46
+dingdong_ca/core/api/robots.py                                                                     77      7    91%   47-48, 62, 68, 91-92, 111
+dingdong_ca/core/api/staff.py                                                                     184     22    88%   39, 69, 78, 82, 92, 101, 106, 114, 116, 123, 131, 152, 202, 204, 215, 238, 263, 283-285, 289, 292
+dingdong_ca/core/api/uploads.py                                                                    61      5    92%   52-53, 55, 60, 73
+dingdong_ca/core/assessment_models.py                                                             154      1    99%   202
+dingdong_ca/core/integration_models.py                                                             74      0   100%
+dingdong_ca/core/management/__init__.py                                                             0      0   100%
+dingdong_ca/core/management/commands/__init__.py                                                    0      0   100%
+dingdong_ca/core/management/commands/cleanup_auth.py                                               14     14     0%   1-23
+dingdong_ca/core/management/commands/inject_fixture.py                                             39      2    95%   47, 49
+dingdong_ca/core/management/commands/seed_base.py                                                  13      0   100%
+dingdong_ca/core/management/commands/seed_mock.py                                                  59      5    92%   36, 39, 48, 88-89
+dingdong_ca/core/migrations/0001_initial.py                                                         8      0   100%
+dingdong_ca/core/migrations/0002_backgroundjob_assessmentsession_algorithmattempt_and_more.py       7      0   100%
+dingdong_ca/core/migrations/0003_datarequest_externalassociation_jobobservation_and_more.py         7      0   100%
+dingdong_ca/core/migrations/0004_questionnaireversion_description_and_more.py                       4      0   100%
+dingdong_ca/core/migrations/0005_alter_questionnaireversion_options_and_more.py                     4      0   100%
+dingdong_ca/core/migrations/__init__.py                                                             0      0   100%
+dingdong_ca/core/models.py                                                                        104      0   100%
+dingdong_ca/core/questionnaire_admin.py                                                            55      3    95%   43, 45, 114
+dingdong_ca/core/services/__init__.py                                                               0      0   100%
+dingdong_ca/core/services/assessments.py                                                          134     14    90%   64, 84, 103, 109, 118, 120, 155-161, 210
+dingdong_ca/core/services/deletion.py                                                              28      0   100%
+dingdong_ca/core/services/sync.py                                                                  89      6    93%   99, 129, 140, 205, 207, 218
+dingdong_ca/core/tasks.py                                                                         170     25    85%   40-41, 90, 166-171, 201, 204-205, 209, 212-213, 215, 264-271, 285-288, 303-309, 320-325
+dingdong_ca/testsupport/__init__.py                                                                 0      0   100%
+dingdong_ca/testsupport/activity_content.py                                                         1      0   100%
+dingdong_ca/testsupport/adapter.py                                                                 42      9    79%   20, 34, 44, 47, 57, 63, 68, 71, 76
+dingdong_ca/testsupport/migrations/0001_initial.py                                                  6      0   100%
+dingdong_ca/testsupport/migrations/__init__.py                                                      0      0   100%
+dingdong_ca/testsupport/models.py                                                                  13      0   100%
+dingdong_ca/testsupport/question_content.py                                                         4      0   100%
+dingdong_ca/testsupport/robot.py                                                                   73     13    82%   125, 141, 161, 163, 168, 178-180, 183, 186, 194, 200, 213
+dingdong_ca/testsupport/seed.py                                                                    24      2    92%   31-32
+dingdong_ca/testsupport/synthetic.py                                                                9      1    89%   9
+dingdong_ca/users/__init__.py                                                                       0      0   100%
+dingdong_ca/users/migrations/0001_initial.py                                                        9      0   100%
+dingdong_ca/users/migrations/__init__.py                                                            0      0   100%
+dingdong_ca/users/models.py                                                                        14      0   100%
+-----------------------------------------------------------------------------------------------------------------------------
+TOTAL                                                                                            2412    203    92%
+98 passed in 21.75s

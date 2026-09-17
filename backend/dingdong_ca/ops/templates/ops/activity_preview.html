@@ -1,0 +1,74 @@
+{% extends "ops/base.html" %}
+{% load ops_labels %}
+{% block title %}预览 {{ row.title }}{% endblock %}
+{% block page_title %}预览：{{ row.title }}{% endblock %}
+{% block crumb %}
+  <a href="{% url 'ops:activities' %}" data-nav>活动管理</a> ·
+  <a href="{% url 'ops:activity_edit' row.pk %}" data-nav>返回编辑</a>
+{% endblock %}
+
+{% block topbar_actions %}
+  {% if row.status == "draft" %}
+    <button type="button" class="btn btn-sm btn-primary"
+            data-ops-action="/api/v1/staff/activities/{{ row.pk }}/publish"
+            data-ops-confirm-title="发布活动版本"
+            data-ops-confirm="发布后家长端将展示《{{ row.title }}》{{ row.version }}。"
+            data-ops-confirm-impacts="同一活动当前已发布的版本会被自动停用|已经开始或已完成的活动记录不受影响|发布后该版本不可再编辑"
+            data-ops-confirm-label="确认发布"
+            data-ops-reload="1"
+            data-ops-success="活动版本已发布。">发布该版本</button>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <div class="alert alert-info" role="alert">
+    <h4 class="alert-heading">这是运营视角的预览</h4>
+    <p class="mb-0">预览内容与家长端展示一致：标题、目标、材料、步骤与风格标签。</p>
+  </div>
+
+  <section class="card">
+    <div class="card-header">
+      <div>
+        <h2 class="card-title">{{ row.title }}</h2>
+        <div class="card-subtitle">
+          {{ row.island }} · {{ row.mood }} · {{ row.duration_minutes }} 分钟 · 版本 {{ row.version }}
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-12 col-md-6">
+          <h3 class="subheader">活动目标</h3>
+          <p class="mb-0">{{ row.content.goal|default:"未填写" }}</p>
+        </div>
+        <div class="col-12 col-md-6">
+          <h3 class="subheader">材料</h3>
+          <p class="mb-0">{{ row.content.materials|default:"未填写" }}</p>
+        </div>
+      </div>
+
+      <h3 class="subheader">备选方案</h3>
+      <p>{{ row.content.alternative|default:"未填写" }}</p>
+
+      <h3 class="subheader">风格标签</h3>
+      <p>
+        {% for code in row.content.allowed_styles %}
+          <span class="badge bg-azure-lt">{{ code|label:"ACTIVITY_STYLE" }}</span>
+        {% empty %}
+          <span class="badge bg-yellow-lt">未设置</span>
+        {% endfor %}
+      </p>
+
+      <h3 class="subheader">步骤（{{ row.content.steps|length }}）</h3>
+      {% for step in row.content.steps %}
+        <div class="preview-question">
+          <b>第 {{ forloop.counter }} 步</b>
+          <p>{{ step.instruction|default:"（未填写家长指引）" }}</p>
+          <p class="text-secondary small mb-0">引导语：{{ step.guide_text|default:"（未填写）" }}</p>
+        </div>
+      {% empty %}
+        {% include "ops/_empty.html" with title="该版本还没有步骤" %}
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}

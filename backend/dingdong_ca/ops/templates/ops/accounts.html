@@ -1,0 +1,113 @@
+{% extends "ops/base.html" %}
+{% load ops_labels %}
+{% block title %}账号与权限{% endblock %}
+{% block page_title %}账号与权限{% endblock %}
+{% block crumb %}管理运营后台账号、角色与状态{% endblock %}
+
+{% block topbar_actions %}
+  <a class="btn btn-sm btn-primary" href="{% url 'ops:account_new' %}" data-nav>
+    <i class="ti ti-user-plus" aria-hidden="true"></i>新建账号
+  </a>
+{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <div class="card-header"><h2 class="card-title">角色说明</h2></div>
+    <div class="table-responsive">
+      <table class="table table-vcenter ops-table">
+        <thead><tr><th>角色</th><th>建议用途</th><th>可访问</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="badge bg-azure-lt">管理员</span></td>
+            <td>系统负责人，拥有全部权限</td>
+            <td>全部菜单，含账号管理与操作审计</td>
+          </tr>
+          <tr>
+            <td><span class="badge bg-azure-lt">运营</span></td>
+            <td>日常运营专员</td>
+            <td>工作首页、家庭与儿童、服务事项、报告查看</td>
+          </tr>
+          <tr>
+            <td><span class="badge bg-azure-lt">内容运营</span></td>
+            <td>维护题库与活动内容</td>
+            <td>题库管理、活动管理</td>
+          </tr>
+          <tr>
+            <td><span class="badge bg-azure-lt">技术运维</span></td>
+            <td>处理生成异常与同步问题</td>
+            <td>生成任务重试、同步暂停恢复、数据删除执行</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card-body">
+      <p class="form-hint mb-0">
+        一个账号可以同时拥有多个角色。权限由服务端在每次请求时校验，隐藏菜单只是界面效果。
+      </p>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-body">
+      <form class="row g-3 align-items-end" method="get">
+        <div class="col-12 col-lg-4">
+          <label class="form-label" for="q">账号或姓名</label>
+          <input type="search" class="form-control" id="q" name="q" value="{{ keyword }}"
+                 placeholder="按登录账号或姓名查询" />
+        </div>
+        <div class="col-12 col-md-auto">
+          <div class="btn-list">
+            <button type="submit" class="btn btn-primary">查询</button>
+            <a class="btn btn-ghost-secondary" href="{% url 'ops:accounts' %}" data-nav>清空</a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-header">
+      <div>
+        <h2 class="card-title">后台账号</h2>
+        <div class="card-subtitle">共 {{ page.total }} 个账号。</div>
+      </div>
+    </div>
+
+    {% if items %}
+      <div class="table-responsive">
+        <table class="table table-vcenter ops-table">
+          <thead><tr><th>登录账号</th><th>姓名</th><th>角色</th><th>状态</th><th>最近登录</th><th></th></tr></thead>
+          <tbody>
+            {% for item in items %}
+              <tr>
+                <td>
+                  {{ item.user.username }}
+                  {% if item.is_self %}<span class="badge bg-secondary-lt">当前账号</span>{% endif %}
+                </td>
+                <td>{{ item.user.name|default:"—" }}</td>
+                <td>
+                  {% if item.user.is_superuser %}<span class="badge bg-azure-lt">超级管理员</span>{% endif %}
+                  {% for role in item.role_labels %}<span class="badge bg-secondary-lt">{{ role }}</span>{% endfor %}
+                  {% if not item.user.is_superuser and not item.role_labels %}<span class="badge bg-yellow-lt">未分配角色</span>{% endif %}
+                </td>
+                <td>
+                  {% if item.user.is_active %}<span class="badge bg-green-lt">启用</span>
+                  {% else %}<span class="badge bg-secondary-lt">已停用</span>{% endif %}
+                </td>
+                <td class="nowrap">{{ item.user.last_login|date:"Y-m-d H:i"|default:"从未登录" }}</td>
+                <td class="text-end">
+                  <a class="btn btn-sm" href="{% url 'ops:account_detail' item.user.pk %}" data-nav>管理</a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% include "ops/_pagination.html" %}
+    {% else %}
+      <div class="card-body">
+        {% include "ops/_empty.html" with title="没有符合条件的账号" note=empty_hint %}
+      </div>
+    {% endif %}
+  </section>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "admin/change_form.html" %}
+{% block object-tools %}
+{{ block.super }}
+{% if questionnaire_copy_url %}<form action="{{ questionnaire_copy_url }}" method="post" style="margin:16px">{% csrf_token %}<button type="submit" class="button">复制为新版本</button></form>{% endif %}
+{% if ca_actions or ca_roles_url %}
+<div class="module" style="padding:16px;margin-bottom:20px" id="ca-action-panel">
+  {% csrf_token %}
+  {% for action in ca_actions %}
+    <button type="button" class="button ca-action" data-url="{{ action.url }}" data-method="{{ action.method }}" data-payload="{{ action.payload }}">{{ action.label }}</button>
+  {% endfor %}
+  {% if ca_roles_url %}
+  <fieldset><legend>固定业务角色</legend>
+    {% for role in ca_roles %}<label><input class="ca-role" type="checkbox" value="{{ role.code }}" {% if role.checked %}checked{% endif %}> {{ role.code }}</label>{% endfor %}
+    <button type="button" class="button ca-action" data-url="{{ ca_roles_url }}" data-method="PATCH" data-roles="true">保存角色</button>
+  </fieldset>
+  {% endif %}
+  <p id="ca-action-result" role="status"></p>
+</div>
+{% endif %}
+{% endblock %}

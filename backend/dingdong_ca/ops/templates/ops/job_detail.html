@@ -1,0 +1,130 @@
+{% extends "ops/base.html" %}
+{% load ops_labels %}
+{% block title %}任务详情{% endblock %}
+{% block page_title %}{{ job.kind|label:"JOB_KIND" }}任务{% endblock %}
+{% block crumb %}<a href="{% url 'ops:jobs' %}" data-nav>← 返回任务列表</a>{% endblock %}
+
+{% block content %}
+  <div class="row row-cards">
+    <div class="col-12 col-lg-8">
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">任务状态</h2>
+            <div class="card-subtitle">任务编号 {{ job.pk }}</div>
+          </div>
+          <div class="card-actions">
+            {% if can_retry and job.status == "failed" and retryable %}
+              <button type="button" class="btn btn-sm btn-primary"
+                      data-ops-action="/api/v1/staff/jobs/{{ job.pk }}/retry"
+                      data-ops-confirm-title="重试失败任务"
+                      data-ops-confirm="将重新排队执行该任务，并保留全部历史尝试记录。"
+                      data-ops-confirm-impacts="重复点击不会产生重复任务|每次重试都会记录操作人|如果依赖仍然缺失，任务会再次失败"
+                      data-ops-confirm-label="确认重试"
+                      data-ops-reload="1"
+                      data-ops-success="已重新排队。">重试该任务</button>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="card-body">
+          {% if job.status == "failed" %}
+            <div class="alert alert-danger" role="alert">
+              <h4 class="alert-heading">{{ reason }}</h4>
+              <p class="mb-0">{{ advice }}</p>
+            </div>
+          {% elif job.status == "waiting" %}
+            <div class="alert alert-warning" role="alert">
+              <h4 class="alert-heading">{{ reason }}</h4>
+              <p class="mb-0">{{ advice }}</p>
+            </div>
+          {% elif job.status == "succeeded" %}
+            <div class="alert alert-success" role="alert">
+              <h4 class="alert-heading">任务已完成</h4>
+              <p class="mb-0">该任务已成功产出结果，无需人工处理。</p>
+            </div>
+          {% endif %}
+
+          <dl class="kv">
+            <dt>任务类型</dt><dd>{{ job.kind|label:"JOB_KIND" }}</dd>
+            <dt>状态</dt><dd><span class="badge {{ job.status|tone }}">{{ job.status|label:"JOB_STATUS" }}</span></dd>
+            <dt>失败原因</dt>
+            <dd>{{ reason }}{% if job.error_code %}<span class="text-secondary small">（系统代码 {{ job.error_code }}）</span>{% endif %}</dd>
+            <dt>尝试次数</dt><dd>{{ job.attempt_count }} / {{ job.max_attempts }}</dd>
+            <dt>关联对象</dt>
+            <dd>{% if subject %}<a href="{% url 'ops:child_detail' subject.pk %}" data-nav>{{ subject.name }}</a>{% else %}—{% endif %}</dd>
+            <dt>创建时间</dt><dd>{{ job.created_at|date:"Y-m-d H:i" }}</dd>
+            <dt>最近更新</dt><dd>{{ job.updated_at|date:"Y-m-d H:i" }}</dd>
+            <dt>下次尝试</dt><dd>{{ job.next_attempt_at|date:"Y-m-d H:i"|default:"—" }}</dd>
+          </dl>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header"><h2 class="card-title">尝试记录</h2></div>
+        {% if attempts %}
+          <div class="table-responsive">
+            <table class="table table-vcenter ops-table">
+              <thead><tr><th>次数</th><th>状态</th><th>开始</th><th>结束</th><th>结果</th></tr></thead>
+              <tbody>
+                {% for attempt in attempts %}
+                  <tr>
+                    <td class="num">{{ attempt.attempt_no }}</td>
+                    <td><span class="badge {{ attempt.status|tone }}">{{ attempt.status|label:"JOB_STATUS" }}</span></td>
+                    <td class="nowrap">{{ attempt.started_at|date:"Y-m-d H:i:s" }}</td>
+                    <td class="nowrap">{{ attempt.finished_at|date:"Y-m-d H:i:s"|default:"—" }}</td>
+                    <td>{{ attempt.error_code|job_reason|default:"—" }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="card-body">
+            {% include "ops/_empty.html" with title="还没有执行记录" %}
+          </div>
+        {% endif %}
+      </section>
+    </div>
+
+    <div class="col-12 col-lg-4">
+      <section class="card">
+        <div class="card-header"><h2 class="card-title">可以做什么</h2></div>
+        <div class="card-body">
+          <ul class="timeline">
+            <li>
+              <div>失败原因是否需要重试</div>
+              <div class="text-secondary small">
+                {% if retryable %}该原因通常是临时问题，可以由技术运维重试。{% else %}该原因需要先解决依赖或数据问题，直接重试不会成功。{% endif %}
+              </div>
+            </li>
+            <li>
+              <div>等待依赖</div>
+              <div class="text-secondary small">缺少已发布的模板或规则时，发布后系统会自动继续，无需手工重试。</div>
+            </li>
+            <li>
+              <div>权限</div>
+              <div class="text-secondary small">重试需要技术运维或管理员角色，并会记录操作人。</div>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      {% if audit_rows %}
+        <section class="card">
+          <div class="card-header"><h2 class="card-title">操作记录</h2></div>
+          <div class="card-body">
+            <ul class="timeline">
+              {% for row in audit_rows %}
+                <li>
+                  <div>{{ row.action|audit_action }}</div>
+                  <time>{{ row.created_at|date:"Y-m-d H:i" }} · {{ row.actor|display_name }}</time>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </section>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

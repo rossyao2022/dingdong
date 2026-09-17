@@ -1,0 +1,95 @@
+{% extends "ops/base.html" %}
+{% load ops_labels %}
+{% block title %}报告详情{% endblock %}
+{% block page_title %}报告：{{ child.name }}{% endblock %}
+{% block crumb %}
+  <a href="{% url 'ops:reports' %}" data-nav>← 返回报告列表</a> ·
+  <a href="{% url 'ops:child_detail' child.pk %}" data-nav>儿童详情</a>
+{% endblock %}
+
+{% block content %}
+  <div class="row row-cards">
+    <div class="col-12 col-lg-8">
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">{{ sections.0.title|default:"报告内容" }}</h2>
+            <div class="card-subtitle">
+              儿童：{{ child.name }} · 画像类型：{{ row.profile.kind|label:"PROFILE_KIND" }} ·
+              数据来源：{{ row.data_origin|label:"DATA_ORIGIN" }} · 生成时间：{{ row.generated_at|date:"Y-m-d H:i" }}
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          {% for section in sections %}
+            <div class="preview-question">
+              {% if not forloop.first %}<h3 class="subheader">{{ section.title }}</h3>{% endif %}
+              {% for paragraph in section.paragraphs %}
+                <p>{{ paragraph }}</p>
+              {% endfor %}
+            </div>
+          {% empty %}
+            {% include "ops/_empty.html" with title="这份报告没有可展示的内容" %}
+          {% endfor %}
+
+          {% if source_summary %}
+            <div class="alert alert-info mt-3" role="alert">
+              <h4 class="alert-heading">内容来源说明</h4>
+              <p class="mb-0">{{ source_summary }}</p>
+            </div>
+          {% endif %}
+        </div>
+      </section>
+    </div>
+
+    <div class="col-12 col-lg-4">
+      <section class="card">
+        <div class="card-header"><h2 class="card-title">生成状态</h2></div>
+        <div class="card-body">
+          <dl class="kv">
+            <dt>报告状态</dt><dd><span class="badge bg-green-lt">已生成</span></dd>
+            <dt>生成时间</dt><dd>{{ row.generated_at|date:"Y-m-d H:i" }}</dd>
+            <dt>使用模板</dt><dd>{{ row.template_version.code }} · {{ row.template_version.version }}</dd>
+            <dt>内容版本</dt><dd>{{ row.content_schema_version }}</dd>
+          </dl>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <h2 class="card-title">相关生成任务（{{ jobs|length }}）</h2>
+        </div>
+        <div class="card-body">
+          {% if jobs %}
+            <ul class="timeline">
+              {% for job in jobs %}
+                <li>
+                  <div>
+                    <span class="badge {{ job.status|tone }}">{{ job.status|label:"JOB_STATUS" }}</span>
+                    <a href="{% url 'ops:job_detail' job.pk %}" data-nav>查看任务</a>
+                  </div>
+                  <div class="text-secondary small">
+                    尝试 {{ job.attempt_count }} 次 · {{ job.error_code|job_reason }}
+                  </div>
+                  <time>{{ job.updated_at|date:"Y-m-d H:i" }}</time>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="text-secondary small mb-0">没有关联的生成任务记录。</p>
+          {% endif %}
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header"><h2 class="card-title">数据边界</h2></div>
+        <div class="card-body">
+          <p class="text-secondary small mb-0">
+            演示环境报告由测试模板生成，内容包含家长本次选择与测试输入，
+            不包含专业测评结论，也未接入甲方算法。
+          </p>
+        </div>
+      </section>
+    </div>
+  </div>
+{% endblock %}

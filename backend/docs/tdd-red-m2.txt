@@ -1,0 +1,340 @@
+FFFFFFFFFFFFFF                                                           [100%]
+=================================== FAILURES ===================================
+_____________ test_consent_idempotency_revoke_and_family_isolation _____________
+tests/test_assessments.py:52: in test_consent_idempotency_revoke_and_family_isolation
+    child, consent, session, _, data = setup_assessment(client)
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_assessments.py:21: in setup_assessment
+    assert r.status_code == 200, r.content
+E   AssertionError: b'
+E     <!doctype html>
+E     <html lang="en">
+E     <head>
+E       <title>Not Found</title>
+E     </head>
+E     <body>
+E       <h1>Not Found</h1><p>The requested resource was not found on this server.</p>
+E     </body>
+E     </html>
+E     '
+E   assert 404 == 200
+E    +  where 404 = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">.status_code
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/policies/current
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/policies/current
+________________ test_answers_revision_unknown_codes_and_clear _________________
+tests/test_assessments.py:66: in test_answers_revision_unknown_codes_and_clear
+    _, _, session, _, _ = setup_assessment(client, answer=False)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_assessments.py:21: in setup_assessment
+    assert r.status_code == 200, r.content
+E   AssertionError: b'
+E     <!doctype html>
+E     <html lang="en">
+E     <head>
+E       <title>Not Found</title>
+E     </head>
+E     <body>
+E       <h1>Not Found</h1><p>The requested resource was not found on this server.</p>
+E     </body>
+E     </html>
+E     '
+E   assert 404 == 200
+E    +  where 404 = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">.status_code
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/policies/current
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/policies/current
+____ test_session_creation_idempotent_and_published_questionnaire_is_frozen ____
+tests/test_assessments.py:79: in test_session_creation_idempotent_and_published_questionnaire_is_frozen
+    child, _, session, data, _ = setup_assessment(client)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_assessments.py:21: in setup_assessment
+    assert r.status_code == 200, r.content
+E   AssertionError: b'
+E     <!doctype html>
+E     <html lang="en">
+E     <head>
+E       <title>Not Found</title>
+E     </head>
+E     <body>
+E       <h1>Not Found</h1><p>The requested resource was not found on this server.</p>
+E     </body>
+E     </html>
+E     '
+E   assert 404 == 200
+E    +  where 404 = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">.status_code
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/policies/current
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/policies/current
+__________ test_initial_profile_and_real_report_job_are_created_once ___________
+tests/test_assessments.py:92: in test_initial_profile_and_real_report_job_are_created_once
+    _, _, session, _, _=setup_assessment(client)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_assessments.py:21: in setup_assessment
+    assert r.status_code == 200, r.content
+E   AssertionError: b'
+E     <!doctype html>
+E     <html lang="en">
+E     <head>
+E       <title>Not Found</title>
+E     </head>
+E     <body>
+E       <h1>Not Found</h1><p>The requested resource was not found on this server.</p>
+E     </body>
+E     </html>
+E     '
+E   assert 404 == 200
+E    +  where 404 = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">.status_code
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/policies/current
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/policies/current
+_____ test_upload_rejects_invalid_input_without_creating_attempt[missing] ______
+tests/test_assessments.py:118: in test_upload_rejects_invalid_input_without_creating_attempt
+    _, _, session, _, _=setup_assessment(client)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_assessments.py:21: in setup_assessment
+    assert r.status_code == 200, r.content
+E   AssertionError: b'
+E     <!doctype html>
+E     <html lang="en">
+E     <head>
+E       <title>Not Found</title>
+E     </head>
+E     <body>
+E       <h1>Not Found</h1><p>The requested resource was not found on this server.</p>
+E     </body>
+E     </html>
+E     '
+E   assert 404 == 200
+E    +  where 404 = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">.status_code
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/policies/current
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/policies/current
+_____ test_upload_rejects_invalid_input_without_creating_attempt[unknown] ______
+tests/test_assessments.py:118: in test_upload_rejects_invalid_input_without_creating_attempt
+    _, _, session, _, _=setup_assessment(client)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_assessments.py:21: in setup_assessment
+    assert r.status_code == 200, r.content
+E   AssertionError: b'
+E     <!doctype html>
+E     <html lang="en">
+E     <head>
+E       <title>Not Found</title>
+E     </head>
+E     <body>
+E       <h1>Not Found</h1><p>The requested resource was not found on this server.</p>
+E     </body>
+E     </html>
+E     '
+E   assert 404 == 200
+E    +  where 404 = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">.status_code
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/policies/current
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/policies/current
+____ test_upload_rejects_invalid_input_without_creating_attempt[duplicate] _____
+tests/test_assessments.py:118: in test_upload_rejects_invalid_input_without_creating_attempt
+    _, _, session, _, _=setup_assessment(client)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_assessments.py:21: in setup_assessment
+    assert r.status_code == 200, r.content
+E   AssertionError: b'
+E     <!doctype html>
+E     <html lang="en">
+E     <head>
+E       <title>Not Found</title>
+E     </head>
+E     <body>
+E       <h1>Not Found</h1><p>The requested resource was not found on this server.</p>
+E     </body>
+E     </html>
+E     '
+E   assert 404 == 200
+E    +  where 404 = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">.status_code
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/policies/current
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/policies/current
+_____ test_upload_rejects_invalid_input_without_creating_attempt[invalid] ______
+tests/test_assessments.py:118: in test_upload_rejects_invalid_input_without_creating_attempt
+    _, _, session, _, _=setup_assessment(client)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_assessments.py:21: in setup_assessment
+    assert r.status_code == 200, r.content
+E   AssertionError: b'
+E     <!doctype html>
+E     <html lang="en">
+E     <head>
+E       <title>Not Found</title>
+E     </head>
+E     <body>
+E       <h1>Not Found</h1><p>The requested resource was not found on this server.</p>
+E     </body>
+E     </html>
+E     '
+E   assert 404 == 200
+E    +  where 404 = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">.status_code
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/policies/current
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/policies/current
+_____ test_upload_rejects_invalid_input_without_creating_attempt[oversize] _____
+tests/test_assessments.py:118: in test_upload_rejects_invalid_input_without_creating_attempt
+    _, _, session, _, _=setup_assessment(client)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_assessments.py:21: in setup_assessment
+    assert r.status_code == 200, r.content
+E   AssertionError: b'
+E     <!doctype html>
+E     <html lang="en">
+E     <head>
+E       <title>Not Found</title>
+E     </head>
+E     <body>
+E       <h1>Not Found</h1><p>The requested resource was not found on this server.</p>
+E     </body>
+E     </html>
+E     '
+E   assert 404 == 200
+E    +  where 404 = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">.status_code
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/policies/current
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/policies/current
+____________ test_fixture_output_is_whitelisted_not_arbitrary_json _____________
+tests/test_assessments.py:132: in test_fixture_output_is_whitelisted_not_arbitrary_json
+    child,_,session,_,_=setup_assessment(client)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_assessments.py:21: in setup_assessment
+    assert r.status_code == 200, r.content
+E   AssertionError: b'
+E     <!doctype html>
+E     <html lang="en">
+E     <head>
+E       <title>Not Found</title>
+E     </head>
+E     <body>
+E       <h1>Not Found</h1><p>The requested resource was not found on this server.</p>
+E     </body>
+E     </html>
+E     '
+E   assert 404 == 200
+E    +  where 404 = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">.status_code
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/policies/current
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/policies/current
+__________ test_timeout_can_be_cancelled_and_does_not_create_results ___________
+tests/test_assessments.py:144: in test_timeout_can_be_cancelled_and_does_not_create_results
+    child,_,session,_,_=setup_assessment(client)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_assessments.py:21: in setup_assessment
+    assert r.status_code == 200, r.content
+E   AssertionError: b'
+E     <!doctype html>
+E     <html lang="en">
+E     <head>
+E       <title>Not Found</title>
+E     </head>
+E     <body>
+E       <h1>Not Found</h1><p>The requested resource was not found on this server.</p>
+E     </body>
+E     </html>
+E     '
+E   assert 404 == 200
+E    +  where 404 = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">.status_code
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/policies/current
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/policies/current
+___________________ test_report_job_rechecks_revoked_consent ___________________
+tests/test_assessments.py:156: in test_report_job_rechecks_revoked_consent
+    _,consent,session,_,_=setup_assessment(client)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_assessments.py:21: in setup_assessment
+    assert r.status_code == 200, r.content
+E   AssertionError: b'
+E     <!doctype html>
+E     <html lang="en">
+E     <head>
+E       <title>Not Found</title>
+E     </head>
+E     <body>
+E       <h1>Not Found</h1><p>The requested resource was not found on this server.</p>
+E     </body>
+E     </html>
+E     '
+E   assert 404 == 200
+E    +  where 404 = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">.status_code
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/policies/current
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/policies/current
+____ test_upload_uses_only_memory_even_when_default_spill_threshold_is_tiny ____
+tests/test_assessments.py:167: in test_upload_uses_only_memory_even_when_default_spill_threshold_is_tiny
+    _,_,session,_,_=setup_assessment(client)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_assessments.py:21: in setup_assessment
+    assert r.status_code == 200, r.content
+E   AssertionError: b'
+E     <!doctype html>
+E     <html lang="en">
+E     <head>
+E       <title>Not Found</title>
+E     </head>
+E     <body>
+E       <h1>Not Found</h1><p>The requested resource was not found on this server.</p>
+E     </body>
+E     </html>
+E     '
+E   assert 404 == 200
+E    +  where 404 = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">.status_code
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/policies/current
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/policies/current
+_______________ test_profile_and_report_lists_are_family_scoped ________________
+tests/test_assessments.py:181: in test_profile_and_report_lists_are_family_scoped
+    child,_,session,_,_=setup_assessment(client)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_assessments.py:21: in setup_assessment
+    assert r.status_code == 200, r.content
+E   AssertionError: b'
+E     <!doctype html>
+E     <html lang="en">
+E     <head>
+E       <title>Not Found</title>
+E     </head>
+E     <body>
+E       <h1>Not Found</h1><p>The requested resource was not found on this server.</p>
+E     </body>
+E     </html>
+E     '
+E   assert 404 == 200
+E    +  where 404 = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">.status_code
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/policies/current
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/policies/current
+=========================== short test summary info ============================
+FAILED tests/test_assessments.py::test_consent_idempotency_revoke_and_family_isolation
+FAILED tests/test_assessments.py::test_answers_revision_unknown_codes_and_clear
+FAILED tests/test_assessments.py::test_session_creation_idempotent_and_published_questionnaire_is_frozen
+FAILED tests/test_assessments.py::test_initial_profile_and_real_report_job_are_created_once
+FAILED tests/test_assessments.py::test_upload_rejects_invalid_input_without_creating_attempt[missing]
+FAILED tests/test_assessments.py::test_upload_rejects_invalid_input_without_creating_attempt[unknown]
+FAILED tests/test_assessments.py::test_upload_rejects_invalid_input_without_creating_attempt[duplicate]
+FAILED tests/test_assessments.py::test_upload_rejects_invalid_input_without_creating_attempt[invalid]
+FAILED tests/test_assessments.py::test_upload_rejects_invalid_input_without_creating_attempt[oversize]
+FAILED tests/test_assessments.py::test_fixture_output_is_whitelisted_not_arbitrary_json
+FAILED tests/test_assessments.py::test_timeout_can_be_cancelled_and_does_not_create_results
+FAILED tests/test_assessments.py::test_report_job_rechecks_revoked_consent - ...
+FAILED tests/test_assessments.py::test_upload_uses_only_memory_even_when_default_spill_threshold_is_tiny
+FAILED tests/test_assessments.py::test_profile_and_report_lists_are_family_scoped
+14 failed in 1.15s

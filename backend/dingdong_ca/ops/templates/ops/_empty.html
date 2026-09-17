@@ -1,0 +1,8 @@
+{% comment %}
+统一空状态。所有列表与区块的“没有数据”都走这个片段，避免每个页面自己拼一套。
+用法：{% include "ops/_empty.html" with title="还没有报告" note=empty_hint %}
+{% endcomment %}
+<div class="empty">
+  <p class="empty-title">{{ title|default:"还没有数据" }}</p>
+  {% if note %}<p class="empty-subtitle text-secondary">{{ note }}</p>{% endif %}
+</div>

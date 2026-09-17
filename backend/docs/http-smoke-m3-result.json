@@ -1,0 +1,1 @@
+{"m3_http_smoke": "passed", "worker_sigkill_recovery": "passed", "attempts_before_deletion": 2, "stage_report_id_before_deletion": "691f7c08-e353-4b08-8d03-08ce3e906604", "staff_http_login_and_deletion": "passed", "receipt_id": "3639cdfa-fdca-4ac4-b2b6-6d0bbbf83cef", "data_origin": "synthetic"}

@@ -1,0 +1,145 @@
+{% extends "ops/base.html" %}
+{% load ops_labels %}
+{% block title %}CA 账户{% endblock %}
+{% block page_title %}CA 账户{% endblock %}
+{% block crumb %}家长用机器人 NFC 绑定后，我方对外使用的稳定账户号{% endblock %}
+
+{% block content %}
+  {% include "ops/_filter_problems.html" %}
+
+  {# 注意：Tabler 的 .alert 是 flex 容器，散落的文本节点会各占一列。
+     内容必须包在一个块级容器里，与其他页面保持一致。 #}
+  <div class="alert alert-info" role="note">
+    <div>
+      <h4 class="alert-heading">只读页 · 账户号一经生成不修改、不重用</h4>
+      <p class="mb-1">
+        账户号由家长在机器人 NFC 绑定时生成。换机器人是家长端的显式两步（先归档旧号，再为新机器人发新号），运营不在这里代操作。
+      </p>
+      <p class="mb-0">
+        <b>“状态”与“绑定状态”是两件事</b>：状态说的是这个号在我方是否还在用；绑定状态说的是与 DingDong Data Service 是否已接通——对方端点尚未开通时会一直显示“待接通”，这不是故障。
+      </p>
+    </div>
+  </div>
+
+  <div class="row row-cards" aria-label="账户概览">
+    <div class="col-12 col-sm-6 col-lg-4">
+      <a class="ops-stat" href="{% url 'ops:ca_accounts' %}?status=active" data-nav>
+        <span class="ops-stat-head">
+          <i class="ti ti-robot" aria-hidden="true"></i>
+          <span class="ops-stat-label">使用中</span>
+        </span>
+        <b class="ops-stat-value">{{ counts.active }}</b>
+        <span class="ops-stat-note">口径：状态为“使用中”的账户号，每个对应一台正在用的机器人。</span>
+      </a>
+    </div>
+    <div class="col-12 col-sm-6 col-lg-4">
+      <a class="ops-stat ops-stat-accent" href="{% url 'ops:ca_accounts' %}?bind_state=unbound" data-nav>
+        <span class="ops-stat-head">
+          <i class="ti ti-plug-connected-x" aria-hidden="true"></i>
+          <span class="ops-stat-label">待接通</span>
+        </span>
+        <b class="ops-stat-value">{{ unbound }}</b>
+        <span class="ops-stat-note">口径：使用中但尚未与对方完成绑定的账户数；对方端点未开通前会一直是这个数。</span>
+      </a>
+    </div>
+    <div class="col-12 col-sm-6 col-lg-4">
+      <a class="ops-stat" href="{% url 'ops:ca_accounts' %}?status=retired" data-nav>
+        <span class="ops-stat-head">
+          <i class="ti ti-archive" aria-hidden="true"></i>
+          <span class="ops-stat-label">已归档</span>
+        </span>
+        <b class="ops-stat-value">{{ counts.retired }}</b>
+        <span class="ops-stat-note">口径：换机器人后归档的旧号，保留可查、不再使用。</span>
+      </a>
+    </div>
+  </div>
+
+  <section class="card">
+    <div class="card-body">
+      <form class="row g-3 align-items-end" method="get">
+        <div class="col-12 col-sm-6 col-lg-2">
+          <label class="form-label" for="status">状态</label>
+          <select class="form-select" id="status" name="status">
+            <option value="">全部</option>
+            {% for code, text in labels.CA_ACCOUNT_STATUS.items %}
+              <option value="{{ code }}" {% if status == code %}selected{% endif %}>{{ text }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-2">
+          <label class="form-label" for="bind_state">绑定状态</label>
+          <select class="form-select" id="bind_state" name="bind_state">
+            <option value="">全部</option>
+            {% for code, text in labels.CA_ACCOUNT_BIND_STATE.items %}
+              <option value="{{ code }}" {% if bind_state == code %}selected{% endif %}>{{ text }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-12 col-lg-4">
+          <label class="form-label" for="q">账户号、儿童称呼或家长手机号</label>
+          <input type="search" class="form-control" id="q" name="q" value="{{ keyword }}"
+                 placeholder="例如 ca_01JC8Z9… 或 小芽 或 13800000001" />
+        </div>
+        <div class="col-12 col-md-auto">
+          <div class="btn-list">
+            <button type="submit" class="btn btn-primary">筛选</button>
+            <a class="btn btn-ghost-secondary" href="{% url 'ops:ca_accounts' %}" data-nav>清空</a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-header">
+      <div>
+        <h2 class="card-title">账户列表</h2>
+        <div class="card-subtitle">共 {{ page.total }} 条，每页 20 条。不展示 NFC token 原文，只有前 8 位摘要指纹。</div>
+      </div>
+    </div>
+
+    {% if items %}
+      <div class="table-responsive">
+        <table class="table table-vcenter ops-table">
+          <thead>
+            <tr>
+              <th>账户号</th>
+              <th>服务儿童</th>
+              <th>绑定家长</th>
+              <th>机器人</th>
+              <th>绑定状态</th>
+              <th>状态</th>
+              <th>建立时间</th>
+              <th>归档时间</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in items %}
+              <tr>
+                <td class="nowrap"><code>{{ row.ca_account_id }}</code></td>
+                <td>{{ row.child.name }}</td>
+                <td class="nowrap">
+                  {{ row.bound_by|display_name:"未登记" }}
+                  <span class="text-secondary small">{{ row.bound_by.phone|default:"未登记手机号" }}</span>
+                </td>
+                <td class="nowrap">
+                  {{ row.robot_ref|default:"未上报" }}
+                  <span class="text-secondary small">指纹 {{ row.nfc_token_hash|slice:":8" }}</span>
+                </td>
+                <td><span class="badge {{ row.bind_state|tone }}">{{ row.bind_state|label:"CA_ACCOUNT_BIND_STATE" }}</span></td>
+                <td><span class="badge {{ row.status|tone }}">{{ row.status|label:"CA_ACCOUNT_STATUS" }}</span></td>
+                <td class="nowrap">{{ row.bound_at|date:"Y-m-d H:i" }}</td>
+                <td class="nowrap">{{ row.unbound_at|date:"Y-m-d H:i"|default:"—" }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% include "ops/_pagination.html" %}
+    {% else %}
+      <div class="card-body">
+        {% include "ops/_empty.html" with title="没有符合条件的账户" note=empty_hint %}
+      </div>
+    {% endif %}
+  </section>
+{% endblock %}

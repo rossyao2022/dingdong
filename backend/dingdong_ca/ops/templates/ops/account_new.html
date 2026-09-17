@@ -1,0 +1,69 @@
+{% extends "ops/base.html" %}
+{% block title %}新建账号{% endblock %}
+{% block page_title %}新建后台账号{% endblock %}
+{% block crumb %}<a href="{% url 'ops:accounts' %}" data-nav>← 返回账号列表</a>{% endblock %}
+
+{% block content %}
+  <div class="row row-cards">
+    <div class="col-12 col-lg-8">
+      <section class="card">
+        <div class="card-header"><h2 class="card-title">账号信息</h2></div>
+        <div class="card-body">
+          <p class="text-secondary small">创建后请通过安全渠道把初始密码告知本人，并要求首次登录后修改。</p>
+          <form method="post" novalidate>
+            {% csrf_token %}
+            {% for field in form %}
+              <div class="mb-3">
+                {% if field.field.widget.input_type == "checkbox" %}
+                  <label class="form-label">{{ field.label }}</label>
+                  <div class="ops-checks">
+                    {% for choice in field %}
+                      <label>{{ choice.tag }} {{ choice.choice_label }}</label>
+                    {% endfor %}
+                  </div>
+                {% else %}
+                  <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                  {{ field }}
+                {% endif %}
+                {% if field.help_text %}<p class="form-hint">{{ field.help_text }}</p>{% endif %}
+                {% if field.errors %}
+                  <div class="alert alert-danger mt-2 mb-0" role="alert">
+                    <ul class="mb-0">{% for error in field.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+                  </div>
+                {% endif %}
+              </div>
+            {% endfor %}
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger" role="alert">
+                <ul class="mb-0">{% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}</ul>
+              </div>
+            {% endif %}
+            <div class="sticky-actions">
+              <button type="submit" class="btn btn-primary">创建账号</button>
+              <a class="btn btn-ghost-secondary" href="{% url 'ops:accounts' %}" data-nav>取消</a>
+            </div>
+          </form>
+        </div>
+      </section>
+    </div>
+
+    <div class="col-12 col-lg-4">
+      <section class="card">
+        <div class="card-header"><h2 class="card-title">常用角色组合</h2></div>
+        <div class="card-body">
+          <ul class="timeline">
+            {% for code, title, roles in presets %}
+              <li>
+                <div>{{ title }}</div>
+                <div class="text-secondary small">勾选：{% for role in roles %}{{ role }} {% endfor %}</div>
+              </li>
+            {% endfor %}
+          </ul>
+          <p class="form-hint mb-0">
+            运营日常使用建议“运营 + 内容运营”，可覆盖家庭查询、服务事项和题库活动维护。
+          </p>
+        </div>
+      </section>
+    </div>
+  </div>
+{% endblock %}

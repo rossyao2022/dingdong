@@ -1,0 +1,86 @@
+{% extends "ops/base.html" %}
+{% load ops_labels %}
+{% block title %}家庭与儿童{% endblock %}
+{% block page_title %}家庭与儿童{% endblock %}
+{% block crumb %}按手机号或称呼查找家庭，进入儿童详情{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <div class="card-body">
+      <form class="row g-3 align-items-end" method="get" role="search">
+        <div class="col-12 col-md-6 col-lg-4">
+          <label class="form-label" for="q">手机号或称呼</label>
+          <input type="search" class="form-control" id="q" name="q" value="{{ keyword }}"
+                 placeholder="家长手机号、家长姓名或儿童称呼" />
+        </div>
+        <div class="col-12 col-md-auto">
+          <div class="btn-list">
+            <button type="submit" class="btn btn-primary">
+              <i class="ti ti-search" aria-hidden="true"></i>查询
+            </button>
+            {% if keyword %}
+              <a class="btn btn-ghost-secondary" href="{% url 'ops:families' %}" data-nav>清空</a>
+            {% endif %}
+          </div>
+        </div>
+      </form>
+      <p class="form-hint mt-3 mb-0">
+        查询范围：家长手机号、家长姓名、登录账号、儿童称呼，均为包含匹配。每页 20 条。
+      </p>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-header">
+      <div>
+        <h2 class="card-title">查询结果</h2>
+        <div class="card-subtitle">
+          {% if keyword %}关键词“{{ keyword }}”共 {{ page.total }} 个家庭。{% else %}共 {{ page.total }} 个家庭。{% endif %}
+        </div>
+      </div>
+    </div>
+
+    {% if items %}
+      <div class="table-responsive">
+        <table class="table table-vcenter ops-table">
+          <thead>
+            <tr>
+              <th>家长</th><th>手机号</th><th>儿童</th><th>家庭状态</th>
+              <th>创建时间</th><th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in items %}
+              <tr>
+                <td>
+                  {% if item.member %}
+                    {{ item.member.user|display_name:"未登记" }}
+                  {% else %}<span class="badge bg-yellow-lt">无有效家长</span>{% endif %}
+                </td>
+                <td class="nowrap">{{ item.member.user.phone|default:"—" }}</td>
+                <td>
+                  {% for child in item.children %}
+                    <div>
+                      {{ child.name }}
+                      <span class="text-secondary small">· {{ child.gender|label:"GENDER" }} · {{ child.status|label:"CHILD_STATUS" }}</span>
+                    </div>
+                  {% empty %}<span class="text-secondary small">暂无儿童档案</span>{% endfor %}
+                </td>
+                <td><span class="badge {{ item.family.status|tone }}">{{ item.family.status|label:"FAMILY_STATUS" }}</span></td>
+                <td class="nowrap">{{ item.family.created_at|date:"Y-m-d H:i" }}</td>
+                <td class="text-end">
+                  <a class="btn btn-sm" href="{% url 'ops:family_detail' item.family.pk %}" data-nav>查看家庭</a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% include "ops/_pagination.html" %}
+    {% else %}
+      <div class="card-body">
+        {% include "ops/_empty.html" with title="没有找到匹配的家庭" note=empty_hint %}
+      </div>
+    {% endif %}
+  </section>
+{% endblock %}

@@ -1,0 +1,8 @@
+<div class="question-editor">
+<textarea name="{{ widget.name }}" id="{{ widget.attrs.id }}" hidden>{% if widget.value %}{{ widget.value }}{% else %}[]{% endif %}</textarea>
+<p>调整顺序后，答案仍按题目和选项标识保存。已发布版本不可修改。</p>
+<div class="question-rows"></div>
+<button type="button" class="button add-question">添加题目</button>
+<button type="button" class="button preview-questions">预览当前草稿</button>
+<div class="question-preview" hidden></div>
+</div>

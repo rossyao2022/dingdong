@@ -1,0 +1,116 @@
+{% load static ops_labels %}<!doctype html>
+<html lang="zh-CN" data-bs-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#337e80" />
+    <title>{% block title %}运营后台{% endblock %} · 叮咚</title>
+    <link rel="icon" href="{% static 'ops/mark.svg' %}" type="image/svg+xml" />
+    {% comment %}
+      组件库随镜像静态资源交付，不引用公网 CDN；版本号拼在 URL 上做缓存击穿，
+      否则改版上线后浏览器会继续用旧的 ops.css。来源与许可见 vendor/THIRD_PARTY_NOTICES.md。
+    {% endcomment %}
+    <link rel="stylesheet" href="{% static 'ops/vendor/tabler/tabler.min.css' %}?v={{ ops_asset_version }}" />
+    <link rel="stylesheet" href="{% static 'ops/vendor/tabler-icons/tabler-icons.min.css' %}?v={{ ops_asset_version }}" />
+    <link rel="stylesheet" href="{% static 'ops/ops.css' %}?v={{ ops_asset_version }}" />
+  </head>
+  <body class="layout-fluid">
+    <a class="skip-link" href="#main">跳到主要内容</a>
+    <div hidden>{% csrf_token %}</div>
+
+    <aside class="ops-sidebar" id="ops-sidebar" aria-label="运营导航">
+      <div class="ops-sidebar-head">
+        <a class="ops-brand" href="{% url 'ops:dashboard' %}" data-nav>
+          <img src="{% static 'ops/mark.svg' %}" alt="" width="36" height="36" />
+          <span><b>叮咚运营后台</b><small>日常运营与内容管理</small></span>
+        </a>
+        <button type="button" class="ops-sidebar-close" data-ops-nav-close aria-label="关闭导航">
+          <i class="ti ti-x" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="ops-partner">CAREER ACADEMY × DINGDONG</div>
+
+      <nav class="ops-nav" aria-label="功能菜单">
+        {% regroup nav by group as groups %}
+        {% for group in groups %}
+          <div class="ops-nav-group">{{ group.grouper }}</div>
+          {% for item in group.list %}
+            <a class="ops-nav-link" href="{% url item.view %}" data-nav
+               {% if current == item.view|cut:"ops:" %}aria-current="page"{% endif %}>
+              <i class="ti {{ item.icon|default:'ti-point' }}" aria-hidden="true"></i>
+              <span>{{ item.title }}</span>
+            </a>
+          {% endfor %}
+        {% endfor %}
+      </nav>
+
+      <div class="ops-sidebar-foot">
+        <div class="ops-identity">
+          <span class="ops-avatar" aria-hidden="true"><i class="ti ti-user-shield"></i></span>
+          <span class="ops-identity-text">
+            <b>{{ operator|display_name:"运营人员" }}</b>
+            <small>{{ ops_role_labels|join:"、"|default:"未分配角色" }}</small>
+          </span>
+        </div>
+        <a class="btn btn-sm w-100" href="{% url 'ops:password' %}">
+          <i class="ti ti-key" aria-hidden="true"></i>修改密码
+        </a>
+        <form method="post" action="{% url 'ops:logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-sm w-100">
+            <i class="ti ti-logout" aria-hidden="true"></i>退出登录
+          </button>
+        </form>
+      </div>
+    </aside>
+
+    <div class="ops-shell">
+      <header class="ops-topbar">
+        <button type="button" class="ops-menu-toggle" data-ops-nav-open
+                aria-label="展开导航" aria-controls="ops-sidebar" aria-expanded="false">
+          <i class="ti ti-menu-2" aria-hidden="true"></i>
+        </button>
+        <div class="ops-topbar-text">
+          <h1 class="ops-page-title">{% block page_title %}运营后台{% endblock %}</h1>
+          <div class="ops-crumb">{% block crumb %}{% endblock %}</div>
+        </div>
+        <div class="ops-topbar-actions">
+          {% block topbar_actions %}{% endblock %}
+          <span class="badge bg-secondary-lt" title="当前为演示环境：短信验证码固定，测评数据来自测试输入">演示环境</span>
+          <span class="ops-topbar-user" title="当前登录账号">
+            <span class="ops-avatar" aria-hidden="true"><i class="ti ti-user-shield"></i></span>
+            <span class="ops-identity-text">
+              <b>{{ operator|display_name:"运营人员" }}</b>
+              <small>{{ ops_role_labels|join:"、"|default:"未分配角色" }}</small>
+            </span>
+          </span>
+        </div>
+      </header>
+
+      <main id="main" class="ops-main">
+        {% if messages %}
+          <div class="mb-3">
+            {% for message in messages %}
+              <div class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'warning' %}alert-warning{% elif message.tags == 'success' %}alert-success{% else %}alert-info{% endif %}"
+                   role="alert">
+                <div>{{ message }}</div>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+        {% block content %}{% endblock %}
+      </main>
+
+      <footer class="ops-footer">
+        CA × DingDong 运营后台 · 演示环境，未接入真实短信与专业算法 · 界面版本 {{ ops_app_version }}
+      </footer>
+    </div>
+
+    <button type="button" class="ops-backdrop" data-ops-nav-close hidden aria-label="关闭导航"></button>
+
+    <div id="toast" class="ops-toast" role="status" aria-live="polite"></div>
+    <script src="{% static 'ops/vendor/tabler/tabler.min.js' %}?v={{ ops_asset_version }}" defer></script>
+    <script src="{% static 'ops/ops.js' %}?v={{ ops_asset_version }}" defer></script>
+    {% block scripts %}{% endblock %}
+  </body>
+</html>

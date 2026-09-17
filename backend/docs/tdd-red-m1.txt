@@ -1,0 +1,553 @@
+FFFFFFFFFFFFFFFFFFFFFFFF                                                 [100%]
+=================================== FAILURES ===================================
+__________ test_full_activity_lifecycle_is_persistent_and_idempotent ___________
+.venv/lib/python3.14/site-packages/django/core/management/__init__.py:110: in call_command
+    app_name = get_commands()[command_name]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'seed_base'
+
+During handling of the above exception, another exception occurred:
+tests/test_activities.py:24: in test_full_activity_lifecycle_is_persistent_and_idempotent
+    child,a,record,data=setup_activity(client)
+                        ^^^^^^^^^^^^^^^^^^^^^^
+tests/test_activities.py:11: in setup_activity
+    call_command('seed_base',verbosity=0)
+.venv/lib/python3.14/site-packages/django/core/management/__init__.py:112: in call_command
+    raise CommandError("Unknown command: %r" % command_name)
+E   django.core.management.base.CommandError: Unknown command: 'seed_base'
+_____________________ test_single_active_revision_and_skip _____________________
+.venv/lib/python3.14/site-packages/django/core/management/__init__.py:110: in call_command
+    app_name = get_commands()[command_name]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'seed_base'
+
+During handling of the above exception, another exception occurred:
+tests/test_activities.py:41: in test_single_active_revision_and_skip
+    child,a,record,data=setup_activity(client)
+                        ^^^^^^^^^^^^^^^^^^^^^^
+tests/test_activities.py:11: in setup_activity
+    call_command('seed_base',verbosity=0)
+.venv/lib/python3.14/site-packages/django/core/management/__init__.py:112: in call_command
+    raise CommandError("Unknown command: %r" % command_name)
+E   django.core.management.base.CommandError: Unknown command: 'seed_base'
+________________ test_activity_cross_family_and_retired_content ________________
+.venv/lib/python3.14/site-packages/django/core/management/__init__.py:110: in call_command
+    app_name = get_commands()[command_name]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'seed_base'
+
+During handling of the above exception, another exception occurred:
+tests/test_activities.py:53: in test_activity_cross_family_and_retired_content
+    child,a,r,data=setup_activity(client)
+                   ^^^^^^^^^^^^^^^^^^^^^^
+tests/test_activities.py:11: in setup_activity
+    call_command('seed_base',verbosity=0)
+.venv/lib/python3.14/site-packages/django/core/management/__init__.py:112: in call_command
+    raise CommandError("Unknown command: %r" % command_name)
+E   django.core.management.base.CommandError: Unknown command: 'seed_base'
+_____________ test_seeding_idempotent_without_overwriting_content ______________
+.venv/lib/python3.14/site-packages/django/core/management/__init__.py:110: in call_command
+    app_name = get_commands()[command_name]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'seed_base'
+
+During handling of the above exception, another exception occurred:
+tests/test_activities.py:63: in test_seeding_idempotent_without_overwriting_content
+    call_command('seed_base',verbosity=0);call_command('seed_base',verbosity=0)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/core/management/__init__.py:112: in call_command
+    raise CommandError("Unknown command: %r" % command_name)
+E   django.core.management.base.CommandError: Unknown command: 'seed_base'
+_____________ test_fixed_code_login_creates_real_family_and_grant ______________
+tests/test_auth.py:11: in test_fixed_code_login_creates_real_family_and_grant
+    data = sign_in(client)
+           ^^^^^^^^^^^^^^^
+tests/conftest.py:20: in sign_in
+    csrf(client)
+tests/conftest.py:16: in csrf
+    assert response.status_code == 200, response.content
+E   AssertionError: b'
+E     <!doctype html>
+E     <html lang="en">
+E     <head>
+E       <title>Not Found</title>
+E     </head>
+E     <body>
+E       <h1>Not Found</h1><p>The requested resource was not found on this server.</p>
+E     </body>
+E     </html>
+E     '
+E   assert 404 == 200
+E    +  where 404 = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">.status_code
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/auth/csrf
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/auth/csrf
+______________________ test_csrf_is_enforced_before_login ______________________
+tests/test_auth.py:26: in test_csrf_is_enforced_before_login
+    assert r.status_code == 403
+E   assert 404 == 403
+E    +  where 404 = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">.status_code
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/auth/sms
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/auth/sms
+_____________________ test_sms_rate_limit_and_error_shape ______________________
+tests/test_auth.py:30: in test_sms_rate_limit_and_error_shape
+    csrf(client)
+tests/conftest.py:16: in csrf
+    assert response.status_code == 200, response.content
+E   AssertionError: b'
+E     <!doctype html>
+E     <html lang="en">
+E     <head>
+E       <title>Not Found</title>
+E     </head>
+E     <body>
+E       <h1>Not Found</h1><p>The requested resource was not found on this server.</p>
+E     </body>
+E     </html>
+E     '
+E   assert 404 == 200
+E    +  where 404 = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">.status_code
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/auth/csrf
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/auth/csrf
+_______________ test_code_is_strict_five_character_string[0000] ________________
+tests/test_auth.py:39: in test_code_is_strict_five_character_string
+    csrf(client)
+tests/conftest.py:16: in csrf
+    assert response.status_code == 200, response.content
+E   AssertionError: b'
+E     <!doctype html>
+E     <html lang="en">
+E     <head>
+E       <title>Not Found</title>
+E     </head>
+E     <body>
+E       <h1>Not Found</h1><p>The requested resource was not found on this server.</p>
+E     </body>
+E     </html>
+E     '
+E   assert 404 == 200
+E    +  where 404 = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">.status_code
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/auth/csrf
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/auth/csrf
+_________________ test_code_is_strict_five_character_string[0] _________________
+tests/test_auth.py:39: in test_code_is_strict_five_character_string
+    csrf(client)
+tests/conftest.py:16: in csrf
+    assert response.status_code == 200, response.content
+E   AssertionError: b'
+E     <!doctype html>
+E     <html lang="en">
+E     <head>
+E       <title>Not Found</title>
+E     </head>
+E     <body>
+E       <h1>Not Found</h1><p>The requested resource was not found on this server.</p>
+E     </body>
+E     </html>
+E     '
+E   assert 404 == 200
+E    +  where 404 = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">.status_code
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/auth/csrf
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/auth/csrf
+_______________ test_code_is_strict_five_character_string[abcde] _______________
+tests/test_auth.py:39: in test_code_is_strict_five_character_string
+    csrf(client)
+tests/conftest.py:16: in csrf
+    assert response.status_code == 200, response.content
+E   AssertionError: b'
+E     <!doctype html>
+E     <html lang="en">
+E     <head>
+E       <title>Not Found</title>
+E     </head>
+E     <body>
+E       <h1>Not Found</h1><p>The requested resource was not found on this server.</p>
+E     </body>
+E     </html>
+E     '
+E   assert 404 == 200
+E    +  where 404 = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">.status_code
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/auth/csrf
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/auth/csrf
+_____________________ test_wrong_attempts_persist_and_lock _____________________
+tests/test_auth.py:45: in test_wrong_attempts_persist_and_lock
+    csrf(client)
+tests/conftest.py:16: in csrf
+    assert response.status_code == 200, response.content
+E   AssertionError: b'
+E     <!doctype html>
+E     <html lang="en">
+E     <head>
+E       <title>Not Found</title>
+E     </head>
+E     <body>
+E       <h1>Not Found</h1><p>The requested resource was not found on this server.</p>
+E     </body>
+E     </html>
+E     '
+E   assert 404 == 200
+E    +  where 404 = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">.status_code
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/auth/csrf
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/auth/csrf
+_____________________ test_challenge_consumed_and_expired ______________________
+tests/test_auth.py:55: in test_challenge_consumed_and_expired
+    csrf(client)
+tests/conftest.py:16: in csrf
+    assert response.status_code == 200, response.content
+E   AssertionError: b'
+E     <!doctype html>
+E     <html lang="en">
+E     <head>
+E       <title>Not Found</title>
+E     </head>
+E     <body>
+E       <h1>Not Found</h1><p>The requested resource was not found on this server.</p>
+E     </body>
+E     </html>
+E     '
+E   assert 404 == 200
+E    +  where 404 = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">.status_code
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/auth/csrf
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/auth/csrf
+_______________ test_refresh_rotation_fixed_deadline_and_logout ________________
+tests/test_auth.py:68: in test_refresh_rotation_fixed_deadline_and_logout
+    data=sign_in(client)
+         ^^^^^^^^^^^^^^^
+tests/conftest.py:20: in sign_in
+    csrf(client)
+tests/conftest.py:16: in csrf
+    assert response.status_code == 200, response.content
+E   AssertionError: b'
+E     <!doctype html>
+E     <html lang="en">
+E     <head>
+E       <title>Not Found</title>
+E     </head>
+E     <body>
+E       <h1>Not Found</h1><p>The requested resource was not found on this server.</p>
+E     </body>
+E     </html>
+E     '
+E   assert 404 == 200
+E    +  where 404 = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">.status_code
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/auth/csrf
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/auth/csrf
+_________________ test_other_login_survives_one_device_logout __________________
+tests/test_auth.py:88: in test_other_login_survives_one_device_logout
+    first=sign_in(client)
+          ^^^^^^^^^^^^^^^
+tests/conftest.py:20: in sign_in
+    csrf(client)
+tests/conftest.py:16: in csrf
+    assert response.status_code == 200, response.content
+E   AssertionError: b'
+E     <!doctype html>
+E     <html lang="en">
+E     <head>
+E       <title>Not Found</title>
+E     </head>
+E     <body>
+E       <h1>Not Found</h1><p>The requested resource was not found on this server.</p>
+E     </body>
+E     </html>
+E     '
+E   assert 404 == 200
+E    +  where 404 = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">.status_code
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/auth/csrf
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/auth/csrf
+_________________ test_disabled_user_and_forged_token_rejected _________________
+tests/test_auth.py:98: in test_disabled_user_and_forged_token_rejected
+    d=sign_in(client)
+      ^^^^^^^^^^^^^^^
+tests/conftest.py:20: in sign_in
+    csrf(client)
+tests/conftest.py:16: in csrf
+    assert response.status_code == 200, response.content
+E   AssertionError: b'
+E     <!doctype html>
+E     <html lang="en">
+E     <head>
+E       <title>Not Found</title>
+E     </head>
+E     <body>
+E       <h1>Not Found</h1><p>The requested resource was not found on this server.</p>
+E     </body>
+E     </html>
+E     '
+E   assert 404 == 200
+E    +  where 404 = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">.status_code
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/auth/csrf
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/auth/csrf
+______________________ test_staff_cannot_login_as_parent _______________________
+tests/test_auth.py:106: in test_staff_cannot_login_as_parent
+    csrf(client)
+tests/conftest.py:16: in csrf
+    assert response.status_code == 200, response.content
+E   AssertionError: b'
+E     <!doctype html>
+E     <html lang="en">
+E     <head>
+E       <title>Not Found</title>
+E     </head>
+E     <body>
+E       <h1>Not Found</h1><p>The requested resource was not found on this server.</p>
+E     </body>
+E     </html>
+E     '
+E   assert 404 == 200
+E    +  where 404 = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">.status_code
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/auth/csrf
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/auth/csrf
+______________ test_child_create_update_idempotency_and_contract _______________
+tests/test_children.py:10: in test_child_create_update_idempotency_and_contract
+    sign_in(client)
+tests/conftest.py:20: in sign_in
+    csrf(client)
+tests/conftest.py:16: in csrf
+    assert response.status_code == 200, response.content
+E   AssertionError: b'
+E     <!doctype html>
+E     <html lang="en">
+E     <head>
+E       <title>Not Found</title>
+E     </head>
+E     <body>
+E       <h1>Not Found</h1><p>The requested resource was not found on this server.</p>
+E     </body>
+E     </html>
+E     '
+E   assert 404 == 200
+E    +  where 404 = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">.status_code
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/auth/csrf
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/auth/csrf
+_____________ test_invalid_child_fields[grade-\u4e00\u5e74\u7ea7] ______________
+tests/test_children.py:26: in test_invalid_child_fields
+    sign_in(client)
+tests/conftest.py:20: in sign_in
+    csrf(client)
+tests/conftest.py:16: in csrf
+    assert response.status_code == 200, response.content
+E   AssertionError: b'
+E     <!doctype html>
+E     <html lang="en">
+E     <head>
+E       <title>Not Found</title>
+E     </head>
+E     <body>
+E       <h1>Not Found</h1><p>The requested resource was not found on this server.</p>
+E     </body>
+E     </html>
+E     '
+E   assert 404 == 200
+E    +  where 404 = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">.status_code
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/auth/csrf
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/auth/csrf
+__ test_invalid_child_fields[family_id-5a41580c-533e-4cb4-8e3f-1871fbcf90b8] ___
+tests/test_children.py:26: in test_invalid_child_fields
+    sign_in(client)
+tests/conftest.py:20: in sign_in
+    csrf(client)
+tests/conftest.py:16: in csrf
+    assert response.status_code == 200, response.content
+E   AssertionError: b'
+E     <!doctype html>
+E     <html lang="en">
+E     <head>
+E       <title>Not Found</title>
+E     </head>
+E     <body>
+E       <h1>Not Found</h1><p>The requested resource was not found on this server.</p>
+E     </body>
+E     </html>
+E     '
+E   assert 404 == 200
+E    +  where 404 = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">.status_code
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/auth/csrf
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/auth/csrf
+___________________ test_invalid_child_fields[is_staff-True] ___________________
+tests/test_children.py:26: in test_invalid_child_fields
+    sign_in(client)
+tests/conftest.py:20: in sign_in
+    csrf(client)
+tests/conftest.py:16: in csrf
+    assert response.status_code == 200, response.content
+E   AssertionError: b'
+E     <!doctype html>
+E     <html lang="en">
+E     <head>
+E       <title>Not Found</title>
+E     </head>
+E     <body>
+E       <h1>Not Found</h1><p>The requested resource was not found on this server.</p>
+E     </body>
+E     </html>
+E     '
+E   assert 404 == 200
+E    +  where 404 = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">.status_code
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/auth/csrf
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/auth/csrf
+_______________ test_invalid_child_fields[birth_date-2999-01-01] _______________
+tests/test_children.py:26: in test_invalid_child_fields
+    sign_in(client)
+tests/conftest.py:20: in sign_in
+    csrf(client)
+tests/conftest.py:16: in csrf
+    assert response.status_code == 200, response.content
+E   AssertionError: b'
+E     <!doctype html>
+E     <html lang="en">
+E     <head>
+E       <title>Not Found</title>
+E     </head>
+E     <body>
+E       <h1>Not Found</h1><p>The requested resource was not found on this server.</p>
+E     </body>
+E     </html>
+E     '
+E   assert 404 == 200
+E    +  where 404 = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">.status_code
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/auth/csrf
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/auth/csrf
+_____________________ test_invalid_child_fields[name-   ] ______________________
+tests/test_children.py:26: in test_invalid_child_fields
+    sign_in(client)
+tests/conftest.py:20: in sign_in
+    csrf(client)
+tests/conftest.py:16: in csrf
+    assert response.status_code == 200, response.content
+E   AssertionError: b'
+E     <!doctype html>
+E     <html lang="en">
+E     <head>
+E       <title>Not Found</title>
+E     </head>
+E     <body>
+E       <h1>Not Found</h1><p>The requested resource was not found on this server.</p>
+E     </body>
+E     </html>
+E     '
+E   assert 404 == 200
+E    +  where 404 = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">.status_code
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/auth/csrf
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/auth/csrf
+__________________ test_invalid_child_fields[gender-invalid] ___________________
+tests/test_children.py:26: in test_invalid_child_fields
+    sign_in(client)
+tests/conftest.py:20: in sign_in
+    csrf(client)
+tests/conftest.py:16: in csrf
+    assert response.status_code == 200, response.content
+E   AssertionError: b'
+E     <!doctype html>
+E     <html lang="en">
+E     <head>
+E       <title>Not Found</title>
+E     </head>
+E     <body>
+E       <h1>Not Found</h1><p>The requested resource was not found on this server.</p>
+E     </body>
+E     </html>
+E     '
+E   assert 404 == 200
+E    +  where 404 = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">.status_code
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/auth/csrf
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/auth/csrf
+__________________ test_family_isolation_and_anonymous_access __________________
+tests/test_children.py:32: in test_family_isolation_and_anonymous_access
+    sign_in(client)
+tests/conftest.py:20: in sign_in
+    csrf(client)
+tests/conftest.py:16: in csrf
+    assert response.status_code == 200, response.content
+E   AssertionError: b'
+E     <!doctype html>
+E     <html lang="en">
+E     <head>
+E       <title>Not Found</title>
+E     </head>
+E     <body>
+E       <h1>Not Found</h1><p>The requested resource was not found on this server.</p>
+E     </body>
+E     </html>
+E     '
+E   assert 404 == 200
+E    +  where 404 = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">.status_code
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/auth/csrf
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/auth/csrf
+=============================== warnings summary ===============================
+tests/conftest.py:6
+tests/conftest.py:6
+  backend/tests/conftest.py:6: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.
+    from jsonschema import Draft202012Validator, RefResolver
+
+tests/test_auth.py: 12 warnings
+tests/test_children.py: 8 warnings
+  backend/.venv/lib/python3.14/site-packages/django/core/handlers/base.py:62: UserWarning: No directory at: backend/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_activities.py::test_full_activity_lifecycle_is_persistent_and_idempotent
+FAILED tests/test_activities.py::test_single_active_revision_and_skip - djang...
+FAILED tests/test_activities.py::test_activity_cross_family_and_retired_content
+FAILED tests/test_activities.py::test_seeding_idempotent_without_overwriting_content
+FAILED tests/test_auth.py::test_fixed_code_login_creates_real_family_and_grant
+FAILED tests/test_auth.py::test_csrf_is_enforced_before_login - assert 404 ==...
+FAILED tests/test_auth.py::test_sms_rate_limit_and_error_shape - AssertionErr...
+FAILED tests/test_auth.py::test_code_is_strict_five_character_string[0000] - ...
+FAILED tests/test_auth.py::test_code_is_strict_five_character_string[0] - Ass...
+FAILED tests/test_auth.py::test_code_is_strict_five_character_string[abcde]
+FAILED tests/test_auth.py::test_wrong_attempts_persist_and_lock - AssertionEr...
+FAILED tests/test_auth.py::test_challenge_consumed_and_expired - AssertionErr...
+FAILED tests/test_auth.py::test_refresh_rotation_fixed_deadline_and_logout - ...
+FAILED tests/test_auth.py::test_other_login_survives_one_device_logout - Asse...
+FAILED tests/test_auth.py::test_disabled_user_and_forged_token_rejected - Ass...
+FAILED tests/test_auth.py::test_staff_cannot_login_as_parent - AssertionError...
+FAILED tests/test_children.py::test_child_create_update_idempotency_and_contract
+FAILED tests/test_children.py::test_invalid_child_fields[grade-\u4e00\u5e74\u7ea7]
+FAILED tests/test_children.py::test_invalid_child_fields[family_id-5a41580c-533e-4cb4-8e3f-1871fbcf90b8]
+FAILED tests/test_children.py::test_invalid_child_fields[is_staff-True] - Ass...
+FAILED tests/test_children.py::test_invalid_child_fields[birth_date-2999-01-01]
+FAILED tests/test_children.py::test_invalid_child_fields[name-   ] - Assertio...
+FAILED tests/test_children.py::test_invalid_child_fields[gender-invalid] - As...
+FAILED tests/test_children.py::test_family_isolation_and_anonymous_access - A...
+24 failed, 22 warnings in 0.51s

@@ -1,0 +1,144 @@
+{% extends "ops/base.html" %}
+{% load static ops_labels %}
+{% block title %}{{ row.title }}{% endblock %}
+{% block page_title %}{{ row.title }}{% endblock %}
+{% block crumb %}
+  <a href="{% url 'ops:questionnaires' %}" data-nav>← 返回题库列表</a>
+  · {{ row.purpose|label:"QUESTIONNAIRE_PURPOSE" }} · 版本 {{ row.version }} ·
+  <span class="badge {{ row.status|tone }}">{{ row.status|label:"CONTENT_STATUS" }}</span>
+{% endblock %}
+
+{% block topbar_actions %}
+  <a class="btn btn-sm" href="{% url 'ops:questionnaire_preview' row.pk %}" data-nav>预览</a>
+{% endblock %}
+
+{% block content %}
+  {% if not can_edit %}
+    <div class="alert alert-warning" role="alert">
+      <h4 class="alert-heading">该版本不可编辑</h4>
+      <p class="mb-0">
+        {% if row.status == "draft" %}
+          当前角色没有编辑题库的权限，你可以查看和预览。
+        {% else %}
+          已发布或已停用的版本不能原地修改。请使用“复制为新版本”创建可编辑的草稿，历史答卷仍绑定原版本。
+        {% endif %}
+      </p>
+    </div>
+  {% endif %}
+
+  <div id="conflict" hidden></div>
+
+  <div id="questionnaire-config"
+       data-status="{{ row.status }}"
+       data-editable="{% if can_edit %}1{% else %}0{% endif %}"
+       data-revision="{{ row.revision }}"
+       data-save-url="{% url 'ops:api_questionnaire_save' row.pk %}"
+       data-check-url="{% url 'ops:api_questionnaire_check' row.pk %}"
+       data-publish-url="/api/v1/staff/questionnaires/{{ row.pk }}/publish"
+       data-copy-url="{% url 'ops:api_questionnaire_copy' row.pk %}"
+       data-retire-url="{% url 'ops:api_questionnaire_retire' row.pk %}"
+       data-list-url="{% url 'ops:questionnaires' %}"></div>
+  <input type="hidden" id="preview-url" value="{% url 'ops:questionnaire_preview' row.pk %}" />
+  {{ payload|json_script:"questionnaire-data" }}
+
+  <div class="row row-cards">
+    <div class="col-12 col-lg-8">
+      <section class="card">
+        <div class="card-header"><h2 class="card-title">题库信息</h2></div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label" for="q-title">题库名称</label>
+            <input type="text" class="form-control" id="q-title" value="{{ row.title }}" maxlength="160"
+                   {% if not can_edit %}disabled{% endif %} />
+            <p class="form-hint">家长在问卷页看到的名称。</p>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="q-description">给家长的用途说明</label>
+            <textarea class="form-control" id="q-description" {% if not can_edit %}disabled{% endif %}>{{ row.description }}</textarea>
+            <p class="form-hint">说明这份问卷的用途和边界，例如“只记录本次选择，不作能力评价”。</p>
+          </div>
+          <dl class="kv">
+            <dt>系统编号</dt><dd>{{ row.code }}（自动生成，无需维护）</dd>
+            <dt>版本号</dt><dd>{{ row.version }}</dd>
+            <dt>用途</dt><dd>{{ row.purpose|label:"QUESTIONNAIRE_PURPOSE" }}</dd>
+            <dt>题目数量要求</dt>
+            <dd>{% if row.purpose == "exploration" %}1–10 题{% else %}20–30 题{% endif %}（发布时校验）</dd>
+          </dl>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">题目</h2>
+            <div class="card-subtitle">可调整顺序、题型、必填规则和选项，无需接触任何代码或 JSON。</div>
+          </div>
+          <div class="card-actions">
+            {% if can_edit %}
+              <button type="button" class="btn btn-sm btn-primary" id="add-question">
+                <i class="ti ti-plus" aria-hidden="true"></i>添加题目
+              </button>
+            {% endif %}
+          </div>
+        </div>
+        <div class="card-body">
+          <div id="problems" hidden></div>
+          <div id="questions"></div>
+        </div>
+      </section>
+
+      <div class="sticky-actions">
+        {% if can_edit %}
+          <button type="button" class="btn btn-primary" id="save">保存草稿</button>
+          <button type="button" class="btn" id="preview">保存并预览</button>
+          <button type="button" class="btn" id="publish">发布</button>
+        {% else %}
+          <a class="btn btn-primary" href="{% url 'ops:questionnaire_preview' row.pk %}" data-nav>查看预览</a>
+        {% endif %}
+        {% if can_manage and row.status != "retired" %}
+          <button type="button" class="btn" id="copy">复制为新版本</button>
+          <button type="button" class="btn btn-danger" id="retire">停用</button>
+        {% endif %}
+        <span class="dirty-flag" data-dirty-flag hidden>有未保存的修改</span>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+      <section class="card">
+        <div class="card-header"><h2 class="card-title">同题库的其他版本</h2></div>
+        <div class="card-body">
+          {% if history %}
+            <ul class="timeline">
+              {% for item in history %}
+                <li>
+                  <div>
+                    <a href="{% url 'ops:questionnaire_edit' item.id %}" data-nav>{{ item.version }}</a>
+                    <span class="badge {{ item.status|tone }}">{{ item.status|label:"CONTENT_STATUS" }}</span>
+                  </div>
+                  <time>更新于 {{ item.updated_at|date:"Y-m-d H:i" }}</time>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="text-secondary small mb-0">暂无其他版本。</p>
+          {% endif %}
+        </div>
+      </section>
+      <section class="card">
+        <div class="card-header"><h2 class="card-title">发布规则</h2></div>
+        <div class="card-body">
+          <ul class="timeline">
+            <li>草稿可以随时保存，未完成的题目不会影响家长端。</li>
+            <li>发布时校验题目数量和选项完整性；同一题库的旧版本会自动停用，不同标题的独立题库互不影响。</li>
+            <li>已发布版本不可原地修改，避免影响正在作答的家长。</li>
+            <li>历史答卷固定使用创建时的题库版本，不会被新版本改写。</li>
+          </ul>
+        </div>
+      </section>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{% static 'ops/question_editor.js' %}?v={{ ops_asset_version }}" defer></script>
+{% endblock %}

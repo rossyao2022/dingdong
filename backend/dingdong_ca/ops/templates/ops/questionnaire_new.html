@@ -1,0 +1,98 @@
+{% extends "ops/base.html" %}
+{% block title %}新建题库草稿{% endblock %}
+{% block page_title %}新建题库草稿{% endblock %}
+{% block crumb %}<a href="{% url 'ops:questionnaires' %}" data-nav>← 返回题库列表</a>{% endblock %}
+
+{% block content %}
+  <section class="card mx-auto" style="max-width:760px">
+    <div class="card-header"><h2 class="card-title">第一步：填写题库基本信息</h2></div>
+    <div class="card-body">
+      <p class="text-secondary small">
+        创建后进入可视化编辑器逐题添加题目。草稿不会出现在家长端。
+        内部编号与版本号由系统自动生成，不需要手工维护。
+      </p>
+
+      <div class="mb-3">
+        <label class="form-label" for="new-purpose">用途</label>
+        <select class="form-select" id="new-purpose">
+          {% for code, text in purposes %}
+            <option value="{{ code }}">{{ text }}</option>
+          {% endfor %}
+        </select>
+        <p class="form-hint">探索体验 1–10 题；测评流程（测试）20–30 题。数量在发布时校验。</p>
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="new-title">题库名称</label>
+        <input type="text" class="form-control" id="new-title"
+               placeholder="家长看到的问卷名称" maxlength="160" />
+        <p class="form-hint">
+          这里每次都会新建一份<strong>独立</strong>题库：即使名称相同，也是两份互不影响的内容。
+          要修改已有题库，请回到题库列表用“复制为新版本”。
+        </p>
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="new-description">给家长的用途说明</label>
+        <textarea class="form-control" id="new-description"
+                  placeholder="例如：非正式体验，只记录本次选择，不作能力评价。"></textarea>
+      </div>
+
+      <div id="create-problems" hidden></div>
+
+      <div class="sticky-actions">
+        <button type="button" class="btn btn-primary" id="create-submit">创建草稿并开始编辑</button>
+        <a class="btn btn-ghost-secondary" href="{% url 'ops:questionnaires' %}" data-nav>取消</a>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    (function () {
+      const button = document.getElementById("create-submit");
+      const problems = document.getElementById("create-problems");
+      /* 请求标识在第一次点击时生成：公网后台是 HTTP，不能假设 crypto.randomUUID 存在。
+         同一次提交重试复用同一个标识，服务端据此保证不会产生第二份草稿。 */
+      let requestKey = null;
+      button.addEventListener("click", async function () {
+        const title = document.getElementById("new-title").value.trim();
+        if (problems) {
+          problems.hidden = true;
+          problems.innerHTML = "";
+        }
+        if (!title) {
+          if (problems) {
+            problems.hidden = false;
+            problems.appendChild(
+              window.Ops.notice({
+                kind: "danger",
+                title: "还差一步",
+                message: "请先填写题库名称，运营界面看到的名称就是家长看到的名称。",
+              })
+            );
+          }
+          window.Ops.toast("请先填写题库名称。", "error");
+          return;
+        }
+        if (!requestKey) requestKey = window.Ops.requestId();
+        const data = await window.Ops.act({
+          url: "{% url 'ops:api_questionnaire_create' %}",
+          body: {
+            purpose: document.getElementById("new-purpose").value,
+            title: title,
+            description: document.getElementById("new-description").value,
+            request_key: requestKey,
+          },
+          button: button,
+          success: false,
+        });
+        if (data && data.questionnaire) {
+          window.Ops.toast(data.notice || "草稿已创建。", "ok");
+          window.setTimeout(function () {
+            window.location.href = "/ops/questionnaires/" + data.questionnaire.id + "/";
+          }, 700);
+        }
+      });
+    })();
+  </script>
+{% endblock %}

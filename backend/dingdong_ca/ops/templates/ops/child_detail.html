@@ -1,0 +1,440 @@
+{% extends "ops/base.html" %}
+{% load ops_labels %}
+{% block title %}儿童详情{% endblock %}
+{% block page_title %}{{ child.name }} · 儿童详情{% endblock %}
+{% block crumb %}
+  <a href="{% url 'ops:families' %}" data-nav>家庭与儿童</a> ·
+  <a href="{% url 'ops:family_detail' family.pk %}" data-nav>返回家庭</a>
+{% endblock %}
+
+{% block topbar_actions %}
+  {% if can_edit_child %}
+    <button type="button" class="btn btn-sm btn-primary" id="edit-profile-open">
+      <i class="ti ti-pencil" aria-hidden="true"></i>更正档案
+    </button>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <div class="card-header"><h2 class="card-title">基本信息</h2></div>
+    <div class="card-body">
+      <dl class="kv">
+        <dt>称呼</dt><dd>{{ child.name }}</dd>
+        <dt>性别</dt><dd>{{ child.gender|label:"GENDER" }}</dd>
+        <dt>生日</dt><dd>{{ child.birth_date|date:"Y-m-d"|default:"未填写" }}</dd>
+        <dt>档案状态</dt><dd><span class="badge {{ child.status|tone }}">{{ child.status|label:"CHILD_STATUS" }}</span></dd>
+        <dt>所属家庭</dt>
+        <dd><a href="{% url 'ops:family_detail' family.pk %}" data-nav>查看家庭</a>
+          {% if member %} · 家长 {{ member.user|display_name:"未登记" }}（{{ member.user.phone|default:"未登记手机号" }}）{% endif %}
+        </dd>
+        <dt>创建时间</dt><dd>{{ child.created_at|date:"Y-m-d H:i" }}</dd>
+      </dl>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-header">
+      <h2 class="card-title">活动记录（{{ activities|length }}）</h2>
+    </div>
+    {% if activities %}
+      <div class="table-responsive">
+        <table class="table table-vcenter ops-table">
+          <thead><tr><th>活动</th><th>状态</th><th>进度</th><th>开始</th><th>结束</th><th>反馈</th></tr></thead>
+          <tbody>
+            {% for record in activities %}
+              <tr>
+                <td>
+                  {{ record.activity_version.title }}
+                  <div class="text-secondary small">
+                    版本 {{ record.activity_version.version }} · {{ record.activity_version.status|label:"CONTENT_STATUS" }}
+                  </div>
+                </td>
+                <td><span class="badge {{ record.status|tone }}">{{ record.status|label:"ACTIVITY_RECORD_STATUS" }}</span></td>
+                <td>
+                  {% with total=record.activity_version.content.steps|length %}
+                    第 {{ record.step_index|add:1 }} / {{ total }} 步
+                  {% endwith %}
+                </td>
+                <td class="nowrap">{{ record.started_at|date:"Y-m-d H:i" }}</td>
+                <td class="nowrap">{{ record.finished_at|date:"Y-m-d H:i"|default:"—" }}</td>
+                <td>
+                  {{ record.feedback|default:"—" }}
+                  {% if record.note %}<div class="text-secondary small">{{ record.note }}</div>{% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="card-body">
+        {% include "ops/_empty.html" with title="该儿童还没有活动记录" %}
+      </div>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <div class="card-header">
+      <h2 class="card-title">答卷（{{ sessions|length }}）</h2>
+    </div>
+    <div class="card-body">
+      {% if sessions %}
+        {% for session, rows in sessions %}
+          <details class="card question-card" {% if forloop.first %}open{% endif %}>
+            <summary>
+              <b>{{ session.questionnaire_version.title }}</b>
+              <span class="badge {{ session.status|tone }}">{{ session.status|label:"ASSESSMENT_STATUS" }}</span>
+              <span class="text-secondary small">
+                · {{ session.questionnaire_version.purpose|label:"QUESTIONNAIRE_PURPOSE" }}
+                · 版本 {{ session.questionnaire_version.version }}
+                · {{ session.created_at|date:"Y-m-d H:i" }}
+              </span>
+            </summary>
+            <div class="ops-disclosure-body">
+              <p class="form-hint">
+                题库版本固定为答卷创建时的版本；之后发布的题库不会改变这份答卷。
+                提交时间 {{ session.submitted_at|date:"Y-m-d H:i"|default:"未提交" }} ·
+                完成时间 {{ session.completed_at|date:"Y-m-d H:i"|default:"未完成" }}
+              </p>
+              <div class="table-responsive">
+                <table class="table table-vcenter ops-table">
+                  <tbody>
+                    {% for row in rows %}
+                      <tr>
+                        <th class="w-50">{{ row.title }}</th>
+                        <td>{{ row.answers|join:"、" }}</td>
+                      </tr>
+                    {% empty %}
+                      <tr><td class="text-secondary">该答卷还没有答案。</td></tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </details>
+        {% endfor %}
+      {% else %}
+        {% include "ops/_empty.html" with title="该儿童还没有答卷" %}
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-header"><h2 class="card-title">报告与画像</h2></div>
+    <div class="card-body">
+      {% if can_view_reports %}
+        <h3 class="subheader">已生成报告（{{ reports|length }}）</h3>
+        {% if reports %}
+          <div class="table-responsive">
+            <table class="table table-vcenter ops-table">
+              <thead><tr><th>报告</th><th>画像类型</th><th>数据来源</th><th>生成时间</th><th></th></tr></thead>
+              <tbody>
+                {% for report in reports %}
+                  <tr>
+                    <td>{{ report.template_version|version_name }}</td>
+                    <td>{{ report.profile.kind|label:"PROFILE_KIND" }}</td>
+                    <td>{{ report.data_origin|label:"DATA_ORIGIN" }}</td>
+                    <td class="nowrap">{{ report.generated_at|date:"Y-m-d H:i" }}</td>
+                    <td class="text-end">
+                      <a class="btn btn-sm" href="{% url 'ops:report_detail' report.pk %}" data-nav>查看报告</a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          {% include "ops/_empty.html" with title="还没有生成的报告" note="家长完成测评后由后台任务自动生成。" %}
+        {% endif %}
+
+        <h3 class="subheader">画像记录（{{ profiles|length }}）</h3>
+        {% if profiles %}
+          <div class="table-responsive">
+            <table class="table table-vcenter ops-table">
+              <thead><tr><th>类型</th><th>数据来源</th><th>生成时间</th><th>指标数</th></tr></thead>
+              <tbody>
+                {% for profile in profiles %}
+                  <tr>
+                    <td>{{ profile.kind|label:"PROFILE_KIND" }}</td>
+                    <td>{{ profile.data_origin|label:"DATA_ORIGIN" }}</td>
+                    <td class="nowrap">{{ profile.produced_at|date:"Y-m-d H:i" }}</td>
+                    <td class="num">{{ profile.result.metrics|length }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          {% include "ops/_empty.html" with title="还没有画像记录" %}
+        {% endif %}
+      {% else %}
+        {% include "ops/_empty.html" with title="当前角色不能查看报告内容" %}
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-header">
+      <h2 class="card-title">伙伴关联与同步（{{ associations|length }}）</h2>
+    </div>
+    {% if associations %}
+      <div class="table-responsive">
+        <table class="table table-vcenter ops-table">
+          <thead><tr><th>状态</th><th>核验时间</th><th>同步</th><th>最近成功</th><th></th></tr></thead>
+          <tbody>
+            {% for association, checkpoint in associations %}
+              <tr>
+                <td><span class="badge {{ association.status|tone }}">{{ association.status|label:"ASSOCIATION_STATUS" }}</span></td>
+                <td class="nowrap">{{ association.verified_at|date:"Y-m-d H:i" }}</td>
+                <td>{% if checkpoint %}<span class="badge {{ checkpoint.status|tone }}">{{ checkpoint.status|label:"CHECKPOINT_STATUS" }}</span>{% else %}—{% endif %}</td>
+                <td class="nowrap">{{ checkpoint.last_success_at|date:"Y-m-d H:i"|default:"—" }}</td>
+                <td class="text-end">
+                  {% if can_manage_association and checkpoint %}
+                    {% if checkpoint.status == "enabled" %}
+                      <button type="button" class="btn btn-sm"
+                              data-ops-action="/api/v1/staff/associations/{{ association.pk }}/pause"
+                              data-ops-confirm-title="暂停数据同步"
+                              data-ops-confirm="暂停后不会再为该儿童拉取新的观察数据。"
+                              data-ops-confirm-impacts="已有数据保留|家长端不受影响|可随时恢复"
+                              data-ops-reload="1"
+                              data-ops-success="已暂停同步。">暂停同步</button>
+                    {% else %}
+                      <button type="button" class="btn btn-sm btn-primary"
+                              data-ops-action="/api/v1/staff/associations/{{ association.pk }}/resume"
+                              data-ops-confirm-title="恢复数据同步"
+                              data-ops-confirm="恢复后会立即安排一次同步。"
+                              data-ops-confirm-impacts="需要家长授权仍然有效"
+                              data-ops-reload="1"
+                              data-ops-success="已恢复同步。">恢复同步</button>
+                    {% endif %}
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="card-body">
+        {% include "ops/_empty.html" with title="该儿童还没有伙伴关联记录" note="关联需要家长授权后由系统核验。" %}
+      </div>
+    {% endif %}
+  </section>
+
+  <div class="row row-cards">
+    <div class="col-12 col-lg-6">
+      <section class="card">
+        <div class="card-header">
+          <h2 class="card-title">授权记录（{{ consents|length }}）</h2>
+        </div>
+        {% if consents %}
+          <div class="table-responsive">
+            <table class="table table-vcenter ops-table">
+              <thead><tr><th>用途</th><th>状态</th><th>授权时间</th></tr></thead>
+              <tbody>
+                {% for consent in consents %}
+                  <tr>
+                    <td>{{ consent.purpose|label:"CONSENT_PURPOSE" }}</td>
+                    <td>
+                      {% if consent.revoked_at %}<span class="badge bg-secondary-lt">已撤回</span>
+                      {% else %}<span class="badge bg-green-lt">有效</span>{% endif %}
+                    </td>
+                    <td class="nowrap">{{ consent.created_at|date:"Y-m-d H:i" }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="card-body">{% include "ops/_empty.html" with title="没有授权记录" %}</div>
+        {% endif %}
+      </section>
+    </div>
+
+    <div class="col-12 col-lg-6">
+      <section class="card">
+        <div class="card-header">
+          <h2 class="card-title">服务记录（{{ requests|length }}）</h2>
+        </div>
+        {% if requests and can_view_services %}
+          <div class="table-responsive">
+            <table class="table table-vcenter ops-table">
+              <thead><tr><th>类型</th><th>状态</th><th>提交时间</th><th></th></tr></thead>
+              <tbody>
+                {% for item in requests %}
+                  <tr>
+                    <td>{{ item.kind|label:"SERVICE_KIND" }}</td>
+                    <td><span class="badge {{ item.status|tone }}">{{ item.status|label:"SERVICE_STATUS" }}</span></td>
+                    <td class="nowrap">{{ item.created_at|date:"Y-m-d H:i" }}</td>
+                    <td class="text-end">
+                      <a class="btn btn-sm" href="{% url 'ops:service_detail' item.pk %}" data-nav>查看</a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="card-body">
+            {% include "ops/_empty.html" with title="没有服务记录" note="或当前角色不能查看。" %}
+          </div>
+        {% endif %}
+      </section>
+    </div>
+  </div>
+
+  {% if can_view_audit and audit_rows %}
+    <section class="card">
+      <div class="card-header"><h2 class="card-title">该档案的操作记录</h2></div>
+      <div class="card-body">
+        <ul class="timeline">
+          {% for row in audit_rows %}
+            <li>
+              <div>{{ row.action|audit_action }} · {{ row.target_label|default:"—" }}</div>
+              <time>{{ row.created_at|date:"Y-m-d H:i" }} · {{ row.actor|display_name }}</time>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </section>
+  {% endif %}
+
+  {% if can_edit_child %}
+    <dialog class="ops-dialog" id="edit-profile-dialog">
+      <form method="dialog" id="edit-profile-form">
+        <div class="ops-dialog-body">
+          <h2>更正儿童档案</h2>
+          <p class="text-secondary">用于家长提出资料更正后的人工修改，修改会记录在操作审计中。</p>
+          <div id="profile-conflict" hidden></div>
+          <div class="mb-3">
+            <label class="form-label" for="profile-name">称呼</label>
+            <input type="text" class="form-control" id="profile-name" value="{{ child.name }}" maxlength="80" required />
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="profile-gender">性别</label>
+            <select class="form-select" id="profile-gender">
+              <option value="unknown" {% if child.gender == "unknown" %}selected{% endif %}>未填写</option>
+              <option value="male" {% if child.gender == "male" %}selected{% endif %}>男孩</option>
+              <option value="female" {% if child.gender == "female" %}selected{% endif %}>女孩</option>
+            </select>
+          </div>
+          <div class="mb-0">
+            <label class="form-label" for="profile-birth">生日</label>
+            <input type="date" class="form-control" id="profile-birth" value="{{ child.birth_date|date:'Y-m-d' }}" />
+            <p class="form-hint">留空表示不填写。项目不采集、不推算年级。</p>
+          </div>
+        </div>
+        <div class="ops-dialog-foot">
+          <button type="button" class="btn" id="edit-profile-cancel">取消</button>
+          <button type="submit" class="btn btn-primary" id="edit-profile-save">保存修改</button>
+        </div>
+      </form>
+    </dialog>
+  {% endif %}
+{% endblock %}
+
+{% block scripts %}
+  {% if can_edit_child %}
+    <script>
+      (function () {
+        const dialog = document.getElementById("edit-profile-dialog");
+        const open = document.getElementById("edit-profile-open");
+        const cancel = document.getElementById("edit-profile-cancel");
+        const form = document.getElementById("edit-profile-form");
+        const conflictBox = document.getElementById("profile-conflict");
+        if (!dialog || !open) return;
+        /* 页面渲染时的档案修订号：服务端据此判断是否有人在你之前改过。 */
+        let revision = {{ child.revision }};
+        const fields = {
+          name: document.getElementById("profile-name"),
+          gender: document.getElementById("profile-gender"),
+          birth: document.getElementById("profile-birth"),
+        };
+        open.addEventListener("click", function () {
+          conflictBox.hidden = true;
+          dialog.showModal();
+        });
+        cancel.addEventListener("click", function () {
+          dialog.close();
+        });
+        function localValues() {
+          return { name: fields.name.value, gender: fields.gender.value, birth_date: fields.birth.value };
+        }
+        function renderConflict(current) {
+          conflictBox.innerHTML = "";
+          conflictBox.hidden = false;
+          const notice = window.Ops.notice({
+            kind: "danger",
+            title: "保存冲突：这份档案在你编辑期间已被其他人更正",
+            message: "为避免覆盖对方的修改，本次没有保存。你填写的内容仍保留在下方输入框中。",
+            actions: [
+              {
+                label: "加载最新档案",
+                primary: true,
+                onClick: function () {
+                  fields.name.value = current.name || "";
+                  fields.gender.value = current.gender || "unknown";
+                  fields.birth.value = current.birth_date || "";
+                  revision = current.revision;
+                  conflictBox.hidden = true;
+                  window.Ops.toast("已加载服务端最新档案。", "ok");
+                },
+              },
+              {
+                label: "查看差异",
+                onClick: function () {
+                  const local = localValues();
+                  const diffs = [];
+                  if (local.name !== (current.name || "")) {
+                    diffs.push("称呼：" + (local.name || "（空）") + " → 服务端现有 " + (current.name || "（空）"));
+                  }
+                  if (local.gender !== (current.gender || "unknown")) {
+                    diffs.push("性别：本页选择与你不同，服务端现有 " + (current.gender_label || current.gender));
+                  }
+                  if ((local.birth_date || "") !== (current.birth_date || "")) {
+                    diffs.push("生日：本页填写 " + (local.birth_date || "（空）") + " → 服务端现有 " + (current.birth_date || "（空）"));
+                  }
+                  window.Ops.alert({
+                    title: "与最新档案的差异",
+                    message: "下面是你的输入与服务端当前内容的差异。",
+                    impacts: diffs.length ? diffs : ["没有差异：对方修改的可能正是你也要改的内容。"],
+                  });
+                },
+              },
+            ],
+          });
+          conflictBox.appendChild(notice);
+        }
+        form.addEventListener("submit", async function (event) {
+          event.preventDefault();
+          const button = document.getElementById("edit-profile-save");
+          const values = localValues();
+          const data = await window.Ops.act({
+            url: "{% url 'ops:api_child_profile' child.pk %}",
+            body: {
+              name: values.name,
+              gender: values.gender,
+              birth_date: values.birth_date,
+              revision: revision,
+            },
+            button: button,
+            success: "档案已更新。",
+            onError: function (error) {
+              if (error && error.code === "EDIT_CONFLICT") {
+                renderConflict(error.current || {});
+              }
+            },
+          });
+          if (data) {
+            if (typeof data.revision === "number") revision = data.revision;
+            dialog.close();
+            window.setTimeout(function () {
+              window.location.reload();
+            }, 500);
+          }
+        });
+      })();
+    </script>
+  {% endif %}
+{% endblock %}

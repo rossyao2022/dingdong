@@ -1,0 +1,40 @@
+.F                                                                       [100%]
+=================================== FAILURES ===================================
+______________ test_json_api_rejects_file_upload_without_parsing _______________
+tests/test_http_contract.py:20: in test_json_api_rejects_file_upload_without_parsing
+    assert_schema('Error',r.json())
+tests/conftest.py:48: in assert_schema
+    Draft202012Validator(schema).validate(data)
+.venv/lib/python3.14/site-packages/jsonschema/validators.py:450: in validate
+    raise error
+E   jsonschema.exceptions.ValidationError: Additional properties are not allowed ('detail' was unexpected)
+E   
+E   Failed validating 'additionalProperties' in schema:
+E       {'type': 'object',
+E        'description': '统一错误对象；HTTP 状态不伪装为 200',
+E        'additionalProperties': False,
+E        'properties': {'code': {'type': 'string',
+E                                'description': '稳定业务错误码',
+E                                'examples': ['REVISION_CONFLICT']},
+E                       'message': {'type': 'string',
+E                                   'description': '展示给用户的短说明',
+E                                   'examples': ['记录已更新，请刷新后重试']},
+E                       'field_errors': {'type': 'array',
+E                                        'description': '字段错误，无错误时为空',
+E                                        'items': {'$ref': '#/components/schemas/FieldError'}},
+E                       'trace_id': {'type': 'string',
+E                                    'description': '排障请求标识，不包含个人资料',
+E                                    'examples': ['11111111-1111-4111-8111-111111111111'],
+E                                    'format': 'uuid'}},
+E        'required': ['code', 'message', 'field_errors', 'trace_id']}
+E   
+E   On instance:
+E       {'detail': '不支持请求中的媒体类型 “multipart/form-data; boundary=BoUnDaRyStRiNg; '
+E                  'charset=utf-8”。'}
+----------------------------- Captured stderr call -----------------------------
+Unsupported Media Type: /api/v1/children
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Unsupported Media Type: /api/v1/children
+=========================== short test summary info ============================
+FAILED tests/test_http_contract.py::test_json_api_rejects_file_upload_without_parsing
+1 failed, 1 passed in 0.52s

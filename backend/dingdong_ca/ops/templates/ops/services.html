@@ -1,0 +1,129 @@
+{% extends "ops/base.html" %}
+{% load ops_labels %}
+{% block title %}服务事项{% endblock %}
+{% block page_title %}服务事项{% endblock %}
+{% block crumb %}家长提交的求助、删除与更正申请{% endblock %}
+
+{% block content %}
+  {% include "ops/_filter_problems.html" %}
+
+  <div class="row row-cards" aria-label="事项概览">
+    <div class="col-12 col-sm-6 col-lg-3">
+      <a class="ops-stat" href="{% url 'ops:services' %}?status=open" data-nav>
+        <span class="ops-stat-head">
+          <i class="ti ti-inbox" aria-hidden="true"></i>
+          <span class="ops-stat-label">待处理</span>
+        </span>
+        <b class="ops-stat-value">{{ counts.open }}</b>
+        <span class="ops-stat-note">口径：状态为“待处理”的事项数，需要运营认领并处理。</span>
+      </a>
+    </div>
+    <div class="col-12 col-sm-6 col-lg-3">
+      <a class="ops-stat ops-stat-accent" href="{% url 'ops:services' %}?status=processing" data-nav>
+        <span class="ops-stat-head">
+          <i class="ti ti-progress" aria-hidden="true"></i>
+          <span class="ops-stat-label">处理中</span>
+        </span>
+        <b class="ops-stat-value">{{ counts.processing }}</b>
+        <span class="ops-stat-note">口径：状态为“处理中”的事项数。</span>
+      </a>
+    </div>
+    <div class="col-12 col-sm-6 col-lg-3">
+      <a class="ops-stat" href="{% url 'ops:services' %}?status=completed" data-nav>
+        <span class="ops-stat-head">
+          <i class="ti ti-circle-check" aria-hidden="true"></i>
+          <span class="ops-stat-label">已完成</span>
+        </span>
+        <b class="ops-stat-value">{{ counts.completed }}</b>
+        <span class="ops-stat-note">口径：状态为“已完成”的事项数，含历史记录。</span>
+      </a>
+    </div>
+    <div class="col-12 col-sm-6 col-lg-3">
+      <a class="ops-stat" href="{% url 'ops:services' %}?status=cancelled" data-nav>
+        <span class="ops-stat-head">
+          <i class="ti ti-ban" aria-hidden="true"></i>
+          <span class="ops-stat-label">已取消</span>
+        </span>
+        <b class="ops-stat-value">{{ counts.cancelled }}</b>
+        <span class="ops-stat-note">口径：状态为“已取消”的事项数。</span>
+      </a>
+    </div>
+  </div>
+
+  <section class="card">
+    <div class="card-body">
+      <form class="row g-3 align-items-end" method="get">
+        <div class="col-12 col-sm-6 col-lg-2">
+          <label class="form-label" for="status">状态</label>
+          <select class="form-select" id="status" name="status">
+            <option value="">全部</option>
+            {% for code, text in labels.SERVICE_STATUS.items %}
+              <option value="{{ code }}" {% if status == code %}selected{% endif %}>{{ text }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-2">
+          <label class="form-label" for="kind">类型</label>
+          <select class="form-select" id="kind" name="kind">
+            <option value="">全部</option>
+            {% for code, text in labels.SERVICE_KIND.items %}
+              <option value="{{ code }}" {% if kind == code %}selected{% endif %}>{{ text }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-12 col-lg-4">
+          <label class="form-label" for="q">儿童称呼或家长手机号</label>
+          <input type="search" class="form-control" id="q" name="q" value="{{ keyword }}"
+                 placeholder="例如 小芽 或 13800000001" />
+        </div>
+        <div class="col-12 col-md-auto">
+          <div class="btn-list">
+            <button type="submit" class="btn btn-primary">筛选</button>
+            <a class="btn btn-ghost-secondary" href="{% url 'ops:services' %}" data-nav>清空</a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-header">
+      <div>
+        <h2 class="card-title">事项列表</h2>
+        <div class="card-subtitle">共 {{ page.total }} 条，每页 20 条。</div>
+      </div>
+    </div>
+
+    {% if items %}
+      <div class="table-responsive">
+        <table class="table table-vcenter ops-table">
+          <thead><tr><th>类型</th><th>儿童</th><th>提交家长</th><th>原因</th><th>状态</th><th>提交时间</th><th>完成时间</th><th></th></tr></thead>
+          <tbody>
+            {% for row in items %}
+              <tr>
+                <td class="nowrap">{{ row.kind|label:"SERVICE_KIND" }}</td>
+                <td>{% if row.child %}{{ row.child.name }}{% else %}<span class="badge bg-secondary-lt">儿童数据已删除</span>{% endif %}</td>
+                <td class="nowrap">
+                  {{ row.requester|display_name:"未登记" }}
+                  <span class="text-secondary small">{{ row.requester.phone|default:"未登记手机号" }}</span>
+                </td>
+                <td>{{ row.reason_code|label:"SERVICE_REASON" }}</td>
+                <td><span class="badge {{ row.status|tone }}">{{ row.status|label:"SERVICE_STATUS" }}</span></td>
+                <td class="nowrap">{{ row.created_at|date:"Y-m-d H:i" }}</td>
+                <td class="nowrap">{{ row.completed_at|date:"Y-m-d H:i"|default:"—" }}</td>
+                <td class="text-end">
+                  <a class="btn btn-sm btn-primary" href="{% url 'ops:service_detail' row.pk %}" data-nav>查看处理</a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% include "ops/_pagination.html" %}
+    {% else %}
+      <div class="card-body">
+        {% include "ops/_empty.html" with title="没有符合条件的事项" note=empty_hint %}
+      </div>
+    {% endif %}
+  </section>
+{% endblock %}

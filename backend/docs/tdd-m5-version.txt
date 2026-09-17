@@ -1,0 +1,17 @@
+..............F                                                          [100%]
+=================================== FAILURES ===================================
+_____________ test_empty_draft_form_can_be_saved_but_not_published _____________
+
+    def test_empty_draft_form_can_be_saved_but_not_published():
+        from dingdong_ca.core.questionnaire_admin import QuestionnaireForm
+        form = QuestionnaireForm(data={'code':'empty','version':'v1','title':'未完成的体验草稿', 'purpose':'exploration', 'description':'仅用于体验', 'data_origin':'synthetic', 'schema_version':'questionnaire-v1', 'questions':'[]', 'status':'draft'})
+>       assert form.is_valid(), form.errors
+E       AssertionError: {'published_at': ['该字段是必填项。'], 'published_by': ['该字段是必填项。']}
+E       assert False
+E        +  where False = is_valid()
+E        +    where is_valid = <QuestionnaireForm bound=True, valid=False, fields=(code;version;status;data_origin;published_at;published_by;purpose;title;description;schema_version;questions)>.is_valid
+
+tests/test_questionnaires.py:186: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_questionnaires.py::test_empty_draft_form_can_be_saved_but_not_published
+1 failed, 14 passed in 3.61s

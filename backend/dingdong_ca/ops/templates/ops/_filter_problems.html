@@ -1,0 +1,15 @@
+{% comment %}
+筛选条件校验提示。非法筛选值不能静默忽略：运营会以为自己看到的是筛选后的结果。
+各列表视图把 `filter_problems` 传进来，这里用中文说明哪些条件没有生效。
+{% endcomment %}
+{% if filter_problems %}
+  <div class="alert alert-danger" role="alert" id="filter-problems">
+    <h4 class="alert-heading">筛选条件有问题，列表没有按这些条件筛选</h4>
+    <p class="mb-1">下面的条件不合法，已被忽略；当前显示的记录范围比预期更宽。</p>
+    <ul class="mb-0">
+      {% for problem in filter_problems %}
+        <li>{{ problem }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}

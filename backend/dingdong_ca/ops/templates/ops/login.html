@@ -1,0 +1,90 @@
+{% load static %}<!doctype html>
+<html lang="zh-CN" data-bs-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#337e80" />
+    <title>登录运营后台 · 叮咚</title>
+    <link rel="icon" href="{% static 'ops/mark.svg' %}" type="image/svg+xml" />
+    <link rel="stylesheet" href="{% static 'ops/vendor/tabler/tabler.min.css' %}?v={{ ops_asset_version }}" />
+    <link rel="stylesheet" href="{% static 'ops/vendor/tabler-icons/tabler-icons.min.css' %}?v={{ ops_asset_version }}" />
+    <link rel="stylesheet" href="{% static 'ops/ops.css' %}?v={{ ops_asset_version }}" />
+  </head>
+  <body>
+    <main class="ops-login">
+      <section class="ops-login-brand" aria-label="产品说明">
+        <div>
+          <img src="{% static 'ops/mark.svg' %}" alt="" width="48" height="48" />
+          <h2>叮咚运营后台</h2>
+          <p>
+            面向运营与内容同事的日常工作台：查家庭、处理家长诉求、维护题库与活动内容、
+            跟进报告生成异常。
+          </p>
+          <ul class="ops-login-points">
+            <li>
+              <i class="ti ti-shield-check" aria-hidden="true"></i>
+              <span>按角色分配功能，页面与接口都会重新校验权限</span>
+            </li>
+            <li>
+              <i class="ti ti-history" aria-hidden="true"></i>
+              <span>关键操作留有审计记录，可追溯到人和时间</span>
+            </li>
+            <li>
+              <i class="ti ti-clipboard-list" aria-hidden="true"></i>
+              <span>题库与活动按版本发布，历史答卷不会被改写</span>
+            </li>
+          </ul>
+        </div>
+        <p class="ops-login-foot">CAREER ACADEMY × DINGDONG · 演示环境</p>
+      </section>
+
+      <section class="ops-login-panel">
+        <div class="ops-login-card">
+          <div class="card">
+            <div class="card-body">
+              <div class="ops-brand">
+                <img src="{% static 'ops/mark.svg' %}" alt="" width="36" height="36" />
+                <span><b>叮咚运营后台</b><small>CAREER ACADEMY × DINGDONG</small></span>
+              </div>
+
+              <h1>登录</h1>
+              <p class="text-secondary mb-3">请使用管理员或运营账号登录。家长账号请从家长端进入。</p>
+
+              {% if form.errors %}
+                <div class="alert alert-danger" role="alert">
+                  <h4 class="alert-heading">无法登录</h4>
+                  <div>
+                    {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                    {% for field in form %}{% for error in field.errors %}{{ error }}{% endfor %}{% endfor %}
+                  </div>
+                </div>
+              {% endif %}
+
+              <form method="post" novalidate>
+                {% csrf_token %}
+                <div class="mb-3">
+                  <label class="form-label" for="id_username">账号</label>
+                  <input class="form-control" type="text" name="username" id="id_username"
+                         autocomplete="username" value="{{ form.username.value|default:'' }}"
+                         autofocus required />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label" for="id_password">密码</label>
+                  <input class="form-control" type="password" name="password" id="id_password"
+                         autocomplete="current-password" required />
+                </div>
+                <input type="hidden" name="next" value="{{ next }}" />
+                <button type="submit" class="btn btn-primary w-100">登录</button>
+              </form>
+
+              <p class="text-secondary mt-3 mb-0" style="font-size:12px">
+                登录失败多次会被限制。忘记密码请联系管理员重置。
+              </p>
+            </div>
+          </div>
+          <p class="ops-login-alt">家长请从家长端入口登录，运营后台不处理家长账号。</p>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

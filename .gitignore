@@ -1,0 +1,63 @@
+.DS_Store
+.workbuddy-ai/
+.workbuddy/
+dist/
+deploy/.env
+*.tar.gz
+
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# 本地测试产物
+backend/.pytest-tmp/
+frontend/test-results/
+frontend/playwright-report/
+
+# 前端验收截图与本地记录（约 15MB，只在本机留存）；
+# 交付用的正式证据在 deploy/evidence/ 下，那部分才进库。
+frontend/docs/
+
+# 依赖与虚拟环境（本地生成，不进库）
+node_modules/
+.venv/
+venv/
+
+# ── 凭据与环境变量：一律不进库 ────────────────────────────────
+# 只放"值在哪里"，不放值本身；示例文件（.env.example）例外。
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+**/credentials*.json
+**/*creds*.env
+# 验收凭据按流程只经环境变量传递（见 frontend/deployment-tests/），
+# 若有人临时落盘成脚本或 shell 片段，也不许进库。
+**/dd-ops-*.env
+**/*-creds.sh
+**/id_rsa*
+**/id_ed25519*
+
+# ── 第三方材料与外部快照：不是本仓库的产物，不作为仓库内容 ──────
+# 材料/ 含对方提供的对接文档、网页归档（约 45MB）与原始数据；
+# 参考代码/dingdong 是外部参考仓库快照。两者都是本地输入，
+# 清单与结论写在 材料清单.md / 参考代码/来源说明.md 里。
+材料/
+参考代码/dingdong/
+
+# ── 本机交接产物：只在机器之间搬运，一律不进库 ──────────────────
+# 这些文件含公网入口 IP、SSH 别名与私钥文件名、内网/Tailscale 地址，
+# 只在本机与交接包之间流通（见 文档/文档索引.md「版本库里有什么」）。
+# 若有人把它们复制进仓库，规则在此兜住；正式入库的交付文档不含这些信息。
+*-接续提示词.md
+*-交接包-*.tar.gz
+HANDOVER.md
+**/ssh-config*
+**/*-hosts.env
+**/*-deploy-host*
+

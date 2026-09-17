@@ -1,0 +1,96 @@
+{% extends "ops/base.html" %}
+{% block title %}新建活动草稿{% endblock %}
+{% block page_title %}新建活动草稿{% endblock %}
+{% block crumb %}<a href="{% url 'ops:activities' %}" data-nav>← 返回活动列表</a>{% endblock %}
+
+{% block content %}
+  <section class="card mx-auto" style="max-width:760px">
+    <div class="card-header"><h2 class="card-title">第一步：填写活动基本信息</h2></div>
+    <div class="card-body">
+      <p class="text-secondary small">
+        创建后进入编辑器维护材料、目标和步骤。草稿不会出现在家长端。
+        内部编号与版本号由系统自动生成，不需要手工维护。
+      </p>
+
+      <div class="mb-3">
+        <label class="form-label" for="new-title">活动标题</label>
+        <input type="text" class="form-control" id="new-title"
+               placeholder="家长看到的标题" maxlength="120" />
+        <p class="form-hint">
+          这里每次都会新建一份<strong>独立</strong>活动：即使标题相同，也是两份互不影响的内容。
+          要修改已有活动，请回到活动列表用“复制为新版本”。
+        </p>
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="new-island">所属岛屿</label>
+        <input type="text" class="form-control" id="new-island" placeholder="例如 观察岛" maxlength="32" />
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="new-mood">情绪标签</label>
+        <input type="text" class="form-control" id="new-mood" placeholder="例如 好奇" maxlength="32" />
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="new-duration">时长（分钟）</label>
+        <input type="number" class="form-control" id="new-duration" min="1" max="600" value="15" />
+      </div>
+
+      <div id="create-problems" hidden></div>
+
+      <div class="sticky-actions">
+        <button type="button" class="btn btn-primary" id="create-submit">创建草稿并开始编辑</button>
+        <a class="btn btn-ghost-secondary" href="{% url 'ops:activities' %}" data-nav>取消</a>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    (function () {
+      const button = document.getElementById("create-submit");
+      const problems = document.getElementById("create-problems");
+      /* 同题库页：请求标识在首次点击时生成，HTTP 下也能用，重试复用同一标识。 */
+      let requestKey = null;
+      button.addEventListener("click", async function () {
+        const title = document.getElementById("new-title").value.trim();
+        if (problems) {
+          problems.hidden = true;
+          problems.innerHTML = "";
+        }
+        if (!title) {
+          if (problems) {
+            problems.hidden = false;
+            problems.appendChild(
+              window.Ops.notice({
+                kind: "danger",
+                title: "还差一步",
+                message: "请先填写活动标题，标题就是家长端看到的名称。",
+              })
+            );
+          }
+          window.Ops.toast("请先填写活动标题。", "error");
+          return;
+        }
+        if (!requestKey) requestKey = window.Ops.requestId();
+        const data = await window.Ops.act({
+          url: "{% url 'ops:api_activity_create' %}",
+          body: {
+            title: title,
+            island: document.getElementById("new-island").value,
+            mood: document.getElementById("new-mood").value,
+            duration_minutes: parseInt(document.getElementById("new-duration").value, 10),
+            request_key: requestKey,
+          },
+          button: button,
+          success: false,
+        });
+        if (data && data.activity) {
+          window.Ops.toast(data.notice || "草稿已创建。", "ok");
+          window.setTimeout(function () {
+            window.location.href = "/ops/activities/" + data.activity.id + "/";
+          }, 700);
+        }
+      });
+    })();
+  </script>
+{% endblock %}

@@ -1,0 +1,174 @@
+{% extends "ops/base.html" %}
+{% load static ops_labels %}
+{% block title %}{{ row.title }}{% endblock %}
+{% block page_title %}{{ row.title }}{% endblock %}
+{% block crumb %}
+  <a href="{% url 'ops:activities' %}" data-nav>← 返回活动列表</a>
+  · 版本 {{ row.version }} · <span class="badge {{ row.status|tone }}">{{ row.status|label:"CONTENT_STATUS" }}</span>
+{% endblock %}
+
+{% block topbar_actions %}
+  <a class="btn btn-sm" href="{% url 'ops:activity_preview' row.pk %}" data-nav>预览</a>
+{% endblock %}
+
+{% block content %}
+  {% if not can_edit %}
+    <div class="alert alert-warning" role="alert">
+      <h4 class="alert-heading">该版本不可编辑</h4>
+      <p class="mb-0">
+        {% if row.status == "draft" %}
+          当前角色没有编辑活动的权限，你可以查看和预览。
+        {% else %}
+          已发布或已停用的版本不能原地修改。请使用“复制为新版本”创建可编辑的草稿。
+        {% endif %}
+      </p>
+    </div>
+  {% endif %}
+
+  <div id="conflict" hidden></div>
+
+  <div id="activity-config"
+       data-status="{{ row.status }}"
+       data-editable="{% if can_edit %}1{% else %}0{% endif %}"
+       data-revision="{{ row.revision }}"
+       data-save-url="{% url 'ops:api_activity_save' row.pk %}"
+       data-check-url="{% url 'ops:api_activity_check' row.pk %}"
+       data-publish-url="/api/v1/staff/activities/{{ row.pk }}/publish"
+       data-copy-url="{% url 'ops:api_activity_copy' row.pk %}"
+       data-retire-url="{% url 'ops:api_activity_retire' row.pk %}"
+       data-list-url="{% url 'ops:activities' %}"></div>
+  <input type="hidden" id="preview-url" value="{% url 'ops:activity_preview' row.pk %}" />
+  {{ payload|json_script:"activity-data" }}
+
+  <div class="row row-cards">
+    <div class="col-12 col-lg-8">
+      <section class="card">
+        <div class="card-header"><h2 class="card-title">活动信息</h2></div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <label class="form-label" for="a-title">活动标题</label>
+              <input type="text" class="form-control" id="a-title" value="{{ row.title }}" maxlength="120"
+                     {% if not can_edit %}disabled{% endif %} />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label" for="a-duration">时长（分钟）</label>
+              <input type="number" class="form-control" id="a-duration" min="1" max="600"
+                     value="{{ row.duration_minutes }}" {% if not can_edit %}disabled{% endif %} />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label" for="a-island">所属岛屿</label>
+              <input type="text" class="form-control" id="a-island" value="{{ row.island }}" maxlength="32"
+                     {% if not can_edit %}disabled{% endif %} />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label" for="a-mood">情绪标签</label>
+              <input type="text" class="form-control" id="a-mood" value="{{ row.mood }}" maxlength="32"
+                     {% if not can_edit %}disabled{% endif %} />
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="a-goal">活动目标</label>
+            <textarea class="form-control" id="a-goal" {% if not can_edit %}disabled{% endif %}>{{ row.content.goal }}</textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="a-materials">材料说明</label>
+            <textarea class="form-control" id="a-materials" {% if not can_edit %}disabled{% endif %}>{{ row.content.materials }}</textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="a-alternative">备选方案</label>
+            <textarea class="form-control" id="a-alternative" {% if not can_edit %}disabled{% endif %}>{{ row.content.alternative }}</textarea>
+          </div>
+          <div class="mb-0">
+            <span class="form-label d-block">可展示风格</span>
+            <div class="ops-checks">
+              {% for code, text in styles %}
+                <label>
+                  <input class="form-check-input" type="checkbox" data-style="{{ code }}"
+                         {% if code in row.content.allowed_styles %}checked{% endif %} />{{ text }}
+                </label>
+              {% endfor %}
+            </div>
+            <p class="form-hint">家长端会按这些风格标签匹配活动，至少选择一种才能发布。</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">活动步骤</h2>
+            <div class="card-subtitle">步骤顺序就是家长端的执行顺序。</div>
+          </div>
+          <div class="card-actions">
+            {% if can_edit %}
+              <button type="button" class="btn btn-sm btn-primary" id="add-step">
+                <i class="ti ti-plus" aria-hidden="true"></i>添加步骤
+              </button>
+            {% endif %}
+          </div>
+        </div>
+        <div class="card-body">
+          <div id="problems" hidden></div>
+          <div id="steps"></div>
+        </div>
+      </section>
+
+      <div class="sticky-actions">
+        {% if can_edit %}
+          <button type="button" class="btn btn-primary" id="save">保存草稿</button>
+          <button type="button" class="btn" id="preview">保存并预览</button>
+          <button type="button" class="btn" id="publish">发布</button>
+        {% else %}
+          <a class="btn btn-primary" href="{% url 'ops:activity_preview' row.pk %}" data-nav>查看预览</a>
+        {% endif %}
+        {% if can_manage and row.status != "retired" %}
+          <button type="button" class="btn" id="copy">复制为新版本</button>
+          <button type="button" class="btn btn-danger" id="retire">停用</button>
+        {% endif %}
+        <span class="dirty-flag" data-dirty-flag hidden>有未保存的修改</span>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+      <section class="card">
+        <div class="card-header"><h2 class="card-title">使用情况</h2></div>
+        <div class="card-body">
+          <dl class="kv">
+            <dt>系统编号</dt><dd>{{ row.code }}（自动生成，无需维护）</dd>
+            <dt>版本号</dt><dd>{{ row.version }}</dd>
+            <dt>进行中的记录</dt><dd>{{ active_records }} 条</dd>
+            <dt>历史记录总数</dt><dd>{{ total_records }} 条</dd>
+          </dl>
+          <p class="form-hint">
+            记录在创建时固定使用当时的活动版本；修改内容请复制为新版本，已开始或已完成的记录不会被破坏。
+          </p>
+        </div>
+      </section>
+      <section class="card">
+        <div class="card-header"><h2 class="card-title">同活动的其他版本</h2></div>
+        <div class="card-body">
+          {% if history %}
+            <ul class="timeline">
+              {% for item in history %}
+                <li>
+                  <div>
+                    <a href="{% url 'ops:activity_edit' item.id %}" data-nav>{{ item.version }}</a>
+                    <span class="badge {{ item.status|tone }}">{{ item.status|label:"CONTENT_STATUS" }}</span>
+                  </div>
+                  <time>更新于 {{ item.updated_at|date:"Y-m-d H:i" }}</time>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="text-secondary small mb-0">暂无其他版本。</p>
+          {% endif %}
+        </div>
+      </section>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{% static 'ops/activity_editor.js' %}?v={{ ops_asset_version }}" defer></script>
+{% endblock %}

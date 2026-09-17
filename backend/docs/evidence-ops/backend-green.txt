@@ -1,0 +1,33 @@
+# 运营后台后端测试（2026-09-12）
+
+命令：
+
+```sh
+uv run --directory backend pytest -q --basetemp=./backend/.pytest-tmp --cov=dingdong_ca --cov-report=term
+```
+
+结果：170 passed，覆盖率 90%（3344 statements / 330 missed）。
+
+运营后台新增测试：
+- tests/test_ops_console.py  36 项（登录/身份、角色分离、导航、改密、首页统计、
+  家庭查询与分页、儿童详情聚合、家庭冻结、账号管理、审计、404 与守卫）
+- tests/test_ops_content.py  21 项（题库与活动的草稿/校验/保存/复制/停用/发布）
+- tests/test_ops_reports.py   6 项（报告查询、失败任务业务语言、幂等重试、权限）
+- tests/test_ops_services.py  8 项（事项筛选、处理闭环、幂等、权限、删除后仍可查看）
+
+ops 应用分模块覆盖率：
+
+| 模块 | 覆盖率 |
+| --- | --- |
+| ops/labels.py | 100% |
+| ops/responses.py | 100% |
+| ops/urls.py | 100% |
+| ops/services.py | 91% |
+| ops/templatetags/ops_labels.py | 91% |
+| ops/forms.py | 87% |
+| ops/api.py | 84% |
+| ops/views.py | 83% |
+| ops/permissions.py | 75% |
+
+其他检查：ruff check 通过；ruff format --check 107 个文件已格式化；
+makemigrations --check 无变更；部署设置测试 6 项通过。

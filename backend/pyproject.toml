@@ -1,0 +1,35 @@
+[project]
+name = "dingdong-ca-backend"
+version = "0.3.6"
+description = "DingDong CA backend, based on Cookiecutter Django"
+requires-python = ">=3.14,<3.15"
+dependencies = [
+  "gunicorn>=23,<26",
+  "django>=6.0,<6.1",
+  "django-environ>=0.12,<0.14",
+  "djangorestframework>=3.16,<3.18",
+  "djangorestframework-simplejwt>=5.5,<6",
+  "psycopg[binary]>=3.2,<4",
+  "celery[redis]>=5.6,<6",
+  "whitenoise>=6.9,<7",
+]
+[dependency-groups]
+dev = ["pytest>=8,<10", "pytest-django>=4.11,<5", "pytest-cov>=6,<8", "jsonschema>=4.25,<5", "ruff>=0.12,<1"]
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.test"
+pythonpath = ["."]
+testpaths = ["tests"]
+addopts = "--strict-markers"
+[tool.ruff]
+target-version = "py314"
+line-length = 100
+
+[[tool.uv.index]]
+name = "tuna"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+default = true
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]
+[tool.ruff.lint.per-file-ignores]
+"config/settings/*.py" = ["F403", "F405"]

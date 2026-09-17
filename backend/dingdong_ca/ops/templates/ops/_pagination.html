@@ -1,0 +1,33 @@
+{% comment %}分页控件：保留当前筛选条件，页码连续显示。{% endcomment %}
+{% if page.pages > 1 %}
+  <nav class="card-footer d-flex align-items-center flex-wrap gap-2" aria-label="分页">
+    <ul class="pagination m-0">
+      <li class="page-item {% if not page.has_previous %}disabled{% endif %}">
+        {% if page.has_previous %}
+          <a class="page-link" href="{{ page.previous_url }}" data-nav>上一页</a>
+        {% else %}
+          <span class="page-link">上一页</span>
+        {% endif %}
+      </li>
+      {% for number in pages %}
+        <li class="page-item {% if number == page.page %}active{% endif %}">
+          {% if number == page.page %}
+            <span class="page-link" aria-current="page">{{ number }}</span>
+          {% else %}
+            <a class="page-link" href="{{ page.base }}{% if page.base %}&amp;{% else %}?{% endif %}page={{ number }}" data-nav>{{ number }}</a>
+          {% endif %}
+        </li>
+      {% endfor %}
+      <li class="page-item {% if not page.has_next %}disabled{% endif %}">
+        {% if page.has_next %}
+          <a class="page-link" href="{{ page.next_url }}" data-nav>下一页</a>
+        {% else %}
+          <span class="page-link">下一页</span>
+        {% endif %}
+      </li>
+    </ul>
+    <span class="text-secondary ms-auto">共 {{ page.total }} 条 · 第 {{ page.page }}/{{ page.pages }} 页</span>
+  </nav>
+{% elif page.total %}
+  <div class="card-footer text-secondary">共 {{ page.total }} 条</div>
+{% endif %}

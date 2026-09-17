@@ -1,0 +1,164 @@
+{% extends "ops/base.html" %}
+{% load ops_labels %}
+{% block title %}服务事项详情{% endblock %}
+{% block page_title %}{{ row.kind|label:"SERVICE_KIND" }}{% endblock %}
+{% block crumb %}<a href="{% url 'ops:services' %}" data-nav>← 返回服务事项</a>{% endblock %}
+
+{% block content %}
+  <div class="row row-cards">
+    <div class="col-12 col-lg-8">
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">事项信息</h2>
+            <div class="card-subtitle">事项编号 {{ row.pk }}</div>
+          </div>
+          <div class="card-actions">
+            <span class="badge {{ row.status|tone }}">{{ row.status|label:"SERVICE_STATUS" }}</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <dl class="kv">
+            <dt>事项类型</dt><dd>{{ row.kind|label:"SERVICE_KIND" }}</dd>
+            <dt>家长诉求</dt><dd>{{ row.reason_code|label:"SERVICE_REASON" }}</dd>
+            <dt>儿童</dt>
+            <dd>
+              {% if row.child %}
+                <a href="{% url 'ops:child_detail' row.child.pk %}" data-nav>{{ row.child.name }}</a>
+                · <a href="{% url 'ops:family_detail' row.child.family_id %}" data-nav>查看家庭</a>
+              {% else %}儿童数据已按申请删除{% endif %}
+            </dd>
+            <dt>提交家长</dt><dd>{{ row.requester|display_name:"未登记" }}（{{ row.requester.phone|default:"未登记手机号" }}）</dd>
+            <dt>提交时间</dt><dd>{{ row.created_at|date:"Y-m-d H:i" }}</dd>
+            <dt>完成时间</dt><dd>{{ row.completed_at|date:"Y-m-d H:i"|default:"—" }}</dd>
+            <dt>处理结果</dt><dd>{{ row.resolution_code|label:"SERVICE_RESOLUTION" }}</dd>
+            <dt>处理说明</dt><dd>{{ row.resolution_note|default:"—" }}</dd>
+          </dl>
+        </div>
+      </section>
+
+      {% if row.status == "open" or row.status == "processing" %}
+        <section class="card">
+          <div class="card-header"><h2 class="card-title">处理该事项</h2></div>
+          <div class="card-body">
+            <div class="mb-3">
+              <label class="form-label" for="service-note">处理说明（会记录在历史与审计中）</label>
+              <textarea class="form-control" id="service-note"
+                        placeholder="例如：已电话联系家长确认需求，资料已更正。"></textarea>
+              <p class="form-hint">处理说明至少建议填写一句，方便后续接手的人了解上下文。</p>
+            </div>
+
+            {% if can_handle %}
+              <div class="btn-list">
+                {% if row.kind != "deletion" %}
+                  <button type="button" class="btn btn-primary"
+                          data-ops-action="/api/v1/staff/data-requests/{{ row.pk }}/resolve"
+                          data-ops-body='{"action": "resolve", "resolution_code": "resolved"}'
+                          data-ops-note-from="#service-note"
+                          data-ops-confirm-title="确认已处理"
+                          data-ops-confirm="确认该事项已经人工处理完成。"
+                          data-ops-confirm-impacts="事项状态将变为“已完成”，不能再次处理|处理人与处理说明会记入审计"
+                          data-ops-confirm-label="确认完成"
+                          data-ops-reload="1"
+                          data-ops-success="事项已标记为完成。">确认已处理</button>
+                {% endif %}
+                <button type="button" class="btn"
+                        data-ops-action="/api/v1/staff/data-requests/{{ row.pk }}/resolve"
+                        data-ops-body='{"action": "cancel", "resolution_code": "cancelled"}'
+                        data-ops-note-from="#service-note"
+                        data-ops-confirm-title="取消该事项"
+                        data-ops-confirm="取消后该事项不再需要处理。"
+                        data-ops-confirm-impacts="家长端会看到事项已取消|历史记录保留，可追溯"
+                        data-ops-confirm-label="确认取消"
+                        data-ops-confirm-danger="1"
+                        data-ops-reload="1"
+                        data-ops-success="事项已取消。">取消事项</button>
+
+                {% if row.kind == "deletion" and can_delete %}
+                  <button type="button" class="btn btn-danger"
+                          data-ops-action="/api/v1/staff/data-requests/{{ row.pk }}/resolve"
+                          data-ops-body='{"action": "execute_deletion", "resolution_code": "deleted"}'
+                          data-ops-note-from="#service-note"
+                          data-ops-confirm-title="执行儿童数据删除"
+                          data-ops-confirm="该操作会真实删除儿童的档案与相关业务数据，且不可撤销。"
+                          data-ops-confirm-impacts="儿童档案、活动记录、答卷、报告、画像与关联将被删除或去标识|家长端将无法再看到该儿童|操作人与时间会写入审计记录"
+                          data-ops-confirm-label="我确认删除"
+                          data-ops-confirm-danger="1"
+                          data-ops-reload="1"
+                          data-ops-success="已执行数据删除。">执行数据删除</button>
+                {% endif %}
+              </div>
+            {% else %}
+              <p class="form-hint mb-0">当前角色只能查看，不能处理事项。处理需要运营、技术运维或管理员角色。</p>
+            {% endif %}
+          </div>
+        </section>
+      {% endif %}
+
+      <section class="card">
+        <div class="card-header"><h2 class="card-title">处理历史</h2></div>
+        <div class="card-body">
+          {% if history %}
+            <ul class="timeline">
+              {% for item in history %}
+                <li>
+                  <div>{{ item.action|audit_action }}</div>
+                  <div class="text-secondary small">
+                    {% if item.detail.note %}说明：{{ item.detail.note }}{% endif %}
+                    {% if item.detail.resolution_code %}结果：{{ item.detail.resolution_code|label:"SERVICE_RESOLUTION" }}{% endif %}
+                  </div>
+                  <time>{{ item.created_at|date:"Y-m-d H:i" }} · {{ item.actor|display_name }}</time>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="text-secondary small mb-0">还没有处理记录。</p>
+          {% endif %}
+        </div>
+      </section>
+    </div>
+
+    <div class="col-12 col-lg-4">
+      <section class="card">
+        <div class="card-header"><h2 class="card-title">处理指引</h2></div>
+        <div class="card-body">
+          <ul class="timeline">
+            <li>
+              <div>家长求助</div>
+              <div class="text-secondary small">先联系家长确认问题，处理完成后点“确认已处理”并填写说明。</div>
+            </li>
+            <li>
+              <div>资料更正申请</div>
+              <div class="text-secondary small">在儿童详情页点“更正档案”修改，再回到本页确认已处理。</div>
+            </li>
+            <li>
+              <div>数据删除申请</div>
+              <div class="text-secondary small">
+                需要技术运维或管理员执行；删除不可撤销，执行前请与家长确认。
+              </div>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      {% if child_requests %}
+        <section class="card">
+          <div class="card-header"><h2 class="card-title">该儿童的其他事项</h2></div>
+          <div class="card-body">
+            <ul class="timeline">
+              {% for item in child_requests %}
+                <li>
+                  <div>
+                    {{ item.kind|label:"SERVICE_KIND" }}
+                    <span class="badge {{ item.status|tone }}">{{ item.status|label:"SERVICE_STATUS" }}</span>
+                  </div>
+                  <time>{{ item.created_at|date:"Y-m-d H:i" }}</time>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </section>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

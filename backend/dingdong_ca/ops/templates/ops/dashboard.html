@@ -1,0 +1,253 @@
+{% extends "ops/base.html" %}
+{% load ops_labels %}
+{% block title %}工作首页{% endblock %}
+{% block page_title %}工作首页{% endblock %}
+{% block crumb %}今天需要处理的事情和整体情况{% endblock %}
+
+{% block content %}
+  <section aria-label="待办">
+    <div class="row row-cards mb-3">
+      {% if perms.services %}
+        <div class="col-sm-6 col-lg-3">
+          <a class="ops-stat" href="{% url 'ops:services' %}?status=open" data-nav>
+            <span class="ops-stat-head">
+              <i class="ti ti-lifebuoy" aria-hidden="true"></i>
+              <span class="ops-stat-label">待处理服务事项</span>
+            </span>
+            <span class="ops-stat-value">{{ counters.open_services }}</span>
+            <span class="ops-stat-note">口径：家长提交的求助、删除或更正申请中，状态为“待处理”或“处理中”的数量。</span>
+          </a>
+        </div>
+      {% endif %}
+      {% if perms.jobs %}
+        <div class="col-sm-6 col-lg-3">
+          <a class="ops-stat ops-stat-danger" href="{% url 'ops:jobs' %}?status=failed" data-nav>
+            <span class="ops-stat-head">
+              <i class="ti ti-alert-triangle" aria-hidden="true"></i>
+              <span class="ops-stat-label">报告生成异常</span>
+            </span>
+            <span class="ops-stat-value">{{ counters.failed_jobs }}</span>
+            <span class="ops-stat-note">口径：生成任务中状态为“失败”的数量，这类任务不会自动重试。</span>
+          </a>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <a class="ops-stat ops-stat-accent" href="{% url 'ops:jobs' %}?status=waiting" data-nav>
+            <span class="ops-stat-head">
+              <i class="ti ti-hourglass-high" aria-hidden="true"></i>
+              <span class="ops-stat-label">等待依赖的任务</span>
+            </span>
+            <span class="ops-stat-value">{{ counters.waiting_jobs }}</span>
+            <span class="ops-stat-note">口径：缺少已发布模板或规则而暂停的任务，发布后会自动继续。</span>
+          </a>
+        </div>
+      {% endif %}
+      {% if perms.questionnaires %}
+        <div class="col-sm-6 col-lg-3">
+          <a class="ops-stat" href="{% url 'ops:questionnaires' %}?status=draft" data-nav>
+            <span class="ops-stat-head">
+              <i class="ti ti-list-check" aria-hidden="true"></i>
+              <span class="ops-stat-label">未发布题库草稿</span>
+            </span>
+            <span class="ops-stat-value">{{ counters.draft_questionnaires }}</span>
+            <span class="ops-stat-note">口径：状态为“草稿”的题库版本数，草稿不会出现在家长端。</span>
+          </a>
+        </div>
+      {% endif %}
+      {% if perms.reports and not perms.jobs %}
+        <div class="col-sm-6 col-lg-3">
+          <a class="ops-stat" href="{% url 'ops:reports' %}" data-nav>
+            <span class="ops-stat-head">
+              <i class="ti ti-file-analytics" aria-hidden="true"></i>
+              <span class="ops-stat-label">报告管理</span>
+            </span>
+            <span class="ops-stat-value">{{ counters.failed_report_jobs }}</span>
+            <span class="ops-stat-note">口径：报告生成任务中状态为“失败”的数量，查看与重试需要技术运维角色。</span>
+          </a>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+
+  <section aria-label="统计">
+    <div class="row row-cards mb-3">
+      {% for metric in metrics %}
+        <div class="col-sm-6 col-lg-3">
+          <div class="ops-stat">
+            <span class="ops-stat-head">
+              <i class="ti ti-chart-bar" aria-hidden="true"></i>
+              <span class="ops-stat-label">{{ metric.label }}</span>
+            </span>
+            <span class="ops-stat-value">{{ metric.value }}</span>
+            <span class="ops-stat-note">{{ metric.scope }}</span>
+          </div>
+        </div>
+      {% empty %}
+        <div class="col-12">
+          <div class="ops-stat">
+            <span class="ops-stat-head">
+              <i class="ti ti-chart-bar" aria-hidden="true"></i>
+              <span class="ops-stat-label">当前角色没有可展示的统计口径</span>
+            </span>
+            <span class="ops-stat-value">—</span>
+            <span class="ops-stat-note">首页统计按角色可见范围展示；需要更多数据请联系管理员调整角色。</span>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <div class="row row-cards">
+    <div class="col-lg-8">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">待办清单</h2>
+            <div class="text-secondary small">只显示当前角色可以处理的待办。</div>
+          </div>
+          <div class="card-actions">
+            {% if perms.services %}<a class="btn btn-sm btn-ghost" href="{% url 'ops:services' %}" data-nav>全部服务事项</a>{% endif %}
+          </div>
+        </div>
+        <div class="card-body">
+          {% if perms.services %}
+            <h3 class="subheader">服务事项</h3>
+            {% if open_service_items %}
+              <div class="table-responsive">
+                <table class="table table-vcenter ops-table">
+                  <thead><tr><th>事项类型</th><th>儿童</th><th>原因</th><th>提交时间</th><th></th></tr></thead>
+                  <tbody>
+                    {% for row in open_service_items %}
+                      <tr>
+                        <td class="nowrap">{{ row.kind|label:"SERVICE_KIND" }}</td>
+                        <td>{{ row.child.name|default:"（儿童数据已删除）" }}</td>
+                        <td>{{ row.reason_code|label:"SERVICE_REASON" }}</td>
+                        <td class="nowrap">{{ row.created_at|date:"Y-m-d H:i" }}</td>
+                        <td class="text-end"><a class="btn btn-sm" href="{% url 'ops:service_detail' row.pk %}" data-nav>处理</a></td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {% else %}
+              <p class="text-secondary mb-0">当前没有待处理的服务事项。</p>
+            {% endif %}
+          {% endif %}
+
+          {% if perms.jobs %}
+            <h3 class="subheader">报告生成异常</h3>
+            {% if failed_job_items %}
+              <div class="table-responsive">
+                <table class="table table-vcenter ops-table">
+                  <thead><tr><th>任务类型</th><th>失败原因</th><th>建议</th><th></th></tr></thead>
+                  <tbody>
+                    {% for item in failed_job_items %}
+                      <tr>
+                        <td class="nowrap">{{ item.job.kind|label:"JOB_KIND" }}</td>
+                        <td>{{ item.reason }}</td>
+                        <td class="text-secondary">{{ item.advice }}</td>
+                        <td class="text-end"><a class="btn btn-sm" href="{% url 'ops:job_detail' item.job.pk %}" data-nav>查看</a></td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {% else %}
+              <p class="text-secondary mb-0">没有失败的生成任务。</p>
+            {% endif %}
+
+            {% if waiting_job_items %}
+              <h3 class="subheader">等待依赖</h3>
+              <ul class="timeline">
+                {% for item in waiting_job_items %}
+                  <li>
+                    <a href="{% url 'ops:job_detail' item.job.pk %}" data-nav>{{ item.job.kind|label:"JOB_KIND" }}任务</a>
+                    <div class="text-secondary small">{{ item.reason }} · {{ item.advice }}</div>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          {% endif %}
+
+          {% if perms.questionnaires %}
+            {% if draft_questionnaire_items %}
+              <h3 class="subheader">未发布的题库草稿</h3>
+              <ul class="timeline">
+                {% for row in draft_questionnaire_items %}
+                  <li>
+                    <a href="{% url 'ops:questionnaire_edit' row.pk %}" data-nav>{{ row.title }}</a>
+                    <div class="text-secondary small">
+                      {{ row.purpose|label:"QUESTIONNAIRE_PURPOSE" }} · {{ row.version }} ·
+                      {{ row.questions|length }} 题 · 更新于 {{ row.updated_at|date:"Y-m-d H:i" }}
+                    </div>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          {% endif %}
+
+          {% if not perms.services and not perms.jobs and not perms.questionnaires %}
+            <p class="text-secondary mb-0">当前角色没有需要处理的待办，可以使用右侧快捷入口查看内容。</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card mb-3">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">快捷入口</h2>
+            <div class="text-secondary small">按手机号或儿童称呼查家庭，是运营最常用的入口。</div>
+          </div>
+        </div>
+        <div class="card-body">
+          {% if perms.services %}
+            <form method="get" action="{% url 'ops:families' %}" class="mb-3">
+              <label class="form-label" for="quick-q">手机号或称呼</label>
+              <input class="form-control" type="text" id="quick-q" name="q" placeholder="例如 13800000001 或 小芽" />
+              <button type="submit" class="btn btn-primary w-100 mt-2">查找家庭</button>
+            </form>
+          {% endif %}
+          <div class="btn-list">
+            {% for link in quick_links %}
+              <a class="btn" href="{% url link.view %}" data-nav>{{ link.title }}</a>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      {% if perms.audit %}
+        <div class="card" id="recent-audit">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">最近操作</h2>
+              <div class="text-secondary small">
+                范围：全站最近的操作审计记录。只有具备「操作审计」权限的角色可以看到本区块。
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            {% if recent_audit %}
+              <ul class="timeline">
+                {% for row in recent_audit %}
+                  <li>
+                    <div>
+                      {{ row.action|audit_action }} ·
+                      {% if row.target_label %}{{ row.target_label }}{% else %}{{ row.target_kind|label:"TARGET_KIND" }}{% endif %}
+                    </div>
+                    <time>{{ row.created_at|date:"Y-m-d H:i" }} · {{ row.actor|display_name }}</time>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p class="text-secondary mb-0">还没有操作记录。</p>
+            {% endif %}
+          </div>
+          <div class="card-footer">
+            <a href="{% url 'ops:audit' %}" data-nav>查看完整操作审计 →</a>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

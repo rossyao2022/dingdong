@@ -1,0 +1,122 @@
+{% extends "ops/base.html" %}
+{% load ops_labels %}
+{% block title %}家庭详情{% endblock %}
+{% block page_title %}家庭详情{% endblock %}
+{% block crumb %}<a href="{% url 'ops:families' %}" data-nav>← 返回查询结果</a>{% endblock %}
+
+{% block content %}
+  <div class="row row-cards">
+    <div class="col-12 col-lg-8">
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">家庭信息</h2>
+            <div class="card-subtitle">家庭编号仅供系统内部使用，运营无需记录。</div>
+          </div>
+          <div class="card-actions">
+            {% if can_edit_family %}
+              {% if family.status == "active" %}
+                <button type="button" class="btn btn-sm btn-danger"
+                        data-ops-action="{% url 'ops:api_family_status' family.pk %}"
+                        data-ops-body='{"status": "frozen", "expected_status": "active"}'
+                        data-ops-confirm-title="冻结该家庭"
+                        data-ops-confirm="冻结后，家长端将无法访问该家庭的儿童、活动与报告。"
+                        data-ops-confirm-impacts="已生成的数据不会被删除，恢复后家长可继续访问|冻结与恢复都会记录在操作审计中"
+                        data-ops-confirm-label="确认冻结"
+                        data-ops-confirm-danger="1"
+                        data-ops-reload="1"
+                        data-ops-success="家庭已冻结。">冻结家庭</button>
+              {% elif family.status == "frozen" %}
+                <button type="button" class="btn btn-sm btn-primary"
+                        data-ops-action="{% url 'ops:api_family_status' family.pk %}"
+                        data-ops-body='{"status": "active", "expected_status": "frozen"}'
+                        data-ops-confirm-title="恢复该家庭"
+                        data-ops-confirm="恢复后家长可以重新访问该家庭的数据。"
+                        data-ops-confirm-impacts="只恢复访问权限，不会修改任何业务数据"
+                        data-ops-confirm-label="确认恢复"
+                        data-ops-reload="1"
+                        data-ops-success="家庭已恢复。">恢复家庭</button>
+              {% endif %}
+            {% endif %}
+          </div>
+        </div>
+        <div class="card-body">
+          <dl class="kv">
+            <dt>家庭状态</dt><dd><span class="badge {{ family.status|tone }}">{{ family.status|label:"FAMILY_STATUS" }}</span></dd>
+            <dt>家长</dt>
+            <dd>{% if member %}{{ member.user|display_name:"未登记" }}（{{ member.role }}）{% else %}无有效家长{% endif %}</dd>
+            <dt>手机号</dt><dd>{{ member.user.phone|default:"—" }}</dd>
+            <dt>创建时间</dt><dd>{{ family.created_at|date:"Y-m-d H:i" }}</dd>
+            <dt>最近更新</dt><dd>{{ family.updated_at|date:"Y-m-d H:i" }}</dd>
+          </dl>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <h2 class="card-title">儿童档案（{{ children|length }}）</h2>
+        </div>
+        {% if children %}
+          <div class="table-responsive">
+            <table class="table table-vcenter ops-table">
+              <thead><tr><th>称呼</th><th>性别</th><th>生日</th><th>状态</th><th>创建时间</th><th></th></tr></thead>
+              <tbody>
+                {% for child in children %}
+                  <tr>
+                    <td>{{ child.name }}</td>
+                    <td>{{ child.gender|label:"GENDER" }}</td>
+                    <td>{{ child.birth_date|date:"Y-m-d"|default:"未填写" }}</td>
+                    <td><span class="badge {{ child.status|tone }}">{{ child.status|label:"CHILD_STATUS" }}</span></td>
+                    <td class="nowrap">{{ child.created_at|date:"Y-m-d H:i" }}</td>
+                    <td class="text-end">
+                      <a class="btn btn-sm btn-primary" href="{% url 'ops:child_detail' child.pk %}" data-nav>查看儿童详情</a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="card-body">
+            {% include "ops/_empty.html" with title="该家庭还没有儿童档案" note="家长在家长端添加后会自动出现在这里。" %}
+          </div>
+        {% endif %}
+      </section>
+    </div>
+
+    <div class="col-12 col-lg-4">
+      <section class="card">
+        <div class="card-header"><h2 class="card-title">可以做什么</h2></div>
+        <div class="card-body">
+          <ul class="timeline">
+            <li>
+              <div>查看儿童详情</div>
+              <div class="text-secondary small">儿童详情集中展示活动、答卷、报告、关联与服务记录。</div>
+            </li>
+            <li>
+              <div>更正儿童档案</div>
+              <div class="text-secondary small">
+                {% if can_edit_child %}在儿童详情页点击“更正档案”。{% else %}需要运营或管理员角色。{% endif %}
+              </div>
+            </li>
+            <li>
+              <div>冻结家庭</div>
+              <div class="text-secondary small">
+                {% if can_edit_family %}用于家长申请暂停使用等场景，随时可以恢复。{% else %}需要运营或管理员角色。{% endif %}
+              </div>
+            </li>
+          </ul>
+        </div>
+      </section>
+      <section class="card">
+        <div class="card-header"><h2 class="card-title">数据边界</h2></div>
+        <div class="card-body">
+          <p class="text-secondary small mb-0">
+            当前为演示环境：儿童与活动数据来自测试输入，报告由后台任务根据测试模板生成，
+            不包含真实测评结论，也未接入真实短信与外部供应商。
+          </p>
+        </div>
+      </section>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,19 @@
+{
+  "name": "dingdong-parent",
+  "version": "0.3.6",
+  "private": true,
+  "type": "module",
+  "description": "DingDong 家长端，连接 CA 后端",
+  "scripts": {
+    "dev": "node server.cjs",
+    "start": "node server.cjs",
+    "check": "node --check app.js && node --check api.js && node --check playworld.js && node --check server.cjs",
+    "test": "playwright test",
+    "test:unit": "node --test unit/*.test.js",
+    "test:public": "playwright test --config=playwright.public.config.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "prettier": "3.9.6"
+  }
+}

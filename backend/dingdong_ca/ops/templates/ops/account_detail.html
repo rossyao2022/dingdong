@@ -1,0 +1,112 @@
+{% extends "ops/base.html" %}
+{% load ops_labels %}
+{% block title %}账号 {{ account.username }}{% endblock %}
+{% block page_title %}账号：{{ account.username }}{% endblock %}
+{% block crumb %}<a href="{% url 'ops:accounts' %}" data-nav>← 返回账号列表</a>{% endblock %}
+
+{% block content %}
+  {% if not editable %}
+    <div class="alert alert-warning" role="alert">
+      <h4 class="alert-heading">该账号不可在此修改</h4>
+      <p class="mb-0">
+        自己、超级管理员和其他管理员账号不能通过业务入口修改角色或状态，避免误操作导致失去管理入口。
+      </p>
+    </div>
+  {% endif %}
+
+  <div class="row row-cards">
+    <div class="col-12 col-lg-8">
+      <section class="card">
+        <div class="card-header"><h2 class="card-title">账号信息</h2></div>
+        <div class="card-body">
+          <dl class="kv">
+            <dt>登录账号</dt><dd>{{ account.username }}</dd>
+            <dt>姓名</dt><dd>{{ account.name|default:"—" }}</dd>
+            <dt>状态</dt>
+            <dd>
+              {% if account.is_active %}<span class="badge bg-green-lt">启用</span>
+              {% else %}<span class="badge bg-secondary-lt">已停用</span>{% endif %}
+            </dd>
+            <dt>超级管理员</dt><dd>{% if account.is_superuser %}是{% else %}否{% endif %}</dd>
+            <dt>最近登录</dt><dd>{{ account.last_login|date:"Y-m-d H:i"|default:"从未登录" }}</dd>
+            <dt>创建时间</dt><dd>{{ account.date_joined|date:"Y-m-d H:i" }}</dd>
+          </dl>
+        </div>
+      </section>
+
+      {% if editable %}
+        <section class="card">
+          <div class="card-header"><h2 class="card-title">角色</h2></div>
+          <div class="card-body">
+            <p class="text-secondary small">修改后该账号下一次请求立即生效。</p>
+            <form method="post">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="roles" />
+              <input type="hidden" name="expected_roles" value="{{ assigned_key }}" />
+              <div class="ops-checks mb-3">
+                {% for code, text in role_choices %}
+                  <label>
+                    <input class="form-check-input" type="checkbox" name="roles" value="{{ code }}"
+                           {% if code in assigned %}checked{% endif %} />{{ text }}
+                  </label>
+                {% endfor %}
+              </div>
+              <button type="submit" class="btn btn-primary">保存角色</button>
+            </form>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-header"><h2 class="card-title">账号状态</h2></div>
+          <div class="card-body">
+            <p class="text-secondary small">停用后该账号无法登录，已登录的会话将在下次请求时失效。</p>
+            <form method="post"
+                  data-ops-confirm="{% if account.is_active %}停用后该账号将无法登录运营后台。{% else %}启用后该账号可以重新登录。{% endif %}"
+                  data-confirm-title="{% if account.is_active %}停用账号{% else %}启用账号{% endif %}"
+                  data-confirm-impacts="角色与历史操作记录会保留|可以随时恢复"
+                  data-confirm-label="{% if account.is_active %}确认停用{% else %}确认启用{% endif %}"
+                  data-confirm-danger="{% if account.is_active %}1{% else %}0{% endif %}">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="status" />
+              <input type="hidden" name="expected_active" value="{% if account.is_active %}1{% else %}0{% endif %}" />
+              <input type="hidden" name="is_active" value="{% if account.is_active %}0{% else %}1{% endif %}" />
+              {% if account.is_active %}
+                <button type="submit" class="btn btn-danger">停用账号</button>
+              {% else %}
+                <button type="submit" class="btn btn-primary">启用账号</button>
+              {% endif %}
+            </form>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-header"><h2 class="card-title">重置密码</h2></div>
+          <div class="card-body">
+            <p class="text-secondary small">为忘记密码的同事设置新的初始密码，需要本人登录后自行修改。</p>
+            <a class="btn" href="{% url 'ops:account_reset_password' account.pk %}" data-nav>重置该账号密码</a>
+          </div>
+        </section>
+      {% endif %}
+    </div>
+
+    <div class="col-12 col-lg-4">
+      <section class="card">
+        <div class="card-header"><h2 class="card-title">该账号的操作记录</h2></div>
+        <div class="card-body">
+          {% if audit_rows %}
+            <ul class="timeline">
+              {% for row in audit_rows %}
+                <li>
+                  <div>{{ row.action|audit_action }} · {{ row.target_label|default:"—" }}</div>
+                  <time>{{ row.created_at|date:"Y-m-d H:i" }} · 操作人 {{ row.actor|display_name }}</time>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="text-secondary small mb-0">还没有针对该账号的管理操作记录。</p>
+          {% endif %}
+        </div>
+      </section>
+    </div>
+  </div>
+{% endblock %}
