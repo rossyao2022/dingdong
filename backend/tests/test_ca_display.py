@@ -677,8 +677,23 @@ def test_persona_view_maps_type_to_chinese(client):
     body = read(client, PERSONA, child).json()
     assert body["persona"]["type_label"] == "艺术"
     assert body["persona"]["learning_style_tags"] == ["imitation", "open"]
+    # 学习风格取值也给中文对照：与 tags 同序，原 code 留给界面放进 title。
+    assert body["persona"]["learning_style_labels"] == ["模仿", "开放"]
     assert body["binding"]["match_score"] == 82
     assert set(body["binding"]) == {"binding_id", "bind_time", "match_score", "status"}
+
+
+def test_persona_view_leaves_unknown_learning_style_label_null(client):
+    """对方 code 表未确认：不在映射表里的取值给 null，界面不猜中文。"""
+    child, account_id = ready_child(client)
+    payload = fixtures.persona_payload(
+        "persona_art_01", "bind_mock_001", 82, "2026-09-01T02:05:00+08:00"
+    )
+    payload["persona"]["learning_style_tags"] = ["imitation", "unseen_tag"]
+    put_fixture(account_id, fixtures.PERSONA_KIND, payload)
+    body = read(client, PERSONA, child).json()
+    assert body["persona"]["learning_style_tags"] == ["imitation", "unseen_tag"]
+    assert body["persona"]["learning_style_labels"] == ["模仿", None]
 
 
 def test_growth_dimensions_keep_fixed_order_and_missing_stay_null(client):

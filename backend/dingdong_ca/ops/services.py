@@ -271,9 +271,9 @@ def dashboard_data(user=None):
             },
             {
                 "key": "new_children",
-                "label": "近 7 天新增儿童",
+                "label": "近 7 天新建档案（含已归档）",
                 "value": Child.objects.filter(created_at__gte=since).count(),
-                "scope": "口径：创建时间在过去 7 天内的儿童档案数。",
+                "scope": "口径：创建时间在过去 7 天内的儿童档案数，含已归档；与“在册儿童”不同口径，所以可能更大。",
             },
         ]
     if can_reports:

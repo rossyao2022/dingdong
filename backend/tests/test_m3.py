@@ -79,6 +79,8 @@ def test_verify_and_sync_stage_report_contract(client):
     assert_schema("ObservationView", r.json())
     assert r.json()["availability"] == "ready"
     assert r.json()["metrics"][0]["value"] == 3
+    # 合成指标的单位也是中文，界面不出现英文 "count"。
+    assert r.json()["metrics"][0]["unit"] == "次"
     r = client.get(f"/api/v1/children/{child['id']}/growth-overview", WINDOW)
     assert_schema("GrowthOverview", r.json())
     assert r.json()["stage_status"] == "ready"

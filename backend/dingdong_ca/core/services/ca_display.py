@@ -77,6 +77,14 @@ TRIGGER_REASON_LABELS = {
     "low_engagement": "近期互动偏少",
     "continuous_low_engagement": "连续多期互动偏少",
 }
+# 学习风格取值的中文对照。对方 code 表还没确认（澄清清单确认级 C6），这里按取值
+# 直译给家长看，原始 code 由前端放进 `title`；不在表里的取值给 null，前端不猜。
+LEARNING_STYLE_LABELS = {
+    "imitation": "模仿",
+    "open": "开放",
+    "reverse": "逆向",
+    "cognitive": "认知",
+}
 # 回写出站失败的家长端说法。设计 §3.3 要求 `40901` 在复测回写场景给一句
 # 明确提示，不静默吞掉；这里按业务码映射成中文，内部码不出现在响应里。
 SYNC_ERROR_LABELS = {
@@ -216,7 +224,13 @@ def _usable(availability):
 def _persona_out(payload):
     persona = payload.get("persona")
     if persona:
-        persona = {**persona, "type_label": PERSONA_TYPE_LABELS.get(persona.get("persona_type"))}
+        tags = persona.get("learning_style_tags") or []
+        persona = {
+            **persona,
+            "type_label": PERSONA_TYPE_LABELS.get(persona.get("persona_type")),
+            # 与 tags 同序同长；未知取值给 null，界面用「未识别取值」兜住。
+            "learning_style_labels": [LEARNING_STYLE_LABELS.get(tag) for tag in tags],
+        }
     binding = payload.get("binding")
     if binding:
         binding = {k: binding.get(k) for k in ("binding_id", "bind_time", "match_score", "status")}

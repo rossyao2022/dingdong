@@ -550,7 +550,7 @@ def test_ops_pages_do_not_leak_json_or_uuid_only_ui():
 
 
 def test_parent_without_name_falls_back_to_phone_not_internal_account():
-    """家长没填姓名时，家庭列表/详情/儿童详情显示手机号，不显示 parent-<uuid>。"""
+    """家长没填姓名时不显示 parent-<uuid>：列表走相邻「手机号」列，详情页带手机号。"""
     family, children, parent = make_family(parent_name="")
     client = ops_client(make_staff("operations"))
 
@@ -563,6 +563,34 @@ def test_parent_without_name_falls_back_to_phone_not_internal_account():
         assert "parent-" not in body, url
         assert parent.username not in body, url
         assert parent.phone in body, url
+
+
+def test_families_list_does_not_repeat_phone_in_parent_column():
+    """「家长」与「手机号」相邻：空姓名的家长列给「未填写」，号码只出现一次。"""
+    _, _, blank = make_family(phone="+8613800000002", parent_name="")
+    _, _, named = make_family(phone="+8613800000003", parent_name="家长乙")
+    client = ops_client(make_staff("operations"))
+
+    body = client.get(reverse("ops:families")).content.decode()
+    assert "未填写" in body
+    assert body.count(blank.phone) == 1
+    # 有姓名的家庭照常显示姓名，过滤器没有把正常路径一起改掉。
+    assert named.name in body
+
+
+def test_dashboard_new_children_metric_states_its_scope():
+    """「近 7 天新建档案（含已归档）」与「在册儿童」不同口径，标签写全。"""
+    _, children, _ = make_family(children=2)
+    Child.objects.filter(pk=children[0].pk).update(status="archived")
+    client = ops_client(make_staff("operations"))
+
+    metrics = client.get(reverse("ops:dashboard")).context["metrics"]
+    new_children = next(m for m in metrics if m["key"] == "new_children")
+    assert new_children["label"] == "近 7 天新建档案（含已归档）"
+    assert new_children["value"] == 2
+    assert "含已归档" in new_children["scope"]
+    enrolled = next(m for m in metrics if m["key"] == "children")
+    assert enrolled["value"] == 1
 
 
 def test_child_status_filter_and_counts():

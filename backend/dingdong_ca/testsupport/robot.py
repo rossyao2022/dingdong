@@ -84,7 +84,7 @@ def inject_robot(child_id, scenario, dataset):
                 "code": "test_observation",
                 "label": "合成观察次数",
                 "value": 3,
-                "unit": "count",
+                "unit": "次",
                 "missing_reason": None,
             }
         ],
@@ -186,7 +186,7 @@ def normalize_observation(payload, subject):
         raise FixtureFailure("UPSTREAM_SCHEMA_INVALID")
     if (
         m["code"] != "test_observation"
-        or m["unit"] != "count"
+        or m["unit"] != "次"
         or m["missing_reason"] is not None
         or not isinstance(m["label"], str)
         or len(m["label"]) > 80

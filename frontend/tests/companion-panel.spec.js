@@ -171,7 +171,7 @@ async function assertCase(page, item) {
   await expect(persona.locator(".metric-list")).toContainText("匹配度");
   await expect(persona.locator(".metric-list")).toContainText(item.persona.match);
   await expect(persona).toContainText("不是天赋分或能力分");
-  await expect(persona).toContainText("按对方学习风格 code 展示");
+  await expect(persona).toContainText("学习风格：");
 
   // 面三：四态分支
   await expect(health).toContainText(item.health.label);

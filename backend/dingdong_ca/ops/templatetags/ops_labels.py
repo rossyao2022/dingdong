@@ -166,6 +166,18 @@ def display_name(value, fallback="系统"):
 
 
 @register.filter
+def account_name(value, fallback="未填写"):
+    """账号的姓名本身，不回落手机号。
+
+    列表里「家长」与「手机号」是相邻两列时用这个：`display_name` 会在没填姓名时
+    回落手机号，两列就重复同一个号码。需要手机号的地方仍用 `display_name`。
+    """
+    if value is None:
+        return fallback
+    return getattr(value, "name", "") or fallback
+
+
+@register.filter
 def version_label(value, fallback="—"):
     """内容版本代码的展示名：只留版本号（`readable-v2` → `v2`）。
 

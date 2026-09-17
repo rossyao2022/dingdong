@@ -211,7 +211,7 @@ test("成长周期报告：15/30 天 Tab、周期空态与八维条形（真实 
   // 2) 正常 15 天：陪伴值增长、阶段中文名与进度、八维条形。
   const account = inject(id, "ca_display_normal_art");
   await openReports(page);
-  await expect(panel).toContainText("本周期 2026-09-01 — 2026-09-15");
+  await expect(panel).toContainText("本周期 2026/09/01 — 2026/09/15");
   await expect(panel).toContainText("当前陪学伙伴 Mia");
   await expect(panel.locator(".metric-list")).toContainText("陪伴值增长");
   await expect(panel.locator(".metric-list")).toContainText("35");
@@ -249,7 +249,7 @@ test("成长周期报告：15/30 天 Tab、周期空态与八维条形（真实 
   inject(id, "ca_display_normal_science");
   await openReports(page);
   await selectTab(page, "30 天");
-  await expect(panel).toContainText("本周期 2026-09-01 — 2026-09-30");
+  await expect(panel).toContainText("本周期 2026/09/01 — 2026/09/30");
   await expect(panel).toContainText("当前陪学伙伴 Newton");
   await expect(panel.locator(".metric-list")).toContainText("64");
   await expect(panel.locator(".growth-stage")).toContainText("深入");

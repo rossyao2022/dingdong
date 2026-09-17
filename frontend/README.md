@@ -135,7 +135,7 @@ npx playwright test tests/ca-account.spec.js --reporter=list  # 真实 Chrome 4 
 
 - **四态分支**：`insufficient_data` 只说「还在收集互动数据，暂时不做判断。」；`normal` 显健康度分数与观察天数；`watch` 只出轻提示、**不出复测 CTA**；`reassess` 只出「建议重新测评」文案。四态里只有 `normal` 出现分数，其余连 0 都不显示。未知 `status` 落「不做判断」分支，不按 `normal` 展示。
 - **判定逻辑在 `companion.js`**：`personaSection()` / `healthSection()` 是纯函数（不碰 DOM），负责四态分支、是否显分、空态与错误态文案，由 `unit/companion.test.js` 盯住；`app.js` 只把返回值拼成 HTML。新增顶层 `.js` 要同步 `server.cjs` 的静态白名单（照 C1 那节）。
-- **文案纪律**：`match_score` 写「匹配度 n / 100」并注明由机器人服务产出、不是天赋分或能力分；`persona_type` 与 `trigger_reason` 的中文由后端下发（`type_label` / `trigger_label`），前端不维护映射表；`learning_style_tags` 原样展示英文 code；内部 code 不进正文。
+- **文案纪律**：`match_score` 写「匹配度 n / 100」并注明由机器人服务产出、不是天赋分或能力分；`persona_type` / `trigger_reason` / 学习风格取值的中文由后端下发（`type_label` / `trigger_label` / `learning_style_labels`），前端不维护映射表；学习风格正文只给中文对照，对方原始 code 只进 `title`（见 C5 一节）；内部 code 不进正文。
 - **合成数据必须标**：`data_origin == "synthetic"` 时面板级挂 `testTag()`。`availability != "ready"`（含 `stale`）按后端给的说法显示，不显示任何数值——尤其不把 `not_synced`（服务没接通）说成「暂无数据」。
 - **复测 CTA 不在本面板的这一步**：`reassess` 态的回写闭环（按钮 → `response` → 承接测评 → `complete`）是后续任务，本面板只呈现四态本身。
 

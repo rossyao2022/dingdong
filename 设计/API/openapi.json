@@ -14526,10 +14526,26 @@
           },
           "learning_style_tags": {
             "type": "array",
-            "description": "对方学习风格 code；契约未给 code 表，V1 按原样展示",
+            "description": "对方学习风格 code；契约未给 code 表，界面不把它当正文（原始 code 只进 title）",
             "items": {
               "type": "string"
             }
+          },
+          "learning_style_labels": {
+            "type": "array",
+            "description": "与 learning_style_tags 同序的中文对照，映射表在后端；未知取值为 null，界面不猜",
+            "items": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "examples": [
+              [
+                "模仿",
+                "开放"
+              ]
+            ]
           },
           "talent_weight_version": {
             "type": "string",
@@ -14545,6 +14561,7 @@
           "type_label",
           "public_description",
           "learning_style_tags",
+          "learning_style_labels",
           "talent_weight_version"
         ]
       },

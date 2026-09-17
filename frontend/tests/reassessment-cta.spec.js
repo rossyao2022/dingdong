@@ -206,7 +206,7 @@ test("复测四步闭环：建议 → 回写 → 承接测评 → 结果（switc
   await expect(page.locator(".reassessment")).toHaveCount(1);
   await expect(cta).toContainText(SUGGEST);
   await expect(cta).toContainText("建议时间");
-  await expect(cta).toContainText("机器人服务给出的原因：近期互动偏少");
+  await expect(cta).toContainText("这次建议的原因：近期互动偏少");
   await expect(cta.getByRole("button")).toHaveCount(2);
   await page.screenshot({
     path: path.join(SHOTS, "suggest-desktop.png"),

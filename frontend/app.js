@@ -125,10 +125,29 @@ function saveHints() {
     );
   } catch {}
 }
+// 时间展示统一走这里：本地时区、零填充到分钟（与成长观察窗口输入框的口径一致，
+// 同页不出现「2026/9/1 00:00:00」和「2026/09/01 08:00」两种写法）。
+const DATE_TIME = {
+  hour12: false,
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+};
 function date(v) {
-  return v
-    ? new Date(v).toLocaleString("zh-CN", { hour12: false })
-    : "尚无记录";
+  return v ? new Date(v).toLocaleString("zh-CN", DATE_TIME) : "尚无记录";
+}
+/** 只到日的时间展示。纯日期字符串直接改写，避免按 UTC 解析后跨时区差一天。 */
+function dateOnly(v) {
+  if (!v) return "尚无记录";
+  const plain = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(v));
+  if (plain) return `${plain[1]}/${plain[2]}/${plain[3]}`;
+  return new Date(v).toLocaleDateString("zh-CN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
 }
 function head(title, desc = "", action = "") {
   return `<div class="page-head"><div><span class="eyebrow">${esc(state.child?.name || "DINGDONG")} · 成长空间</span><h1>${esc(title)}</h1><p>${esc(desc)}</p></div>${action}</div>`;
@@ -437,7 +456,7 @@ function observationBlock(obs) {
     error: "同步暂时遇到问题",
     ready: "机器人行为观察",
   };
-  return `<section class="panel"><div class="card-heading"><h2>${titles[obs.availability] || "行为观察"}</h2>${testTag()}</div>${["stale", "error"].includes(obs.availability) ? '<div class="notice error">同步未取得最新结果，已有数据不会当作最新数据展示。</div>' : ""}${metrics(obs.metrics)}<p class="note">最近成功同步：${date(obs.last_success_at)}</p>${obs.availability === "unbound" || obs.availability === "no_consent" ? '<a class="button secondary" href="#settings">管理关联与授权</a>' : ""}</section>`;
+  return `<section class="panel"><div class="card-heading"><h2>${titles[obs.availability] || "行为观察"}</h2>${testTag()}</div>${["stale", "error"].includes(obs.availability) ? '<div class="notice error">同步未取得最新结果，已有数据不会当作最新数据展示。</div>' : ""}${metrics(obs.metrics)}<p class="note">最近成功同步：${date(obs.last_success_at)}</p><p class="note">数据来源：这里是本机同步到的机器人行为观察；上面的「陪学伙伴」与「成长周期报告」来自机器人服务。两份来源不同，不能直接混成一个分数。</p>${obs.availability === "unbound" || obs.availability === "no_consent" ? '<a class="button secondary" href="#settings">管理关联与授权</a>' : ""}</section>`;
 }
 /** 面一 + 面三的空态/错误态正文：一句状态 + 可选的去向。 */
 function faceEmpty(view) {
@@ -446,13 +465,20 @@ function faceEmpty(view) {
 function staleNotice(view) {
   return view.stale ? `<div class="notice">${esc(STALE_NOTICE)}</div>` : "";
 }
-/** 面一：人设卡。后端已给中文 `type_label`，前端不维护映射表。 */
+/** 面一：人设卡。后端已给中文 `type_label` 与 `learning_style_labels`，前端不维护映射表。 */
 function personaBlock(view) {
   if (!view.showData)
     return `<div class="companion-persona">${faceEmpty(view)}</div>`;
   const p = view.persona;
-  const tags = (p.learning_style_tags || []).map(esc).join("、");
-  return `<div class="companion-persona"><div class="companion-head"><h3>${esc(p.persona_name)}</h3>${p.type_label ? `<span class="tag">${esc(p.type_label)}</span>` : ""}</div>${p.public_description ? `<p>${esc(p.public_description)}</p>` : ""}${view.matchScore === null ? "" : metrics([{ label: "匹配度", value: view.matchScore, unit: "/ 100" }])}<p class="note">匹配度是机器人服务按孩子的互动给出的（0–100），不是天赋分或能力分。</p>${tags ? `<p class="note">学习风格 code：${tags}（按对方学习风格 code 展示，暂无中文对照）。</p>` : ""}<p class="note">绑定于 ${date(view.binding?.bind_time)} · 权重版本 <span title="${esc(p.talent_weight_version)}">${esc(versionLabel(p.talent_weight_version))}</span></p>${staleNotice(view)}</div>`;
+  // 学习风格：正文只给中文对照，对方原始 code 只进 title（对方 code 表尚未确认）。
+  const labels = p.learning_style_labels || [];
+  const tags = (p.learning_style_tags || [])
+    .map((code, index) => {
+      const label = labels[index] || "未识别取值";
+      return `<span title="${esc(code)}">${esc(label)}</span>`;
+    })
+    .join("、");
+  return `<div class="companion-persona"><div class="companion-head"><h3>${esc(p.persona_name)}</h3>${p.type_label ? `<span class="tag">${esc(p.type_label)}</span>` : ""}</div>${p.public_description ? `<p>${esc(p.public_description)}</p>` : ""}${view.matchScore === null ? "" : metrics([{ label: "匹配度", value: view.matchScore, unit: "/ 100" }])}<p class="note">匹配度是机器人服务按孩子的互动给出的（0–100），不是天赋分或能力分。</p>${tags ? `<p class="note">学习风格：${tags}（中文对照由我方按取值直译，对方 code 表确认后核对；悬停可看原始取值）。</p>` : ""}<p class="note">绑定于 ${date(view.binding?.bind_time)} · 权重版本 <span title="${esc(p.talent_weight_version)}">${esc(versionLabel(p.talent_weight_version))}</span></p>${staleNotice(view)}</div>`;
 }
 /** 面三：互动健康度四态。分数只在 `normal` 出现，且必须与观察天数一起给。 */
 function healthBlock(view, reassessment = { show: false }) {
@@ -489,7 +515,7 @@ function companionPanel(persona, health, reassessment) {
 function reassessmentBlock(view) {
   if (!view.show) return "";
   const when = view.recommendedAt
-    ? `<p class="note">建议时间 ${date(view.recommendedAt)}${view.triggerLabel ? ` · 机器人服务给出的原因：${esc(view.triggerLabel)}` : ""}</p>`
+    ? `<p class="note">建议时间 ${date(view.recommendedAt)}${view.triggerLabel ? ` · 这次建议的原因：${esc(view.triggerLabel)}` : ""}</p>`
     : "";
   const sync = view.syncNote ? `<p class="note">${esc(view.syncNote)}</p>` : "";
   // 回写失败的落点就在这一块里：不借道 `showError()`，否则会写进页面上第一个
@@ -577,7 +603,7 @@ function growthCyclePanel(data) {
       : "",
     v.generatedAt ? `生成于 ${date(v.generatedAt)}` : "",
   ].filter(Boolean);
-  return `<section class="panel growth-panel">${head}<p class="note">本周期 ${esc(v.period.start)} — ${esc(v.period.end)}${v.personaName ? ` · 当前陪学伙伴 ${esc(v.personaName)}` : ""}</p>${companion}${range}${stage}<h3>八维成长代理</h3>${dimensionBars(v.dimensions)}<p class="note">${esc(PROXY_NOTE)}</p>${meta.length ? `<p class="note">${meta.join(" · ")}</p>` : ""}${staleNotice(v)}</section>`;
+  return `<section class="panel growth-panel">${head}<p class="note">本周期 ${esc(dateOnly(v.period.start))} — ${esc(dateOnly(v.period.end))}${v.personaName ? ` · 当前陪学伙伴 ${esc(v.personaName)}` : ""}</p>${companion}${range}${stage}<h3>八维成长代理</h3>${dimensionBars(v.dimensions)}<p class="note">${esc(PROXY_NOTE)}</p>${meta.length ? `<p class="note">${meta.join(" · ")}</p>` : ""}${staleNotice(v)}</section>`;
 }
 function localValue(v) {
   const d = new Date(v);
