@@ -40,7 +40,7 @@
 - `cd backend && uv run python manage.py check` → `System check identified no issues (0 silenced).`
 - `cd backend && uv run python manage.py makemigrations --check --dry-run` → `No changes detected`
 - `cd backend && uv run pytest tests/test_ca_display.py -q` → `51 passed, 1 warning in 189.02s`
-- `cd backend && uv run pytest tests/test_ca_display.py tests/test_m3.py tests/test_ops_console.py -q` → 见 report.md
+- `cd backend && uv run pytest tests/test_ca_display.py tests/test_m3.py tests/test_ops_console.py -q` → `1 failed, 121 passed, 1 warning in 562.88s`（唯一失败=契约用例抓到 `trigger_label` 缺失，修复后全量复跑见下）
 - `cd backend && uv run ruff check .` → `All checks passed!`
 - `cd backend && uv run ruff format --check --target-version py313 .` → `131 files already formatted`
 - `uv run --directory backend python ../scripts/audit_documents.py --generate` → `{"markdown_files": 80, "local_links_checked": 497, "archived_files_checked": 85, "operations": 61, "schemas": 82, "errors": []}`
@@ -50,6 +50,6 @@
 
 已完成：report.md 已写；`[T-032]` 提交 a7c2035 已 push（远端 sha `a7c20353bc295123c9c32d8f2ab64918e3959925`）；`gates.md` 补 `EXECUTED T-032 push`；`queue.md` 该任务 `status` 改 `done` 并附执行结果；experiment-log 追加一行；`status.md` 已重写。
 
-修复后复跑：`cd backend && uv run pytest tests/test_ca_display.py -q -k "reassessment or contract or declined or complete"` → `6 passed, 46 deselected, 1 warning in 36.91s`。
+修复后复跑：`cd backend && uv run pytest tests/test_ca_display.py -q -k "reassessment or contract or declined or complete"` → `6 passed, 46 deselected, 1 warning in 36.91s`；修复后全量复跑 `cd backend && uv run pytest tests/test_ca_display.py -q` → `52 passed, 1 warning in 190.76s (0:03:10)`。
 
 下一步：无（本轮结束）。

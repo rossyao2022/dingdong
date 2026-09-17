@@ -32,9 +32,10 @@
 | --- | --- |
 | `cd backend && uv run python manage.py check` | `System check identified no issues (0 silenced).` |
 | `cd backend && uv run python manage.py makemigrations --check --dry-run` | `No changes detected` |
-| `cd backend && uv run pytest tests/test_ca_display.py -q` | `51 passed, 1 warning in 189.02s (0:03:09)` |
+| `cd backend && uv run pytest tests/test_ca_display.py -q`（修复前，当时 51 项） | `51 passed, 1 warning in 189.02s (0:03:09)` |
 | `cd backend && uv run pytest tests/test_ca_display.py tests/test_m3.py tests/test_ops_console.py -q` | `1 failed, 121 passed, 1 warning in 562.88s`（唯一失败 = 本轮新增的契约用例抓到 `trigger_label` 缺失，见下「偏离与发现」，修复后见下一行） |
-| `cd backend && uv run pytest tests/test_ca_display.py -q -k "reassessment or contract or declined or complete"` | 见下方「修复后复跑」 |
+| `cd backend && uv run pytest tests/test_ca_display.py -q -k "reassessment or contract or declined or complete"` | `6 passed, 46 deselected, 1 warning in 36.91s` |
+| `cd backend && uv run pytest tests/test_ca_display.py -q`（修复后全量复跑） | `52 passed, 1 warning in 190.76s (0:03:10)` |
 | `cd backend && uv run ruff check .` | `All checks passed!` |
 | `cd backend && uv run ruff format --check --target-version py313 .` | `131 files already formatted` |
 | `uv run --directory backend python ../scripts/audit_documents.py --generate` | `{"markdown_files": 80, "local_links_checked": 497, "archived_files_checked": 85, "operations": 61, "schemas": 82, "errors": []}` |
