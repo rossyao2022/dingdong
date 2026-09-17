@@ -6,7 +6,7 @@
 - Plan：定位唯一格式差异——`ruff format --check --target-version py313 tests/test_ops_audit_scope.py` 报 `unformatted --> tests/test_ops_audit_scope.py:275:36`，`wc -l` = 274 且末行无结尾换行，即缺行尾换行。
 - Implement：`uv run ruff format --target-version py313 tests/test_ops_audit_scope.py` → `1 file reformatted`。`git diff` 仅 1 处：`-    return reverse("ops:dashboard")\ No newline at end of file` → `+    return reverse("ops:dashboard")`。断言语义未改。
 - Verify：`uv run ruff format --check --target-version py313 tests/test_ops_audit_scope.py` → `1 file already formatted`，rc=0；`uv run ruff check tests/test_ops_audit_scope.py` → `All checks passed!`，rc=0；`uv run pytest tests/test_ops_audit_scope.py` 格式化前 `12 passed in 49.07s`、格式化后 `12 passed in 46.87s`；`python3 scripts/audit_documents.py` → `errors: []`。
-- Finish：进行中。
+- Finish：`queue.md` T-027 `status` 改 `done` 并写回执行结果；`report.md` 已写；`gates.md` 决定段补 3 行 EXECUTED（推送 a9d00de / f7a6ea7 / b6e427a）；`experiment-log.md` 追加 T-027 行；`status.md` 整文件重写。三笔提交均已 push，远端头 `b6e427aed7629176512d1c74baad7ac62fac58fc`。
 
 ## 改动文件列表
 
