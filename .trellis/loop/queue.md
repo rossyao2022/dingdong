@@ -132,8 +132,8 @@
 - goal: 测评授权同意框补齐四要素（处理目的 / 数据范围 / 数据去向含 DingDong 侧 / 保留与撤回后果），保留「[合成测试]」标注，并点明已有「撤回授权」入口。
 - acceptance: 弹窗正文含四要素、仍含「合成测试」标注与撤回说明；`cd frontend && npm run check && npm run test:unit` 通过；audit errors 为空；真实 Chrome 打开测评同意框截图到 `.trellis/tasks/T-016/shots/`。
 - gate: none
-- status: todo
-- notes: 文案 + 模板，不得改动授权契约字段，不许去掉或弱化「合成测试」标注。属第一批：commit 后可直接 push 并补 EXECUTED 行。
+- status: done
+- notes: 文案 + 模板，不得改动授权契约字段，不许去掉或弱化「合成测试」标注。属第一批：commit 后可直接 push 并补 EXECUTED 行。 **2026-09-17 执行结果**：只改 `frontend/app.js` `beginAssessment()` 的 `showDialog` 正文——在服务端政策正文（`policy.body`，保留其 `[合成测试]` 标注）后新增 `.notice` 块（沿用「活动准备材料」的 `<b>标题</b><p>正文</p>` 写法），四要素：处理目的 / 数据范围（问卷选择、答题时间、题库版本；不采集指纹与年级）/ 数据去向（本项目服务端处理，不下发测评结果或画像给 DingDong 侧；行为观察另走「机器人数据同步」、分开展示不合并成分数）/ 保留与撤回（写导航实名「账户与关联 → 用途授权」的「撤回授权」，并写明撤回不自动删除已生成报告、需清除数据请提交删除事项）。事实依据为已有确认约束转述（`PROJECT_MEMORY.md`、`设计/数据库表结构_V0.1.md:129`、`设计/一期功能_API与业务闭环_V0.1.md`），未新增承诺、未改契约字段、未动政策数据与同步用途弹窗、未加 CSS/依赖。新增 `frontend/tests/consent-copy.spec.js` 1 条真实 Chrome 用例（登录→建档案→测评与报告→开始探索体验，断言四要素标签 + `DingDong 侧` + `合成测试` + `撤回授权`/`账户与关联`，桌面与 390×844 截图，窄屏断言滚进视口后「同意并开始」在视口内并真实点进第 1/4 题）。TDD 红 `1 failed`（`getByText('处理目的')` element(s) not found，`consent-copy.spec.js:48`）→ 绿 `1 passed (8.7s)`；补窄屏断言后加回归 `2 passed (20.3s)`（`quiz-last-button` `1 passed (13.1s)`）；`npm run check` exit 0、`test:unit` 16 pass 0 fail（71.056667ms）、`audit_documents.py` errors `[]`；截图 3 张在 `.trellis/tasks/T-016/shots/`。已按第一批直推规则 push：`ad78a47..92827af`，远端 sha `92827aff0aafdf80ac63dfe8169119d9e6039b07`。
 
 ## T-017 G-02 产品内加一行授权血缘来源声明
 - goal: 家长端产品内（页脚或「家长支持」）加一行来源与使用声明：沿用参考项目 `d754a5bf9ea8e71ca64a850d2e26aa321fe8ab38` 的视觉与插画及许可范围，措辞与 `frontend/README.md` 一致。
