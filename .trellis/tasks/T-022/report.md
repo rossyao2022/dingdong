@@ -47,3 +47,12 @@
 - **测试 REQUEST 行留在 `gates.md` 申请段**（acceptance 要求），末尾带「T-022 钩子自测，可忽略」。
 - **未更新 `PROJECT_MEMORY.md`**：该文件未记录自循环机制（`grep '自循环\|worker-loop'` 无命中），本次改动属 `.trellis/loop/` 内部机制。
 - **未提交 `.trellis/loop/ORCHESTRATOR.md`**：orchestrator 自己的文件，不属本任务范围（T-006 收尾已在 status.md 记过待办）。
+
+## 提交与推送
+
+- `2cfca23` `[T-022] feat(loop): 驱动收尾钩子…`（`scripts/worker-loop.sh` + 任务目录证据 + `runs.log`/`gates.md`）→ 推送 `dbf2870..2cfca23`
+- `b55244d` `[T-022] chore(loop): 收口…`（queue/gates/status/experiment-log/report）→ 推送 `2cfca23..b55244d`
+- `87b9ea0` `[T-022] chore(loop): 回填第二次推送的 EXECUTED 记录` → 推送 `b55244d..87b9ea0`
+- `b6a2d29` `[T-022] chore(loop): 入库 orchestrator 对自测 REQUEST 的 DENY 回执…` → 推送 `87b9ea0..b6a2d29`
+- 依据：T-022 notes 的「机制任务：commit 后直接 push origin/codex/release-v0.3.6 并在 `gates.md` 补 EXECUTED 行，不必另开 REQUEST」+ `.trellis/loop/ORCHESTRATOR.md` 的 push 直批规则；未用 `--no-verify`。
+- 闭环：唤醒后 orchestrator 面板（w0:p4）进入 working，并在 `gates.md` 决定段回了 `DENY T-099 push … 2026-09-17T07:22Z`，本轮已把该回执一并入库。
