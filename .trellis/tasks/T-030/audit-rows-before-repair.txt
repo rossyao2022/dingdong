@@ -1,0 +1,15 @@
+39 objects imported automatically (use -v 2 for details).
+
+AuditEvent(synthetic.dispose)=8
+child/bcfcba0e-5f83-482a-8af1-2f5230c5f97a detail={'after': "status: 'archived'", 'reason': 'T-020 合成测试批次清理（.trellis/tasks/T-020/report.md）'}
+family/7940e214-1a85-493f-92b4-5e83dc0520a3 detail={'after': "status: 'closed'", 'reason': 'T-020 合成测试批次清理（.trellis/tasks/T-020/report.md）'}
+external_association/072f83f2-fe23-4648-8dcf-f75b19318dac detail={'after': "status: 'revoked'、ended_at: datetime.datetime(2026, 9, 17, 13, 32, 26, 655002, tzinfo=datetime.timezone.utc)", 'reason': 'T-020 合成测试批次清理（.trellis/tasks/T-020/report.md）'}
+sync_checkpoint/119fa247-a210-4f48-942b-808b0a4c36fe detail={'after': "status: 'paused'、next_due_at: None", 'reason': 'T-020 合成测试批次清理（.trellis/tasks/T-020/report.md）'}
+background_job/c8fdc0fd-5d41-40cc-a93a-5d44ff18f128 detail={'after': "status: 'cancelled'、error_code: 'CONSENT_REVOKED_OR_PAUSED'、finished_at: datetime.datetime(2026, 9, 17, 13, 32, 26, 655002, tzinfo=datetime.timezone.utc)", 'reason': 'T-020 合成测试批次清理（.trellis/tasks/T-020/report.md）'}
+consent_grant/7eac5874-3ad6-426a-b56c-e71afee94de3 detail={'after': 'revoked_at: datetime.datetime(2026, 9, 17, 13, 32, 26, 655002, tzinfo=datetime.timezone.utc)', 'reason': 'T-020 合成测试批次清理（.trellis/tasks/T-020/report.md）'}
+family_membership/156bcf76-fa52-48cd-b62a-b1fccec57112 detail={'after': 'ended_at: datetime.datetime(2026, 9, 17, 13, 32, 26, 655002, tzinfo=datetime.timezone.utc)', 'reason': 'T-020 合成测试批次清理（.trellis/tasks/T-020/report.md）'}
+login_grant/3044e89c-1b22-4b56-a953-6bdb8f5d6d72 detail={'after': "revoked_at: datetime.datetime(2026, 9, 17, 13, 32, 26, 655002, tzinfo=datetime.timezone.utc)、revoke_reason: 'synthetic_dispose'", 'reason': 'T-020 合成测试批次清理（.trellis/tasks/T-020/report.md）'}
+家长未失效登录凭据=2 条
+  login_grant/aec9ff58-1da7-4cb0-9b34-ec3867c59720 created_at=datetime.datetime(2026, 9, 17, 13, 30, 19, 138016, tzinfo=datetime.timezone.utc)
+  login_grant/96563219-2232-4fc2-87a4-133db6c00b14 created_at=datetime.datetime(2026, 9, 17, 13, 32, 16, 475507, tzinfo=datetime.timezone.utc)
+家长 is_active=False

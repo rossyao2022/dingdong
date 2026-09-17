@@ -268,6 +268,8 @@ AUDIT_ACTION = {
     # CA 对接：家长绑机器人时建号，换机时归档旧号
     "ca_account.create": "建立 CA 账户",
     "ca_account.retire": "归档 CA 账户",
+    # 运维：按报告清单清理注入的合成测试批次（只改状态，不物理删除）
+    "synthetic.dispose": "清理合成测试数据",
 }
 
 # 审计 detail 里的字段名 -> 运营看得懂的说法
@@ -342,6 +344,8 @@ TARGET_KIND = {
     "ca_account": "CA 账户",
     "login_grant": "登录凭据",
     "algorithm_attempt": "算法尝试",
+    "sync_checkpoint": "同步游标",
+    "family_membership": "家庭成员",
 }
 
 

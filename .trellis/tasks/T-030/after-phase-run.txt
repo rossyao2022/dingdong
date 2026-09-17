@@ -1,0 +1,50 @@
+(node:76376) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:76408) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 3 tests using 1 worker
+
+(node:76410) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/t030-batch-disposal.spec.js:76:3 › T-030 批次清理（after） › 运营端：批次活跃状态（after） (10.7s)
+(node:76487) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 tests/t030-batch-disposal.spec.js:133:3 › T-030 批次清理（after） › 家长端：批次可见性（after） (2.7s)
+  ✓  3 tests/t030-batch-disposal.spec.js:155:3 › T-030 批次清理（after） › 回归：正常家长账号不受影响 (2.5s)
+
+
+  1) tests/t030-batch-disposal.spec.js:76:3 › T-030 批次清理（after） › 运营端：批次活跃状态（after） ────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  getByText('清理合成测试数据').first()
+    Expected: visible
+    Received: hidden
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeVisible" getByText('清理合成测试数据').first() with timeout 5000ms
+      - waiting for getByText('清理合成测试数据').first()
+        14 × locator resolved to <option selected value="synthetic.dispose">清理合成测试数据</option>
+           - unexpected value "hidden"
+
+
+      117 |       // 审计页：清理动作与对象类型都是中文，不出现英文代码
+      118 |       await page.goto(`${BACKEND}/ops/audit/?action=synthetic.dispose`);
+    > 119 |       await expect(page.getByText("清理合成测试数据").first()).toBeVisible();
+          |                                                        ^
+      120 |       await expect(page.getByText("同步游标").first()).toBeVisible();
+      121 |       await expect(page.getByText("家庭成员").first()).toBeVisible();
+      122 |       await expect(page.getByText(/未知（/)).toHaveCount(0);
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/t030-batch-disposal.spec.js:119:56
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/t030-batch-disposal-T-030-批次清理（after）-运营端：批次活跃状态（after）/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/t030-batch-disposal-T-030-批次清理（after）-运营端：批次活跃状态（after）/error-context.md
+
+  1 failed
+    tests/t030-batch-disposal.spec.js:76:3 › T-030 批次清理（after） › 运营端：批次活跃状态（after） ─────────────────
+  2 passed (17.2s)

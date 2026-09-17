@@ -1,0 +1,14 @@
+(node:82856) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:82889) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 3 tests using 1 worker
+
+(node:82921) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/t030-batch-disposal.spec.js:76:3 › T-030 批次清理（after） › 运营端：批次活跃状态（after） (7.0s)
+  ✓  2 tests/t030-batch-disposal.spec.js:140:3 › T-030 批次清理（after） › 家长端：批次可见性（after） (1.9s)
+  ✓  3 tests/t030-batch-disposal.spec.js:162:3 › T-030 批次清理（after） › 回归：正常家长账号不受影响 (3.0s)
+
+  3 passed (12.9s)

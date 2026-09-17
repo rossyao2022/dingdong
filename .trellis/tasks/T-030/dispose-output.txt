@@ -1,0 +1,35 @@
+39 objects imported automatically (use -v 2 for details).
+
+=== T-030 合成测试批次处置（APPLY：写库）===
+儿童档案（同步失败验证儿童） (child/0a4055e4-ffc8-41f2-a8a1-dcc06c85deca) status: 'active' -> 'archived'
+家庭（同步失败验证儿童） (family/c3b331ee-9aa1-4065-963b-f1059a2b6711) status: 'active' -> 'closed'
+伙伴关联（同步失败验证儿童） (external_association/7652aa3f-b5a1-4a79-b17e-aef33d470df7) status: 'verified' -> 'revoked'
+伙伴关联（同步失败验证儿童） (external_association/7652aa3f-b5a1-4a79-b17e-aef33d470df7) ended_at: None -> datetime.datetime(2026, 9, 17, 13, 32, 26, 655002, tzinfo=datetime.timezone.utc)
+同步游标（同步失败验证儿童） (sync_checkpoint/694eb7cf-5976-44d8-aedc-621b4d39510a) status: 'enabled' -> 'paused'
+同步游标（同步失败验证儿童） (sync_checkpoint/694eb7cf-5976-44d8-aedc-621b4d39510a) next_due_at: datetime.datetime(2026, 9, 17, 12, 45, 57, 640198, tzinfo=datetime.timezone.utc) -> None
+数据同步任务（同步失败验证儿童） (background_job/15e00be3-4ada-412a-bdc8-0a09b134eca8) status: 'failed' -> 'cancelled'　[失败证据已在 T-020 report 与 growth-overview-after-failure.json 留存]
+数据同步任务（同步失败验证儿童） (background_job/15e00be3-4ada-412a-bdc8-0a09b134eca8) error_code: 'UPSTREAM_TIMEOUT' -> 'CONSENT_REVOKED_OR_PAUSED'　[失败证据已在 T-020 report 与 growth-overview-after-failure.json 留存]
+数据同步任务（同步失败验证儿童） (background_job/15e00be3-4ada-412a-bdc8-0a09b134eca8) finished_at: datetime.datetime(2026, 9, 17, 12, 42, 26, 908024, tzinfo=datetime.timezone.utc) -> datetime.datetime(2026, 9, 17, 13, 32, 26, 655002, tzinfo=datetime.timezone.utc)　[失败证据已在 T-020 report 与 growth-overview-after-failure.json 留存]
+授权记录（同步失败验证儿童） (consent_grant/fc4317b6-b671-4d9f-bc09-a3ec0de96aaf) revoked_at: None -> datetime.datetime(2026, 9, 17, 13, 32, 26, 655002, tzinfo=datetime.timezone.utc)　[清单外连带：同批次的同步授权]
+家庭成员（家长 +8613748001381） (family_membership/6f07aa4d-65ed-4f73-b89f-8dd735e12abd) ended_at: None -> datetime.datetime(2026, 9, 17, 13, 32, 26, 655002, tzinfo=datetime.timezone.utc)　[清单外连带]
+登录凭据（家长 +8613748001381） (login_grant/6e36bdec-4566-40bc-92b4-ad85c2097eb8) revoked_at: None -> datetime.datetime(2026, 9, 17, 13, 32, 26, 655002, tzinfo=datetime.timezone.utc)　[清单外连带：家长已有登录会话随之失效]
+登录凭据（家长 +8613748001381） (login_grant/6e36bdec-4566-40bc-92b4-ad85c2097eb8) revoke_reason: '' -> 'synthetic_dispose'　[清单外连带：家长已有登录会话随之失效]
+无状态字段可变更，只记录（ImmutableResult 禁原地修改）：
+  - 观察批次 observation_batch/e3d0860e-4934-4ec4-ba82-c5fa34fc9d22
+  - 阶段画像 profile_snapshot/fc349ac1-e166-45a2-857e-ea8a3207bb7d
+  - 阶段报告 report_version/4c86a69c-5197-46c2-ac7b-ea372c9d0c5b
+终态任务不改（非活跃态）：succeeded × 3
+家长账号停用（不单列审计：app_user 词条是「工作人员账号」，见 T-030 report）：+8613748001381
+汇总：状态变更 8 项，已是目标状态 0 项，无状态字段 3 项
+已写库：状态变更 8 项，审计 synthetic.dispose × 8 条
+=== 处置后 ===
+Child.status='archived'
+Family.status='closed'
+ExternalAssociation.status='revoked' ended_at=datetime.datetime(2026, 9, 17, 13, 32, 26, 655002, tzinfo=datetime.timezone.utc)
+SyncCheckpoint.status='paused' next_due_at=None
+BackgroundJob report/succeeded error_code=None
+BackgroundJob stage_profile/succeeded error_code=None
+BackgroundJob sync/cancelled error_code='CONSENT_REVOKED_OR_PAUSED'
+BackgroundJob sync/succeeded error_code=None
+User.is_active=False
+AuditEvent(synthetic.dispose)=8

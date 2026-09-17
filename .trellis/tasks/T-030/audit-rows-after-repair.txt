@@ -1,0 +1,15 @@
+39 objects imported automatically (use -v 2 for details).
+
+AuditEvent(synthetic.dispose)=10
+child/bcfcba0e-5f83-482a-8af1-2f5230c5f97a detail={'after': '已归档', 'before': '正常', 'reason': '清理注入的合成测试批次'}
+family/7940e214-1a85-493f-92b4-5e83dc0520a3 detail={'after': '已关闭', 'before': '正常', 'reason': '清理注入的合成测试批次'}
+external_association/072f83f2-fe23-4648-8dcf-f75b19318dac detail={'after': '已撤回', 'before': '已核验', 'reason': '清理注入的合成测试批次'}
+sync_checkpoint/119fa247-a210-4f48-942b-808b0a4c36fe detail={'after': '已暂停', 'before': '同步中', 'reason': '清理注入的合成测试批次'}
+background_job/c8fdc0fd-5d41-40cc-a93a-5d44ff18f128 detail={'note': '失败证据见 T-020 报告与失败快照', 'after': '已停止', 'before': '失败', 'reason': '清理注入的合成测试批次'}
+consent_grant/7eac5874-3ad6-426a-b56c-e71afee94de3 detail={'note': '清单外连带：同批次的同步授权', 'after': '已撤回', 'before': '有效', 'reason': '清理注入的合成测试批次'}
+family_membership/156bcf76-fa52-48cd-b62a-b1fccec57112 detail={'note': '清单外连带', 'after': '已结束', 'before': '在册', 'reason': '清理注入的合成测试批次'}
+login_grant/3044e89c-1b22-4b56-a953-6bdb8f5d6d72 detail={'note': '清单外连带：家长已有登录会话随之失效', 'after': '已失效', 'before': '有效', 'reason': '清理注入的合成测试批次'}
+login_grant/3500d221-8aaf-4cdb-b68d-d4fb680fa11a detail={'note': '清单外连带：家长已有登录会话随之失效', 'after': '已失效', 'before': '有效', 'reason': '清理注入的合成测试批次'}
+login_grant/8da4ff52-2339-49d5-b14d-6ac0e75f816c detail={'note': '清单外连带：家长已有登录会话随之失效', 'after': '已失效', 'before': '有效', 'reason': '清理注入的合成测试批次'}
+家长未失效登录凭据=0 条
+家长 is_active=False

@@ -1,0 +1,20 @@
+39 objects imported automatically (use -v 2 for details).
+
+Child 0a4055e4-ffc8-41f2-a8a1-dcc06c85deca name='同步失败验证儿童' status='active'
+Family c3b331ee-9aa1-4065-963b-f1059a2b6711 status='active'
+User e725e93b-b9df-461f-92ff-32c016960ada phone='+8613748001381' is_active=True
+FamilyMembership 6f07aa4d-65ed-4f73-b89f-8dd735e12abd ended_at=None
+LoginGrant 6e36bdec-4566-40bc-92b4-ad85c2097eb8 revoked_at=None expires_at=datetime.datetime(2026, 9, 24, 12, 40, 50, 264186, tzinfo=datetime.timezone.utc)
+ConsentGrant fc4317b6-b671-4d9f-bc09-a3ec0de96aaf revoked_at=None
+ExternalAssociation 7652aa3f-b5a1-4a79-b17e-aef33d470df7 status='verified' ended_at=None
+SyncCheckpoint 694eb7cf-5976-44d8-aedc-621b4d39510a status='enabled' cursor=1 error_code='UPSTREAM_TIMEOUT' next_due_at=datetime.datetime(2026, 9, 17, 12, 45, 57, 640198, tzinfo=datetime.timezone.utc)
+BackgroundJob report/succeeded attempt_count=1 error_code=None
+BackgroundJob stage_profile/succeeded attempt_count=1 error_code=None
+BackgroundJob sync/failed attempt_count=5 error_code='UPSTREAM_TIMEOUT'
+BackgroundJob sync/succeeded attempt_count=1 error_code=None
+ObservationBatch 1 条
+ProfileSnapshot 1 条
+ReportVersion 1 条
+[ops] 家庭总数(active)=234
+[ops] 在册儿童(active)=225
+[ops] failed_jobs=1

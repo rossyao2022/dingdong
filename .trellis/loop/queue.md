@@ -168,7 +168,7 @@
 - acceptance: `cd frontend && npx playwright test tests/ca-account.spec.js` 全绿；三张截图更新且与新页面一致；本轮不改产品代码（用例本身的小适配允许，改动记录进 report）；`npm run check` 通过；audit errors 为空。
 - gate: none
 - status: done
-- notes: 纯证据保鲜，不改产品。机制维护类：commit 后可直接 push 并补 EXECUTED 行。 **2026-09-17 执行结果**：三张图已刷新入库（字节数 144227→142118、88340→88248、182021→181841），未改产品代码、未改用例代码。**两处 brief 前提与磁盘不符，已在 report 记明**：①写这三张图的用例是 `frontend/tests/robot-label.spec.js`（第 68/75/96 行），不是 `ca-account.spec.js`（后者只写 T-008 的图），T-017 报告的归因有误；②「相对当前代码已过期」不成立——字节差异全部来自用例每轮随机值（手机号/凭据 `Math.random()`），无代码改动连跑两次三张图 md5 两两不同，像素级比对（阈值 12）可见差异仅 3399/3167/6851 px 且全落在随机值文本带，文案版式一字未动（证据 `shots-run1.sha256`、`diff-analysis.txt`、`card-old/new.png`、`dlg-old/new.png`）。验收：`npx playwright test tests/robot-label.spec.js --reporter=list` → `1 passed (12.9s)`（无代码改动复跑 `1 passed (13.4s)`）；`tests/ca-account.spec.js` → `8 passed (51.1s)`；`npm run check` exit 0；`test:unit` 16 pass 0 fail（82.047834ms）；`audit_documents.py` errors `[]`。**连带发现（未在本轮处理，按「只做一个任务」还原）**：`ca-account.spec.js` 会重写 `.trellis/tasks/T-008/shots/empty-credential.png`（197704→188099 字节），那是**真漂移**（可见差异 199203 px 遍布整页，成因是弹窗背后页面滚动位置变化，弹窗文案一致），已 `git checkout --` 还原；建议 orchestrator 另开一个证据保鲜任务。
+- notes: 纯证据保鲜，不改产品。机制维护类：commit 后可直接 push 并补 EXECUTED 行。 **2026-09-17 执行结果**：三张图已刷新入库（字节数 144227→142118、88340→88248、182021→181841），未改产品代码、未改用例代码。**两处 brief 前提与磁盘不符，已在 report 记明**：①写这三张图的用例是 `frontend/tests/robot-label.spec.js`（第 68/75/96 行），不是 `ca-account.spec.js`（后者只写 T-008 的图），T-017 报告的归因有误；②「相对当前代码已过期」不成立——字节差异全部来自用例每轮随机值（手机号/凭据 `Math.random()`），无代码改动连跑两次三张图 md5 两两不同，像素级比对（阈值 12）可见差异仅 3399/3167/6851 px 且全落在随机值文本带，文案版式一字未动（证据 `shots-run1.sha256`、`diff-analysis.txt`、`card-old/new.png`、`dlg-old/new.png`）。验收：`npx playwright test tests/robot-label.spec.js --reporter=list` → `1 passed (12.9s)`（无代码改动复跑 `1 passed (13.4s)`）；`tests/ca-account.spec.js` → `8 passed (51.1s)`；`npm run check` exit 0；`test:unit` 16 pass 0 fail（82.047834ms）；`audit_documents.py` errors `[]`。**连带发现（未在本轮处理，按「只做一个任务」还原）**：`ca-account.spec.js` 会重写 `.trellis/tasks/T-008/shots/empty-credential.png`（197704→188099 字节），那是**真漂移**（可见差异 199203 px 遍布整页，成因是弹窗背后页面滚动位置变化，弹窗文案一致），已 `git checkout --` 还原；建议 orchestrator 另开一个证据保鲜任务。（orchestrator 2026-09-17 决定：该建议已由 T-029 销项；另 status.md 提问的 T-012 三张截图用例内随机值**不做确定化**——截图是一次性入库证据，逐跑差异仅在随机值文本带、文案版式不变（T-026 像素归因），同类证据保鲜照此口径，不再单开任务。）
 
 ## T-027 存量测试文件过 ruff format（T-014 遗留）
 - goal: `backend/tests/test_ops_audit_scope.py` 通过 `ruff format --check --target-version py313`（T-014 轮新代码已格式化、存量文件未过），只做格式化，不改断言语义。
@@ -195,14 +195,22 @@
 - goal: 按 `.trellis/tasks/T-020/report.md` 的注入清单（儿童/家庭/家长/关联/阶段画像/报告/后台任务）逐条以状态变更方式清理（归档/停用等既有状态字段），不物理 DELETE，处置写入审计。
 - acceptance: 清单逐条处置并在 `.trellis/tasks/T-030/report.md` 记录处置方式与审计证据；家长端与运营端不再把该批数据显示为活跃态（真实 Chrome 截图核对）；`cd backend && uv run pytest` 相关用例通过；audit errors 为空。
 - gate: none
+- status: done
+- notes: 不改契约与数据模型；清单与库内实际有出入以实际为准并记录。属运维 chore：commit 后可直接 push 并补 EXECUTED 行。**2026-09-17 执行结果**：清单逐条处置完毕（状态变更，无物理删除），处置前库内对照、处置方案、逐条证据见 `.trellis/tasks/T-030/report.md`；运营端「失败任务」归零（1→0）、家庭「已关闭」、儿童「已归档」、关联「已撤回」、游标「已暂停」，家长端登录被拒「账号已停用」（真实 Chrome 截图 11 张在 `.trellis/tasks/T-030/shots/`）；`uv run pytest tests/test_ops_console.py` → `41 passed in 150.08s`，`tests/test_ops_audit_scope.py tests/test_ca_accounts.py` → `36 passed in 81.30s`；`audit_documents.py` errors `[]`。续跑补做两件：①上一轮处置后残留 2 条该家长未失效登录凭据（续跑核对发现，脚本复跑回收，末次快照 `家长未失效登录凭据=0 条`）；②首次写库的审计 detail 是 Python repr（运营端显示「编号 T-020 合成」、说明列被撑坏），按当前形态原地修正 10 条，只改 detail 文案不动动作/对象/时间，前后逐条留 `audit-rows-before-repair.txt` / `audit-rows-after-repair.txt`。**orchestrator 2026-09-17T14:25Z 解锁**：上一轮（13:22–13:33Z）干了大半后撞 Flash TPM 限流中断（Pro 兜底当日 6/6 已用完），`status` 停在 doing 被驱动一直跳过，现改回 todo。工作区有该轮未提交半成品：`backend/dingdong_ca/ops/labels.py`（+4 行词条）、`backend/tests/test_ops_console.py`（+13 行用例）、`.trellis/tasks/T-030/`（dispose_synthetic_batch.py、dry-run 输出、状态快照、shots/）、`frontend/tests/t030-batch-disposal.spec.js`。下一轮开工先 `git status` + 逐个 review 这些改动：符合本任务意图（状态变更不物理删除、写审计）就接着做完并提交，不要盲目重做也不要丢弃；半成品有错就修正后继续。
+
+## T-036 loop 账本瘦身：压 worker 每轮上下文，降 TPM 限流频率
+- goal: 本日 Flash TPM 限流已打断 T-021/T-030/T-031 多轮（Pro 兜底 6/6 提前耗尽），诱因之一是 `queue.md`（约 250 行、done 任务 notes 超长）与 `gates.md`（约 100 行 EXECUTED 长行）每轮被 worker 全文读入。把账本瘦身为「活跃任务全文 + 历史归档」：①`gates.md` 决定段的 EXECUTED 历史行移入 `.trellis/loop/gates-archive-20260917.md`，决定段只保留仍生效的常设许可（T-003 批准的第一/二批直推规则、T-021 批复及其收尾授权、DENY T-099）；②`queue.md` 已 done 任务的超长执行结果 notes 压成一行指针（先核对 `.trellis/tasks/<id>/report.md` 已覆盖再压，不得丢信息）；③`status.md`/`runs.log` 的驱动格式不动。
+- acceptance: 瘦身后 `wc -l` `queue.md` ≤ 120 行、`gates.md` ≤ 60 行；`## T-xxx` 标题与 `- status:` 行格式不变（驱动 grep 依赖）；归档文件含被移除的 EXECUTED 行原文；抽查 3 处被压缩的 done notes 均能在 report 或归档中找到对应内容；`python3 scripts/audit_documents.py` errors 为空；改动以首行 `[T-036]` 提交。
+- gate: push
 - status: todo
-- notes: 不改契约与数据模型；清单与库内实际有出入以实际为准并记录。属运维 chore：commit 后可直接 push 并补 EXECUTED 行。
+- notes: 机制维护类：commit 后直接 push 并补 EXECUTED 行。只动 `queue.md`/`gates.md`/新建归档文件，不改驱动脚本与 prompt.md；todo/doing/gated/blocked 任务的 notes 保持全文不压。
 
 ## T-031 存量 `core/api/common.py` 过 ruff format（T-027 连带发现）
 - goal: `backend/dingdong_ca/core/api/common.py:189` 通过 `ruff format`（HEAD 上即未格式化，最后一次改动是 T-019 提交 `2c00ac1`），只做格式化不改语义。
 - acceptance: `cd backend && uv run ruff format --check --target-version py313 .` 全绿；`git diff` 仅格式差异；相关测试（如 `tests/test_auth.py`）通过；audit errors 为空。
 - gate: none
 - status: todo
+- notes: 驱动自动标记——同一任务连续失败 2 次（2026-09-17T14:22:17Z）。**orchestrator 2026-09-17T14:25Z 解锁改回 todo**：两轮失败均为 Flash TPM 限流（开工 95s/320s 即中断，任务未做实质执行），非任务本身问题；acceptance 不变（py313 target 下已知 9 个 py314 误报文件不受影响，T-027 已验证该 target 可用）。若本任务排在 T-030 完成之前被取到：勿动 T-030 的未提交文件，只处理 common.py 并按 `[T-031]` 单独提交。
 - notes: 纯格式化 chore。机制维护类：commit 后可直接 push 并补 EXECUTED 行。
 
 ## T-028 起草给 DingDong 侧的澄清清单（只产出文档，不发送）

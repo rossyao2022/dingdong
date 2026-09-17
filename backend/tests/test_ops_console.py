@@ -695,6 +695,19 @@ def test_audit_detail_is_human_readable():
     assert L.AUDIT_ACTION["assessment.create"] == "家长开始答题"
 
 
+def test_synthetic_dispose_audit_vocabulary():
+    """合成测试批次清理（T-030）写的审计，动作与对象类型都要有中文词条。
+
+    这条清理动作由仓库外的运维脚本触发，扫描源码的覆盖用例看不见它，
+    所以在这里单独钉住，避免以后改动词表时运营端退回英文代码。
+    """
+    from dingdong_ca.ops import labels as L
+
+    assert L.AUDIT_ACTION["synthetic.dispose"] == "清理合成测试数据"
+    assert L.TARGET_KIND["sync_checkpoint"] == "同步游标"
+    assert L.TARGET_KIND["family_membership"] == "家庭成员"
+
+
 def test_audit_page_shows_no_english_codes_or_full_uuids():
     """审计页面上不能出现英文动作代码或完整 UUID。
 
