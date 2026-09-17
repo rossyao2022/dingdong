@@ -1,0 +1,62 @@
+{
+  "child_id": "0a4055e4-ffc8-41f2-a8a1-dcc06c85deca",
+  "window": {
+    "start": "2026-09-01T00:00:00+00:00",
+    "end": "2026-09-08T00:00:00+00:00"
+  },
+  "web_activity_summary": {
+    "completed_count": 0,
+    "active_days": 0
+  },
+  "robot_observation": {
+    "availability": "stale",
+    "window": {
+      "start": "2026-09-01T00:00:00+00:00",
+      "end": "2026-09-08T00:00:00+00:00"
+    },
+    "updated_at": "2026-09-17T12:40:57.474966+00:00",
+    "last_success_at": "2026-09-17T12:40:57.640186+00:00",
+    "source": "dingdong",
+    "data_origin": "synthetic",
+    "schema_version": "test-observation-v1",
+    "source_version": "fixture-r1",
+    "batch_ids": [
+      "e3d0860e-4934-4ec4-ba82-c5fa34fc9d22"
+    ],
+    "metrics": [
+      {
+        "code": "test_observation",
+        "unit": "count",
+        "label": "合成观察次数",
+        "value": 3,
+        "missing_reason": null
+      }
+    ],
+    "reason": "UPSTREAM_TIMEOUT"
+  },
+  "initial_profile": null,
+  "stage_status": "ready",
+  "latest_reports": [
+    {
+      "id": "4c86a69c-5197-46c2-ac7b-ea372c9d0c5b",
+      "profile_id": "fc349ac1-e166-45a2-857e-ea8a3207bb7d",
+      "kind": "stage",
+      "window": {
+        "start": "2026-09-01T00:00:00+00:00",
+        "end": "2026-09-08T00:00:00+00:00"
+      },
+      "generated_at": "2026-09-17T12:41:00.354156+00:00",
+      "data_origin": "synthetic"
+    }
+  ],
+  "trend": {
+    "available": false,
+    "reason": "no_previous_window",
+    "current_window": {
+      "start": "2026-09-01T00:00:00+00:00",
+      "end": "2026-09-08T00:00:00+00:00"
+    },
+    "previous_window": null,
+    "changes": []
+  }
+}
