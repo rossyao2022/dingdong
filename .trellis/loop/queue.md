@@ -10,6 +10,13 @@
 - status: done
 - notes: 只改 `scripts/worker-loop.sh` 这一个文件。面板号已核对：w0:p4 为 orchestrator 会话所在面板（2026-09-17 `herdr pane list --workspace w0` 实测；若面板有变以实际结果为准并更新本条）。属机制任务：commit 后直接 push origin/codex/release-v0.3.6 并在 `gates.md` 补 EXECUTED 行（岗位说明：push 类直接 APPROVE），不必另开 REQUEST。 **2026-09-17 执行结果**：钩子已加（`loop_gate_snapshot` / `wake_orchestrator` / `notify_orchestrator_if_needed`，`run_round` 开工取基线收尾调一次；新增 `LOOP_ORCH_PANE` 默认 `w0:p4`、`LOOP_WAKE_CMD` 联调替代命令）。实测四场景：A 真 herdr 唤醒一次（面板 rev 30→39、agent_status=working）、B 无变化两轮 0 次唤醒、C 新 blocked 唤醒一次、D 唤醒命令失败只记 `WAKE FAIL ... rc=3` 且驱动 exit 0；`bash -n` 通过、`audit_documents.py` errors `[]`；证据在 `.trellis/tasks/T-022/`（transcript + 驱动原始输出 + `runs.log.after`），自测轮次行已从 `runs.log` 清理。已按机制任务直推规则 push：`dbf2870..2cfca23`，远端 sha `2cfca23e404794ff8f13cc3243c31e4c56bf4568`。
 
+## T-023 机制收尾：ORCHESTRATOR.md 入库 + 关闭 R0d 遗留核对项
+- goal: 把 `.trellis/loop/ORCHESTRATOR.md`（orchestrator 岗位说明，目前仍是未跟踪文件）用首行 `[T-023]` 的提交入库；并把 status.md 里反复出现的「R0d 会话收尾」核对项正式关闭：确认全仓已无假 grok 包装脚本残留（2026-09-17T07:22Z orchestrator 已核实 `.trellis/loop/runs/fake-grok.sh` 不存在；`.trellis/tasks/T-022/` 下的 fake-* 是钩子自测证据，保留不删），核对 `runs.log` 中 T-004 的 PRIMARY RATE_LIMITED / FALLBACK DONE 两行与 `runs/` 下 `20260917T055213Z-T-004-primary`、`20260917T055219Z-T-004-fallback` 两个记录一致。
+- acceptance: `git status --short` 不再出现 `?? .trellis/loop/ORCHESTRATOR.md`；全仓（排除 `.git`、`node_modules`、`.trellis/tasks/T-022/`）找不到假 grok 包装脚本；核对结论写入 `.trellis/tasks/T-023/report.md`；`python3 scripts/audit_documents.py` errors 为空；gate push：commit 后直接 push origin/codex/release-v0.3.6 并在 `gates.md` 补 EXECUTED 行。
+- gate: push
+- status: todo
+- notes: 只入库 ORCHESTRATOR.md 这一个新文件，不改其内容。给 status.md 第 2 条待办的正式答复：混轮提交账本类文件（runs.log / queue.md 的驱动与 orchestrator 记录行）可接受，不必严格分轮。做完后下次重写 status.md 时把「R0d 会话收尾」从待办划掉。
+
 ## T-001 写 .trellis/loop/README.md
 - goal: 给 `.trellis/loop/` 写一份操作说明，让 orchestrator 一看就知道怎么启停、怎么批门禁、怎么看状态、怎么加任务。
 - acceptance: `.trellis/loop/README.md` 存在且不超过 10 行；四件事（启停 / 批门禁 / 看状态 / 加任务）各至少一条；本文件已用首行 `[T-001]` 的提交入库。
