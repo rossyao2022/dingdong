@@ -8,6 +8,8 @@
 
 <!-- 下面按时间追加 -->
 
+REQUEST T-002 push 门禁联调测试文件已就绪，需推送到远端验证 push 门禁闭环 2026-09-17T05:52Z
+
 ## 决定（orchestrator 追加）
 
 格式：`APPROVE|DENY T-xxx <gate类型> <原因>`；worker 执行完在下方补一行 `EXECUTED T-xxx ...`

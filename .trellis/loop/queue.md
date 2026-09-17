@@ -14,7 +14,7 @@
 - goal: 新建 `.trellis/tasks/T-002/hello.md`（一句话说明这是自循环门禁联调用的测试文件），并走 push 门禁流程。
 - acceptance: `.trellis/tasks/T-002/hello.md` 存在；`.trellis/loop/gates.md` 申请段出现 `REQUEST T-002 push ...`；本任务 `status` 为 `gated`；改动已用首行 `[T-002]` 的提交入库。
 - gate: push
-- status: todo
+- status: gated
 - notes: 申请后**不要**自己 push。push 是本仓库的门禁动作，等 orchestrator 在 `gates.md` 决定段写 `APPROVE` 后才执行。
 
 ## T-004 验证模型切换
