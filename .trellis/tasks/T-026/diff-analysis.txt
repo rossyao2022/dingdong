@@ -1,0 +1,17 @@
+== HEAD 版 vs 本轮刷新版（T-012 三张）==
+--- account-row-desktop.png: 1280x720 -> 1280x720
+  visible-diff rows=50 px=3399
+  rows (155, 168) cols 856-894 px 318
+  rows (569, 578) cols 874-1037 px 1031
+  rows (647, 660) cols 973-1165 px 1542
+  rows (672, 683) cols 829-886 px 508
+--- account-row-mobile.png: 390x844 -> 390x844
+  visible-diff rows=38 px=3167
+  rows (373, 382) cols 117-280 px 1031
+  rows (446, 459) cols 216-317 px 790
+  rows (470, 483) cols 72-235 px 1346
+--- replace-dialog-desktop.png: 1280x720 -> 1280x720
+  visible-diff rows=80 px=6851
+  rows (210, 227) cols 574-970 px 3042
+  rows (455, 468) cols 444-519 px 689
+  rows (502, 556) cols 308-493 px 3120

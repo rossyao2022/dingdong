@@ -1,0 +1,2 @@
+ M .trellis/loop/runs.log
+?? .trellis/tasks/T-026/
