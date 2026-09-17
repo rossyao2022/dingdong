@@ -624,6 +624,8 @@ async function render() {
     }
     if (tick !== viewEpoch || state.child?.id !== child) return;
     page(html);
+    // 「刚生成」只强调一次：账户页渲染出来之后这个号就不再冒充新号。
+    if (route === "settings") hints.newAccountId = "";
     bindForms();
     // 凭据是在登录之前就取到的：等页面真的渲染出来再弹绑定，
     // 家长不必自己找入口。只在有凭据时弹一次。
@@ -675,11 +677,13 @@ const ROBOT_REPLACEMENT_IMPACT =
 function accountRow(a) {
   const active = a.status === "active";
   const bound = a.bind_state === "bound";
+  // 这次会话里刚生成的号高亮一次：家长绑定完第一眼要看到的就是它。
+  const fresh = a.ca_account_id === hints.newAccountId;
   // 归档的号不显示接通状态：对方侧那边怎么处置还没定（D20），我们只能保证本地这一半。
   const tags = active
     ? `<span class="tag">${esc(ACCOUNT_STATUS.active)}</span><span class="tag${bound ? "" : " warn"}">${esc(BIND_STATE[a.bind_state] || a.bind_state)}</span>`
     : `<span class="tag muted">${esc(ACCOUNT_STATUS.retired)}</span>`;
-  return `<div class="account-row"><span class="account-role">${active ? "当前机器人" : "上一台机器人"}</span><div class="account-body"><code class="inline-code">${esc(a.ca_account_id)}</code>${tags}<p class="note">机器人指纹 ${esc(a.nfc_token_fingerprint)}${a.robot_ref ? " · 设备标识 " + esc(a.robot_ref) : ""} · 建立于 ${date(a.created_at)}${a.unbound_at ? " · 归档于 " + date(a.unbound_at) : ""}</p></div></div>`;
+  return `<div class="account-row${fresh ? " is-new" : ""}"><span class="account-role">${active ? "当前机器人" : "上一台机器人"}</span><div class="account-body"><code class="inline-code">${esc(a.ca_account_id)}</code>${fresh ? '<span class="tag fresh">刚生成</span>' : ""}${tags}<p class="note">机器人指纹 ${esc(a.nfc_token_fingerprint)}${a.robot_ref ? " · 设备标识 " + esc(a.robot_ref) : ""} · 建立于 ${date(a.created_at)}${a.unbound_at ? " · 归档于 " + date(a.unbound_at) : ""}</p></div></div>`;
 }
 function robotPanel(rows) {
   const active = activeAccount(rows);
@@ -725,12 +729,15 @@ async function submitRobotBinding(form) {
     keys.delete("ca-issue:" + child + ":" + token);
     hints.nfcToken = "";
     hints.nfcPrompted = true;
+    // 标签是裸链接时地址里没有任何路由，停在默认的探索页等于把刚生成的号藏起来：
+    // 绑定成功一律落到「账户与关联」，并把这个号高亮一次。
+    hints.newAccountId = account.ca_account_id;
     toast(
       account.bind_state === "bound"
         ? "这台机器人的账户号已建立并接通。"
         : "账户号已建立，正在等待机器人确认接通。",
     );
-    await render();
+    to("settings");
   } catch (e) {
     if (!replaceFlowNeeded(e)) throw e;
     // 这个孩子已经有另一台机器人的活跃账户：换机是对外可见的两步，
@@ -783,12 +790,13 @@ async function submitRobotReplacement(form) {
     keys.delete(key);
     hints.nfcToken = "";
     hints.nfcPrompted = true;
+    hints.newAccountId = created.ca_account_id;
     toast(
       created.bind_state === "bound"
         ? "已换到新机器人，账号已接通。"
         : "已换到新机器人，正在等待接通。",
     );
-    await render();
+    to("settings");
   } catch (e) {
     throw new Error(
       "旧号已经归档，但新号没有建立成功：" +

@@ -20,8 +20,8 @@ const issues = (page) =>
     (r) => r.url().endsWith("/ca-accounts") && r.request().method() === "POST",
   );
 
-async function login(page, number = phone()) {
-  await page.goto("/");
+async function login(page, number = phone(), url = "/") {
+  await page.goto(url);
   await page.getByLabel("手机号", { exact: true }).fill(number);
   await page.getByRole("button", { name: "获取验证码", exact: true }).click();
   await page.getByLabel("验证码", { exact: true }).fill("00000");
@@ -140,6 +140,104 @@ test("换机：确认弹窗讲清代价，旧号归档可查，新号重新开�
   await expect(archived.locator(".inline-code")).toHaveText(old.ca_account_id);
   await expect(archived).toContainText("已归档");
   await expect(archived).not.toContainText("待接通");
+});
+
+test("绑定成功后停在账户页并高亮新号，标签不带路由也不跳回探索页", async ({
+  page,
+}) => {
+  await login(page);
+  await child(page, "落点合成儿童");
+  const mine = token("landing");
+
+  // 真实机器人标签就是裸链接：只有凭据，没有 hash 路由。
+  await page.goto(`/?nfc_token=${mine}`);
+  const dialog = page.locator("#dialog");
+  await expect(
+    dialog.getByRole("heading", { name: "绑定机器人" }),
+  ).toBeVisible();
+  await dialog.getByLabel("机器人凭据").fill(mine);
+  const pending = issues(page);
+  await dialog.getByRole("button", { name: "确认绑定" }).click();
+  const created = await (await pending).json();
+
+  // 绑定成功必须落在「账户与关联」，家长不用自己找回去。
+  expect(new URL(page.url()).hash).toBe("#settings");
+  await expect(page.getByRole("heading", { name: "机器人账户" })).toBeVisible();
+
+  // 新号高亮，并且高亮的正是刚生成的那个号。
+  const fresh = page.locator(".account-row.is-new");
+  await expect(fresh).toHaveCount(1);
+  await expect(fresh.locator(".inline-code")).toHaveText(created.ca_account_id);
+  await expect(fresh).toContainText("刚生成");
+  await expect(page.locator(".account-row")).toHaveCount(1);
+
+  // 成功提示：号已生成 + 接通后才开始同步，两件事都要说清。
+  await expect(page.locator("#toast")).toContainText("账户号已建立");
+  const panel = page.locator(".panel", { hasText: "机器人账户" });
+  await expect(panel).toContainText("账户号已经生成");
+  await expect(panel).toContainText("数据不会开始同步");
+
+  // 高亮是"刚生成"的一次性提示：重渲染之后不再冒充新号。
+  await page.reload();
+  await expect(page.locator(".account-row")).toHaveCount(1);
+  await expect(page.locator(".account-row.is-new")).toHaveCount(0);
+  await expect(page.locator(".account-row")).toContainText(
+    created.ca_account_id,
+  );
+});
+
+test("新会话从标签进来：登录建档案后绑定，同样落在账户页", async ({ page }) => {
+  const mine = token("fresh");
+  // 凭据是在登录之前就取到的，登录、建档案这一路都不能丢。
+  await login(page, phone(), `/?nfc_token=${mine}`);
+  await child(page, "新会话合成儿童");
+
+  const dialog = page.locator("#dialog");
+  await expect(
+    dialog.getByRole("heading", { name: "绑定机器人" }),
+  ).toBeVisible();
+  await dialog.getByLabel("机器人凭据").fill(mine);
+  const pending = issues(page);
+  await dialog.getByRole("button", { name: "确认绑定" }).click();
+  const account = await (await pending).json();
+
+  // 建档案后默认落点是探索页，绑定成功必须改落到「账户与关联」。
+  expect(new URL(page.url()).hash).toBe("#settings");
+  await expect(page.locator(".account-row.is-new")).toContainText(
+    account.ca_account_id,
+  );
+});
+
+test("绑定落点截图：桌面与 390×844", async ({ page }) => {
+  await login(page);
+  await child(page, "截图合成儿童");
+  const mine = token("shot");
+  await page.goto(`/?nfc_token=${mine}`);
+  const dialog = page.locator("#dialog");
+  await expect(
+    dialog.getByRole("heading", { name: "绑定机器人" }),
+  ).toBeVisible();
+  await dialog.getByLabel("机器人凭据").fill(mine);
+  const pending = issues(page);
+  await dialog.getByRole("button", { name: "确认绑定" }).click();
+  const created = await (await pending).json();
+
+  await expect(page.locator(".account-row.is-new")).toContainText(
+    created.ca_account_id,
+  );
+  // 滚动到高亮的那一行再截图：否则高亮落在折叠线以下，截图证明不了什么。
+  // 再往下推一点，避开固定在底部的 toast。
+  await page.locator(".account-row.is-new").scrollIntoViewIfNeeded();
+  await page.evaluate(() => window.scrollBy(0, 150));
+  await page.screenshot({ path: "docs/t007-bind-landed-desktop.png" });
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.locator(".account-row.is-new").scrollIntoViewIfNeeded();
+  await page.screenshot({ path: "docs/t007-bind-landed-mobile.png" });
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - window.innerWidth,
+  );
+  expect(overflow).toBeLessThanOrEqual(1);
 });
 
 test("窄屏下账户号不撑破页面", async ({ page }) => {
