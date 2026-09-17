@@ -97,8 +97,8 @@
 - goal: 答题最后一题按钮由「保存并继续」改成「保存并完成」，与进入提交确认页的实际动作一致。
 - acceptance: 第 4/4 题按钮文案为「保存并完成」、第 1–3 题仍为「保存并下一题」；`cd frontend && npm run check && npm run test:unit` 通过；audit errors 为空；真实 Chrome 走到第 4 题截图到 `.trellis/tasks/T-011/shots/`。
 - gate: none
-- status: doing
-- notes: 属第一批：commit 后可直接 push 并补 EXECUTED 行。
+- status: done
+- notes: 属第一批：commit 后可直接 push 并补 EXECUTED 行。**2026-09-17 执行结果**：`frontend/app.js` `sessionView()` 末题文案改「保存并完成」（全仓仅此一处决定该文案）；新增 `frontend/tests/quiz-last-button.spec.js` 1 条真实 Chrome 用例（第 1–3 题断言「保存并下一题」且无「保存并完成」，第 4/4 题反之，点击后落在「准备好留下这次选择了吗？」提交确认页）；同步 `flows.spec.js:104/:325` 与 `questionnaire-admin.spec.js:116` 三处受影响的期望。TDD 红 `1 failed`（element(s) not found）→ 绿 `1 passed (15.0s)`，加全页截图后重跑 `1 passed (14.1s)`、`1 passed (14.9s)`；`npm run check` exit 0、`test:unit` 16 pass 0 fail（71.932041ms）、`audit_documents.py` errors `[]`；截图 3 张在 `.trellis/tasks/T-011/shots/`。未复跑 `flows.spec.js` / `questionnaire-admin.spec.js`（前者本地 3 项库漂移失败见 S-05，后者需建 staff 用户 + 耗限流）。已按第一批直推 push：`37e8342..84a699e`，远端 sha `84a699efa1dd7e34f57b929e3845f7e11a3df09d`。
 
 ## T-012 P-09 「机器人指纹」文案去掉「指纹」二字
 - goal: 账户页把「机器人指纹 6948909c」改成不含「指纹」的说法（如「机器人标识（前 8 位）」），避免撞上「不采集真实指纹」的承诺。
