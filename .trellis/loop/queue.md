@@ -35,8 +35,8 @@
 - goal: 修掉运营后台「CA 账户」页把跨行 `{# … #}` 注释渲染成正文的真缺陷（`backend/dingdong_ca/ops/templates/ops/ca_accounts.html` 第 10–11 行），改成 `{% comment %}` 或压成单行。
 - acceptance: 新增一条会先失败的用例，断言 `/ops/ca-accounts/` 渲染结果不含 `{#`、不含注释原文，并断言 `backend/dingdong_ca/ops/templates/` 下不存在跨行 `{# … #}`；`cd backend && uv run pytest tests/test_ops_ca_accounts.py` 通过；`python3 scripts/audit_documents.py` errors 为空；真实 Chrome 打开 `http://127.0.0.1:8017/ops/ca-accounts/`（`admin` / `dingdong-admin`）页面顶部不再出现 `{# 注意：Tabler… #}`，截图存 `.trellis/tasks/T-005/shots/`。
 - gate: none
-- status: doing
-- notes: 纯缺陷修复，只动这一个模板 + 测试；同页其他文案问题各有任务（P-04 / O-02 / O-04），别顺手改。属第一批：commit 后可直接 push origin/codex/release-v0.3.6 并在 `gates.md` 补 EXECUTED 行。
+- status: done
+- notes: 纯缺陷修复，只动这一个模板 + 测试；同页其他文案问题各有任务（P-04 / O-02 / O-04），别顺手改。属第一批：commit 后可直接 push origin/codex/release-v0.3.6 并在 `gates.md` 补 EXECUTED 行。**2026-09-17 执行结果**：模板跨行 `{# … #}` 改 `{% comment %}…{% endcomment %}`；`tests/test_ops_ca_accounts.py` 新增 2 条用例（渲染结果不含 `{#` 与注释原文；ops 模板无跨行 `{# … #}`）。修复前 `2 failed, 5 passed in 27.37s`（`assert ['ops/ca_accounts.html:10'] == []`），修复后 `7 passed in 28.84s`，加跑 `test_ops_console.py` 共 `43 passed in 148.68s`；`scripts/audit_documents.py` errors `[]`；真实 Chrome 打开 `/ops/ca-accounts/` 原缺陷文本消失（截图 `.trellis/tasks/T-005/shots/ops-ca-accounts-after.jpeg`）。已按第一批直推规则 push：`de9a3d3..618925e`，远端 sha `618925ef4e53d96fb339562bb8e3589789032a53`。
 
 ## T-006 P-05 空手机号获取验证码不再丢后端原始报错
 - goal: 手机号为空点「获取验证码」时给中文提示，不再把 `ErrorDetail(string='该字段不能为空。', code='blank')` 透传到界面：前端先做非空校验，后端 422 统一兜底成中文。
