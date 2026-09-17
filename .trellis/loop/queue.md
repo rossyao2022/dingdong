@@ -70,6 +70,36 @@
 ## T-031 存量 `core/api/common.py` 过 ruff format（T-027 连带发现）
 - status: done · 见 `.trellis/tasks/T-031/report.md`（纯格式化 chore：`describe_target` 内 name 表达式按 ruff 重排，+5/−3；改后 `ruff format --check --target-version py313 .` `126 files already formatted`、`pytest tests/test_ops_audit_scope.py tests/test_auth.py -q` `26 passed in 58.97s`；已按机制维护类直推 push，远端 sha `bfe9dcdc93c0d1488175a375288209345a9d8d56`）
 
+## T-037 P-10 复测「先不测」回写 500：约束改按账户唯一 + 前端错误落点与 5xx 文案
+- goal: 修 T-024 巡检坐实的真缺陷：①`CaReassessmentEvent.event_id` 从全局唯一改为按 `ca_account` 唯一（orchestrator 已裁定改模型不改 fixture：服务层 `_local_event` 与回写查找本就按 `ca_account + event_id` 两键，fixture 的 `reassess_mock_001/002` 保持与对方 mock 账号对应）——新增迁移（含既有重复行处置策略，写进 report）、更新 `ca_models.py` 约束与 docstring；②前端失败反馈落在复测区块自身（「这次没写成功，请重试」+ 重试入口），不再落到「成长观察」区块；③`api.js` 对 5xx 给家长能读懂的统一文案，不再把「服务返回了无法识别的响应。」当用户文案（S-06）。
+- acceptance: 新增先失败的用例：两个不同儿童（各自 `ca_display_reassess` 场景）先后对同一 `event_id` 回写，第二个不再 500 且幂等语义按账户隔离（同账户同 event_id 同 accepted 重放仍返回首次结果）；`backend/tests/test_ca_display.py` 全量通过（既有 14 处硬编码 `reassess_mock_002` 断言应不受影响，受影响的如实记录并修正）；真实 Chrome 复现「先不测」→ 5xx 时复测区块内出现中文失败提示与重试入口、「成长观察」区块不再出现错误横幅、恢复后重试成功，截图到 `.trellis/tasks/T-037/shots/`（含 390×844）；`cd backend && uv run pytest tests/test_ca_display.py` 与 `cd frontend && npm run check && npm run test:unit` 通过；audit errors 为空；改动以首行 `[T-037]` 提交。
+- gate: none
+- status: done
+- notes: 修法已由 orchestrator 裁定（gates.md APPROVE T-024 2026-09-17T19:34Z），不要再提出改 fixture 的替代方案。迁移只动我方内部约束、不动对方契约字段。commit 后直接 push origin/codex/release-v0.3.6 并补 EXECUTED 行。收口项：PROJECT_MEMORY.md 同步；report 不得写成「已接通 DingDong」。
+
+- **2026-09-18 执行结果**：三处全做。①`ca_models.py` 的 `event_id` 去掉 `unique=True`、新增 `ca_reassessment_event_account_unique`（`(ca_account, event_id)`）+ docstring 说明跨账户重名；迁移 `0010`（`AlterField` + `AddConstraint`）**不需要去重/回填**——方向是放宽，旧约束更严，既有数据不可能有同账户同事件重复行（已写进迁移头注释与 report）；②`respondReassessment()` 改 try/catch 把失败存进新增的 `state.reassessmentRespondError`，失败提示渲染在复测区块内（「这次没写成功，请重试。」+「重试」按钮，按同一答案同一 `request_id` 重放），不再经 `showError()` 落进「成长观察」的窗口表单；③`api.js` 新增纯函数 `errorBody()`，5xx 统一「服务暂时不可用，请稍后再试。」。**先失败证据**（临时回退模型与迁移、`--create-db` 复跑）：`FAILED … IntegrityError: duplicate key value violates unique constraint "ca_reassessment_event_event_id_key"` / `1 failed, 52 deselected in 17.65s`；修复后同用例 `1 passed … in 18.50s`。**验证**：`tests/test_ca_display.py` 全量 `53 passed in 237.82s`（原 52 + 新增 1，既有 14 处 `reassess_mock_002` 断言无需修改）；`npm run check` exit 0、`npm run test:unit` `65 pass / 0 fail`；真实 Chrome 新增 `tests/reassessment-write-failure.spec.js` 2 项 + T-035 回归 3 项 = `5 passed (3.7m)`（5xx 时整页唯一错误提示在复测区块内、窗口表单错误位为空、`#toast` 不接管、重试后真实 POST 200、390×844 不溢出；两个不同家庭的儿童先后回写同一 `reassess_mock_001` 都 200，不拦截任何响应）；`ruff check` / `ruff format --check` / `manage.py check` / `makemigrations --check` 干净；`audit_documents.py` errors `[]`（`设计/数据库实际字段_M5.md` 已重新生成）。本地开发库已应用 `0010`（生产库未迁移）；本地库留下 3 行 `reassess_mock_001`（账户不同）供清理参考。截图 4 张在 `.trellis/tasks/T-037/shots/`。已按直推规则 push，远端 sha 见 gates.md `EXECUTED T-037`。详见 `.trellis/tasks/T-037/report.md`。
+
+## T-038 P-11/P-12/P-13/P-14/P-15 + O-06/O-07 文案与展示小项打包
+- goal: 按 T-024 backlog 的建议改法修七条小项：P-11 复测区块的原因句改为「这次建议的原因」或与健康度同字段（二选一，report 记明选择）；P-12 学习风格 code 的处理——后端加中文映射表（与 `engagement.stage_label` 同做法，对方 code 表未确认前映射以合理中文对照并保留原 code 于 `title`），或家长端不展示该行（report 记明选择与理由）；P-13 合成 fixture 的 `"unit": "count"` 改 `"次"`（`testsupport/robot.py`）；P-14 阶段报告卡时间走与成长观察同一个格式化函数；P-15 成长观察区块加一行来源说明（陪学伙伴数据来自机器人服务、行为观察来自本机同步）；O-06 家庭列表「家长」列空姓名回落「未填写」（沿用 T-019 思路）；O-07 工作首页「近 7 天新增儿童」标签写全口径（如「近 7 天新建档案（含已归档）」）。
+- acceptance: 每条有对应真实 Chrome 截图到 `.trellis/tasks/T-038/shots/`（家长端条目含 390×844，运营端条目含改后页面）；P-11 两处不再出现同一标签两个值；P-12 家长端正文不再出现裸 `imitation/open/reverse/cognitive`（允许 `title` 属性）；P-13 界面不再出现 `count`；P-14 同页时间格式一致；P-15 成长观察区块有来源说明一行；O-06 相邻两列不再重复同一手机号；O-07 标签口径自洽；`cd frontend && npm run check && npm run test:unit` 与相关后端用例通过；audit errors 为空；改动以首行 `[T-038]` 提交。
+- gate: none
+- status: todo
+- notes: 七条打包一轮做完，逐条在 report 记「选了哪个改法、为什么」。P-12 若选「不展示」需同步改 T-033 的用例断言。commit 后直接 push origin/codex/release-v0.3.6 并补 EXECUTED 行。收口项：frontend/README.md 与 PROJECT_MEMORY.md 同步。
+
+## T-039 T-033/T-034 三条范围判定落定 + 过期截图刷新
+- goal: 落定 status.md 待拍板的三条：①「换机后旧号人设只读展示」缺数据通路——orchestrator 裁定：本批不做，记入 T-028 澄清清单确认级（旧号历史数据对方如何提供），本轮只在 report 记录该决定，不改代码；②`watch` 态不显示 `health_score`（维持 design §1.3 原判：只有 normal/watch 展示分数中的 watch 按轻提示处理、不显分数——以 T-033 已实现行为为准，若已实现为显示则改为不显示并补断言）；③八维中文名由后端下发（与 `stage_label` 同一做法，前端不硬编码第二套映射），改 `growth-cycle` 接口 payload 并同步前端渲染与单测。另：重跑 `frontend/tests/companion-panel.spec.js` 刷新 T-033 的 `reassess-*`/`switch-*` 截图（现缺复测区块）。
+- acceptance: ①仅 report 记录 + T-028 清单 notes 追加一行（不改清单结构）；②watch 态行为与断言一致（不显分数），有用例；③八维中文名来自接口 payload，前端无硬编码映射（检索验证），单测与真实 Chrome 用例同步更新；T-033 四张截图刷新且含复测区块，存 `.trellis/tasks/T-039/shots/`；`cd frontend && npm run check && npm run test:unit` 与 `cd backend && uv run pytest tests/test_ca_display.py` 通过；audit errors 为空；改动以首行 `[T-039]` 提交。
+- gate: none
+- status: todo
+- notes: 三条判定已由 orchestrator 拍板（同 APPROVE T-024 行），执行中不再重新讨论。commit 后直接 push origin/codex/release-v0.3.6 并补 EXECUTED 行。收口项：PROJECT_MEMORY.md 同步。
+
+## T-040 产品巡检（第三轮，常设循环任务）
+- goal: 以家长第一视角（`http://127.0.0.1:4173/`，任意手机号 + 验证码 `00000`）与运营视角（`http://127.0.0.1:8017/ops/`，`admin` / `dingdong-admin`）把产品再完整走一遍，重点复核 T-037/T-038/T-039 修复处与四个展示面在真源开关（`CA_DISPLAY_DATA_SOURCE` 两种取值）下的表现，找出**新的**真实卡点，产出 `.trellis/tasks/T-040/backlog.md` 并申请 review。常设供给：本轮修复磨完自动巡检，orchestrator 复看导入下一批。
+- acceptance: 同 T-024（每项含「卡点/现状/建议改法/完善还是扩散/工作量档位」、真实 Chrome 复现截图、不重复报已修条目、稳定性单列、只产出文档不改代码、`status` 为 `gated` 且 gates.md 有 `REQUEST T-040 review`、audit errors 为空）；额外：对 T-037 修复处做「两个儿童先后回写同一 event_id」的端到端复核。
+- gate: review
+- status: todo
+- notes: 巡检是产品活。orchestrator 复看批准后按批次导入修复任务并追加下一次巡检（编号顺延）。排除项不变：8 个出站接口、主动解绑、发版部署、external 类动作。
+
 ## T-028 起草给 DingDong 侧的澄清清单（只产出文档，不发送）
 - goal: 起草 `.trellis/tasks/T-028/dingdong-clarifications.md`，分三层：阻塞级（D10 base URL、D12 API key、D20 换机主动解绑规则）、确认级（儿童/设备映射与权属核验、窗口游标修订与指标单位、同步频率及阶段规则、甲方算法输入输出/超时幂等/一次性处理不留存约定）、后置级（真实短信与生产部署条件）；每条写清「我们为什么需要 / 没有它当前系统如何诚实降级 / 拿到后我方接入动作」。**只产出文档，不发送**。
 - acceptance: 文档三层齐全且每条含上述三要素；阻塞级与确认级条目与 `设计/CA对接_C1_ca_account_id设计_20260916.md` 及 PROJECT_MEMORY.md 待确认清单一一对应；不含内部预算、人天、公网 IP、SSH 别名等敏感信息；audit errors 为空；本任务 `status` 为 `gated` 且 `gates.md` 申请段有 `REQUEST T-028 external ...`。
@@ -113,7 +143,7 @@
 - goal: 以家长第一视角（`http://127.0.0.1:4173/`，任意手机号 + 验证码 `00000`）与运营视角（`http://127.0.0.1:8017/ops/`，`admin` / `dingdong-admin`）把产品再完整走一遍，结合本批已合入的修复（T-005…T-021），找出**新的**真实卡点、困惑或不信任点，产出 `.trellis/tasks/T-024/backlog.md` 并申请 review。这是常设供给任务：每轮修复任务磨完后自动巡检一次，由 orchestrator 复看导入下一批，循环自己喂自己。
 - acceptance: backlog 每项含「用户在哪一步卡/困惑/不信任 / 现状 / 建议改法 / 完善还是扩散（判据同 T-003：不新增对对方接口的依赖、不改契约边界、不改数据模型语义）/ 工作量档位」；每条新缺陷有真实 Chrome 复现截图存 `.trellis/tasks/T-024/shots/`；不重复报 T-003 已修条目，除非已修处出现回归（回归单独标「回归」）；稳定性问题单列一节；只产出文档不改代码；本任务 `status` 为 `gated` 且 `gates.md` 有 `REQUEST T-024 review ...`；audit errors 为空。
 - gate: review
-- status: gated
-- notes: 巡检是产品活，属正常队列，不算机制插队。orchestrator 复看批准后：按批次导入修复任务，并在队尾追加下一次巡检任务（编号顺延）；若某轮巡检产出为 0 条新问题，在 report 如实记录并照常 gated，由 orchestrator 决定下一轮巡检是否改走抽查模式。明确排除项不变：8 个出站接口、主动解绑、发版部署、external 类动作。
+- status: done
+- notes: 巡检是产品活，属正常队列，不算机制插队。orchestrator 复看批准后：按批次导入修复任务，并在队尾追加下一次巡检任务（编号顺延）；若某轮巡检产出为 0 条新问题，在 report 如实记录并照常 gated，由 orchestrator 决定下一轮巡检是否改走抽查模式。明确排除项不变：8 个出站接口、主动解绑、发版部署、external 类动作。**orchestrator 2026-09-17T19:34Z 批复**：backlog 复看通过，P-10 修法裁定改模型约束（按 ca_account 唯一）不改 fixture；导入 T-037/T-038/T-039 排 T-028 之后，队尾追加 T-040 巡检；O-05 维持暂缓；本任务 `status` 改 `done`，收尾轮可直推。详见 gates.md APPROVE T-024 行。
 
 - **2026-09-18 执行结果**：只产出文档，未改产品代码。走查方式与证据见 `.trellis/tasks/T-024/backlog.md` 的「审计方式」一节。产出：家长端 6 条新条目（P-10 真缺陷：复测「先不测」回写 `POST .../reassessment/reassess_mock_001/response` 得 **500 IntegrityError**（`CaReassessmentEvent.event_id` 全局唯一 + 两个复测场景共用 fixture），界面无提示、失败文案还被渲染进「成长观察」区块；P-11 同一区块两个「机器人服务给出的原因」互相矛盾；P-12 人设卡展示内部英文 `学习风格 code`；P-13 指标单位英文 `count`；P-14 同一页两种时间口径；P-15 同一页「已观察 15 天」与「尚未关联机器人数据」并列且无来源说明）、运营端 2 条（O-06 家庭列表「家长」列回落成手机号与「手机号」列重复；O-07 工作首页「近 7 天新增儿童 275」>「在册儿童 274」）、T-003 未修复查 1 条（O-05 仍在）、稳定性 1 条（S-06 5xx HTML 被当家长文案）。验证：`#home` 4 轮重载 `settledAtMs` 2070/1015/2040/2039（证伪「卡死」，第一轮 1s 采样拍到的加载态已删图不作为证据）；390×844 五页 `scrollWidth` 均 390 无横向溢出；运营端 26 个页面 `ERRORS []`；`python3 scripts/audit_documents.py` errors 为空。截图 15 张在 `.trellis/tasks/T-024/shots/`（含 390×844）。未验证：真源路径、生产、复测其余分支。**本任务 `status` 为 `gated` 并申请 review**。详见 `.trellis/tasks/T-024/report.md`。
