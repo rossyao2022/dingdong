@@ -139,8 +139,8 @@
 - goal: 家长端产品内（页脚或「家长支持」）加一行来源与使用声明：沿用参考项目 `d754a5bf9ea8e71ca64a850d2e26aa321fe8ab38` 的视觉与插画及许可范围，措辞与 `frontend/README.md` 一致。
 - acceptance: 声明可见且与 `frontend/README.md` 不矛盾；`cd frontend && npm run check && npm run test:unit` 通过；audit errors 为空；真实 Chrome 桌面 + 390×844 各截图到 `.trellis/tasks/T-017/shots/`。
 - gate: none
-- status: todo
-- notes: 只写声明，不动素材与许可文件，不引入新的对外依赖。属第一批：commit 后可直接 push 并补 EXECUTED 行。
+- status: done
+- notes: 只写声明，不动素材与许可文件，不引入新的对外依赖。属第一批：commit 后可直接 push 并补 EXECUTED 行。 **2026-09-17 执行结果**：`frontend/app.js` 新增 `SOURCE_CREDIT` 常量，`route === "services"` 分支两张卡片后渲染 `<p class="note" data-source-credit>`（措辞与 `frontend/README.md` 第 3 行一致，只声明视觉与插画沿用、业务逻辑自实现、参考项目未修改）；新增 `frontend/tests/source-credit.spec.js`（sha 从 README 现读不写死）。TDD 先红 `1 failed`（`locator('[data-source-credit]')` element(s) not found）→ 绿 `1 passed (8.2s)`；临时路由巡检 7 页 `1 passed (6.7s)`（声明只在 services 页）跑完已删；回归 `ca-account.spec.js` + `robot-label.spec.js` `9 passed (1.1m)`；`npm run check` 通过 / `test:unit` `16 pass 0 fail` / `audit_documents.py` errors `[]`；截图 3 张在 `.trellis/tasks/T-017/shots/`（桌面 + 390×844 全页 + 滚到底）。已按第一批直推规则 push：`0b6b6fe..10d4353`，远端 sha `10d435392442a35d8761a1a920f786c9170e8fa9`。
 
 ## T-018 S-05 本地 e2e 4 项数据漂移失败变成可判定
 - goal: `frontend/tests/flows.spec.js`（3 项）与 `frontend/deployment-tests/ops-public.spec.js`（1 项）在本地要么通过、要么显式 skip 并打印原因，不再靠人分辨「产品坏了还是环境漂移」。
