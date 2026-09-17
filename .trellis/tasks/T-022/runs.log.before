@@ -1,0 +1,25 @@
+2026-09-17T05:49:13Z START 驱动启动 idle=15s round_timeout=2400s daily_limit=40 primary=deepseek-v4-1-flash-260910 fallback=deepseek-v4-pro
+2026-09-17T05:50:38Z ROUND T-001 DONE 85s 1351692 deepseek-v4-1-flash-260910 rc=0,dirty-worktree
+2026-09-17T05:52:13Z ROUND T-002 GATED 95s d22eaf5 deepseek-v4-1-flash-260910 rc=0,dirty-worktree
+2026-09-17T05:52:19Z ROUND T-004 RATE_LIMITED 5s d22eaf5 deepseek-v4-1-flash-260910 rc=42,dirty-worktree
+2026-09-17T06:00:35Z ROUND T-004 DONE 496s e42e25e deepseek-v4-pro rc=0,dirty-worktree
+2026-09-17T06:00:35Z STOP 驱动退出
+2026-09-17T06:06:01Z START 驱动启动 idle=600s round_timeout=2400s daily_limit=40 primary=deepseek-v4-1-flash-260910 fallback=deepseek-v4-pro
+2026-09-17T06:17:52Z ROUND T-002 DONE 711s cff10eb deepseek-v4-1-flash-260910 rc=0
+2026-09-17T06:47:09Z ROUND T-003 DONE 556s f07a7c7 deepseek-v4-1-flash-260910 rc=0
+2026-09-17T07:13:32Z ROUND T-006 DONE 1583s dbf2870 deepseek-v4-1-flash-260910 rc=0,dirty-worktree
+2026-09-17T07:18:06Z START 驱动启动 idle=5s round_timeout=2400s daily_limit=8 primary=deepseek-v4-1-flash-260910 fallback=deepseek-v4-pro
+2026-09-17T07:18:11Z ROUND T-099 DONE 5s dbf2870 deepseek-v4-1-flash-260910 rc=0,dirty-worktree
+2026-09-17T07:18:11Z WAKE OK T-099 gates.md 新增 REQUEST
+2026-09-17T07:18:11Z LIMIT 达到每日上限 8，驱动退出
+2026-09-17T07:18:19Z START 驱动启动 idle=5s round_timeout=2400s daily_limit=10 primary=deepseek-v4-1-flash-260910 fallback=deepseek-v4-pro
+2026-09-17T07:18:24Z ROUND T-097 DONE 5s dbf2870 deepseek-v4-1-flash-260910 rc=0,dirty-worktree
+2026-09-17T07:18:30Z ROUND T-098 DONE 6s dbf2870 deepseek-v4-1-flash-260910 rc=0,dirty-worktree
+2026-09-17T07:18:30Z LIMIT 达到每日上限 10，驱动退出
+2026-09-17T07:18:30Z START 驱动启动 idle=5s round_timeout=2400s daily_limit=11 primary=deepseek-v4-1-flash-260910 fallback=deepseek-v4-pro
+2026-09-17T07:18:35Z ROUND T-096 BLOCKED 5s dbf2870 deepseek-v4-1-flash-260910 rc=0,dirty-worktree
+2026-09-17T07:18:35Z WAKE OK T-096 新 blocked 任务 T-096
+2026-09-17T07:18:35Z LIMIT 达到每日上限 11，驱动退出
+2026-09-17T07:18:41Z START 驱动启动 idle=5s round_timeout=2400s daily_limit=12 primary=deepseek-v4-1-flash-260910 fallback=deepseek-v4-pro
+2026-09-17T07:18:46Z ROUND T-099 DONE 5s dbf2870 deepseek-v4-1-flash-260910 rc=0,dirty-worktree
+2026-09-17T07:18:46Z LIMIT 达到每日上限 12，驱动退出

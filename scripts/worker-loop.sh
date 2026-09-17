@@ -10,8 +10,14 @@
 #   - 每轮先用 PRIMARY 跑；该轮 grok 进程疑似限流（TooManyRequests / rate limit / 429）时，
 #     立刻用 FALLBACK 重跑同一任务；下一轮回到 PRIMARY。两个都限流才 sleep 退避。
 #   - 只允许 Flash→Pro 升级，不写降级路径。
+# 收尾钩子（T-022）：每轮 worker 退出后，与本轮开工时的基线对比——`gates.md` 申请段
+#   新增了 REQUEST 行、或 `queue.md` 里新出现 `status: blocked` 的任务——就调一次
+#   `herdr agent prompt <面板> "查岗：…"`（不带 --wait）叫醒 orchestrator。每轮至多一次；
+#   该命令失败只记一行日志，不改变驱动退出码、不影响后续轮询。
 # 可调环境变量：LOOP_IDLE_SLEEP / LOOP_ROUND_TIMEOUT / LOOP_RATE_LIMIT_SLEEP /
-#              LOOP_DAILY_LIMIT / LOOP_GROK_BIN（联调可指向假 grok 包装脚本）
+#              LOOP_DAILY_LIMIT / LOOP_GROK_BIN（联调可指向假 grok 包装脚本）/
+#              LOOP_ORCH_PANE（orchestrator 面板，默认 w0:p4）/
+#              LOOP_WAKE_CMD（联调可指向假唤醒命令，默认调 herdr）
 # 只用 bash + git + python3（stdlib），无新依赖。
 set -u
 
@@ -31,6 +37,9 @@ IDLE_SLEEP="${LOOP_IDLE_SLEEP:-600}"
 ROUND_TIMEOUT="${LOOP_ROUND_TIMEOUT:-2400}"
 RATE_SLEEP="${LOOP_RATE_LIMIT_SLEEP:-180}"
 DAILY_LIMIT="${LOOP_DAILY_LIMIT:-40}"
+ORCH_PANE="${LOOP_ORCH_PANE:-w0:p4}"
+WAKE_CMD="${LOOP_WAKE_CMD:-}"
+ORCH_WAKE_TEXT="查岗：读 .trellis/loop/ORCHESTRATOR.md 的门禁规则，处理 gates.md 新申请"
 
 MODEL_PRIMARY="deepseek-v4-1-flash-260910"
 MODEL_FALLBACK="deepseek-v4-pro"
@@ -184,6 +193,79 @@ PY
   } >>"$STATUS"
 }
 
+# 门禁快照：两行——申请段 REQUEST 行的指纹、queue.md 里 blocked 任务 id 列表。
+loop_gate_snapshot() {
+  python3 - "$GATES" "$QUEUE" <<'PY'
+import hashlib, re, sys
+
+gates = open(sys.argv[1], encoding="utf-8").read()
+queue = open(sys.argv[2], encoding="utf-8").read()
+
+apply_sec = gates.split("## 申请", 1)[1].split("## 决定", 1)[0] if "## 申请" in gates else ""
+reqs = "\n".join(re.findall(r"^REQUEST\s+\S+.*$", apply_sec, re.M))
+
+blocked, cur = [], None
+for line in queue.splitlines():
+    m = re.match(r"^##\s+(T-\d+)", line)
+    if m:
+        cur = m.group(1)
+        continue
+    if cur and re.match(r"^-\s*status\s*[:：]\s*blocked\b", line):
+        blocked.append(cur)
+
+print(hashlib.md5(reqs.encode()).hexdigest())
+print(",".join(blocked))
+PY
+}
+
+# 叫醒 orchestrator：不带 --wait，失败只记日志，不影响驱动退出码与后续轮询。
+wake_orchestrator() {
+  local reason="$1" rc=0
+  if [ -n "$WAKE_CMD" ]; then
+    "$WAKE_CMD" "$reason" >/dev/null 2>&1
+    rc=$?
+  else
+    herdr agent prompt "$ORCH_PANE" "$ORCH_WAKE_TEXT" >/dev/null 2>&1
+    rc=$?
+  fi
+  if [ "$rc" -eq 0 ]; then
+    logline "WAKE OK $reason"
+    say "已叫醒 orchestrator（${reason}）"
+  else
+    logline "WAKE FAIL $reason rc=$rc"
+    say "叫醒 orchestrator 失败（rc=${rc}），只记日志，继续轮询"
+  fi
+  return 0
+}
+
+# 与本轮开工基线对比：新增 REQUEST 行或新出现 blocked 任务 → 叫醒一次（每轮至多一次）。
+notify_orchestrator_if_needed() {
+  local task="$1" req_before="$2" blocked_before="$3" snap req_after blocked_after reason new_blocked
+  snap="$(loop_gate_snapshot)"
+  req_after="$(printf '%s\n' "$snap" | sed -n 1p)"
+  blocked_after="$(printf '%s\n' "$snap" | sed -n 2p)"
+
+  reason=""
+  if [ "$req_after" != "$req_before" ]; then
+    reason="gates.md 新增 REQUEST"
+  fi
+  new_blocked="$(python3 - "$blocked_before" "$blocked_after" <<'PY'
+import sys
+
+before = [x for x in sys.argv[1].split(",") if x]
+after = [x for x in sys.argv[2].split(",") if x]
+print(",".join(x for x in after if x not in before))
+PY
+)"
+  if [ -n "$new_blocked" ]; then
+    reason="${reason:+${reason}、}新 blocked 任务 ${new_blocked}"
+  fi
+
+  if [ -n "$reason" ]; then
+    wake_orchestrator "$task $reason"
+  fi
+}
+
 # 跑一次 grok。输出到 $3/$4；全局 _rc / _timed_out / _dur 返回。
 run_once() {
   local task="$1" model="$2" out="$3" err="$4" start pid
@@ -228,8 +310,13 @@ record_round() {
 }
 
 run_round() {
-  local task="$1" ts out err result
+  local task="$1" ts out err result snap req_before blocked_before
   ts="$(date -u +%Y%m%dT%H%M%SZ)"
+
+  # 开工基线：收尾钩子据此判断本轮有没有新门禁申请 / 新 blocked 任务。
+  snap="$(loop_gate_snapshot)"
+  req_before="$(printf '%s\n' "$snap" | sed -n 1p)"
+  blocked_before="$(printf '%s\n' "$snap" | sed -n 2p)"
 
   # 第一次：PRIMARY
   out="$RUNS/$ts-$task-primary.json"
@@ -269,6 +356,8 @@ run_round() {
       fi
       ;;
   esac
+
+  notify_orchestrator_if_needed "$task" "$req_before" "$blocked_before"
 }
 
 say "驱动启动：root=$PROJECT_ROOT 空转间隔=${IDLE_SLEEP}s 单轮上限=${ROUND_TIMEOUT}s 每日上限=${DAILY_LIMIT} PRIMARY=$MODEL_PRIMARY FALLBACK=$MODEL_FALLBACK"

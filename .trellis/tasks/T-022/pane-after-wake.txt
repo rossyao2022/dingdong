@@ -1,0 +1,5 @@
+# T-022 真 herdr 唤醒的事后核对（runner 的 revision 断言读得太早，1 分钟后补核）
+# 时间：2026-09-17T07:20:01Z
+# 开工前：w0:p4 rev=30 agent_status=done（见 hook-test-transcript.txt A 段）
+# 事后：
+w0:p4 rev=39 agent_status=working title=- Thinking - 叮咚 orchestrator 接任与 queue 唤醒任务 - grok

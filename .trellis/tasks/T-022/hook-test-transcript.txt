@@ -1,0 +1,64 @@
+=== A：新增 REQUEST（真 herdr）===
+--- 驱动退出码 0（/Users/yihu/Documents/ChatGPT/叮咚/.trellis/tasks/T-022/run-A-request.txt，日上限 13）---
+[loop 07:19:11Z] 驱动启动：root=/Users/yihu/Documents/ChatGPT/叮咚 空转间隔=5s 单轮上限=2400s 每日上限=13 PRIMARY=deepseek-v4-1-flash-260910 FALLBACK=deepseek-v4-pro
+[loop 07:19:11Z] 轮次开始：T-099（模型=deepseek-v4-1-flash-260910，超时上限 2400s）
+[loop 07:19:16Z] 警告：本轮结束工作区仍有未提交改动（worker 应自己 commit 干净）
+[loop 07:19:16Z] 轮次记录：T-099 DONE（5s，模型=deepseek-v4-1-flash-260910，HEAD=dbf2870）
+[loop 07:19:16Z] 已叫醒 orchestrator（T-099 gates.md 新增 REQUEST）
+[loop 07:19:16Z] 已达每日迭代上限 13（今日 13 轮），退出
+PASS A 驱动输出出现叫醒记录（新增 REQUEST）
+PASS A runs.log 新增 1 条 WAKE 行
+PASS A 未走假唤醒通道（假唤醒计数不变）
+FAIL A orchestrator 面板 revision 增大（30→30）
+PASS A 钩子后驱动正常走到下一轮判定（日上限退出）
+PASS A 驱动退出码 0
+=== B：无门禁变化（假唤醒）===
+--- 驱动退出码 0（/Users/yihu/Documents/ChatGPT/叮咚/.trellis/tasks/T-022/run-B-nochange.txt，日上限 15）---
+[loop 07:19:16Z] 驱动启动：root=/Users/yihu/Documents/ChatGPT/叮咚 空转间隔=5s 单轮上限=2400s 每日上限=15 PRIMARY=deepseek-v4-1-flash-260910 FALLBACK=deepseek-v4-pro
+[loop 07:19:16Z] 轮次开始：T-097（模型=deepseek-v4-1-flash-260910，超时上限 2400s）
+[loop 07:19:21Z] 警告：本轮结束工作区仍有未提交改动（worker 应自己 commit 干净）
+[loop 07:19:21Z] 轮次记录：T-097 DONE（5s，模型=deepseek-v4-1-flash-260910，HEAD=dbf2870）
+[loop 07:19:22Z] 轮次开始：T-098（模型=deepseek-v4-1-flash-260910，超时上限 2400s）
+[loop 07:19:27Z] 警告：本轮结束工作区仍有未提交改动（worker 应自己 commit 干净）
+[loop 07:19:27Z] 轮次记录：T-098 DONE（5s，模型=deepseek-v4-1-flash-260910，HEAD=dbf2870）
+[loop 07:19:27Z] 已达每日迭代上限 15（今日 15 轮），退出
+PASS B 两轮都跑完（2 条轮次记录）
+PASS B 未叫醒（runs.log 无新增 WAKE 行）
+PASS B 假唤醒通道 0 次调用
+PASS B 驱动退出码 0
+=== C：新出现 blocked 任务（假唤醒）===
+--- 驱动退出码 0（/Users/yihu/Documents/ChatGPT/叮咚/.trellis/tasks/T-022/run-C-blocked.txt，日上限 16）---
+[loop 07:19:27Z] 驱动启动：root=/Users/yihu/Documents/ChatGPT/叮咚 空转间隔=5s 单轮上限=2400s 每日上限=16 PRIMARY=deepseek-v4-1-flash-260910 FALLBACK=deepseek-v4-pro
+[loop 07:19:27Z] 轮次开始：T-096（模型=deepseek-v4-1-flash-260910，超时上限 2400s）
+[loop 07:19:32Z] 警告：本轮结束工作区仍有未提交改动（worker 应自己 commit 干净）
+[loop 07:19:32Z] 轮次记录：T-096 BLOCKED（5s，模型=deepseek-v4-1-flash-260910，HEAD=dbf2870）
+[loop 07:19:32Z] 已叫醒 orchestrator（T-096 新 blocked 任务 T-096）
+[loop 07:19:32Z] 已达每日迭代上限 16（今日 16 轮），退出
+PASS C 驱动输出出现叫醒记录（新 blocked 任务）
+PASS C runs.log 新增 1 条 WAKE 行
+PASS C 假唤醒通道新增 1 次调用
+PASS C 驱动退出码 0（钩子不影响驱动）
+
+=== 结果：TESTS=all PASS=13 FAIL=1 ===
+queue.md 残留自测任务：0
+gates.md 测试 REQUEST 行：1
+
+########## 追加：D 场景（唤醒命令失败） ##########
+=== D：唤醒命令失败（假唤醒退出 3）===
+--- 驱动退出码 0（/Users/yihu/Documents/ChatGPT/叮咚/.trellis/tasks/T-022/run-D-wakefail.txt，日上限 8）---
+[loop 07:20:47Z] 驱动启动：root=/Users/yihu/Documents/ChatGPT/叮咚 空转间隔=5s 单轮上限=2400s 每日上限=8 PRIMARY=deepseek-v4-1-flash-260910 FALLBACK=deepseek-v4-pro
+[loop 07:20:47Z] 轮次开始：T-095（模型=deepseek-v4-1-flash-260910，超时上限 2400s）
+[loop 07:20:52Z] 警告：本轮结束工作区仍有未提交改动（worker 应自己 commit 干净）
+[loop 07:20:52Z] 轮次记录：T-095 DONE（5s，模型=deepseek-v4-1-flash-260910，HEAD=dbf2870）
+[loop 07:20:53Z] 叫醒 orchestrator 失败（rc=3），只记日志，继续轮询
+[loop 07:20:53Z] 已达每日迭代上限 8（今日 8 轮），退出
+D runs.log 最后一条 WAKE 行：2026-09-17T07:20:53Z WAKE FAIL T-095 gates.md 新增 REQUEST rc=3
+PASS D 驱动输出记录唤醒失败（rc=3）
+PASS D runs.log 新增 1 条 WAKE FAIL 行
+PASS D 唤醒失败不阻断后续轮询（走到下一轮判定）
+PASS D 驱动退出码 0
+PASS D 假唤醒被调用 1 次
+
+=== 结果：TESTS=D PASS=5 FAIL=0 ===
+queue.md 残留自测任务：0
+gates.md 测试 REQUEST 行：1

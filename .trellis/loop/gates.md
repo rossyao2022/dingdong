@@ -7,6 +7,7 @@
 格式：`REQUEST T-xxx <gate类型> <一句话原因> <时间>`
 
 <!-- 下面按时间追加 -->
+REQUEST T-099 push 驱动收尾钩子实测，T-022 钩子自测，可忽略 2026-09-17T07:20Z
 
 REQUEST T-002 push 门禁联调测试文件已就绪，需推送到远端验证 push 门禁闭环 2026-09-17T05:52Z
 REQUEST R0d push R0d 自循环驱动机制 + 三轮实测（T-001/T-002/T-004）与报告已提交，待推 origin/codex/release-v0.3.6 2026-09-17T06:01Z

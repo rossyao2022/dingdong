@@ -1,0 +1,10 @@
+2026-09-17T07:18:06Z fake-grok mode=request task=T-099 args=10
+2026-09-17T07:18:19Z fake-grok mode=done task=T-097 args=10
+2026-09-17T07:18:25Z fake-grok mode=done task=T-098 args=10
+2026-09-17T07:18:30Z fake-grok mode=blocked task=T-096 args=10
+2026-09-17T07:18:41Z fake-grok mode=request task=T-099 args=10
+2026-09-17T07:19:11Z fake-grok mode=request task=T-099 args=10
+2026-09-17T07:19:16Z fake-grok mode=done task=T-097 args=10
+2026-09-17T07:19:22Z fake-grok mode=done task=T-098 args=10
+2026-09-17T07:19:27Z fake-grok mode=blocked task=T-096 args=10
+2026-09-17T07:20:47Z fake-grok mode=request task=T-095 args=10
