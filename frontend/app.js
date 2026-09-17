@@ -388,7 +388,7 @@ function localValue(v) {
   return new Date(d - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
 }
 function windowForm() {
-  return `<form id="window-form" class="window-form"><label class="field">开始时间<input type="datetime-local" name="from" required value="${localValue(state.window.from)}"></label><label class="field">结束时间<input type="datetime-local" name="to" required value="${localValue(state.window.to)}"></label><button class="button secondary" type="submit">查看这个窗口</button></form><p class="note">按当前设备时区显示；结束时间不计入窗口。默认展示合成样例的观察窗口。</p>`;
+  return `<form id="window-form" class="window-form"><label class="field">开始时间<input type="datetime-local" name="from" required value="${localValue(state.window.from)}"></label><label class="field">结束时间<input type="datetime-local" name="to" required value="${localValue(state.window.to)}"></label><div class="form-error" role="alert"></div><button class="button secondary" type="submit">查看这个窗口</button></form><p class="note">按当前设备时区显示；结束时间不计入窗口。默认展示合成样例的观察窗口。</p>`;
 }
 function queryWindow() {
   return "?" + new URLSearchParams(state.window);
@@ -1171,16 +1171,37 @@ function bindForms() {
         await render();
       }, e.submitter);
     };
-  if ($("#window-form"))
-    $("#window-form").onsubmit = (e) => {
+  if ($("#window-form")) {
+    const form = $("#window-form");
+    const windowRangeError = (show) => {
+      form.querySelector(".form-error").textContent = show
+        ? "结束时间要晚于开始时间"
+        : "";
+      for (const name of ["from", "to"]) {
+        const input = form.querySelector(`input[name="${name}"]`);
+        if (show) {
+          input.setAttribute("aria-invalid", "true");
+          input.classList.add("is-invalid");
+        } else {
+          input.removeAttribute("aria-invalid");
+          input.classList.remove("is-invalid");
+        }
+      }
+    };
+    for (const name of ["from", "to"])
+      form.querySelector(`input[name="${name}"]`).oninput = () =>
+        windowRangeError(false);
+    form.onsubmit = (e) => {
       e.preventDefault();
       const d = formData(e.target),
         from = new Date(d.from),
         toDate = new Date(d.to);
-      if (!(from < toDate)) return toast("结束时间需要晚于开始时间。");
+      if (!(from < toDate)) return windowRangeError(true);
+      windowRangeError(false);
       state.window = { from: from.toISOString(), to: toDate.toISOString() };
       render();
     };
+  }
 }
 async function handleAction(action, el) {
   const id = el.dataset.id;
