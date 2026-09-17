@@ -13,6 +13,7 @@ REQUEST T-002 push 门禁联调测试文件已就绪，需推送到远端验证 
 REQUEST R0d push R0d 自循环驱动机制 + 三轮实测（T-001/T-002/T-004）与报告已提交，待推 origin/codex/release-v0.3.6 2026-09-17T06:01Z
 REQUEST T-003 review 产品体验与稳定性审计 backlog 已完成（家长端 9 条 + 运营端 5 条 + 缺口 3 条 + 稳定性 5 条），需独立复看后再决定修哪些 2026-09-17T06:16Z
 REQUEST T-021 review 四个展示面（人设 / 15–30 天成长报告 / 健康度四态 / 复测 CTA）设计文档已写完（`.trellis/tasks/T-021/design.md`，含 §7 逐条对照与 4 个实现任务拆分），需复看后再导入实现任务 2026-09-17T13:20Z
+REQUEST T-028 external 给 DingDong 的三层澄清清单已写完（`.trellis/tasks/T-028/dingdong-clarifications.md`，阻塞级 3 / 确认级 27 / 后置级 2，含 D1–D20 落点对照与 N1–N10 新增问题），只到「文档就绪待发」；发送属 external 动作，须 Yihu 放行后由人执行 2026-09-17T15:24Z
 
 ## 决定（orchestrator 追加）
 
