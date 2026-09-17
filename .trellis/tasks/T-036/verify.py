@@ -6,6 +6,7 @@
 5) 抽查被压缩的 done notes 能在 report.md 或归档中找到对应内容。
 """
 
+import os
 import pathlib
 import re
 import subprocess
@@ -67,9 +68,7 @@ def run(func, *args):
 rc, out, err = run("next_task", str(QUEUE), str(GATES))
 check("驱动 next_task 正常返回", rc == 0 and bool(out.strip()), f"rc={rc} 返回 {out.strip()!r} {err.strip()}")
 
-out_file, err_file = WORK / "classify-empty.out", WORK / "classify-empty.err"
-out_file.write_text("", encoding="utf-8")
-err_file.write_text("", encoding="utf-8")
+out_file, err_file = os.devnull, os.devnull
 for task, expect in (("T-036", "DONE"), ("T-030", "DONE"), ("T-031", "TODO")):
     rc, out, err = run("classify", str(QUEUE), task, "0", str(out_file), str(err_file), "0")
     if expect == "TODO":
