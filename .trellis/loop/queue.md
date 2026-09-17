@@ -69,8 +69,8 @@
 - goal: 绑定对话框补操作指引（用手机碰机器人上的标签会自动带凭据回到这里），手填时给格式/长度提示，校验错误落到 `.form-error` 而不是只靠浏览器原生气泡。
 - acceptance: 凭据留空点「确认绑定」时 `.form-error` 可见且非空、对话框不关；文案含操作指引；`cd frontend && npm run check && npm run test:unit` 通过；audit errors 为空；真实 Chrome 复现空凭据提交并截图到 `.trellis/tasks/T-008/shots/`。
 - gate: none
-- status: todo
-- notes: 属第一批：commit 后可直接 push 并补 EXECUTED 行。
+- status: done
+- notes: 属第一批：commit 后可直接 push 并补 EXECUTED 行。**2026-09-17 执行结果（本轮为 FALLBACK 重跑，PRIMARY 08:26:06Z 限流 rc=1）**：`frontend/app.js` `bindRobotDialog()` 表单加 `novalidate`、正文补「碰一下机器人上的标签」指引、note 补「最长 2048 个字符」格式提示、`onsubmit` 空凭据守卫写 `#dialog .form-error`；`tests/ca-account.spec.js` 新增 1 条用例。TDD 红（1 failed，断言新文案缺失）→ 绿（1 passed 4.7s/4.9s）；全量 `ca-account.spec.js` `8 passed (51.4s)` 一次全绿；`npm run check` exit 0、`test:unit` 16 pass 0 fail、`audit_documents.py` errors `[]`；截图 `.trellis/tasks/T-008/shots/empty-credential.png`。已按第一批直推 push：`8348ef8..c58bfe3`，远端 sha `c58bfe32aec5d01ad9156da66b188b03bc568308`。
 
 ## T-009 P-06 成长观察非法时间区间要就地提示
 - goal: 「成长观察」起止时间非法（起 ≥ 止）时就地提示「结束时间要晚于开始时间」并把两个输入框标红，不再零请求零提示。
