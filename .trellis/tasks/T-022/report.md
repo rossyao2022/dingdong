@@ -14,7 +14,7 @@
 4. `run_round()`：开工处取基线存 `req_before` / `blocked_before`，`case "$result"` 之后调 `notify_orchestrator_if_needed`。每轮至多一次（单条 if + 单次调用）。
 5. 新增两个环境变量：`LOOP_ORCH_PANE`（默认 `w0:p4`）、`LOOP_WAKE_CMD`（联调替代命令，默认走 herdr）；文件头注释补了钩子说明。所有新变量展开都用 `${var}`，避免 macOS bash 3.2 把紧跟全角字符的 `$var` 吞进变量名（R0d 卡点 12）。
 
-测试证据（全部在 `.trellis/tasks/T-022/`）：假 grok（`fake-grok.sh`，只改状态文件不做真实任务）、假唤醒（`fake-wake.sh` 成功 / `fake-wake-fail.sh` 退出 3）、临时自测任务 T-095…T-099 的插入删除脚本、四个场景的驱动原始输出、`runs.log.after`（含自测轮次的原始日志）。
+测试证据（全部在 `.trellis/tasks/T-022/`）：假 grok（`fake-grok.sh`，只改状态文件不做真实任务）、假唤醒（`fake-wake.sh` 成功 / `fake-wake-fail.sh` 退出 3）、临时自测任务 T-095…T-099 的插入删除脚本、四个场景的驱动原始输出、`runs.log.after`（含自测轮次的原始日志）与 `runs.log.before`（测试前快照，其中已含首轮联调的自测行）。
 
 ## 验证命令与真实输出
 

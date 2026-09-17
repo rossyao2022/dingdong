@@ -38,3 +38,4 @@ EXECUTED T-003 review 已按批准顺序导入 queue.md 为 T-005…T-021（第�
 EXECUTED T-005 push 按决定段「第一批与第二批每完成一个任务 commit 后可直接 push，不必逐条申请」执行：`git push origin codex/release-v0.3.6` → `de9a3d3..618925e`，远端 sha `618925ef4e53d96fb339562bb8e3589789032a53`（含 `[T-003]` 门禁导入提交 730e2d0 与 `[T-005]` 修复提交 618925e；随后同一轮再推收尾记录提交）2026-09-17T06:46Z
 
 EXECUTED T-006 push 按决定段「第一批每完成一个任务 commit 后可直接 push origin/codex/release-v0.3.6，不必逐条申请」执行：`git push origin codex/release-v0.3.6` → `f07a7c7..876b2dd`，远端 sha `876b2dd9d031650e57e576ea7fc6b8d04a1beae7`（`[T-006]` 修复提交；收尾记录提交紧随其后同一轮再推）2026-09-17T07:05Z
+EXECUTED T-022 push 成功：`git push origin codex/release-v0.3.6` → `dbf2870..2cfca23`，远端 sha `2cfca23e404794ff8f13cc3243c31e4c56bf4568`（按 T-022 notes 的机制任务直推规则执行，未另开 REQUEST；收尾记录提交紧随其后同一轮再推）2026-09-17T07:22Z

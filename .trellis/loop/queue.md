@@ -7,8 +7,8 @@
 - goal: 给 `scripts/worker-loop.sh` 加收尾钩子：每轮 worker 退出后，与本轮开工时的基线对比，若 `gates.md` 申请段新增了 REQUEST 行、或 `queue.md` 有任务被标为 `blocked`，就执行一次 `herdr agent prompt w0:p4 "查岗：读 .trellis/loop/ORCHESTRATOR.md 的门禁规则，处理 gates.md 新申请"`；不带 `--wait`；该命令失败只记一行日志，不改变驱动退出码、不影响后续轮询。
 - acceptance: 钩子只在出现上述两类变化时触发且每轮至多一次；用一条测试 REQUEST 实测钩子能真实触发一次（测试行末尾标注「T-022 钩子自测，可忽略」，orchestrator 收到后忽略该行），驱动随后正常进入下一轮；`bash -n scripts/worker-loop.sh` 通过；`python3 scripts/audit_documents.py` errors 为空；实测命令输出存 `.trellis/tasks/T-022/`。
 - gate: push
-- status: todo
-- notes: 只改 `scripts/worker-loop.sh` 这一个文件。面板号已核对：w0:p4 为 orchestrator 会话所在面板（2026-09-17 `herdr pane list --workspace w0` 实测；若面板有变以实际结果为准并更新本条）。属机制任务：commit 后直接 push origin/codex/release-v0.3.6 并在 `gates.md` 补 EXECUTED 行（岗位说明：push 类直接 APPROVE），不必另开 REQUEST。
+- status: done
+- notes: 只改 `scripts/worker-loop.sh` 这一个文件。面板号已核对：w0:p4 为 orchestrator 会话所在面板（2026-09-17 `herdr pane list --workspace w0` 实测；若面板有变以实际结果为准并更新本条）。属机制任务：commit 后直接 push origin/codex/release-v0.3.6 并在 `gates.md` 补 EXECUTED 行（岗位说明：push 类直接 APPROVE），不必另开 REQUEST。 **2026-09-17 执行结果**：钩子已加（`loop_gate_snapshot` / `wake_orchestrator` / `notify_orchestrator_if_needed`，`run_round` 开工取基线收尾调一次；新增 `LOOP_ORCH_PANE` 默认 `w0:p4`、`LOOP_WAKE_CMD` 联调替代命令）。实测四场景：A 真 herdr 唤醒一次（面板 rev 30→39、agent_status=working）、B 无变化两轮 0 次唤醒、C 新 blocked 唤醒一次、D 唤醒命令失败只记 `WAKE FAIL ... rc=3` 且驱动 exit 0；`bash -n` 通过、`audit_documents.py` errors `[]`；证据在 `.trellis/tasks/T-022/`（transcript + 驱动原始输出 + `runs.log.after`），自测轮次行已从 `runs.log` 清理。已按机制任务直推规则 push：`dbf2870..2cfca23`，远端 sha `2cfca23e404794ff8f13cc3243c31e4c56bf4568`。
 
 ## T-001 写 .trellis/loop/README.md
 - goal: 给 `.trellis/loop/` 写一份操作说明，让 orchestrator 一看就知道怎么启停、怎么批门禁、怎么看状态、怎么加任务。

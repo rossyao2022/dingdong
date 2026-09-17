@@ -1,8 +1,8 @@
 # 自循环状态
 
-- 当前任务：T-006（P-05 空手机号获取验证码不再丢后端原始报错）已完成并推送，`status`=`done`。本轮三个提交都在远端（修复 `876b2dd`、收尾记录 `4aefe88`、status 自身 `f50da84`），分支头见 `origin/codex/release-v0.3.6`。
-- 上一个任务：T-005（O-01 CA 账户页跨行模板注释被当正文渲染）——已推送，`618925e`。
-- 最近 5 轮（取自 `runs.log`；本轮 ROUND 行由驱动在 worker 退出后写回）：
+- 当前任务：T-022（驱动收尾钩子：有新门禁申请或任务 blocked 时叫醒 orchestrator）已完成并推送，`status`=`done`。代码提交 `2cfca23` 已在远端；收尾记录提交紧随其后同一轮再推，分支头以 `origin/codex/release-v0.3.6` 为准。
+- 上一个任务：T-006（P-05 空手机号取码不再透出 `ErrorDetail`）——已推送，`876b2dd`。
+- 最近 5 轮（取自 `runs.log`；本轮 T-022 的 ROUND 行由驱动在 worker 退出后写回）：
 
 | 任务 | 结果 | 耗时 | 提交 | 备注 |
 | --- | --- | --- | --- | --- |
@@ -10,13 +10,12 @@
 | T-004 | DONE | 496s | e42e25e | FALLBACK=deepseek-v4-pro |
 | T-002 | DONE | 711s | cff10eb | 该轮实际产出 T-003 的 backlog 与 review 申请 |
 | T-003 | DONE | 556s | f07a7c7 | 22 条 backlog 已转成队列任务 |
-| T-005 | DONE | — | 618925e | 修复 + 门禁导入，已推送 |
+| T-006 | DONE | 1583s | dbf2870 | P-05 修复 + 全量后端 270 passed |
 
-- 本轮（T-006）验证数字：后端 `tests/test_auth.py` `14 passed`、全量 `pytest -q` `270 passed in 1000.72s`；前端 `check` 通过 / `test:unit` `16 pass 0 fail`；新增 `tests/login-validation.spec.js` `4 passed (5.8s)`（改前还原 HEAD 版 `app.js` 跑出 `1 failed`）、回归 `tests/ca-account.spec.js` `4 passed (30.4s)`；`audit_documents.py` errors `[]`。
-- 累计：迭代 6 / 失败 0 / 限流 1（本轮退出后驱动再记一轮，计数随后 +1）
-- 待 orchestrator 处理的事：有 3 条
-  - `.trellis/loop/ORCHESTRATOR.md` 是 orchestrator 新加的 untracked 文件，本轮未提交（不属 T-006 范围），请自行入库。
-  - 本轮顺手提交了开工前就在工作区里的他人改动：`runs.log` 的 T-002/T-003 两轮驱动记录行、`queue.md` 里新写的 T-022 任务定义（内容未改）。若你希望这类文件严格分轮提交，说一声。
-  - R0d 会话收尾：删除假 grok 包装脚本、核对 `runs.log` 的 PRIMARY RATE_LIMITED / FALLBACK DONE 两行（上轮遗留，仍未做）。
-- 环境事实：8017 上原有的 runserver（9:45AM 起）被本轮改动的 autoreload 弄卡死，已重启（pid 11975，日志 `.trellis/.runtime/runserver-t006.log`）。
-- 下一步：队列第一个 `todo` = T-007（P-01 绑定机器人成功后留在账户页并给反馈，属第一批可直推）；第三批 T-021 是 `gate: review`，做完要申请，不能直推。
+- 本轮（T-022）验证数字：`bash -n scripts/worker-loop.sh` exit 0（裸变量紧跟全角字符扫描：无）；`TESTS=all` → `PASS=13 FAIL=1`（唯一 FAIL 是面板 revision 断言读得太早，事后核对 `w0:p4 rev=30→39 agent_status=working`，runner 已改为轮询）；`TESTS=BC` → `PASS=8 FAIL=0`；`TESTS=D`（唤醒命令退出 3）→ `PASS=5 FAIL=0`；`audit_documents.py` → `errors: []`。自测轮次行（T-095…T-099）已从 `runs.log` 清理，原始日志存 `.trellis/tasks/T-022/runs.log.after`。
+- 累计：迭代 6 / 失败 0 / 限流 1（不含自测轮次；本轮退出后驱动再记一轮，计数随后 +1）
+- 待 orchestrator 处理的事：有 2 条
+  - `.trellis/loop/ORCHESTRATOR.md` 仍是 untracked，未提交（不属 T-022 范围，T-006 已提过）。
+  - `gates.md` 申请段留了一行 `REQUEST T-099 push … T-022 钩子自测，可忽略`（acceptance 要求保留的测试行），请忽略；真唤醒已把 orchestrator 面板叫起来一次。
+- 环境事实：钩子从**下次启动驱动**起生效——本轮在跑的驱动进程（pid 28928）已在执行前整体解析旧版 `while` 循环，仍按旧代码运行（按 bash 解析行为推断，未实测）。
+- 下一步：队列第一个 `todo` = T-007（P-01 绑定机器人成功后留在账户页并给反馈，属第一批可直推）。
