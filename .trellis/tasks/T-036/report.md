@@ -54,7 +54,7 @@
 结果：全部通过
 ```
 
-验证方式说明：verify.py 不重新实现驱动逻辑，而是从 `scripts/worker-loop.sh` 里抽出 `next_task` / `classify` / `loop_gate_snapshot` 三段的 python 块原文，用与驱动相同的参数直接执行，确认瘦身后的账本仍被驱动正确解析。`git show HEAD:.trellis/loop/gates.md` 作为瘦身前原文，逐行核对归档无缺失、行序一致。
+验证方式说明：verify.py 不重新实现驱动逻辑，而是从 `scripts/worker-loop.sh` 里抽出 `next_task` / `classify` / `loop_gate_snapshot` 三段的 python 块原文，用与驱动相同的参数直接执行，确认瘦身后的账本仍被驱动正确解析。逐行归档核对以固定参考提交 `d80891c`（T-030 收尾提交，即 `[T-036]` 瘦身提交的父提交）的 `gates.md` 为瘦身前原文，不随本轮后续提交前移，故本脚本任何时候重跑都得到同一结论（重跑于收尾提交后：`gates.md` 实测 36 行，23 PASS / 0 FAIL）。
 
 `python3 scripts/audit_documents.py`：
 

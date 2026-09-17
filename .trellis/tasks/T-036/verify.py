@@ -86,8 +86,11 @@ for line in snap:
 check("blocked 列表为空（T-031 已解锁）", len(snap) == 2 and snap[1].strip() == "", f"第二行 {snap[1:]!r}")
 
 # ---- 4. 归档逐行原文 ----
+# 瘦身前的固定参考提交（T-030 收尾提交，即 `[T-036]` 瘦身提交的父提交），
+# 不随本轮后续提交前移，保证本脚本任何时候重跑都得到同一结论。
+PRE_SLIM = "d80891c"
 orig = subprocess.run(
-    ["git", "show", "HEAD:.trellis/loop/gates.md"], capture_output=True, text=True, cwd=ROOT
+    ["git", "show", f"{PRE_SLIM}:.trellis/loop/gates.md"], capture_output=True, text=True, cwd=ROOT
 ).stdout
 _, decision = orig.split("## 决定", 1)
 body = decision.split("<!-- 下面按时间追加 -->", 1)[1]

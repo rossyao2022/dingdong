@@ -1,5 +1,5 @@
 [PASS] queue.md ≤ 120 行 — 实测 119
-[PASS] gates.md ≤ 60 行 — 实测 34
+[PASS] gates.md ≤ 60 行 — 实测 36
 [PASS] `## T-xxx 标题` 计数 36 — 实测 36
 [PASS] `- status:` 行计数 36 — 实测 36
 [PASS] 36 个 status 值全在词表内 — 值分布 ['done', 'todo']
