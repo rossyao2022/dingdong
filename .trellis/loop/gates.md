@@ -41,3 +41,5 @@ EXECUTED T-031 push 按本任务 notes「机制维护类：commit 后可直接 p
 EXECUTED T-031 push（第二次，收尾记录提交 8f9a6d6）：`git push origin codex/release-v0.3.6` → `bfe9dcd..8f9a6d6`，远端 sha `8f9a6d60f86c56f887169516c2c7b9737c4f7ddd`（该提交含 queue/gates/status/experiment-log/progress 收尾记录：T-031 `status` 改 `done` 并压成一行指针移入 done 块、`EXECUTED T-031 push` 首条、status.md 重写；本条补记提交随后同一轮再推，分支头以 origin 为准） 2026-09-17T15:42Z
 
 EXECUTED T-036 push（第二次，收尾记录提交 87f1029）：`git push origin codex/release-v0.3.6` → `2dff105..87f1029`，远端 sha `87f1029411e983823b9ff1cf44c94a4d5200d318`（该提交含 queue/gates/status/experiment-log/progress 收尾记录；本条补记与 verify 输出刷新提交随后同一轮再推，分支头以 origin 为准） 2026-09-17T15:14Z
+
+EXECUTED T-032 push 按 T-021 批复「实现任务 A–D 用第一/二批同款直推规则」执行：`git push origin codex/release-v0.3.6` → `3b3a337..a7c2035`，远端 sha `a7c20353bc295123c9c32d8f2ab64918e3959925`（`[T-032]` 提交 a7c2035：21 文件 +7878/−2997，含 6 条展示面路由与 51 项新用例、迁移 `0009`、openapi +6 路径/+17 schema、`ops/labels.py` 两个审计动作词条、`PROJECT_MEMORY.md` 与 T-032 任务记录；收尾记录提交紧随其后同一轮再推，分支头以 origin 为准） 2026-09-18T01:43Z

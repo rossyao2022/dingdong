@@ -46,6 +46,10 @@
 - `uv run --directory backend python ../scripts/audit_documents.py --generate` → `{"markdown_files": 80, "local_links_checked": 497, "archived_files_checked": 85, "operations": 61, "schemas": 82, "errors": []}`
 - `python3 scripts/audit_documents.py` → 同上，`errors: []`
 
-## 阶段：Finish（进行中）
+## 阶段：Finish（已完成）
 
-下一步：写 report.md、提交（首行 `[T-032]`）、按 T-021 批复的直推规则 push 并补 `EXECUTED` 行、queue.md 标 done、追加 experiment-log、重写 status.md。
+已完成：report.md 已写；`[T-032]` 提交 a7c2035 已 push（远端 sha `a7c20353bc295123c9c32d8f2ab64918e3959925`）；`gates.md` 补 `EXECUTED T-032 push`；`queue.md` 该任务 `status` 改 `done` 并附执行结果；experiment-log 追加一行；`status.md` 已重写。
+
+修复后复跑：`cd backend && uv run pytest tests/test_ca_display.py -q -k "reassessment or contract or declined or complete"` → `6 passed, 46 deselected, 1 warning in 36.91s`。
+
+下一步：无（本轮结束）。
