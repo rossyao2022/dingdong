@@ -67,3 +67,6 @@ EXECUTED T-017 push（第二次，收尾记录提交 d42edf7）：`git push orig
 
 APPROVE T-025 push（事后追认）：`[T-025]` 机制提交 `b862317` 已随 T-009 直推连带上远端（push 语义推整个分支，非越权单推）；内容为 Yihu 2026-09-17「把模式盘活」指令下的 5 项机制改动，Yihu 复核本条时口头追认（「OK，继续推进」）。watchdog 的 launchd 安装仍待 Yihu 执行，不属本追认范围。 2026-09-17T11:48Z
 EXECUTED T-025 push（追认补记）：随 T-009 直推 `git push origin codex/release-v0.3.6` → `919350b..6a5efa2`，远端 sha `6a5efa2a3760877c6ca6bfb675d8640796eea346`（含 `[T-025]` b862317） 2026-09-17T11:48Z
+
+EXECUTED G-03 external Yihu 2026-09-17 拍板「干掉」：`gh pr close 1 --repo rossyao2022/dingdong` ✓（OPEN→CLOSED，head 分支 feat/parent-app-backend-integration，PR 标题「feat: 原型继续演进为接入后端的家长端应用（机器人账户 / NFC 承接 / 换机流程）」）。公开仓库无其他操作，head 分支未删。至此 T-003 backlog 全部条目处置完毕（含未导入的 O-05 暂缓）。
+EXECUTED R0g push Yihu 明确指令「提交并 push」：`git push origin codex/release-v0.3.6` → `9b96c4d..fce3f67`，远端头 `fce3f67`（三笔 orchestrator 账面：`905ea3e` T-025 追认 / `fceab02` R0f 补给 / `fce3f67` R0g launchd 销项）。另核实：`feat/ca-full-stack-v0.3.6` 为早期 squash 快照（1 个独有提交，内容已被当前分支 106 个提交演进取代），经说明后不推。
