@@ -3,6 +3,13 @@
 字段：`goal` 目标 · `acceptance` 可客观验证的验收 · `gate` 门禁类型（`none` | `push` | `external` | `deploy` | `review`）· `status`（`todo` | `doing` | `done` | `blocked` | `gated`）· `notes` 备注。
 规则：驱动每轮取第一个 `status: todo` 的任务；`gated` / `blocked` 跳过。任务定义由 orchestrator 写，执行结果由 worker 写回。
 
+## T-025 机制盘活：驱动长程 7×24 语义（每日上限睡到零点）+ 限流退避与 Pro 日限 + 唤醒重试 + 探活 watchdog
+- goal: 让自循环真正可 7×24：1) `worker-loop.sh` 每日上限到点不再退出，改睡到 UTC 零点继续（每 300s 检查 STOP，STOP 仍为唯一停机方式）；2) 双限流退避按连续次数翻倍（180→360→720→…封顶 1800s，成功清零）；3) Pro 兜底加单日次数上限（`LOOP_FALLBACK_DAILY_LIMIT`，默认 6），超限不再切 Pro、按失败走连续失败→blocked 路径控成本；4) 唤醒 orchestrator 失败间隔 5s 重试一次、连续 3 次失败写 status.md 告警，启动时自检 orchestrator 面板是否在 herdr 会话；5) 新增 `scripts/loop-watchdog.sh` 探活（驱动不在且无 STOP 时优先在原面板 w0:p3 重启、面板没了走 nohup 后台拉起）与 `scripts/com.yihu.dingdong.loop-watchdog.plist`（launchd 每 5 分钟模板）。
+- acceptance: `bash -n` 两个脚本通过；`fallbacks_today` / `seconds_until_utc_midnight` 对真实 `runs.log` 验证；驱动重启后启动行带新参数（到点睡到零点 + Pro兜底日限）且正常开轮；驱动活着时 watchdog 手动执行 exit 0 且 `runs.log` 无新 WATCHDOG 行；旧驱动 STOP 优雅退出路径不受影响。
+- gate: push
+- status: done
+- notes: 由 orchestrator 会话按 Yihu「把模式盘活」指令直接执行。**已知坑（重要）**：改正在运行的 bash 脚本会导致字节错位执行——本次旧驱动 STOP 退出后报过一行无害的 `line 301: $5: unbound variable`（发生在 break 之后，轮次已记录、无实质影响）；以后改驱动脚本先 `mv` 原子替换再写新内容，并等旧进程完全退出后多留缓冲。launchd 安装（写 `~/Library/LaunchAgents`）与 `git push` 属仓库外副作用，NEED-GATE 留 Yihu 放行。**2026-09-17 执行结果**：`worker-loop.sh` 5 项全落地（新增 `fallbacks_today` / `seconds_until_utc_midnight` / `sleep_with_stop_check`，`_rl_streak`/`_wake_fails` 全局计数，LIMIT 分支改 `continue`，空转 sleep 换 `sleep_with_stop_check`，唤醒重试+告警，启动自检面板）；实测 fallbacks_today 对当日 runs.log 解析 Pro=3（T-004/T-007/T-008），到零点 54252s；08:56:05Z 新驱动以新参数重启（PID 68713）并开跑 T-009；watchdog 存活分支实测 exit 0 无动作。待 Yihu：launchd 安装与 push 放行。
+
 ## T-022 驱动加「有新门禁申请或任务 blocked 时叫醒 orchestrator」的钩子
 - goal: 给 `scripts/worker-loop.sh` 加收尾钩子：每轮 worker 退出后，与本轮开工时的基线对比，若 `gates.md` 申请段新增了 REQUEST 行、或 `queue.md` 有任务被标为 `blocked`，就执行一次 `herdr agent prompt w0:p4 "查岗：读 .trellis/loop/ORCHESTRATOR.md 的门禁规则，处理 gates.md 新申请"`；不带 `--wait`；该命令失败只记一行日志，不改变驱动退出码、不影响后续轮询。
 - acceptance: 钩子只在出现上述两类变化时触发且每轮至多一次；用一条测试 REQUEST 实测钩子能真实触发一次（测试行末尾标注「T-022 钩子自测，可忽略」，orchestrator 收到后忽略该行），驱动随后正常进入下一轮；`bash -n scripts/worker-loop.sh` 通过；`python3 scripts/audit_documents.py` errors 为空；实测命令输出存 `.trellis/tasks/T-022/`。

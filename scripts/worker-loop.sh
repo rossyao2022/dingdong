@@ -8,14 +8,17 @@
 #
 # 双模型（R0e）：启动时读 .trellis/loop/models.env 的 MODEL_PRIMARY / MODEL_FALLBACK。
 #   - 每轮先用 PRIMARY 跑；该轮 grok 进程疑似限流（TooManyRequests / rate limit / 429）时，
-#     立刻用 FALLBACK 重跑同一任务；下一轮回到 PRIMARY。两个都限流才 sleep 退避。
-#   - 只允许 Flash→Pro 升级，不写降级路径。
+#     立刻用 FALLBACK 重跑同一任务；下一轮回到 PRIMARY。两个都限流才 sleep 退避（连续翻倍，封顶 1800s）。
+#   - 只允许 Flash→Pro 升级，不写降级路径。FALLBACK 单日次数有上限（T-025，默认 6），超限不切 Pro 按失败处理。
+# 长程语义（T-025）：每日上限到点不再退出——睡到 UTC 零点继续；唯一退出方式仍是 STOP。
+# 配套 scripts/loop-watchdog.sh（可由 launchd 每 5 分钟探活拉起）。
 # 收尾钩子（T-022）：每轮 worker 退出后，与本轮开工时的基线对比——`gates.md` 申请段
 #   新增了 REQUEST 行、或 `queue.md` 里新出现 `status: blocked` 的任务——就调一次
 #   `herdr agent prompt <面板> "查岗：…"`（不带 --wait）叫醒 orchestrator。每轮至多一次；
 #   该命令失败只记一行日志，不改变驱动退出码、不影响后续轮询。
 # 可调环境变量：LOOP_IDLE_SLEEP / LOOP_ROUND_TIMEOUT / LOOP_RATE_LIMIT_SLEEP /
-#              LOOP_DAILY_LIMIT / LOOP_GROK_BIN（联调可指向假 grok 包装脚本）/
+#              LOOP_DAILY_LIMIT / LOOP_FALLBACK_DAILY_LIMIT（Pro 兜底单日上限，默认 6）/
+#              LOOP_GROK_BIN（联调可指向假 grok 包装脚本）/
 #              LOOP_ORCH_PANE（orchestrator 面板，默认 w0:p4）/
 #              LOOP_WAKE_CMD（联调可指向假唤醒命令，默认调 herdr）
 # 只用 bash + git + python3（stdlib），无新依赖。
@@ -37,6 +40,7 @@ IDLE_SLEEP="${LOOP_IDLE_SLEEP:-600}"
 ROUND_TIMEOUT="${LOOP_ROUND_TIMEOUT:-2400}"
 RATE_SLEEP="${LOOP_RATE_LIMIT_SLEEP:-180}"
 DAILY_LIMIT="${LOOP_DAILY_LIMIT:-40}"
+FALLBACK_DAILY_LIMIT="${LOOP_FALLBACK_DAILY_LIMIT:-6}"
 ORCH_PANE="${LOOP_ORCH_PANE:-w0:p4}"
 WAKE_CMD="${LOOP_WAKE_CMD:-}"
 ORCH_WAKE_TEXT="查岗：读 .trellis/loop/ORCHESTRATOR.md 的门禁规则，处理 gates.md 新申请"
@@ -167,6 +171,48 @@ print(sum(1 for line in open(sys.argv[1], encoding="utf-8")
 PY
 }
 
+# 今天已用 FALLBACK 跑掉的轮数（按 runs.log 的模型列统计，无论成败）。
+fallbacks_today() {
+  python3 - "$RUNS_LOG" "$MODEL_FALLBACK" <<'PY'
+import datetime, sys
+
+today = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d")
+model = sys.argv[2]
+n = 0
+for line in open(sys.argv[1], encoding="utf-8"):
+    parts = line.split()
+    if len(parts) >= 7 and parts[0].startswith(today) and parts[1] == "ROUND" and parts[6] == model:
+        n += 1
+print(n)
+PY
+}
+
+# 距下一个 UTC 零点的秒数（至少 60，防边界抖动）。
+seconds_until_utc_midnight() {
+  python3 - <<'PY'
+import datetime
+
+now = datetime.datetime.now(datetime.timezone.utc)
+next0 = (now + datetime.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+print(max(60, int((next0 - now).total_seconds())))
+PY
+}
+
+# 分段长睡：每 300s 醒来查一次 STOP，见 STOP 返回 1（由外层决定退出）。
+sleep_with_stop_check() {
+  local total="$1" slept=0 chunk
+  while [ "$slept" -lt "$total" ]; do
+    if [ -f "$STOP" ]; then
+      return 1
+    fi
+    chunk=$((total - slept))
+    [ "$chunk" -gt 300 ] && chunk=300
+    sleep "$chunk"
+    slept=$((slept + chunk))
+  done
+  return 0
+}
+
 mark_blocked() {
   python3 - "$QUEUE" "$1" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" <<'PY'
 import re, sys
@@ -218,22 +264,37 @@ print(",".join(blocked))
 PY
 }
 
-# 叫醒 orchestrator：不带 --wait，失败只记日志，不影响驱动退出码与后续轮询。
+# 叫醒 orchestrator：不带 --wait；失败间隔 5s 重试一次；连续 3 次失败写 status.md 告警。
 wake_orchestrator() {
-  local reason="$1" rc=0
-  if [ -n "$WAKE_CMD" ]; then
-    "$WAKE_CMD" "$reason" >/dev/null 2>&1
-    rc=$?
-  else
-    herdr agent prompt "$ORCH_PANE" "$ORCH_WAKE_TEXT" >/dev/null 2>&1
-    rc=$?
-  fi
+  local reason="$1" rc=1 attempt
+  for attempt in 1 2; do
+    if [ -n "$WAKE_CMD" ]; then
+      "$WAKE_CMD" "$reason" >/dev/null 2>&1
+      rc=$?
+    else
+      herdr agent prompt "$ORCH_PANE" "$ORCH_WAKE_TEXT" >/dev/null 2>&1
+      rc=$?
+    fi
+    if [ "$rc" -eq 0 ]; then
+      break
+    fi
+    [ "$attempt" -lt 2 ] && sleep 5
+  done
   if [ "$rc" -eq 0 ]; then
+    _wake_fails=0
     logline "WAKE OK $reason"
     say "已叫醒 orchestrator（${reason}）"
   else
-    logline "WAKE FAIL $reason rc=$rc"
-    say "叫醒 orchestrator 失败（rc=${rc}），只记日志，继续轮询"
+    _wake_fails=$((_wake_fails + 1))
+    logline "WAKE FAIL $reason rc=$rc streak=$_wake_fails"
+    say "叫醒 orchestrator 失败（rc=${rc}，连续 ${_wake_fails} 次），只记日志，继续轮询"
+    if [ "$_wake_fails" -ge 3 ]; then
+      {
+        echo ""
+        echo "## 驱动告警"
+        echo "- 唤醒 orchestrator 连续失败 ${_wake_fails} 次（$(date -u +%Y-%m-%dT%H:%M:%SZ)）。检查面板号 ${ORCH_PANE} 是否漂移或会话是否已死。"
+      } >>"$STATUS"
+    fi
   fi
   return 0
 }
@@ -326,22 +387,34 @@ run_round() {
   result="$(classify "$task" "$_rc" "$out" "$err" "$_timed_out")"
   record_round "$task" "$result" "$_dur" "$MODEL_PRIMARY" "rc=$_rc"
 
-  # 限流 → 立即用 FALLBACK 重跑同一任务（只做 Flash→Pro 升级）
+  # 限流 → 用 FALLBACK 重跑同一任务（只做 Flash→Pro 升级；单日次数有上限，超限按限流失败处理）
   if [ "$result" = "RATE_LIMITED" ]; then
-    local ts2 out2 err2 result2
-    ts2="$(date -u +%Y%m%dT%H%M%SZ)"
-    out2="$RUNS/$ts2-$task-fallback.json"
-    err2="$RUNS/$ts2-$task-fallback.err"
-    say "疑似限流，立即用 FALLBACK（${MODEL_FALLBACK}）重跑 ${task}"
-    run_once "$task" "$MODEL_FALLBACK" "$out2" "$err2"
-    result2="$(classify "$task" "$_rc" "$out2" "$err2" "$_timed_out")"
-    record_round "$task" "$result2" "$_dur" "$MODEL_FALLBACK" "rc=$_rc"
-    result="$result2"
+    local fb_today
+    fb_today="$(fallbacks_today)"
+    if [ "$fb_today" -ge "$FALLBACK_DAILY_LIMIT" ]; then
+      logline "FALLBACK_LIMIT $task Pro 兜底单日上限已到（${fb_today}/${FALLBACK_DAILY_LIMIT}），本轮不切 Pro，按限流失败处理"
+      say "Pro 兜底已达单日上限（${fb_today}/${FALLBACK_DAILY_LIMIT}），本轮不切 Pro，按失败处理"
+    else
+      local ts2 out2 err2 result2
+      ts2="$(date -u +%Y%m%dT%H%M%SZ)"
+      out2="$RUNS/$ts2-$task-fallback.json"
+      err2="$RUNS/$ts2-$task-fallback.err"
+      say "疑似限流，立即用 FALLBACK（${MODEL_FALLBACK}）重跑 ${task}（今日 Pro 第 $((fb_today + 1)) 轮，上限 ${FALLBACK_DAILY_LIMIT}）"
+      run_once "$task" "$MODEL_FALLBACK" "$out2" "$err2"
+      result2="$(classify "$task" "$_rc" "$out2" "$err2" "$_timed_out")"
+      record_round "$task" "$result2" "$_dur" "$MODEL_FALLBACK" "rc=$_rc"
+      result="$result2"
+    fi
 
     if [ "$result" = "RATE_LIMITED" ]; then
-      logline "RATE_LIMITED $task 两个模型都限流，sleep ${RATE_SLEEP}s"
-      say "两个模型都限流，sleep ${RATE_SLEEP}s"
-      sleep "$RATE_SLEEP"
+      _rl_streak=$((_rl_streak + 1))
+      local backoff=$((RATE_SLEEP * (1 << (_rl_streak - 1))))
+      [ "$backoff" -gt 1800 ] && backoff=1800
+      logline "RATE_LIMITED $task 两个模型都限流（连续第 ${_rl_streak} 次），sleep ${backoff}s"
+      say "两个模型都限流，退避 ${backoff}s（连续第 ${_rl_streak} 次）"
+      sleep_with_stop_check "$backoff" || true
+    else
+      _rl_streak=0
     fi
   fi
 
@@ -360,8 +433,19 @@ run_round() {
   notify_orchestrator_if_needed "$task" "$req_before" "$blocked_before"
 }
 
-say "驱动启动：root=$PROJECT_ROOT 空转间隔=${IDLE_SLEEP}s 单轮上限=${ROUND_TIMEOUT}s 每日上限=${DAILY_LIMIT} PRIMARY=$MODEL_PRIMARY FALLBACK=$MODEL_FALLBACK"
-logline "START 驱动启动 idle=${IDLE_SLEEP}s round_timeout=${ROUND_TIMEOUT}s daily_limit=${DAILY_LIMIT} primary=$MODEL_PRIMARY fallback=$MODEL_FALLBACK"
+_rl_streak=0
+_wake_fails=0
+
+# 启动自检：orchestrator 面板在不在当前 herdr 会话（不在只告警，不阻止启动）。
+if [ -z "$WAKE_CMD" ] && command -v herdr >/dev/null 2>&1; then
+  if ! herdr pane list --workspace "${ORCH_PANE%%:*}" 2>/dev/null | grep -q "\"$ORCH_PANE\""; then
+    say "警告：orchestrator 面板 $ORCH_PANE 不在 herdr 会话，唤醒会失败（面板号可能已变）"
+    logline "WARN orchestrator pane $ORCH_PANE 未见于 herdr，唤醒将失败"
+  fi
+fi
+
+say "驱动启动：root=$PROJECT_ROOT 空转间隔=${IDLE_SLEEP}s 单轮上限=${ROUND_TIMEOUT}s 每日上限=${DAILY_LIMIT}（到点睡到 UTC 零点继续） Pro兜底日限=${FALLBACK_DAILY_LIMIT} PRIMARY=$MODEL_PRIMARY FALLBACK=$MODEL_FALLBACK"
+logline "START 驱动启动 idle=${IDLE_SLEEP}s round_timeout=${ROUND_TIMEOUT}s daily_limit=${DAILY_LIMIT} fallback_daily_limit=${FALLBACK_DAILY_LIMIT} primary=$MODEL_PRIMARY fallback=$MODEL_FALLBACK"
 
 while :; do
   if [ -f "$STOP" ]; then
@@ -372,15 +456,16 @@ while :; do
 
   today="$(iterations_today)"
   if [ "$today" -ge "$DAILY_LIMIT" ]; then
-    say "已达每日迭代上限 ${DAILY_LIMIT}（今日 ${today} 轮），退出"
-    logline "LIMIT 达到每日上限 ${DAILY_LIMIT}，驱动退出"
-    break
+    say "已达每日迭代上限 ${DAILY_LIMIT}（今日 ${today} 轮），睡到 UTC 零点继续"
+    logline "LIMIT 达到每日上限 ${DAILY_LIMIT}，睡到 UTC 零点继续（不退出）"
+    sleep_with_stop_check "$(seconds_until_utc_midnight)" || true
+    continue
   fi
 
   task="$(next_task)"
   if [ -z "$task" ]; then
     say "无 todo 任务、也无待执行的 APPROVE，空转 ${IDLE_SLEEP}s"
-    sleep "$IDLE_SLEEP"
+    sleep_with_stop_check "$IDLE_SLEEP" || true
     continue
   fi
 
