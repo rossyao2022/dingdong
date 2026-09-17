@@ -174,8 +174,8 @@
 - goal: `backend/tests/test_ops_audit_scope.py` 通过 `ruff format --check --target-version py313`（T-014 轮新代码已格式化、存量文件未过），只做格式化，不改断言语义。
 - acceptance: `cd backend && uv run ruff format --check --target-version py313 tests/test_ops_audit_scope.py` 通过；`uv run pytest tests/test_ops_audit_scope.py` 结果与格式化前一致（全绿）；audit errors 为空。
 - gate: none
-- status: todo
-- notes: 纯格式化 chore。若 ruff 调用方式与 T-014 轮记录有出入，以仓库实际工具链为准并记录。机制维护类：commit 后可直接 push 并补 EXECUTED 行。
+- status: done
+- notes: 纯格式化 chore。若 ruff 调用方式与 T-014 轮记录有出入，以仓库实际工具链为准并记录。机制维护类：commit 后可直接 push 并补 EXECUTED 行。 **2026-09-17 执行结果**：唯一格式差异是文件末尾缺行尾换行——`ruff format --check --target-version py313 tests/test_ops_audit_scope.py` 改前报 `unformatted --> tests/test_ops_audit_scope.py:275:36`（`wc -l` = 274），`ruff format` 后 `git diff` 仅 1 处（`\ No newline at end of file` → 有换行），断言语义未改。改后 `1 file already formatted` rc=0、`ruff check` `All checks passed!`、`pytest tests/test_ops_audit_scope.py` 改前 `12 passed in 49.07s` → 改后 `12 passed in 46.87s`、`audit_documents.py` errors `[]`。基线用例数与 T-014 记录的 `11 passed` 不同（T-019 又加过用例），本任务只与格式化前基线比对。**连带发现（未在本轮处理）**：全后端 `ruff format --check --target-version py313 .` 仍报 `dingdong_ca/core/api/common.py:189` 未格式化（HEAD 上即如此，最后一次改动它的是 T-019 提交 `2c00ac1`），建议另开存量格式化任务。已按机制维护类直推 push：`3966cb0..a9d00de`，远端 sha `a9d00de06771a6c4e5873896cdcd7380061b1e92`。
 
 ## T-021 G-01-设计 四个展示面的设计文档（先设计后实现）
 - goal: 只写 `.trellis/tasks/T-021/design.md`：人设 / 15–30 天成长报告 / 健康度四态 / 复测 CTA 四个展示面的数据形状、合成数据源放哪一层、空态与错误态、与 `设计/CA对接_C1_ca_account_id设计_20260916.md` §7 判定标准的逐条对照、拆成几个实现任务；不写代码。
