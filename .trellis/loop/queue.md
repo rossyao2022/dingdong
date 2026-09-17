@@ -167,8 +167,8 @@
 - goal: 重跑 `frontend/tests/ca-account.spec.js` 刷新 `.trellis/tasks/T-012/shots/` 三张入库截图（T-017 轮 worker 发现其相对当前代码已过期，且已验证与 T-017 改动无关）；核对截图内容仍满足 T-012 验收（账户页不含「指纹」字样、显示同一摘要前 8 位）。
 - acceptance: `cd frontend && npx playwright test tests/ca-account.spec.js` 全绿；三张截图更新且与新页面一致；本轮不改产品代码（用例本身的小适配允许，改动记录进 report）；`npm run check` 通过；audit errors 为空。
 - gate: none
-- status: todo
-- notes: 纯证据保鲜，不改产品。机制维护类：commit 后可直接 push 并补 EXECUTED 行。
+- status: done
+- notes: 纯证据保鲜，不改产品。机制维护类：commit 后可直接 push 并补 EXECUTED 行。 **2026-09-17 执行结果**：三张图已刷新入库（字节数 144227→142118、88340→88248、182021→181841），未改产品代码、未改用例代码。**两处 brief 前提与磁盘不符，已在 report 记明**：①写这三张图的用例是 `frontend/tests/robot-label.spec.js`（第 68/75/96 行），不是 `ca-account.spec.js`（后者只写 T-008 的图），T-017 报告的归因有误；②「相对当前代码已过期」不成立——字节差异全部来自用例每轮随机值（手机号/凭据 `Math.random()`），无代码改动连跑两次三张图 md5 两两不同，像素级比对（阈值 12）可见差异仅 3399/3167/6851 px 且全落在随机值文本带，文案版式一字未动（证据 `shots-run1.sha256`、`diff-analysis.txt`、`card-old/new.png`、`dlg-old/new.png`）。验收：`npx playwright test tests/robot-label.spec.js --reporter=list` → `1 passed (12.9s)`（无代码改动复跑 `1 passed (13.4s)`）；`tests/ca-account.spec.js` → `8 passed (51.1s)`；`npm run check` exit 0；`test:unit` 16 pass 0 fail（82.047834ms）；`audit_documents.py` errors `[]`。**连带发现（未在本轮处理，按「只做一个任务」还原）**：`ca-account.spec.js` 会重写 `.trellis/tasks/T-008/shots/empty-credential.png`（197704→188099 字节），那是**真漂移**（可见差异 199203 px 遍布整页，成因是弹窗背后页面滚动位置变化，弹窗文案一致），已 `git checkout --` 还原；建议 orchestrator 另开一个证据保鲜任务。
 
 ## T-027 存量测试文件过 ruff format（T-014 遗留）
 - goal: `backend/tests/test_ops_audit_scope.py` 通过 `ruff format --check --target-version py313`（T-014 轮新代码已格式化、存量文件未过），只做格式化，不改断言语义。
