@@ -31,9 +31,12 @@
 - 回归 `tests/growth-window.spec.js` + `tests/reassessment-cta.spec.js` → `5 passed (3.1m)`。
 - T-034 / T-035 的 shots 被回归跑脏，已 `git checkout --` 复原。
 
-## Finish（进行中）
+## Finish（已完成）
 
-- 已写 `report.md`；`queue.md` T-039 改 `done`；`experiment-log.md` / `status.md` 待写；commit + push + `gates.md` `EXECUTED` 行。
+- `report.md` 已写；`queue.md` T-039 `status` 改 `done` 并附执行结果；`experiment-log.md` 追加 T-039 行（114 / 98）；`status.md` 整文件重写（保留末尾「## 驱动告警」一节）。
+- 提交：`636dde6` = `[T-039]` 主体（29 文件 +452/−43），`7d08912` = 收尾补记 `EXECUTED T-039 push`。
+- 推送（按任务 notes 的直推规则）：`git push origin codex/release-v0.3.6` → `36ab4fa..636dde6`，远端 sha `636dde6014a02d872c4ea809ac025a5cd7b6fb0b`；补记提交再推 → `7d08912`，分支头以 origin 为准。`gates.md` 决定段已补 `EXECUTED T-039 push` 行。
+- 工作树干净（`git status --short` 无输出）。
 
 ## 改动文件
 
