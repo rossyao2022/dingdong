@@ -81,8 +81,8 @@
 - goal: 按 `.trellis/tasks/T-021/design.md` 实现数据层：settings 新增 `CA_DISPLAY_DATA_SOURCE`（默认 `synthetic_fixture`，独立于既有 `INTEGRATION_DATA_SOURCE`，不共用值域）；`core/services/ca_display.py` 唯一分派出口（synthetic → `test_fixture` 表新 kind `ca_display_persona/growth/health/reassessment`；dingdong → `dingdong_client`，未配置返回 `not_synced` + `reason=upstream_not_configured`）；`core/api/ca_display.py` 四读两写（companion-persona / growth-cycle / companion-health / reassessment 读，response/complete 两写），一律以 `child_id` 为键 + `owned_child()` 家庭隔离，不向家长端暴露 `ca_account_id`；`inject_fixture` 新增 6 个场景对应 xlsx 表 6 的 6 个 mock 账号；响应统一带 availability / data_origin / source / fetched_at / reason 信封，availability 词表复用 `growth.py` 既有 7 值。
 - acceptance: 后端用例覆盖 7 个 availability 值与设计 §3.3 的业务码处置（42901/50001 重试、40101 停止、40401 当暂无数据、40901 conflict、40001 fatal）；两条 POST 幂等重放（同 request_id + 同 accepted 返回首次结果，不同 accepted 返回 422）；家庭隔离断言（非本人儿童 404）；`period` 非 15d|30d 返回 422；合成模式下断言零出站调用；未知健康 `status` 落「不做判断」分支；fixture 数据不含 nfc_token/凭据；`设计/API/openapi.json` 同步；`python3 scripts/audit_documents.py` errors 为空；改动以首行 `[T-032]` 提交。
 - gate: none
-- status: todo
-- notes: 设计已批（gates.md T-021 APPROVE 2026-09-17T13:16Z）。commit 后直接 push origin/codex/release-v0.3.6 并补 EXECUTED 行。收口项：PROJECT_MEMORY.md 同步（本任务无 UI 变化，frontend/README.md 不动）。实现任务 report 不得写成「已接通 DingDong」。
+- status: doing
+- notes: 设计已批（gates.md T-021 APPROVE 2026-09-17T13:16Z）。commit 后直接 push origin/codex/release-v0.3.6 并补 EXECUTED 行。收口项：PROJECT_MEMORY.md 同步（本任务无 UI 变化，frontend/README.md 不动）。实现任务 report 不得写成「已接通 DingDong」。**2026-09-17T17:05Z orchestrator 复位 doing→todo**：16:04Z 轮 Flash 限流中断时任务停在 `doing`（驱动只取 `todo`，会被永久跳过），`progress.md` 在，按核对式续跑接上。
 
 ## T-033 展示面 B：面一人设 + 面三健康度四态（家长端 UI）
 - goal: 按 design §1.1/§1.3 实现：`#reports` 新增「陪学伙伴」面板（人设卡 + 「互动健康度」区块，健康度位于人设卡下方）；四态分支按 design §1.3 表格（`insufficient_data` 只说还在收集不判断、`normal` 显分数与观察天数、`watch` 轻提示且不出复测 CTA、`reassess` 出复测入口）；`data_origin=synthetic` 时面板级挂「合成测试数据」徽标（复用 `testTag()`），availability≠ready 不显示任何数值；`trigger_reason` 两 code 由后端映射中文；面板底部固定「这是互动情况的提示，不是对孩子的评价」；`#settings` 机器人账户面板补一行只读当前人设名；换机后旧号人设只读展示并标「上一台机器人时期」。

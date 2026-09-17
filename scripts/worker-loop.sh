@@ -10,7 +10,8 @@
 #   - 每轮先用 PRIMARY 跑；该轮 grok 进程疑似限流（TooManyRequests / rate limit / 429）时，
 #     立刻用 FALLBACK 重跑同一任务；下一轮回到 PRIMARY。两个都限流才 sleep 退避（连续翻倍，封顶 1800s）。
 #   - 只允许 Flash→Pro 升级，不写降级路径。FALLBACK 单日次数有上限（T-025，默认 6），超限不切 Pro 按失败处理。
-# 长程语义（T-025）：每日上限到点不再退出——睡到 UTC 零点继续；唯一退出方式仍是 STOP。
+# 长程语义（T-025，R0k 调整）：真 7×24——限流退避（连续翻倍封顶 1800s）是唯一的自然节流；每日轮次上限只作
+#   防失控安全阀（默认 480，正常节奏一天约 100 轮封顶，永不触发），到点才睡到 UTC 零点继续；唯一退出方式仍是 STOP。
 # 配套 scripts/loop-watchdog.sh（可由 launchd 每 5 分钟探活拉起）。
 # 收尾钩子（T-022）：每轮 worker 退出后，与本轮开工时的基线对比——`gates.md` 申请段
 #   新增了 REQUEST 行、或 `queue.md` 里新出现 `status: blocked` 的任务——就调一次
@@ -39,7 +40,7 @@ GROK_BIN="${LOOP_GROK_BIN:-$HOME/.grok/bin/grok}"
 IDLE_SLEEP="${LOOP_IDLE_SLEEP:-600}"
 ROUND_TIMEOUT="${LOOP_ROUND_TIMEOUT:-2400}"
 RATE_SLEEP="${LOOP_RATE_LIMIT_SLEEP:-180}"
-DAILY_LIMIT="${LOOP_DAILY_LIMIT:-40}"
+DAILY_LIMIT="${LOOP_DAILY_LIMIT:-480}"
 FALLBACK_DAILY_LIMIT="${LOOP_FALLBACK_DAILY_LIMIT:-6}"
 ORCH_PANE="${LOOP_ORCH_PANE:-w0:p4}"
 WAKE_CMD="${LOOP_WAKE_CMD:-}"
@@ -444,7 +445,7 @@ if [ -z "$WAKE_CMD" ] && command -v herdr >/dev/null 2>&1; then
   fi
 fi
 
-say "驱动启动：root=$PROJECT_ROOT 空转间隔=${IDLE_SLEEP}s 单轮上限=${ROUND_TIMEOUT}s 每日上限=${DAILY_LIMIT}（到点睡到 UTC 零点继续） Pro兜底日限=${FALLBACK_DAILY_LIMIT} PRIMARY=$MODEL_PRIMARY FALLBACK=$MODEL_FALLBACK"
+say "驱动启动：root=$PROJECT_ROOT 空转间隔=${IDLE_SLEEP}s 单轮上限=${ROUND_TIMEOUT}s 每日上限=${DAILY_LIMIT}（防失控安全阀，R0k 起 480） Pro兜底日限=${FALLBACK_DAILY_LIMIT} PRIMARY=$MODEL_PRIMARY FALLBACK=$MODEL_FALLBACK"
 logline "START 驱动启动 idle=${IDLE_SLEEP}s round_timeout=${ROUND_TIMEOUT}s daily_limit=${DAILY_LIMIT} fallback_daily_limit=${FALLBACK_DAILY_LIMIT} primary=$MODEL_PRIMARY fallback=$MODEL_FALLBACK"
 
 while :; do

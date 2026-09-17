@@ -54,3 +54,16 @@
 2026-09-17T14:33:59Z RATE_LIMITED T-028 两个模型都限流（连续第 5 次），sleep 1800s
 2026-09-17T15:13:36Z ROUND T-036 DONE 577s dc54fea deepseek-v4-1-flash-260910 rc=0
 2026-09-17T15:18:47Z ROUND T-031 DONE 311s 3b3a337 deepseek-v4-1-flash-260910 rc=0
+2026-09-17T15:26:03Z ROUND T-028 RATE_LIMITED 436s bf5c48b deepseek-v4-1-flash-260910 rc=0
+2026-09-17T15:26:03Z FALLBACK_LIMIT T-028 Pro 兜底单日上限已到（6/6），本轮不切 Pro，按限流失败处理
+2026-09-17T15:26:03Z RATE_LIMITED T-028 两个模型都限流（连续第 6 次），sleep 1800s
+2026-09-17T15:56:03Z WAKE OK T-028 gates.md 新增 REQUEST
+2026-09-17T16:04:15Z ROUND T-032 RATE_LIMITED 491s bf5c48b deepseek-v4-1-flash-260910 rc=1,dirty-worktree
+2026-09-17T16:04:15Z FALLBACK_LIMIT T-032 Pro 兜底单日上限已到（6/6），本轮不切 Pro，按限流失败处理
+2026-09-17T16:04:15Z RATE_LIMITED T-032 两个模型都限流（连续第 7 次），sleep 1800s
+2026-09-17T16:34:15Z LIMIT 达到每日上限 40，睡到 UTC 零点继续（不退出）
+2026-09-17T16:59:15Z STOP 驱动退出
+2026-09-17T16:59:42Z START 驱动启动 idle=600s round_timeout=2400s daily_limit=480 fallback_daily_limit=6 primary=deepseek-v4-1-flash-260910 fallback=deepseek-v4-pro
+2026-09-17T17:03:42Z ROUND T-033 FAIL 240s bf5c48b deepseek-v4-1-flash-260910 rc=143,dirty-worktree
+2026-09-17T17:03:42Z STOP 驱动退出
+2026-09-17T17:04:09Z START 驱动启动 idle=600s round_timeout=2400s daily_limit=480 fallback_daily_limit=6 primary=deepseek-v4-1-flash-260910 fallback=deepseek-v4-pro
