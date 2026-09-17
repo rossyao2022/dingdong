@@ -97,7 +97,7 @@
 - goal: 答题最后一题按钮由「保存并继续」改成「保存并完成」，与进入提交确认页的实际动作一致。
 - acceptance: 第 4/4 题按钮文案为「保存并完成」、第 1–3 题仍为「保存并下一题」；`cd frontend && npm run check && npm run test:unit` 通过；audit errors 为空；真实 Chrome 走到第 4 题截图到 `.trellis/tasks/T-011/shots/`。
 - gate: none
-- status: todo
+- status: doing
 - notes: 属第一批：commit 后可直接 push 并补 EXECUTED 行。
 
 ## T-012 P-09 「机器人指纹」文案去掉「指纹」二字

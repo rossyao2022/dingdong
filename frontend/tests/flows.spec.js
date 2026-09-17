@@ -101,7 +101,7 @@ test("用途授权、22题、合成输入、真实初始报告", async ({ page }
     await page.getByRole("radio").first().check();
     await page
       .getByRole("button", {
-        name: i === 22 ? "保存并继续" : "保存并下一题",
+        name: i === 22 ? "保存并完成" : "保存并下一题",
         exact: true,
       })
       .click();
@@ -322,7 +322,7 @@ test("探索四题、刷新恢复、返回修改、完成仅展示选择", async
     await page.getByRole("radio").first().check();
     await page
       .getByRole("button", {
-        name: i === 4 ? "保存并继续" : "保存并下一题",
+        name: i === 4 ? "保存并完成" : "保存并下一题",
         exact: true,
       })
       .click();

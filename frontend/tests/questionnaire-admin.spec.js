@@ -113,7 +113,7 @@ test("后台可视化创建、预览、发布、复制新版本", async ({ page,
     ).toBeVisible();
     await parent.getByRole("checkbox").first().check();
     await parent
-      .getByRole("button", { name: "保存并继续", exact: true })
+      .getByRole("button", { name: "保存并完成", exact: true })
       .click();
     await parent
       .getByRole("button", { name: "完成探索体验", exact: true })
