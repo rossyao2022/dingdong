@@ -90,8 +90,8 @@
 - goal: 提交期间给进行中提示（按钮文案如「登录中…」或轻量进度指示），避免家长以为按钮点空了反复点。
 - acceptance: 提交中按钮文案变化或出现可见进度指示（`aria-busy` 或等效可见态）；`cd frontend && npm run check && npm run test:unit` 通过；audit errors 为空；真实 Chrome 用 CDP `Network.emulateNetworkConditions`（latency 4000ms）复现并截图到 `.trellis/tasks/T-010/shots/`。
 - gate: none
-- status: todo
-- notes: 属第一批：commit 后可直接 push 并补 EXECUTED 行。
+- status: done
+- notes: 属第一批：commit 后可直接 push 并补 EXECUTED 行。**2026-09-17 执行结果**：`frontend/app.js` 新增 `busyButton(el, label)`（换文案 + `aria-busy` + `disabled`，返回恢复函数，恢复前判 `isConnected`），登录 `onsubmit` 改用它显示「登录中…」（原 `b.disabled=true/false` 两行移除，顺带消掉 `e.submitter` 为 null 时的未捕获 TypeError）；`frontend/client.css` 加 `.button[aria-busy="true"]` 转圈（`@keyframes busy-spin`）、`cursor: progress`，并把 disabled 的 `opacity` 从 0.5 提到 0.85（原淡化正是"按钮像死了"的观感来源）。新增 `frontend/tests/slow-network.spec.js` 2 条真实 Chrome 用例（CDP `Network.emulateNetworkConditions` latency 4000ms）：TDD 红为 `1 failed`（`Expected "登录中…" / Received "登录"`，14 次轮询按钮均为 `<button disabled ...>登录</button>`），改后 `2 passed (16.8s)`；加 390×844 截图后单条重跑 `1 passed (10.9s)`；回归 `tests/login-validation.spec.js` `4 passed (6.2s)`；`npm run check` exit 0、`test:unit` 16 pass 0 fail（71.6555ms）、`audit_documents.py` errors `[]`；截图 3 张在 `.trellis/tasks/T-010/shots/`。未跑全量 e2e：开工时 `/auth/sms` 同 IP 近 1 小时计数 39/50，全量必撞 429，数字不可采信。已按第一批直推 push：`5cf77b9..b3ebefc`，远端 sha `b3ebefc59f52924221082e11e70f35c85b8d700d`。
 
 ## T-011 P-08 最后一题按钮文案改成「保存并完成」
 - goal: 答题最后一题按钮由「保存并继续」改成「保存并完成」，与进入提交确认页的实际动作一致。
