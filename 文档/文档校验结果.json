@@ -1,8 +1,8 @@
 {
   "date": "2026-09-17",
   "scope": "本地文档链接、原始归档哈希/ZIP、提取产物、OpenAPI 引用与 operationId/路径参数；不验证远端链接、Office 版式或真实供应商协议。",
-  "markdown_files": 78,
-  "local_links_checked": 495,
+  "markdown_files": 80,
+  "local_links_checked": 497,
   "archived_files_checked": 85,
   "attachments": [
     {
@@ -136,6 +136,7 @@
     "PROJECT_MEMORY.md",
     "AGENTS.md",
     "项目分析.md",
+    "本地测试环境.md",
     "frontend/README.md",
     "文档/文档索引.md",
     "文档/文档处理记录_20260912.md",
@@ -176,6 +177,7 @@
     ".workbuddy/memory/2026-09-16.md",
     ".workbuddy/memory/2026-09-12.md",
     ".workbuddy/memory/2026-09-13.md",
+    ".workbuddy/memory/2026-09-17.md",
     "设计/API/初始化数据与闭环测试_V0.1.md",
     "设计/API/请求响应与字段字典_V0.1.md",
     "设计/API/前后端交互规范_V0.1.md",

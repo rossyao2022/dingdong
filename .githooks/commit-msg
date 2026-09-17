@@ -9,11 +9,17 @@ set -u
 msg_file="${1:-}"
 subject="$(head -n 1 "$msg_file" 2>/dev/null || true)"
 
-if printf '%s' "$subject" | grep -qE '\[R[0-9]+\]|\[T-[A-Za-z0-9._-]+\]'; then
+# 合并提交豁免（R0b 决定）：合并消息形如 "Merge branch ..."，没有也不该有任务 id。
+# 只豁免任务 id 这一项，其余检查（凭据文件 / 文档审计）照常走。
+case "$subject" in
+  Merge\ *) exit 0 ;;
+esac
+
+if printf '%s' "$subject" | grep -qE '\[R[0-9]+[A-Za-z]*\]|\[T-[A-Za-z0-9._-]+\]'; then
   exit 0
 fi
 
-echo "commit-msg 拒绝①：commit message 首行缺少任务 id（形如 [R0] 或 [T-<id>]）。" >&2
+echo "commit-msg 拒绝①：commit message 首行缺少任务 id（形如 [R0] / [R0b] / [T-<id>]）。" >&2
 echo "  首行内容：${subject:-（空）}" >&2
 echo "  可临时绕过：git commit --no-verify" >&2
 exit 1

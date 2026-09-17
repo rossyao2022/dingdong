@@ -106,7 +106,7 @@ Each `{TASK_DIR}/research/<topic>.md` should follow:
 
 ### External References
 
-- Library X docs (fill in its url) — <why relevant, version constraints>
+- [Library X docs](url) — <why relevant, version constraints>
 
 ### Related Specs
 

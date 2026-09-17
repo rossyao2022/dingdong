@@ -24,6 +24,12 @@ SKIP = {
     ".pytest_cache",
     ".pytest-tmp",
     "参考代码",
+    # 工具脚手架不是项目文档：Trellis 的 spec/记录、agent 平台目录都放行外
+    # （否则一篇 trellis 模板里的一句占位示例就会变成审计 error）。
+    ".trellis",
+    ".claude",
+    ".cursor",
+    ".grok",
 }
 
 
