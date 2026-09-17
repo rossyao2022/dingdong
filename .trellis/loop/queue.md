@@ -104,8 +104,8 @@
 - goal: 账户页把「机器人指纹 6948909c」改成不含「指纹」的说法（如「机器人标识（前 8 位）」），避免撞上「不采集真实指纹」的承诺。
 - acceptance: 账户页不再出现「指纹」字样且仍显示同一摘要前 8 位；`cd frontend && npm run check && npm run test:unit` 通过；audit errors 为空；真实 Chrome 截图到 `.trellis/tasks/T-012/shots/`。
 - gate: none
-- status: todo
-- notes: 只改家长端文案；运营端若也有同词，只在 report 记录，不在本任务改。属第一批：commit 后可直接 push 并补 EXECUTED 行。
+- status: done
+- notes: 只改家长端文案；运营端若也有同词，只在 report 记录，不在本任务改。属第一批：commit 后可直接 push 并补 EXECUTED 行。 **2026-09-17 执行结果**：`frontend/app.js` 两处改文案——`accountRow()` 账户行 note 改「机器人标识（前 8 位）」，`replaceRobotDialog()` 换机弹窗改「机器人标识前 8 位」（同一页同一流程，只改一处会留两种说法）；摘要值未动（仍为服务端 `token_fingerprint()` 的 `digest[:8]`）。新增 `frontend/tests/robot-label.spec.js` 1 条真实 Chrome 用例。TDD 红 `1 failed`（Received `…待接通机器人指纹 d542007b…`）→ 绿 `1 passed (9.0s)`，等 toast 收起后补拍干净截图 `1 passed (12.9s)`；`npm run check` exit 0、`test:unit` 16 pass 0 fail（77.74225ms）、`audit_documents.py` errors `[]`；全仓检索「机器人指纹」「（指纹」0 命中；截图 3 张在 `.trellis/tasks/T-012/shots/`。未跑 `ca-account.spec.js` 全量与 `flows.spec.js`：开工时 `/auth/sms` 同 IP 近 1 小时计数 48/50，等窗口滑到 46 才够跑 3 次登录（红 1 + 绿 2），已用检索替代。运营端 `ops/templates/ops/ca_accounts.html:99/:129` 仍有「指纹」字样，按 notes 只记录未改。已按第一批直推 push：`eabb0f2..9bfb49a`，远端 sha `9bfb49a4226ad58a40504d496cd669846bc6cb1d`。
 
 ## T-013 P-04 不再把内部 code `readable-v2` 给家长看
 - goal: 家长端答题页与运营端儿童详情不再直接显示内部 code `readable-v2`，改显示中文名 + 版本号（如「四个小情境：探索偏好体验（v2）」），原始 code 收进悬停提示。
