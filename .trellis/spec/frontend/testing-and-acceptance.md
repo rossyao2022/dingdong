@@ -30,6 +30,8 @@
 - 机器人凭据每次运行都要随机：后端对“活跃账户的机器人凭据”是**全局**唯一约束，写死 `e2e-token-0001` 这类固定串，第二轮会撞上第一轮留下的活跃号而全红（`tests/ca-account.spec.js` 顶部注释与 `frontend/README.md`）。
 - 用例会真实建家长/儿童/答卷/报告并**保留记录**；临时工作人员、临时发布题库在验收后停用而不是删除（`frontend/README.md`）。
 - 截图写到 `frontend/docs/`（例如 `tests/flows.spec.js` 的 `docs/m5-mobile-<route>.png`）。该目录不进版本库，正式证据以 `deploy/evidence/**` 为准。
+- **同一个 hash 的导航不会重渲染**：`to()` 只在 `location.hash` 变化时 `render()`，所以用例里 `page.goto("/#reports")` 在已经处于该 hash 时是空操作，点同一条导航链接也一样——**换数据后要 `page.reload()` 才看得到**（T-033 因此白跑两轮）。另有同源竞态：建档成功后应用会自己 `to("explore")`，用例若在响应到达后立刻导航，会被这次跳转覆盖，必须等目标页 heading 出现再走（`tests/companion-panel.spec.js` 的 `child()` 就是等「好奇心，准备出发！」）。
+- **证据型 spec 会改写别人任务目录下的图**：`tests/robot-account-row.spec.js` 直接重写 `.trellis/tasks/T-015/shots/*.png`（逐字节不同）。把别人的 spec 当回归跑完，这些图会变脏——按需 `git checkout -- .trellis/tasks/<id>/shots/` 复原，不要混进本轮提交。
 - 跑完若 `frontend/test-results` 堆积失败截图，Playwright 清理可能被本地批量删除保护拦下，用 `--output=/tmp/dingdong-pw-out` 指定输出目录绕开（`frontend/README.md`）。
 
 ## 公网验收

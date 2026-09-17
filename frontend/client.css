@@ -777,6 +777,30 @@ dialog::backdrop {
   background: #eef1f2;
   color: #5d6b6e;
 }
+/* 陪学伙伴面板：人设卡在上、互动健康度在下。健康度不是对孩子的评价，底部那句固定在面板里。 */
+.companion-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.companion-head h3 {
+  margin: 0;
+}
+.companion-state {
+  margin: 0 0 6px;
+}
+.companion-health {
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+.companion-health h3 {
+  margin: 0 0 12px;
+}
+.companion-panel .metric-list {
+  margin: 4px 0 12px;
+}
 @media (max-width: 1100px) {
   .sidebar {
     width: 205px;

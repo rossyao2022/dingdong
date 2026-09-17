@@ -38,6 +38,7 @@ uv run --no-sync --directory ../backend python manage.py inject_fixture --child-
 - 兴趣岛进入后端已发布活动；今日陪伴可筛选、开始、保存步骤、继续、完成或跳过。
 - 成长旅程显示真实活动记录和统计；儿童切换分别读取各自档案。
 - 测评固定服务端题库版本，答案逐题保存，刷新和再次登录可恢复会话；初始/阶段报告读取服务端版本。
+- 「测评与报告」的「陪学伙伴」面板展示当前人设与互动健康度四态（见下节）。
 - 账户页编辑儿童资料、管理用途授权和本地机器人关联、提交帮助/修正/删除事项。
 - 删除由后台技术人员执行；即使最后一个儿童被删除，家长账户页仍可查看去除儿童标识的回执。
 - 伙伴引导方式和朗读仅影响网页，未接入机器人配置功能。
@@ -127,3 +128,24 @@ npx playwright test tests/ca-account.spec.js --reporter=list  # 真实 Chrome 4 
 验收截图（真实 Chrome，隔离库）：`docs/ca-account-settings-desktop.png`（账户与关联 · 机器人账户）、`docs/ca-account-settings-mobile.png`（390px）、`docs/ca-account-replace-dialog.png`（换机确认）、`docs/ops/ca-account-list.png` 与 `docs/ops/ca-account-note.png`（运营后台只读页）。
 
 想在不碰共享演示库的情况下跑这组用例，见技能 `dingdong-local-browser-acceptance`（自建临时库 → 常驻起 8017/4173 → 跑用例 → 丢库）。
+
+## CA 对接 C2：陪学伙伴面板（人设 + 互动健康度，2026-09-18）
+
+「测评与报告」在「初始测评」卡之后、「已生成报告」之前新增**陪学伙伴**面板：上半是人设卡，下半是「互动健康度」。数据来自后端 `GET /api/v1/children/<child_id>/companion-persona` 与 `.../companion-health`（后端实现见 `backend/dingdong_ca/core/services/ca_display.py`），本目录只做呈现。
+
+- **四态分支**：`insufficient_data` 只说「还在收集互动数据，暂时不做判断。」；`normal` 显健康度分数与观察天数；`watch` 只出轻提示、**不出复测 CTA**；`reassess` 只出「建议重新测评」文案。四态里只有 `normal` 出现分数，其余连 0 都不显示。未知 `status` 落「不做判断」分支，不按 `normal` 展示。
+- **判定逻辑在 `companion.js`**：`personaSection()` / `healthSection()` 是纯函数（不碰 DOM），负责四态分支、是否显分、空态与错误态文案，由 `unit/companion.test.js` 盯住；`app.js` 只把返回值拼成 HTML。新增顶层 `.js` 要同步 `server.cjs` 的静态白名单（照 C1 那节）。
+- **文案纪律**：`match_score` 写「匹配度 n / 100」并注明由机器人服务产出、不是天赋分或能力分；`persona_type` 与 `trigger_reason` 的中文由后端下发（`type_label` / `trigger_label`），前端不维护映射表；`learning_style_tags` 原样展示英文 code；内部 code 不进正文。
+- **合成数据必须标**：`data_origin == "synthetic"` 时面板级挂 `testTag()`。`availability != "ready"`（含 `stale`）按后端给的说法显示，不显示任何数值——尤其不把 `not_synced`（服务没接通）说成「暂无数据」。
+- **复测 CTA 不在本面板的这一步**：`reassess` 态的回写闭环（按钮 → `response` → 承接测评 → `complete`）是后续任务，本面板只呈现四态本身。
+
+测试：
+
+```sh
+npm run check && npm run test:unit                              # 单测含 companion 18 项
+npx playwright test tests/companion-panel.spec.js --reporter=list   # 真实 Chrome 2 项
+```
+
+浏览器用例走 6 个 `ca_display_*` 合成场景（`inject_fixture --scenario ca_display_normal_art` 等）逐个截图到 `../.trellis/tasks/T-033/shots/`，覆盖未绑定态、四态文案与是否显分、390×844 不横向溢出、账户页只读人设行，并收集 `pageerror`。
+
+两个踩过的坑：**同一个 hash 的 `page.goto()` 与点导航不会触发重渲染**（`to()` 只在 hash 变化时 render），用例要真正 `page.reload()` 才看得到新注入的输入；建档成功后应用会自己 `to("explore")`，不等它落稳就导航会被覆盖。

@@ -9,6 +9,12 @@ import {
   retiredAccounts,
   stripBindingParams,
 } from "./ca-link.js";
+import {
+  HEALTH_FOOTER,
+  STALE_NOTICE,
+  healthSection,
+  personaSection,
+} from "./companion.js";
 const $ = (s) => document.querySelector(s);
 const esc = (v) =>
   String(v ?? "").replace(
@@ -403,6 +409,46 @@ function observationBlock(obs) {
   };
   return `<section class="panel"><div class="card-heading"><h2>${titles[obs.availability] || "行为观察"}</h2>${testTag()}</div>${["stale", "error"].includes(obs.availability) ? '<div class="notice error">同步未取得最新结果，已有数据不会当作最新数据展示。</div>' : ""}${metrics(obs.metrics)}<p class="note">最近成功同步：${date(obs.last_success_at)}</p>${obs.availability === "unbound" || obs.availability === "no_consent" ? '<a class="button secondary" href="#settings">管理关联与授权</a>' : ""}</section>`;
 }
+/** 面一 + 面三的空态/错误态正文：一句状态 + 可选的去向。 */
+function faceEmpty(view) {
+  return `<p class="companion-state"><b>${esc(view.title)}</b></p>${view.note ? `<p>${esc(view.note)}</p>` : ""}${view.settings ? '<a class="button secondary" href="#settings">管理关联与授权</a>' : ""}`;
+}
+function staleNotice(view) {
+  return view.stale ? `<div class="notice">${esc(STALE_NOTICE)}</div>` : "";
+}
+/** 面一：人设卡。后端已给中文 `type_label`，前端不维护映射表。 */
+function personaBlock(view) {
+  if (!view.showData)
+    return `<div class="companion-persona">${faceEmpty(view)}</div>`;
+  const p = view.persona;
+  const tags = (p.learning_style_tags || []).map(esc).join("、");
+  return `<div class="companion-persona"><div class="companion-head"><h3>${esc(p.persona_name)}</h3>${p.type_label ? `<span class="tag">${esc(p.type_label)}</span>` : ""}</div>${p.public_description ? `<p>${esc(p.public_description)}</p>` : ""}${view.matchScore === null ? "" : metrics([{ label: "匹配度", value: view.matchScore, unit: "/ 100" }])}<p class="note">匹配度是机器人服务按孩子的互动给出的（0–100），不是天赋分或能力分。</p>${tags ? `<p class="note">学习风格 code：${tags}（按对方学习风格 code 展示，暂无中文对照）。</p>` : ""}<p class="note">绑定于 ${date(view.binding?.bind_time)} · 权重版本 <span title="${esc(p.talent_weight_version)}">${esc(versionLabel(p.talent_weight_version))}</span></p>${staleNotice(view)}</div>`;
+}
+/** 面三：互动健康度四态。分数只在 `normal` 出现，且必须与观察天数一起给。 */
+function healthBlock(view) {
+  const state = `<p class="companion-state"><b>${esc(view.label)}</b></p>${view.note ? `<p>${esc(view.note)}</p>` : ""}`;
+  const facts = view.showScore
+    ? metrics([
+        { label: "健康度分数", value: view.score, unit: "/ 100" },
+        { label: "观察天数", value: view.observationDays, unit: "天" },
+      ])
+    : view.observationDays === null
+      ? ""
+      : `<p class="note">已观察 ${view.observationDays} 天。</p>`;
+  return `<div class="companion-health"><h3>互动健康度</h3>${view.showData ? state + (view.triggerLabel ? `<p class="note">机器人服务给出的原因：${esc(view.triggerLabel)}</p>` : "") + facts + staleNotice(view) : faceEmpty(view)}</div>`;
+}
+/**
+ * 「陪学伙伴」面板：人设卡在上、互动健康度在下。
+ *
+ * 复测 CTA（`health.status == "reassess"` 时的回写闭环）不在这里，见设计 §5 的 D
+ * 任务；本面板只呈现四态本身。
+ */
+function companionPanel(persona, health) {
+  const p = personaSection(persona);
+  const h = healthSection(health);
+  const badge = p.synthetic || h.synthetic ? testTag() : "";
+  return `<section class="panel companion-panel"><div class="card-heading"><h2>陪学伙伴</h2>${badge}</div>${personaBlock(p)}${healthBlock(h)}<p class="note">${esc(HEALTH_FOOTER)}</p></section>`;
+}
 function localValue(v) {
   const d = new Date(v);
   return new Date(d - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
@@ -527,12 +573,15 @@ async function render() {
         ) +
         `<article class="panel">${testTag()}<p class="note">生成于 ${date(r.generated_at)} · ${esc(r.template_version)}</p>${r.window ? `<p>观察窗口：${date(r.window.start)} — ${date(r.window.end)}</p>` : ""}${r.sections.map((s) => `<section class="report-section"><h2>${esc(s.title)}</h2>${s.paragraphs.map((p) => `<p>${esc(p)}</p>`).join("")}</section>`).join("")}<p class="notice">${esc(r.source_summary)}</p></article>`;
     } else if (route === "reports") {
-      const [reports, sessions, overview, catalog] = await Promise.all([
-        API.all(`/children/${child}/reports`),
-        API.all(`/children/${child}/assessments`),
-        API.request(`/children/${child}/growth-overview` + queryWindow()),
-        API.request("/assessment-config"),
-      ]);
+      const [reports, sessions, overview, catalog, companion, health] =
+        await Promise.all([
+          API.all(`/children/${child}/reports`),
+          API.all(`/children/${child}/assessments`),
+          API.request(`/children/${child}/growth-overview` + queryWindow()),
+          API.request("/assessment-config"),
+          API.request(`/children/${child}/companion-persona`),
+          API.request(`/children/${child}/companion-health`),
+        ]);
       if (
         overview.robot_observation.availability === "not_synced" ||
         overview.stage_status === "processing" ||
@@ -578,14 +627,16 @@ async function render() {
       );
       html =
         head("测评与报告", "初始测评、机器人观察与网页活动分别呈现。") +
-        `<div class="grid">${bankCards}${explorationCard}<div class="panel"><div class="card-heading"><h2>${active ? "本次测评尚未结束" : "初始测评"}</h2>${testTag()}</div><p>${active ? esc(statusNames[active.status]) : "正式算法与专业量表尚未接入。当前为日常情境测试题，只验证问卷和报告流程，不作专业结论。"}</p>${active ? button("continue-assessment", "继续本次测评", `data-id="${active.id}"`) : button("begin-assessment", "开始测评")}</div></div>${history.length ? `<section class="panel"><h2>已完成的探索体验</h2>${history.map((s) => button("continue-assessment", esc(s.title) + " · 查看选择", `data-id="${s.id}"`, true)).join("")}</section>` : ""}<h2 style="margin:28px 0 18px">已生成报告</h2>${reportCards(reports.reverse())}<h2 style="margin:30px 0 0">成长观察</h2>${windowForm()}<div class="grid">${observationBlock(overview.robot_observation)}<section class="panel"><h2>阶段画像与变化</h2><p>${{ no_data: "还没有可处理的观察记录。", waiting_rule: "观察已收到，等待发布处理规则。", processing: "正在处理最新观察。", ready: "当前观察已生成阶段画像。", failed: "处理暂未完成，请联系工作人员。" }[overview.stage_status]}</p>${overview.trend.available ? metrics(overview.trend.changes.map((m) => ({ label: m.code, value: m.delta, unit: m.unit }))) : '<p class="notice">目前没有兼容、相邻且等长的两期结果，暂不展示变化。</p>'}<p class="note">网页活动完成数不参与阶段画像计算。</p>${button("refresh", "刷新观察状态", "", true)}</section></div>`;
+        `<div class="grid">${bankCards}${explorationCard}<div class="panel"><div class="card-heading"><h2>${active ? "本次测评尚未结束" : "初始测评"}</h2>${testTag()}</div><p>${active ? esc(statusNames[active.status]) : "正式算法与专业量表尚未接入。当前为日常情境测试题，只验证问卷和报告流程，不作专业结论。"}</p>${active ? button("continue-assessment", "继续本次测评", `data-id="${active.id}"`) : button("begin-assessment", "开始测评")}</div></div>${companionPanel(companion, health)}${history.length ? `<section class="panel"><h2>已完成的探索体验</h2>${history.map((s) => button("continue-assessment", esc(s.title) + " · 查看选择", `data-id="${s.id}"`, true)).join("")}</section>` : ""}<h2 style="margin:28px 0 18px">已生成报告</h2>${reportCards(reports.reverse())}<h2 style="margin:30px 0 0">成长观察</h2>${windowForm()}<div class="grid">${observationBlock(overview.robot_observation)}<section class="panel"><h2>阶段画像与变化</h2><p>${{ no_data: "还没有可处理的观察记录。", waiting_rule: "观察已收到，等待发布处理规则。", processing: "正在处理最新观察。", ready: "当前观察已生成阶段画像。", failed: "处理暂未完成，请联系工作人员。" }[overview.stage_status]}</p>${overview.trend.available ? metrics(overview.trend.changes.map((m) => ({ label: m.code, value: m.delta, unit: m.unit }))) : '<p class="notice">目前没有兼容、相邻且等长的两期结果，暂不展示变化。</p>'}<p class="note">网页活动完成数不参与阶段画像计算。</p>${button("refresh", "刷新观察状态", "", true)}</section></div>`;
     } else if (route === "settings") {
-      const [consents, associations, receipts, accounts] = await Promise.all([
-        API.all(`/children/${child}/consents`),
-        API.all(`/children/${child}/associations`),
-        API.all("/data-requests"),
-        API.all(`/children/${child}/ca-accounts`),
-      ]);
+      const [consents, associations, receipts, accounts, companion] =
+        await Promise.all([
+          API.all(`/children/${child}/consents`),
+          API.all(`/children/${child}/associations`),
+          API.all("/data-requests"),
+          API.all(`/children/${child}/ca-accounts`),
+          API.request(`/children/${child}/companion-persona`),
+        ]);
       state.consents = consents;
       hints.accounts = accounts;
       html =
@@ -604,7 +655,7 @@ async function render() {
           })
           .join(
             "",
-          )}<p class="note">撤回会阻止后续处理；如果需要清除已有数据，请提交删除事项。</p></section>${robotPanel(accounts)}<section class="panel"><h2>机器人数据关联</h2>${
+          )}<p class="note">撤回会阻止后续处理；如果需要清除已有数据，请提交删除事项。</p></section>${robotPanel(accounts, companion)}<section class="panel"><h2>机器人数据关联</h2>${
           associations.some((a) => a.status === "verified")
             ? associations
                 .filter((a) => a.status === "verified")
@@ -713,9 +764,14 @@ function accountRow(a) {
     : `<span class="tag muted">${esc(ACCOUNT_STATUS.retired)}</span>`;
   return `<div class="account-row${fresh ? " is-new" : ""}"><span class="account-role">${active ? "当前机器人" : "上一台机器人"}</span><div class="account-body"><code class="inline-code">${esc(a.ca_account_id)}</code>${fresh ? '<span class="tag fresh">刚生成</span>' : ""}${tags}<p class="note">机器人标识（前 8 位）${esc(a.nfc_token_fingerprint)}${a.robot_ref ? " · 设备标识 " + esc(a.robot_ref) : ""} · 建立于 ${date(a.created_at)}${a.unbound_at ? " · 归档于 " + date(a.unbound_at) : ""}</p></div></div>`;
 }
-function robotPanel(rows) {
+function robotPanel(rows, companion = null) {
   const active = activeAccount(rows);
   const retired = retiredAccounts(rows);
+  // 只读人设行：人设由机器人服务下发，家长端不提供修改入口，取不到就不显示这一行。
+  const persona = personaSection(companion);
+  const companionLine = persona.showData
+    ? `<p class="note">当前陪学伙伴：<b>${esc(persona.persona.persona_name)}</b>${persona.persona.type_label ? " · " + esc(persona.persona.type_label) : ""}（只读，由机器人服务下发）</p>`
+    : "";
   const detected = hints.nfcToken
     ? `<div class="notice"><b>收到一台机器人的绑定请求</b><p>链接里带着这台机器人的凭据。确认绑定时凭据只用于这一次，不会留在浏览器地址里。</p><div class="actions">${button("bind-robot", "绑定这台机器人")}${button("drop-nfc", "这次不绑", "", true)}</div></div>`
     : "";
@@ -729,7 +785,7 @@ function robotPanel(rows) {
   const history = retired.length
     ? `<h3 style="margin-top:26px">上一台机器的账户</h3>${retired.map(accountRow).join("")}<p class="note">旧号归档后不再使用，也永远不会重发给别的机器人。这段时期的报告按孩子保存，在「测评与报告」里仍然看得到。</p>`
     : "";
-  return `<section class="panel"><div class="card-heading"><h2>机器人账户</h2>${testTag()}</div>${detected}<p>每台机器人配一个账户号，DingDong 侧按这个号交换这台机器人上属于 <b>${esc(state.child.name)}</b> 的观察数据。号由我方生成，对方只做不透明保存。</p>${current}${history}<p class="note">一台机器人只服务一个孩子；同一台机器人再次绑定会复用原来的号，不换号。它与下面的「机器人数据关联」是两件事：账户号是我们给机器人的身份，关联是我们本地确认数据算谁。</p></section>`;
+  return `<section class="panel"><div class="card-heading"><h2>机器人账户</h2>${testTag()}</div>${detected}<p>每台机器人配一个账户号，DingDong 侧按这个号交换这台机器人上属于 <b>${esc(state.child.name)}</b> 的观察数据。号由我方生成，对方只做不透明保存。</p>${current}${companionLine}${history}<p class="note">一台机器人只服务一个孩子；同一台机器人再次绑定会复用原来的号，不换号。它与下面的「机器人数据关联」是两件事：账户号是我们给机器人的身份，关联是我们本地确认数据算谁。</p></section>`;
 }
 function bindRobotDialog(token = "") {
   showDialog(
