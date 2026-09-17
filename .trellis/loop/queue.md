@@ -153,8 +153,8 @@
 - goal: 家长姓名为空时 5 处界面（家庭列表、家庭详情、儿童详情、CA 账户页、操作审计）统一回落到手机号或「（未填写姓名）」，不再显示内部账号 `parent-<uuid>`。
 - acceptance: 5 处均不再出现 `parent-` 前缀；优先复用「账号与权限」页既有先例；`cd backend && uv run pytest tests/test_ops_console.py tests/test_ops_audit_scope.py tests/test_ops_ca_accounts.py` 通过（含新增断言）；audit errors 为空；真实 Chrome 5 处各截图到 `.trellis/tasks/T-019/shots/`。
 - gate: none
-- status: todo
-- notes: 优先抽公共函数，别在 5 个模板各写一份。属第二批：commit 后可直接 push 并补 EXECUTED 行。**orchestrator 补充（2026-09-17T11:48Z）**：第 5 处「操作审计」包含其「对象」列的副行（家长未填姓名时同样回落），T-017 轮 worker 发现该副行仍显示 `parent-<uuid>`，一并纳入本任务回落范围，不另开任务。
+- status: done
+- notes: 优先抽公共函数，别在 5 个模板各写一份。属第二批：commit 后可直接 push 并补 EXECUTED 行。**orchestrator 补充（2026-09-17T11:48Z）**：第 5 处「操作审计」包含其「对象」列的副行（家长未填姓名时同样回落），T-017 轮 worker 发现该副行仍显示 `parent-<uuid>`，一并纳入本任务回落范围，不另开任务。**2026-09-17 执行结果**：给 `User` 加 `display_name` property（`name → 家长phone → username`），模板 `display_name` 过滤器、审计 `describe_target`、家庭标签 `_family_label` 三处共用；3 条新后端用例红 `3 failed, 57 deselected in 18.42s` → 绿 `60 passed in 192.05s`；真实 Chrome `1 passed (12.5s)` 5 处截图；`audit_documents.py` errors `[]`；`ruff check` All checks passed。已按第二批直推 push：`7ee99a7..2c00ac1`，远端 sha `2c00ac1d3208ac4e574eaebe21f7b0e0540ebc4f`。
 
 ## T-020 S-04 阶段画像/同步失败在家长端的可见性
 - goal: 用 `inject_fixture` 注入真实失败任务，验证阶段画像/数据同步失败在家长端是否可见；不可见则补可见性，可见则只记证据。
