@@ -5,7 +5,7 @@
 - [x] Plan
 - [x] Implement
 - [x] Verify
-- [ ] Finish
+- [x] Finish
 
 ## Plan（已完成）
 
@@ -53,6 +53,9 @@
 - 生产库未迁移（本轮只动本地库）；未 push（按 T-021 批复的直推规则，收尾提交后直接 push 并补 `EXECUTED` 行）。
 - `scopeEvent()`（`tests/reassessment-cta.spec.js`）不再是必需，未删（属 T-039 的过期截图刷新范围）。
 
-## 下一步
+## Finish（已完成）
 
-Finish：提交 + push + 补 `EXECUTED T-037 push` 行 + `status` 改 `done`。
+- 提交 `1f48144 [T-037] fix(ca): …`（22 文件 +627/−25）、`0849639 [T-037] chore(loop): 收尾记录`、`424ed21 [T-037] chore(loop): 补记 EXECUTED T-037 push`。
+- push `origin/codex/release-v0.3.6`：`677c769..0849639`（含此前未推的 `43a68e4` T-024 backlog）→ 远端 sha `08496397a84031719d608554abe1d8f248f4b8c3`；补记提交后分支头 `424ed2180ddb1f828126113f5c0e74e11ea6e994`。
+- `gates.md` 决定段补 `EXECUTED T-037 push …`；`queue.md` 的 T-037 `status` 改 `done` 并附执行结果；`status.md` 整文件重写（保留 `## 驱动告警` 原样）；`experiment-log.md` 追加一行。
+- 本任务 `gate: none`，无门禁申请。
