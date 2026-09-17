@@ -240,6 +240,31 @@ PY
   } >>"$STATUS"
 }
 
+# R0l 自愈：worker 中断（被杀/超时/限流）时任务会卡在 doing——驱动只取 todo 会永久跳过，
+# 队列顺序被破坏（2026-09-17 T-032 卡 doing、驱动错拿 T-033 事件的教训）。
+# 轮末结果为 FAIL/RATE_LIMITED 时，把仍停在 doing 的任务复位回 todo，让下一轮重取；
+# 连续失败 ≥2 次时随后仍会被标 blocked（blocked 优先，不冲突）。
+reset_stuck_doing() {
+  python3 - "$QUEUE" "$1" <<'PY'
+import re, sys
+
+queue, task = sys.argv[1:3]
+lines = open(queue, encoding="utf-8").read().splitlines()
+cur, out, reset = None, [], False
+for line in lines:
+    m = re.match(r"^##\s+(T-\d+)", line)
+    if m:
+        cur = m.group(1)
+    if cur == task and not reset and re.match(r"^-\s*status\s*[:：]\s*doing\b", line):
+        out.append("- status: todo")
+        reset = True
+        continue
+    out.append(line)
+open(queue, "w", encoding="utf-8").write("\n".join(out) + "\n")
+print("RESET" if reset else "NOOP")
+PY
+}
+
 # 门禁快照：两行——申请段 REQUEST 行的指纹、queue.md 里 blocked 任务 id 列表。
 loop_gate_snapshot() {
   python3 - "$GATES" "$QUEUE" <<'PY'
@@ -421,6 +446,14 @@ run_round() {
 
   case "$result" in
     FAIL | RATE_LIMITED)
+      # R0l 自愈：本轮未收口（被杀/超时/限流），任务若仍停在 doing 则复位回 todo，
+      # 否则驱动只取 todo 会永久跳过它（见 reset_stuck_doing 注释）。blocked 判定在后面，优先级更高。
+      local did_reset
+      did_reset="$(reset_stuck_doing "$task")"
+      if [ "$did_reset" = "RESET" ]; then
+        logline "RESET $task doing→todo（本轮未收口，复位供下一轮重取）"
+        say "$task 本轮未收口，doing→todo 复位，下一轮重取"
+      fi
       local fails
       fails="$(consecutive_failures "$task")"
       if [ "$fails" -ge 2 ]; then
