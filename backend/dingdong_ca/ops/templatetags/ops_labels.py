@@ -152,15 +152,17 @@ def job_retryable(value):
 
 @register.filter
 def display_name(value, fallback="系统"):
-    """安全地取一个账号的展示名：姓名 → 用户名 → 兜底文字。
+    """安全地取一个账号的展示名：姓名 →（家长）手机号 → 用户名 → 兜底文字。
 
     不要写成 `{{ user.name|default:user.username|default:"系统" }}`：
     default 的参数会被提前求值，user 为 None 时会抛 VariableDoesNotExist，
     把整个页面变成 500。审计记录的操作人是可空的，必须在这里兜住。
+    家长账号的 username 是 `parent-<uuid>` 内部标识，没填姓名时回落手机号，
+    不给运营看内部账号。
     """
     if value is None:
         return fallback
-    return getattr(value, "name", "") or getattr(value, "username", "") or fallback
+    return getattr(value, "display_name", "") or fallback
 
 
 @register.filter

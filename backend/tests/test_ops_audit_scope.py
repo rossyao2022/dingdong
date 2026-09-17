@@ -217,7 +217,7 @@ def test_audit_object_column_shows_chinese_target_names():
     from dingdong_ca.core.api.common import audit
     from dingdong_ca.core.models import LoginGrant
 
-    # 家长没填姓名时，describe_target 会退到内部账号名，正是线上那条记录的形状
+    # 家长没填姓名时 describe_target 会借关联家长的名字，正是线上那条记录的形状
     _, _, parent = make_family(child_name="对象词条儿童", parent_name="")
     grant = LoginGrant.objects.create(
         user=parent,
@@ -232,6 +232,28 @@ def test_audit_object_column_shows_chinese_target_names():
     assert "登录凭据" in rows
     for raw in ("login_grant", "login grant"):
         assert raw not in rows, f"审计表格出现了内部码 {raw}"
+
+
+def test_audit_object_subline_parent_name_falls_back_to_phone():
+    """审计「对象」列副行里，家长没填姓名时回落手机号，不显示 parent-<uuid>。"""
+    from django.utils import timezone
+
+    from dingdong_ca.core.api.common import audit
+    from dingdong_ca.core.models import LoginGrant
+
+    _, _, parent = make_family(child_name="副行儿童", parent_name="")
+    grant = LoginGrant.objects.create(
+        user=parent,
+        current_refresh_jti=uuid.uuid4(),
+        expires_at=timezone.now() + timezone.timedelta(days=1),
+    )
+    audit(parent, "auth.login", grant)
+
+    body = ops_client(make_staff("account_admin")).get("/ops/audit/").content.decode()
+    rows = body.split("<tbody>", 1)[1].split("</tbody>", 1)[0]
+    assert "parent-" not in rows
+    assert parent.username not in rows
+    assert parent.phone in rows
 
 
 def test_audit_object_label_translates_model_names():

@@ -549,6 +549,22 @@ def test_ops_pages_do_not_leak_json_or_uuid_only_ui():
     assert "created_by" not in body
 
 
+def test_parent_without_name_falls_back_to_phone_not_internal_account():
+    """家长没填姓名时，家庭列表/详情/儿童详情显示手机号，不显示 parent-<uuid>。"""
+    family, children, parent = make_family(parent_name="")
+    client = ops_client(make_staff("operations"))
+
+    for url in [
+        reverse("ops:families"),
+        reverse("ops:family_detail", args=[family.pk]),
+        reverse("ops:child_detail", args=[children[0].pk]),
+    ]:
+        body = client.get(url).content.decode()
+        assert "parent-" not in body, url
+        assert parent.username not in body, url
+        assert parent.phone in body, url
+
+
 def test_child_status_filter_and_counts():
     family, children, parent = make_family(children=3)
     Child.objects.filter(pk=children[0].pk).update(status="archived")

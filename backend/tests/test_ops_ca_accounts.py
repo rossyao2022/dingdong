@@ -49,6 +49,18 @@ def test_page_lists_account_without_leaking_token():
     assert account.nfc_token_hash[:8] in body
 
 
+def test_parent_without_name_shows_phone_not_internal_account():
+    """CA 账户页「绑定家长」列：家长没填姓名时回落手机号，不显示 parent-<uuid>。"""
+    account, child, parent = seed_account()
+    parent.name = ""
+    parent.save(update_fields=["name"])
+    staff = ops_client(make_staff("operations"))
+    body = staff.get("/ops/ca-accounts/").content.decode()
+    assert "parent-" not in body
+    assert parent.username not in body
+    assert parent.phone in body
+
+
 def test_page_filters_by_status_bind_state_and_keyword():
     kept, kept_child, _parent = seed_account(child_name="小满")
     gone, _child, _ = seed_account(
