@@ -634,7 +634,7 @@ async function render() {
     } else if (route === "services") {
       html =
         head("家长支持", "不急着下结论，先陪孩子多看一眼、多试一次。") +
-        `<div class="grid"><article class="panel"><h2>陪伴时，可以这样做</h2><p>把指令换成邀请：“要不要一起试试看？”</p><p>先问孩子看到了什么，再说自己的观察。</p><p>活动没有做完也没关系，允许休息、跳过与重新尝试。</p></article><article class="panel"><h2>如何阅读成长记录</h2><p>网页活动是家庭自报记录。机器人行为观察与测评报告使用各自的来源，不能直接混成一个分数。</p><p>当前报告全部是合成测试结果，不应用来评价孩子。</p><a class="button secondary" href="#settings">服务与数据处理</a></article></div>`;
+        `<div class="grid"><article class="panel"><h2>陪伴时，可以这样做</h2><p>把指令换成邀请：“要不要一起试试看？”</p><p>先问孩子看到了什么，再说自己的观察。</p><p>活动没有做完也没关系，允许休息、跳过与重新尝试。</p></article><article class="panel"><h2>如何阅读成长记录</h2><p>网页活动是家庭自报记录。机器人行为观察与测评报告使用各自的来源，不能直接混成一个分数。</p><p>当前报告全部是合成测试结果，不应用来评价孩子。</p><a class="button secondary" href="#settings">服务与数据处理</a></article></div><p class="note" data-source-credit>${SOURCE_CREDIT}</p>`;
     } else {
       html = empty(
         "没有找到这个页面",
@@ -693,6 +693,14 @@ const ROBOT_JOIN_NOTE =
   "账户号已经生成，但机器人还没有确认接通（显示「待接通」）。在对方确认之前，这台机器人的数据不会开始同步——不用重复提交，也不影响网页陪伴。";
 const ROBOT_REPLACEMENT_IMPACT =
   "换号之后，DingDong 侧按账户号记录的成长周期和阶段对比不会延续到新号：新号从第一次同步开始重新积累。已经生成的报告按孩子保存，换机后仍然可以查看。";
+/**
+ * 视觉与插画来源声明。
+ *
+ * 沿用范围只限视觉与插画，业务逻辑是本项目实现的——别写成整体复用参考项目，
+ * 那是另一回事（见 `frontend/README.md`）。参考提交变了这里要跟着改。
+ */
+const SOURCE_CREDIT =
+  "界面沿用参考项目 d754a5bf9ea8e71ca64a850d2e26aa321fe8ab38 的兴趣岛、伙伴插画与视觉布局；业务逻辑为本项目实现，参考项目未修改。";
 
 function accountRow(a) {
   const active = a.status === "active";
