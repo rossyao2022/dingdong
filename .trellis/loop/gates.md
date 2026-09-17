@@ -39,3 +39,4 @@ EXECUTED T-005 push 按决定段「第一批与第二批每完成一个任务 co
 
 EXECUTED T-006 push 按决定段「第一批每完成一个任务 commit 后可直接 push origin/codex/release-v0.3.6，不必逐条申请」执行：`git push origin codex/release-v0.3.6` → `f07a7c7..876b2dd`，远端 sha `876b2dd9d031650e57e576ea7fc6b8d04a1beae7`（`[T-006]` 修复提交；收尾记录提交紧随其后同一轮再推）2026-09-17T07:05Z
 EXECUTED T-022 push 成功：`git push origin codex/release-v0.3.6` → `dbf2870..2cfca23`，远端 sha `2cfca23e404794ff8f13cc3243c31e4c56bf4568`（按 T-022 notes 的机制任务直推规则执行，未另开 REQUEST；收尾记录提交紧随其后同一轮再推）2026-09-17T07:22Z
+EXECUTED T-022 push（第二次，收尾记录提交）：`git push origin codex/release-v0.3.6` → `2cfca23..b55244d`，远端 sha `b55244de32456feb019e34f8ed4d57cc955d19df`（本条记录提交自身随后同一轮再推，分支头以 origin 为准）2026-09-17T07:24Z
