@@ -125,8 +125,8 @@
 - goal: 儿童详情页加一行只读「机器人账户」（账户号 + 绑定状态 + 跳 CA 账户页），运营排查同步问题时不必切页按手机号搜。
 - acceptance: 有账户时儿童详情出现账户号与绑定状态、无账户时显示空态；`cd backend && uv run pytest tests/test_ops_console.py tests/test_ops_ca_accounts.py` 通过；audit errors 为空；真实 Chrome 打开儿童详情截图到 `.trellis/tasks/T-015/shots/`。
 - gate: none
-- status: todo
-- notes: 只读展示，不动契约与数据模型。属第一批：commit 后可直接 push 并补 EXECUTED 行。
+- status: done
+- notes: 只读展示，不动契约与数据模型。属第一批：commit 后可直接 push 并补 EXECUTED 行。 **2026-09-17 执行结果**：`ops/services.py` `child_bundle()` 增 `ca_account`（该孩子活跃号，无则 None）与 `retired_accounts`（换机后旧号计数），`ops/views.py` `child_detail()` 传入模板；`child_detail.html` 「基本信息」加一行「机器人账户」——有活跃号显示 `ca_account_id` + 绑定状态词条 + 状态词条 + 「在 CA 账户页查看」（`/ops/ca-accounts/?q=<账户号>`）+ 接通口径说明，无活跃号显示「还没有机器人账户」空态（有旧号时附「已归档 N 个旧号」）。TDD 红 `2 failed, 37 deselected in 18.27s` → 绿 `2 passed, 37 deselected in 19.24s`；验收文件 `46 passed in 156.21s (0:02:36)`（格式整理后复跑 `46 passed in 154.39s (0:02:34)`）；新增 `frontend/tests/robot-account-row.spec.js` 1 条真实 Chrome 用例 `1 passed (10.7s)`（含点链接落 `/ops/ca-accounts/?q=…` 筛选结果、空态、390×844 窄屏），截图 5 张在 `.trellis/tasks/T-015/shots/`；`npm run check` exit 0、`test:unit` 16 pass 0 fail（74.191417ms）、`audit_documents.py` errors `[]`、`manage.py check` 无问题、`ruff check .` All checks passed；Chrome 合成数据清理核对全 0。同文件内顺手修掉 T-013 遗留的 ruff `I001`（一行 import 排序），存量 `tests/test_ops_audit_scope.py` 的 format 遗留未动，理由见 report。已按第一批直推 push：`0a77472..f9287bc`，远端 sha `f9287bcd4b572c8b634c1bea2e77262efdab8dcd`。
 
 ## T-016 P-03 授权同意框补齐四要素（保留「合成测试」标注）
 - goal: 测评授权同意框补齐四要素（处理目的 / 数据范围 / 数据去向含 DingDong 侧 / 保留与撤回后果），保留「[合成测试]」标注，并点明已有「撤回授权」入口。
