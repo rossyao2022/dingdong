@@ -28,6 +28,6 @@
 - goal: 以家长用户第一视角走一遍家长端（`http://127.0.0.1:4173/`，任意手机号 + 验证码 `00000`）与运营后台（`http://127.0.0.1:8017/ops/`，`admin` / `dingdong-admin`），结合 `PROJECT_MEMORY.md`、`需求/`、`设计/`，产出 `.trellis/tasks/T-003/backlog.md`。
 - acceptance: backlog.md 每项含「用户在哪一步卡/困惑/不信任 / 现状 / 建议改法 / 完善还是扩散 / 工作量档位」；「完善/扩散」判据写成：不新增对对方接口的依赖、不改契约边界、不改数据模型语义；稳定性问题单列一节（错误态、空数据态、网络慢/断、celery 失败可见性、e2e 因本地数据漂移失败的 4 项）；只产出文档、不改任何代码；本任务 `status` 为 `gated`，`gates.md` 有 `REQUEST T-003 review ...`。
 - gate: review
-- status: todo
-- notes: 已知候选先放进去——人设/成长报告/健康度四态/复测 CTA 四个展示面（mock 数据源，判定标准见 `设计/CA对接_C1_ca_account_id设计_20260916.md` §7）、授权血缘声明（`frontend/README.md` + `参考代码/来源说明.md`，来源 commit `d754a5bf`）、PR #1 转 draft。明确排除：`PROJECT_MEMORY.md` 里列的 8 个出站接口、主动解绑、发版部署。走产品体验需真实浏览器，遵守仓库浏览器验收纪律。
+- status: gated
+- notes: 已知候选先放进去——人设/成长报告/健康度四态/复测 CTA 四个展示面（mock 数据源，判定标准见 `设计/CA对接_C1_ca_account_id设计_20260916.md` §7）、授权血缘声明（`frontend/README.md` + `参考代码/来源说明.md`，来源 commit `d754a5bf`）、PR #1 转 draft。明确排除：`PROJECT_MEMORY.md` 里列的 8 个出站接口、主动解绑、发版部署。走产品体验需真实浏览器，遵守仓库浏览器验收纪律。**2026-09-17 执行结果**：backlog.md 已产出（家长端 9 条 / 运营端 5 条 / 缺口 3 条 / 稳定性 5 条），4 张截图在 `.trellis/tasks/T-003/shots/`；坐实 1 个真缺陷（CA 账户页跨行 `{# #}` 注释被渲染成正文，根因 `tag_re` 无 DOTALL）与 1 处家长端报错文案未本地化（422 透传 `ErrorDetail(...)`）；只读审计，未改代码，本地库新增 1 条 CaAccount（`ca_01M2PZQM5RNBPNVQXJ5CXEWDMN`，合成凭据）+ 1 份探索答卷 + 1 条授权，明细见 backlog 第六节。
 
