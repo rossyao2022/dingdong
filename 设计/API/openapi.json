@@ -14964,6 +14964,103 @@
           "naturalistic"
         ]
       },
+      "GrowthDimensionLabels": {
+        "type": "object",
+        "description": "八维成长代理的中文名；键与 GrowthDimensions 同序同集",
+        "additionalProperties": false,
+        "properties": {
+          "linguistic": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "该维度的中文名（映射表在后端）；未知码为 null，界面不猜",
+            "examples": [
+              "语言成长代理"
+            ]
+          },
+          "logical": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "该维度的中文名（映射表在后端）；未知码为 null，界面不猜",
+            "examples": [
+              "逻辑成长代理"
+            ]
+          },
+          "musical": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "该维度的中文名（映射表在后端）；未知码为 null，界面不猜",
+            "examples": [
+              "音乐成长代理"
+            ]
+          },
+          "spatial": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "该维度的中文名（映射表在后端）；未知码为 null，界面不猜",
+            "examples": [
+              "空间成长代理"
+            ]
+          },
+          "bodily": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "该维度的中文名（映射表在后端）；未知码为 null，界面不猜",
+            "examples": [
+              "实践成长代理"
+            ]
+          },
+          "intrapersonal": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "该维度的中文名（映射表在后端）；未知码为 null，界面不猜",
+            "examples": [
+              "自我认知成长代理"
+            ]
+          },
+          "interpersonal": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "该维度的中文名（映射表在后端）；未知码为 null，界面不猜",
+            "examples": [
+              "人际成长代理"
+            ]
+          },
+          "naturalistic": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "该维度的中文名（映射表在后端）；未知码为 null，界面不猜",
+            "examples": [
+              "自然成长代理"
+            ]
+          }
+        },
+        "required": [
+          "linguistic",
+          "logical",
+          "musical",
+          "spatial",
+          "bodily",
+          "intrapersonal",
+          "interpersonal",
+          "naturalistic"
+        ]
+      },
       "GrowthCycleView": {
         "type": "object",
         "description": "面二：固定 15/30 天的周期成长报告。与任意区间的「成长观察」是两份数据、两个来源，不合并",
@@ -15079,6 +15176,17 @@
               }
             ]
           },
+          "growth_dimension_labels": {
+            "description": "八维的中文名，键与 growth_dimensions 同序同集；映射表在后端，界面不维护第二套",
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/GrowthDimensionLabels"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "algorithm_version": {
             "type": [
               "string",
@@ -15111,6 +15219,7 @@
           "companion",
           "engagement",
           "growth_dimensions",
+          "growth_dimension_labels",
           "algorithm_version",
           "generated_at"
         ]

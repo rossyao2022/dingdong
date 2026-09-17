@@ -50,6 +50,20 @@ GROWTH_DIMENSIONS = (
     "naturalistic",
 )
 
+# 八维的中文名（对方 `*_growth` 字段注释：语言 / 逻辑 / 音乐 / 空间 / 实践 /
+# 自我认知 / 人际 / 自然成长代理）。与 `stage_label` 同一做法：映射表在后端，
+# 前端不维护第二套；键集与 `GROWTH_DIMENSIONS` 一致。
+GROWTH_DIMENSION_LABELS = {
+    "linguistic": "语言成长代理",
+    "logical": "逻辑成长代理",
+    "musical": "音乐成长代理",
+    "spatial": "空间成长代理",
+    "bodily": "实践成长代理",
+    "intrapersonal": "自我认知成长代理",
+    "interpersonal": "人际成长代理",
+    "naturalistic": "自然成长代理",
+}
+
 PERIODS = {"15d": 15, "30d": 30}
 # 健康度四态。表 3.6 的枚举漏了 insufficient_data（表 7.1 H01 会产出它），
 # 这里以表 7.1 为准；未知取值一律落到"不做判断"分支。
@@ -283,6 +297,10 @@ def _growth_out(payload):
         "growth_dimensions": {
             key: (payload.get("growth_dimensions") or {}).get(key) for key in GROWTH_DIMENSIONS
         },
+        # 八维中文名，键与 `growth_dimensions` 同序同集；前端不硬编码映射。
+        "growth_dimension_labels": {
+            key: GROWTH_DIMENSION_LABELS.get(key) for key in GROWTH_DIMENSIONS
+        },
         "algorithm_version": payload.get("algorithm_version"),
         "generated_at": payload.get("generated_at"),
     }
@@ -296,6 +314,7 @@ def growth_view(child, days):
         "companion": None,
         "engagement": None,
         "growth_dimensions": None,
+        "growth_dimension_labels": None,
         "algorithm_version": None,
         "generated_at": None,
     }

@@ -727,6 +727,35 @@ def test_growth_dimensions_keep_fixed_order_and_missing_stay_null(client):
     assert body["algorithm_version"] == "growth_v1"
 
 
+def test_growth_dimension_labels_come_from_backend_in_fixed_order(client):
+    """八维中文名由后端下发（与 `stage_label` 同一做法），键与八维同序同集。"""
+    child, account_id = ready_child(client)
+    payload = fixtures.growth_payload(
+        persona_id="persona_art_01",
+        match_score=82,
+        days=15,
+        start="2026-09-01",
+        end="2026-09-15",
+        companion_start=12,
+        companion_end=47,
+        index=58.31,
+        stage="developing",
+        progress=55,
+        dimensions=[64, None, 66, None, 44, 57, 51, 42],
+        generated_at="2026-09-16T00:10:00+08:00",
+        profile_id="profile_under_test",
+    )
+    put_fixture(account_id, fixtures.GROWTH_KIND, payload)
+
+    body = read(client, GROWTH, child).json()
+    labels = body["growth_dimension_labels"]
+    assert list(labels) == list(fixtures.GROWTH_DIMENSIONS)
+    assert labels["linguistic"] == "语言成长代理"
+    assert labels["bodily"] == "实践成长代理"
+    assert labels["naturalistic"] == "自然成长代理"
+    assert all(labels.values())
+
+
 def test_health_view_maps_trigger_reason_to_chinese(client):
     child, _ = ready_child(client, "ca_display_reassess")
     health = read(client, HEALTH, child).json()["health"]

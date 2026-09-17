@@ -2,8 +2,9 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import {
-  DIMENSIONS,
+  DIMENSION_KEYS,
   DIMENSION_MISSING,
+  DIMENSION_UNKNOWN,
   NO_PERIOD_DATA,
   PERIOD_INCOMPLETE,
   PROXY_NOTE,
@@ -21,6 +22,18 @@ const DIMS = {
   naturalistic: 42,
 };
 
+/** 中文名由后端下发（与 `stage_label` 同一做法），前端不硬编码。 */
+const LABELS = {
+  linguistic: "语言成长代理",
+  logical: "逻辑成长代理",
+  musical: "音乐成长代理",
+  spatial: "空间成长代理",
+  bodily: "实践成长代理",
+  intrapersonal: "自我认知成长代理",
+  interpersonal: "人际成长代理",
+  naturalistic: "自然成长代理",
+};
+
 const growthData = (over = {}) => ({
   availability: "ready",
   data_origin: "synthetic",
@@ -36,6 +49,7 @@ const growthData = (over = {}) => ({
   companion: { start: 12, end: 47, delta: 35 },
   engagement: { index: 58.31, stage: "developing", stage_progress: 55, stage_label: "成长" },
   growth_dimensions: DIMS,
+  growth_dimension_labels: LABELS,
   algorithm_version: "growth_v1",
   generated_at: "2026-09-16T00:10:00+08:00",
   ...over,
@@ -56,16 +70,29 @@ test("面二：ready 时给出周期、陪伴值增长、阶段与八维", () =>
   assert.equal(view.stageProgress, 55);
 });
 
-test("面二：八维按固定顺序给出，维度名是中文", () => {
+test("面二：八维按固定顺序给出，维度名取后端下发的中文", () => {
   const view = growthCycleSection(growthData());
-  assert.deepEqual(
-    view.dimensions.map((d) => d.key),
-    DIMENSIONS.map((d) => d.key),
-  );
+  assert.deepEqual(view.dimensions.map((d) => d.key), [...DIMENSION_KEYS]);
   assert.equal(view.dimensions[0].label, "语言成长代理");
   assert.equal(view.dimensions[0].value, 64);
   assert.equal(view.dimensions[7].label, "自然成长代理");
   assert.equal(view.dimensions[7].value, 42);
+});
+
+test("面二：后端没给该维中文名时给兜底说法，不把英文 code 当维度名", () => {
+  const view = growthCycleSection(
+    growthData({ growth_dimension_labels: { ...LABELS, logical: null } }),
+  );
+  assert.equal(view.dimensions.find((d) => d.key === "logical").label, DIMENSION_UNKNOWN);
+  assert.notEqual(view.dimensions.find((d) => d.key === "logical").label, "logical");
+  assert.equal(view.dimensions[0].label, "语言成长代理");
+});
+
+test("面二：整块没给中文名时不崩，八维仍按固定顺序给出", () => {
+  const view = growthCycleSection(growthData({ growth_dimension_labels: null }));
+  assert.equal(view.dimensions.length, 8);
+  assert.deepEqual(view.dimensions.map((d) => d.label), Array(8).fill(DIMENSION_UNKNOWN));
+  assert.equal(view.dimensions[0].value, 64);
 });
 
 test("面二：缺失维度给 null 并标「本周期无该维度数据」，不补 0、不插值", () => {

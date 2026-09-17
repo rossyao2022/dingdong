@@ -157,7 +157,7 @@ npx playwright test tests/companion-panel.spec.js --reporter=list   # 真实 Chr
 - **两份数据、两个来源，不合并**：本面板是对方的 `growth_period`（固定 15 / 30 天，非正式算法、非家庭自报）；「成长观察」是我方观察记录 + 任意窗口，保持原样不动。面板内只给「15 天 / 30 天」两个固定 Tab，**不提供任意日期区间**——任意区间归「成长观察」。
 - **Tab 状态在 `state.growthPeriod`**：默认 `15d`，切 Tab 走 `data-action="growth-period"` 重新取该周期的报告。它是模块级状态，所以 `page.reload()` 会把它复位（浏览器用例每次重载后都要重新点 Tab）。
 - **判定逻辑在 `growth-cycle.js`**：`growthCycleSection()` 是纯函数（不碰 DOM），负责空态/错误态文案、哪些数值能显示、八维顺序与缺失维度，由 `unit/growth-cycle.test.js` 盯住；可用性文案与陈旧提示直接复用 `companion.js` 的 `AVAILABILITY_TEXT` / `STALE_NOTICE`，同一件事不出现两种说法。
-- **八维成长代理**：按固定顺序渲染条形（原生 `<progress>`），某一维为 `null` 时该行显示「本周期无该维度数据」，**不补 0、不插值**（值为 `0` 是数据，照常显示）；区块下方固定标注「成长代理（对方算法产出，不是 CA 原始天赋分）。」。中文维度名取对方字段注释（`材料/可检索文本/DingDong_CA_数据库字段与接口.md` 的 `*_growth` 行）——对方契约里只有英文键，没有下发中文名，所以这张表在前端而不是后端。
+- **八维成长代理**：按固定顺序渲染条形（原生 `<progress>`），某一维为 `null` 时该行显示「本周期无该维度数据」，**不补 0、不插值**（值为 `0` 是数据，照常显示）；区块下方固定标注「成长代理（对方算法产出，不是 CA 原始天赋分）。」。**中文维度名由后端 `growth_dimension_labels` 下发**（键与 `growth_dimensions` 同序同集，映射表在 `ca_display.py`，与 `type_label` / `stage_label` 同一做法，见 T-039）；前端只保留八维的固定**键顺序** `DIMENSION_KEYS`，不再维护第二套中文映射，后端没给该维名字时兜底「未识别维度」、不把英文 code 当维度名显示。
 - **空态分两句**：`reason == "period_incomplete"`（绑定不满 15 天）说「成长周期还没走完，满 15 天后会生成第一份周期报告。」；其余 `no_data` 说「这个周期还没有报告。」。真源模式下 404 只带回业务码 `40401`，区分不出两者，会落到后一句（只有合成模式会给 `period_incomplete`）。
 - **合成徽标与数值纪律同 C2**：`data_origin == "synthetic"` 时面板级挂 `testTag()`；`availability` 不是 `ready` / `stale` 时不显示任何数值（连 0 都不显示），也不出八维条形。`stale` 照常显示上次成功的数据并标注。
 - **不展示的字段**：`engagement.index`（互动参与指数）与 `period.days` 的原始字段名不进界面——设计 §1.2 的展示规则只要求 `companion.delta`、`engagement.stage` + `stage_progress` 与八维。
@@ -165,7 +165,7 @@ npx playwright test tests/companion-panel.spec.js --reporter=list   # 真实 Chr
 测试：
 
 ```sh
-npm run check && npm run test:unit                                  # 单测含 growth-cycle 17 项
+npm run check && npm run test:unit                                  # 单测含 growth-cycle 19 项
 npx playwright test tests/growth-cycle-panel.spec.js --reporter=list # 真实 Chrome 1 项（11 步走查）
 ```
 

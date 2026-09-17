@@ -17,19 +17,19 @@ export { STALE_NOTICE };
 const USABLE = new Set(["ready", "stale"]);
 
 /**
- * 八维成长代理的固定顺序与中文名。顺序与后端 `GROWTH_DIMENSIONS` 一致；
- * 中文名取对方字段注释（`材料/可检索文本/DingDong_CA_数据库字段与接口.md`
- * 的 `*_growth` 行：语言/逻辑/音乐/空间/实践/自我认知/人际/自然成长代理）。
+ * 八维成长代理的固定顺序（键）。顺序与后端 `GROWTH_DIMENSIONS` 一致；
+ * 中文名一律由后端 `growth_dimension_labels` 下发（与 `stage_label` 同一做法），
+ * 前端不维护第二套映射。
  */
-export const DIMENSIONS = [
-  { key: "linguistic", label: "语言成长代理" },
-  { key: "logical", label: "逻辑成长代理" },
-  { key: "musical", label: "音乐成长代理" },
-  { key: "spatial", label: "空间成长代理" },
-  { key: "bodily", label: "实践成长代理" },
-  { key: "intrapersonal", label: "自我认知成长代理" },
-  { key: "interpersonal", label: "人际成长代理" },
-  { key: "naturalistic", label: "自然成长代理" },
+export const DIMENSION_KEYS = [
+  "linguistic",
+  "logical",
+  "musical",
+  "spatial",
+  "bodily",
+  "intrapersonal",
+  "interpersonal",
+  "naturalistic",
 ];
 
 /** 固定两个 Tab；任意区间由既有「成长观察」承担，不是同一份数据。 */
@@ -40,6 +40,9 @@ export const PERIODS = [
 
 /** 某一维本周期为空时的说法（设计 §1.2：不补 0、不插值）。 */
 export const DIMENSION_MISSING = "本周期无该维度数据";
+
+/** 后端没给该维中文名时的兜底；不把英文 code 当维度名显示。 */
+export const DIMENSION_UNKNOWN = "未识别维度";
 
 /** 八维的性质标注（设计 §1.2），与「网页活动是家庭自报记录」同一纪律。 */
 export const PROXY_NOTE = "成长代理（对方算法产出，不是 CA 原始天赋分）。";
@@ -53,11 +56,11 @@ export const STAGE_UNKNOWN = "机器人服务下发的阶段名暂不可识别�
 
 const finite = (v) => (Number.isFinite(v) ? v : null);
 
-/** 八维按固定顺序转成行；缺失维度给 null，不补 0、不插值。 */
-export function dimensionRows(dimensions) {
-  return DIMENSIONS.map(({ key, label }) => ({
+/** 八维按固定顺序转成行；缺失维度给 null，不补 0、不插值。中文名取后端下发。 */
+export function dimensionRows(dimensions, labels) {
+  return DIMENSION_KEYS.map((key) => ({
     key,
-    label,
+    label: labels?.[key] || DIMENSION_UNKNOWN,
     value: finite(dimensions?.[key]),
   }));
 }
@@ -121,7 +124,7 @@ export function growthCycleSection(data) {
     stageLabel: engagement.stage_label || null,
     stageProgress: finite(engagement.stage_progress),
     stageNote: engagement.stage_label ? null : STAGE_UNKNOWN,
-    dimensions: dimensionRows(data.growth_dimensions),
+    dimensions: dimensionRows(data.growth_dimensions, data.growth_dimension_labels),
     algorithmVersion: data.algorithm_version || null,
     generatedAt: data.generated_at || null,
   };
