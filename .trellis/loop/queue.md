@@ -28,6 +28,125 @@
 - goal: 以家长用户第一视角走一遍家长端（`http://127.0.0.1:4173/`，任意手机号 + 验证码 `00000`）与运营后台（`http://127.0.0.1:8017/ops/`，`admin` / `dingdong-admin`），结合 `PROJECT_MEMORY.md`、`需求/`、`设计/`，产出 `.trellis/tasks/T-003/backlog.md`。
 - acceptance: backlog.md 每项含「用户在哪一步卡/困惑/不信任 / 现状 / 建议改法 / 完善还是扩散 / 工作量档位」；「完善/扩散」判据写成：不新增对对方接口的依赖、不改契约边界、不改数据模型语义；稳定性问题单列一节（错误态、空数据态、网络慢/断、celery 失败可见性、e2e 因本地数据漂移失败的 4 项）；只产出文档、不改任何代码；本任务 `status` 为 `gated`，`gates.md` 有 `REQUEST T-003 review ...`。
 - gate: review
-- status: gated
-- notes: 已知候选先放进去——人设/成长报告/健康度四态/复测 CTA 四个展示面（mock 数据源，判定标准见 `设计/CA对接_C1_ca_account_id设计_20260916.md` §7）、授权血缘声明（`frontend/README.md` + `参考代码/来源说明.md`，来源 commit `d754a5bf`）、PR #1 转 draft。明确排除：`PROJECT_MEMORY.md` 里列的 8 个出站接口、主动解绑、发版部署。走产品体验需真实浏览器，遵守仓库浏览器验收纪律。**2026-09-17 执行结果**：backlog.md 已产出（家长端 9 条 / 运营端 5 条 / 缺口 3 条 / 稳定性 5 条），4 张截图在 `.trellis/tasks/T-003/shots/`；坐实 1 个真缺陷（CA 账户页跨行 `{# #}` 注释被渲染成正文，根因 `tag_re` 无 DOTALL）与 1 处家长端报错文案未本地化（422 透传 `ErrorDetail(...)`）；只读审计，未改代码，本地库新增 1 条 CaAccount（`ca_01M2PZQM5RNBPNVQXJ5CXEWDMN`，合成凭据）+ 1 份探索答卷 + 1 条授权，明细见 backlog 第六节。
+- status: done
+- notes: 已知候选先放进去——人设/成长报告/健康度四态/复测 CTA 四个展示面（mock 数据源，判定标准见 `设计/CA对接_C1_ca_account_id设计_20260916.md` §7）、授权血缘声明（`frontend/README.md` + `参考代码/来源说明.md`，来源 commit `d754a5bf`）、PR #1 转 draft。明确排除：`PROJECT_MEMORY.md` 里列的 8 个出站接口、主动解绑、发版部署。走产品体验需真实浏览器，遵守仓库浏览器验收纪律。**2026-09-17 执行结果**：backlog.md 已产出（家长端 9 条 / 运营端 5 条 / 缺口 3 条 / 稳定性 5 条），4 张截图在 `.trellis/tasks/T-003/shots/`；坐实 1 个真缺陷（CA 账户页跨行 `{# #}` 注释被渲染成正文，根因 `tag_re` 无 DOTALL）与 1 处家长端报错文案未本地化（422 透传 `ErrorDetail(...)`）；只读审计，未改代码，本地库新增 1 条 CaAccount（`ca_01M2PZQM5RNBPNVQXJ5CXEWDMN`，合成凭据）+ 1 份探索答卷 + 1 条授权，明细见 backlog 第六节。**2026-09-17 门禁执行**：orchestrator 批准 review 后，本轮已按批准顺序把 backlog 条目导入为本文件 T-005…T-021（第一批 13 条 / 第二批 3 条 / 第三批 1 条），O-05 与 G-03 未导入，见 `gates.md` 决定段与 EXECUTED 行。
+
+## T-005 O-01 修掉 CA 账户页跨行模板注释被当正文渲染
+- goal: 修掉运营后台「CA 账户」页把跨行 `{# … #}` 注释渲染成正文的真缺陷（`backend/dingdong_ca/ops/templates/ops/ca_accounts.html` 第 10–11 行），改成 `{% comment %}` 或压成单行。
+- acceptance: 新增一条会先失败的用例，断言 `/ops/ca-accounts/` 渲染结果不含 `{#`、不含注释原文，并断言 `backend/dingdong_ca/ops/templates/` 下不存在跨行 `{# … #}`；`cd backend && uv run pytest tests/test_ops_ca_accounts.py` 通过；`python3 scripts/audit_documents.py` errors 为空；真实 Chrome 打开 `http://127.0.0.1:8017/ops/ca-accounts/`（`admin` / `dingdong-admin`）页面顶部不再出现 `{# 注意：Tabler… #}`，截图存 `.trellis/tasks/T-005/shots/`。
+- gate: none
+- status: doing
+- notes: 纯缺陷修复，只动这一个模板 + 测试；同页其他文案问题各有任务（P-04 / O-02 / O-04），别顺手改。属第一批：commit 后可直接 push origin/codex/release-v0.3.6 并在 `gates.md` 补 EXECUTED 行。
+
+## T-006 P-05 空手机号获取验证码不再丢后端原始报错
+- goal: 手机号为空点「获取验证码」时给中文提示，不再把 `ErrorDetail(string='该字段不能为空。', code='blank')` 透传到界面：前端先做非空校验，后端 422 统一兜底成中文。
+- acceptance: 空号提交时界面出现中文提示且不含 `ErrorDetail(`；`cd frontend && npm run check && npm run test:unit` 与 `cd backend && uv run pytest tests/test_auth.py` 通过；audit errors 为空；真实 Chrome 在 `http://127.0.0.1:4173/` 复现原路径并截图到 `.trellis/tasks/T-006/shots/`。
+- gate: none
+- status: todo
+- notes: 属第一批：commit 后可直接 push origin/codex/release-v0.3.6 并补 EXECUTED 行。
+
+## T-007 P-01 绑定机器人成功后留在账户页并给反馈
+- goal: 绑定成功后留在「账户与关联」页、高亮新生成的账户号，并显示一行「账户号已生成，等机器人接通后开始同步」，不再无提示跳回首页。
+- acceptance: 绑定成功后 `location.hash` 仍指向账户页、页面出现新账户号与成功提示；`cd frontend && npm run check && npm run test:unit` 通过；audit errors 为空；真实 Chrome 走完整绑定流程（合成凭据）截图到 `.trellis/tasks/T-007/shots/`。
+- gate: none
+- status: todo
+- notes: 只改家长端；本轮产生的合成 CaAccount 记进 report 供清理。属第一批：commit 后可直接 push 并补 EXECUTED 行。
+
+## T-008 P-02 手填绑定的家长要知道该填什么
+- goal: 绑定对话框补操作指引（用手机碰机器人上的标签会自动带凭据回到这里），手填时给格式/长度提示，校验错误落到 `.form-error` 而不是只靠浏览器原生气泡。
+- acceptance: 凭据留空点「确认绑定」时 `.form-error` 可见且非空、对话框不关；文案含操作指引；`cd frontend && npm run check && npm run test:unit` 通过；audit errors 为空；真实 Chrome 复现空凭据提交并截图到 `.trellis/tasks/T-008/shots/`。
+- gate: none
+- status: todo
+- notes: 属第一批：commit 后可直接 push 并补 EXECUTED 行。
+
+## T-009 P-06 成长观察非法时间区间要就地提示
+- goal: 「成长观察」起止时间非法（起 ≥ 止）时就地提示「结束时间要晚于开始时间」并把两个输入框标红，不再零请求零提示。
+- acceptance: 非法区间下界面出现可见中文提示与错误态样式；`cd frontend && npm run check && npm run test:unit` 通过；audit errors 为空；真实 Chrome 填 起>止 点「查看这个窗口」截图到 `.trellis/tasks/T-009/shots/`。
+- gate: none
+- status: todo
+- notes: 属第一批：commit 后可直接 push 并补 EXECUTED 行。
+
+## T-010 P-07 慢网提交要有进行中提示
+- goal: 提交期间给进行中提示（按钮文案如「登录中…」或轻量进度指示），避免家长以为按钮点空了反复点。
+- acceptance: 提交中按钮文案变化或出现可见进度指示（`aria-busy` 或等效可见态）；`cd frontend && npm run check && npm run test:unit` 通过；audit errors 为空；真实 Chrome 用 CDP `Network.emulateNetworkConditions`（latency 4000ms）复现并截图到 `.trellis/tasks/T-010/shots/`。
+- gate: none
+- status: todo
+- notes: 属第一批：commit 后可直接 push 并补 EXECUTED 行。
+
+## T-011 P-08 最后一题按钮文案改成「保存并完成」
+- goal: 答题最后一题按钮由「保存并继续」改成「保存并完成」，与进入提交确认页的实际动作一致。
+- acceptance: 第 4/4 题按钮文案为「保存并完成」、第 1–3 题仍为「保存并下一题」；`cd frontend && npm run check && npm run test:unit` 通过；audit errors 为空；真实 Chrome 走到第 4 题截图到 `.trellis/tasks/T-011/shots/`。
+- gate: none
+- status: todo
+- notes: 属第一批：commit 后可直接 push 并补 EXECUTED 行。
+
+## T-012 P-09 「机器人指纹」文案去掉「指纹」二字
+- goal: 账户页把「机器人指纹 6948909c」改成不含「指纹」的说法（如「机器人标识（前 8 位）」），避免撞上「不采集真实指纹」的承诺。
+- acceptance: 账户页不再出现「指纹」字样且仍显示同一摘要前 8 位；`cd frontend && npm run check && npm run test:unit` 通过；audit errors 为空；真实 Chrome 截图到 `.trellis/tasks/T-012/shots/`。
+- gate: none
+- status: todo
+- notes: 只改家长端文案；运营端若也有同词，只在 report 记录，不在本任务改。属第一批：commit 后可直接 push 并补 EXECUTED 行。
+
+## T-013 P-04 不再把内部 code `readable-v2` 给家长看
+- goal: 家长端答题页与运营端儿童详情不再直接显示内部 code `readable-v2`，改显示中文名 + 版本号（如「四个小情境：探索偏好体验（v2）」），原始 code 收进悬停提示。
+- acceptance: 两处界面正文不出现裸 `readable-v2`（仅允许出现在 `title` 属性）；`cd frontend && npm run check && npm run test:unit` 与 `cd backend && uv run pytest tests/test_ops_console.py` 通过；audit errors 为空；真实 Chrome 两处各截图到 `.trellis/tasks/T-013/shots/`。
+- gate: none
+- status: todo
+- notes: 中文名要有稳定来源（题库元数据或既有标签表），别在前端硬编码两套映射。属第一批：commit 后可直接 push 并补 EXECUTED 行。
+
+## T-014 O-03 审计页补「登录凭据」对象词条
+- goal: 审计页「对象」列不再显示未翻译内部码 `login_grant`，补「登录凭据」类对象词条与说明，不把表名/英文模型名给运营看。
+- acceptance: `cd backend && uv run pytest tests/test_ops_audit_scope.py` 通过（含新增断言：审计页对象列不含 `login_grant`、含中文词条）；audit errors 为空；真实 Chrome 打开运营审计页复现原记录截图到 `.trellis/tasks/T-014/shots/`。
+- gate: none
+- status: todo
+- notes: 只补 `ops/labels.py` 词条与必要测试，不改审计数据与模型。属第一批：commit 后可直接 push 并补 EXECUTED 行。
+
+## T-015 O-04 儿童详情加只读「机器人账户」一行
+- goal: 儿童详情页加一行只读「机器人账户」（账户号 + 绑定状态 + 跳 CA 账户页），运营排查同步问题时不必切页按手机号搜。
+- acceptance: 有账户时儿童详情出现账户号与绑定状态、无账户时显示空态；`cd backend && uv run pytest tests/test_ops_console.py tests/test_ops_ca_accounts.py` 通过；audit errors 为空；真实 Chrome 打开儿童详情截图到 `.trellis/tasks/T-015/shots/`。
+- gate: none
+- status: todo
+- notes: 只读展示，不动契约与数据模型。属第一批：commit 后可直接 push 并补 EXECUTED 行。
+
+## T-016 P-03 授权同意框补齐四要素（保留「合成测试」标注）
+- goal: 测评授权同意框补齐四要素（处理目的 / 数据范围 / 数据去向含 DingDong 侧 / 保留与撤回后果），保留「[合成测试]」标注，并点明已有「撤回授权」入口。
+- acceptance: 弹窗正文含四要素、仍含「合成测试」标注与撤回说明；`cd frontend && npm run check && npm run test:unit` 通过；audit errors 为空；真实 Chrome 打开测评同意框截图到 `.trellis/tasks/T-016/shots/`。
+- gate: none
+- status: todo
+- notes: 文案 + 模板，不得改动授权契约字段，不许去掉或弱化「合成测试」标注。属第一批：commit 后可直接 push 并补 EXECUTED 行。
+
+## T-017 G-02 产品内加一行授权血缘来源声明
+- goal: 家长端产品内（页脚或「家长支持」）加一行来源与使用声明：沿用参考项目 `d754a5bf9ea8e71ca64a850d2e26aa321fe8ab38` 的视觉与插画及许可范围，措辞与 `frontend/README.md` 一致。
+- acceptance: 声明可见且与 `frontend/README.md` 不矛盾；`cd frontend && npm run check && npm run test:unit` 通过；audit errors 为空；真实 Chrome 桌面 + 390×844 各截图到 `.trellis/tasks/T-017/shots/`。
+- gate: none
+- status: todo
+- notes: 只写声明，不动素材与许可文件，不引入新的对外依赖。属第一批：commit 后可直接 push 并补 EXECUTED 行。
+
+## T-018 S-05 本地 e2e 4 项数据漂移失败变成可判定
+- goal: `frontend/tests/flows.spec.js`（3 项）与 `frontend/deployment-tests/ops-public.spec.js`（1 项）在本地要么通过、要么显式 skip 并打印原因，不再靠人分辨「产品坏了还是环境漂移」。
+- acceptance: 落地前置一致性处理（`server.cjs` 与 `inject_fixture` 指向同一库，或 spec 显式 skip + 打印原因）；`npx playwright test tests/flows.spec.js --reporter=list` 输出中不再有未解释的「Child does not exist」类失败；`cd frontend && npm run check && npm run test:unit` 通过；audit errors 为空；命令输出原文存 `.trellis/tasks/T-018/`。
+- gate: none
+- status: todo
+- notes: 优先做「同一库」；不可行才选显式 skip 并在 report 说明为何不可行。属第二批：commit 后可直接 push 并补 EXECUTED 行。
+
+## T-019 O-02 家长姓名为空不再回落内部账号 `parent-<uuid>`
+- goal: 家长姓名为空时 5 处界面（家庭列表、家庭详情、儿童详情、CA 账户页、操作审计）统一回落到手机号或「（未填写姓名）」，不再显示内部账号 `parent-<uuid>`。
+- acceptance: 5 处均不再出现 `parent-` 前缀；优先复用「账号与权限」页既有先例；`cd backend && uv run pytest tests/test_ops_console.py tests/test_ops_audit_scope.py tests/test_ops_ca_accounts.py` 通过（含新增断言）；audit errors 为空；真实 Chrome 5 处各截图到 `.trellis/tasks/T-019/shots/`。
+- gate: none
+- status: todo
+- notes: 优先抽公共函数，别在 5 个模板各写一份。属第二批：commit 后可直接 push 并补 EXECUTED 行。
+
+## T-020 S-04 阶段画像/同步失败在家长端的可见性
+- goal: 用 `inject_fixture` 注入真实失败任务，验证阶段画像/数据同步失败在家长端是否可见；不可见则补可见性，可见则只记证据。
+- acceptance: 注入失败任务后家长端出现可见失败提示，或 report 明确记录「已可见」并附截图/响应原文；`cd frontend && npm run check && npm run test:unit` 通过；audit errors 为空；证据存 `.trellis/tasks/T-020/`。
+- gate: none
+- status: todo
+- notes: 不许把测试数据流程说成真实供应商接入；注入的合成数据记进 report 供清理。属第二批：commit 后可直接 push 并补 EXECUTED 行。
+
+## T-021 G-01-设计 四个展示面的设计文档（先设计后实现）
+- goal: 只写 `.trellis/tasks/T-021/design.md`：人设 / 15–30 天成长报告 / 健康度四态 / 复测 CTA 四个展示面的数据形状、合成数据源放哪一层、空态与错误态、与 `设计/CA对接_C1_ca_account_id设计_20260916.md` §7 判定标准的逐条对照、拆成几个实现任务；不写代码。
+- acceptance: design.md 含上述五部分且对 §7 判定标准逐条对照；本轮无代码改动；audit errors 为空；本任务 `status` 为 `gated` 且 `gates.md` 申请段有 `REQUEST T-021 review ...`。
+- gate: review
+- status: todo
+- notes: 只写设计；不新增对对方接口的依赖。属第三批：逐条申请门禁，不适用直推规则。
 
