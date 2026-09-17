@@ -411,6 +411,7 @@ def child_bundle(child, include_audit=True):
     from dingdong_ca.core.models import (
         ActivityRecord,
         AssessmentSession,
+        CaAccount,
         ConsentGrant,
         DataRequest,
         ExternalAssociation,
@@ -440,6 +441,10 @@ def child_bundle(child, include_audit=True):
         "profiles": profiles,
         "reports": reports,
         "associations": [(a, checkpoints.get(a.pk)) for a in associations],
+        # 同一孩子同一时刻只有一个活跃号（数据库条件唯一约束保证）；换机后的旧号是
+        # retired，只说明"这个孩子以前绑过机器人"，不作为在用的账户展示。
+        "ca_account": CaAccount.objects.filter(child=child, status="active").first(),
+        "retired_accounts": CaAccount.objects.filter(child=child, status="retired").count(),
         "activities": list(
             ActivityRecord.objects.filter(child=child)
             .select_related("activity_version")

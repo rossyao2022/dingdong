@@ -224,6 +224,8 @@ def child_detail(request, child_id):
             activities=bundle["activities"],
             consents=bundle["consents"],
             requests=bundle["requests"],
+            ca_account=bundle["ca_account"],
+            retired_accounts=bundle["retired_accounts"],
             audit_rows=bundle["audit"],
             can_edit_child=can(request, "child.edit"),
             can_view_reports=can(request, "report.view"),

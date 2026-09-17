@@ -236,8 +236,9 @@ def test_child_detail_aggregates_related_records():
 
 def test_child_detail_shows_version_number_not_internal_code():
     """答卷区给运营看版本号；内部 code 只留在 title 属性里，不进正文。"""
-    from dingdong_ca.core.models import QuestionnaireVersion
     from ops_helpers import make_session
+
+    from dingdong_ca.core.models import QuestionnaireVersion
 
     family, children, parent = make_family()
     version = QuestionnaireVersion.objects.create(
@@ -259,6 +260,64 @@ def test_child_detail_shows_version_number_not_internal_code():
     assert "版本 v2" in text
     assert 'title="readable-v2"' in body
     assert "readable-v2" not in text
+
+
+def test_child_detail_shows_robot_account_row():
+    """儿童详情直接给出机器人账户号与绑定状态，运营排查同步问题不必切页按手机号搜。"""
+    from dingdong_ca.core.services import ca_account as ca_service
+
+    _family, children, parent = make_family()
+    account, _created = ca_service.issue_account(
+        child=children[0],
+        user=parent,
+        request_id=uuid.uuid4(),
+        nfc_token="ROBOT-TOKEN-CHILD-DETAIL",
+        robot_ref="DD-ROBOT-CHILD-DETAIL",
+    )
+    client = ops_client(make_staff("operations"))
+    response = client.get(reverse("ops:child_detail", args=[children[0].pk]))
+    assert response.status_code == 200
+    body = response.content.decode()
+    text = re.sub(r"<[^>]+>", "", body)
+    assert "机器人账户" in text
+    assert account.ca_account_id in text
+    # 显示的是词条不是内部码；两个状态维度各自成词
+    assert "待接通" in text and "使用中" in text
+    assert "unbound" not in text
+    # 就地给出到 CA 账户页的入口，带上账户号当筛选词
+    assert f'href="/ops/ca-accounts/?q={account.ca_account_id}"' in body
+
+
+def test_child_detail_robot_account_empty_state():
+    """没有活跃账户时说明空态；只有换机后的旧号时，旧号不当作在用账户展示。"""
+    from dingdong_ca.core.services import ca_account as ca_service
+
+    _family, children, parent = make_family()
+    client = ops_client(make_staff("operations"))
+
+    none_text = re.sub(
+        r"<[^>]+>",
+        "",
+        client.get(reverse("ops:child_detail", args=[children[0].pk])).content.decode(),
+    )
+    assert "还没有机器人账户" in none_text
+
+    account, _created = ca_service.issue_account(
+        child=children[0],
+        user=parent,
+        request_id=uuid.uuid4(),
+        nfc_token="ROBOT-TOKEN-CHILD-RETIRED",
+        robot_ref="DD-ROBOT-CHILD-RETIRED",
+    )
+    ca_service.retire_account(account, parent)
+    retired_text = re.sub(
+        r"<[^>]+>",
+        "",
+        client.get(reverse("ops:child_detail", args=[children[0].pk])).content.decode(),
+    )
+    assert "还没有机器人账户" in retired_text
+    assert "已归档 1 个旧号" in retired_text
+    assert account.ca_account_id not in retired_text
 
 
 def test_family_freeze_requires_role_and_writes_audit():
