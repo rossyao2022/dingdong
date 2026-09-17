@@ -62,8 +62,8 @@
 - goal: 绑定成功后留在「账户与关联」页、高亮新生成的账户号，并显示一行「账户号已生成，等机器人接通后开始同步」，不再无提示跳回首页。
 - acceptance: 绑定成功后 `location.hash` 仍指向账户页、页面出现新账户号与成功提示；`cd frontend && npm run check && npm run test:unit` 通过；audit errors 为空；真实 Chrome 走完整绑定流程（合成凭据）截图到 `.trellis/tasks/T-007/shots/`。
 - gate: none
-- status: todo
-- notes: 只改家长端；本轮产生的合成 CaAccount 记进 report 供清理。属第一批：commit 后可直接 push 并补 EXECUTED 行。
+- status: done
+- notes: 只改家长端；本轮产生的合成 CaAccount 记进 report 供清理。属第一批：commit 后可直接 push 并补 EXECUTED 行。**2026-09-17 执行结果**：绑定成功后由 `await render()` 改为记 `hints.newAccountId` + `to("settings")`，裸标签链接（无 hash 路由）绑定后落在账户页并高亮新号（`.account-row.is-new` + 「刚生成」标签，`render()` 在账户页渲染后清 hint 保证只高亮一次）；`submitRobotReplacement` 同改。`npm run check` exit 0、`test:unit` 16 pass 0 fail、`audit_documents.py` errors `[]`；真实 Chrome 3 条新用例通过 `3 passed (19.4s)`（既有 1/2 条 NFC 承接、复用同号回归通过），截图 `.trellis/tasks/T-007/shots/`（桌面 1280×720 + 390×844）。中途全量 7 条一次跑挂 5 条，根因是 `/auth/sms` 同 IP 限流 50/小时（本地经 ssh 隧道 `dell` 连 dev 库、计数已到 50），等窗口滑出后重跑新用例通过，未重置远端库。已按第一批直推：`36592bf..1770127`，远端 sha `1770127279374804383929c3bbe1dffda31632bc`。
 
 ## T-008 P-02 手填绑定的家长要知道该填什么
 - goal: 绑定对话框补操作指引（用手机碰机器人上的标签会自动带凭据回到这里），手填时给格式/长度提示，校验错误落到 `.form-error` 而不是只靠浏览器原生气泡。
@@ -162,4 +162,11 @@
 - gate: review
 - status: todo
 - notes: 只写设计；不新增对对方接口的依赖。属第三批：逐条申请门禁，不适用直推规则。
+
+## T-024 产品巡检（常设循环任务：家长与运营双视角走查）
+- goal: 以家长第一视角（`http://127.0.0.1:4173/`，任意手机号 + 验证码 `00000`）与运营视角（`http://127.0.0.1:8017/ops/`，`admin` / `dingdong-admin`）把产品再完整走一遍，结合本批已合入的修复（T-005…T-021），找出**新的**真实卡点、困惑或不信任点，产出 `.trellis/tasks/T-024/backlog.md` 并申请 review。这是常设供给任务：每轮修复任务磨完后自动巡检一次，由 orchestrator 复看导入下一批，循环自己喂自己。
+- acceptance: backlog 每项含「用户在哪一步卡/困惑/不信任 / 现状 / 建议改法 / 完善还是扩散（判据同 T-003：不新增对对方接口的依赖、不改契约边界、不改数据模型语义）/ 工作量档位」；每条新缺陷有真实 Chrome 复现截图存 `.trellis/tasks/T-024/shots/`；不重复报 T-003 已修条目，除非已修处出现回归（回归单独标「回归」）；稳定性问题单列一节；只产出文档不改代码；本任务 `status` 为 `gated` 且 `gates.md` 有 `REQUEST T-024 review ...`；audit errors 为空。
+- gate: review
+- status: todo
+- notes: 巡检是产品活，属正常队列，不算机制插队。orchestrator 复看批准后：按批次导入修复任务，并在队尾追加下一次巡检任务（编号顺延）；若某轮巡检产出为 0 条新问题，在 report 如实记录并照常 gated，由 orchestrator 决定下一轮巡检是否改走抽查模式。明确排除项不变：8 个出站接口、主动解绑、发版部署、external 类动作。
 
