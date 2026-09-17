@@ -1,10 +1,12 @@
 # 叮咚项目记忆与会话交接
 
-最后更新：2026-09-16 23:55，Asia/Shanghai。适用于本目录中的后续会话。本文记录已核对事实，不代替代码和最新用户指令。
+最后更新：2026-09-18 01:25，Asia/Shanghai。适用于本目录中的后续会话。本文记录已核对事实，不代替代码和最新用户指令。
 
 ## 当前结论与最近工作
 
-**最近一轮工作：CA 对接 C1「`ca_account_id`」从设计落地为可运行系统（2026-09-16 晚，用户「你能不能直接干完」）。** 状态：**已实现、已测试，未部署、未发版**——线上仍是 v0.3.6，生产库没有 `0008` 迁移。已落地的部分：`CaAccount` 模型 + 迁移 `0008`（两个状态维度 `status`/`bind_state`，6 条约束）、发号器与生命周期服务（ULID / HMAC 摘要 / 幂等建号 / 同机复用同号 / 异机 409 换机信号 / 归档）、家长端 4 个接口、出站 DingDong 客户端骨架（未配置时显式报"未配置"，不伪造成功）、家长端 NFC 承接与换机界面（凭据读完即从地址栏摘掉，只留内存）、运营后台只读页「CA 账户」。**当前本地回归：后端 266 项、前端单测 16 项、家长端真实 Chrome 4 项全绿；openapi 55 operations / 65 schemas，`scripts/audit_documents.py` errors 为空。** 仍未做的三件：**8 个出站接口**（缺 D10 base URL / D12 key）、**换机的"主动解绑"分支**（缺 D20）、**人设 / 成长报告 / 健康度四态 / 复测 CTA 四个展示面**。设计与判定标准见 [设计/CA对接_C1_ca_account_id设计_20260916.md](设计/CA对接_C1_ca_account_id设计_20260916.md) §7；实现细节与五个环境坑见本文末尾「C1 `ca_account_id` 落地实现」。
+**最近一轮工作：CA 对接四个展示面的数据层与家长端接口（任务 T-032，2026-09-18 凌晨，本地循环自驱）。** 状态：**已实现、已测试，未部署、未发版**——线上仍是 v0.3.6，生产库没有 `0008`/`0009` 迁移。已落地：新开关 `CA_DISPLAY_DATA_SOURCE`（默认 `synthetic_fixture`，与 `INTEGRATION_DATA_SOURCE` 分开、不共用值域）、`core/services/ca_display.py` 唯一数据出口（合成侧读 `test_fixture` 表且零出站；真源侧调 `dingdong_client`，未配置时返回 `not_synced` + `upstream_not_configured`，不伪造成功也不显示 0 分）、`core/api/ca_display.py` 的 4 读 2 写（人设 / 15–30 天周期成长报告 / 互动健康度四态 / 复测建议与回写），一律以 `child_id` 为键 + `owned_child()` 家庭隔离，响应里不出现 `ca_account_id`；新模型 `CaReassessmentEvent` + 迁移 `0009` 存复测回写的本地状态与出站同步标记；`inject_fixture` 新增 6 个 `ca_display_*` 场景（对应对方 xlsx 表 6 的 6 个 mock 账号）。**本轮验证：新增 `backend/tests/test_ca_display.py` 51 项全通过；受影响的既有用例 `tests/test_m3.py`（openapi 操作数 55→61）与 `tests/test_ops_console.py`（两个新审计动作的中文词条）一并复跑通过；`ruff check` / `ruff format --check --target-version py313` 干净；`makemigrations --check --dry-run` 无待生成迁移；openapi 61 operations / 82 schemas；`python3 scripts/audit_documents.py` errors 为空。未跑全量后端套件。** 仍未做：**前端三个展示面任务**（T-033 人设与健康度四态、T-034 周期成长报告、T-035 复测 CTA 与回写闭环，队列中待做）、**八个出站接口**（缺 D10 base URL / D12 key）、**换机的「主动解绑」分支**（缺 D20）。设计见 [.trellis/tasks/T-021/design.md](.trellis/tasks/T-021/design.md)，本轮实现与偏离见 [.trellis/tasks/T-032/report.md](.trellis/tasks/T-032/report.md)。**注意：合成数据跑通不等于 §7 判定标准完成，不得写成「已接通 DingDong」。**
+
+**上一轮：CA 对接 C1「`ca_account_id`」从设计落地为可运行系统（2026-09-16 晚，用户「你能不能直接干完」）。** 已落地的部分：`CaAccount` 模型 + 迁移 `0008`（两个状态维度 `status`/`bind_state`，6 条约束）、发号器与生命周期服务（ULID / HMAC 摘要 / 幂等建号 / 同机复用同号 / 异机 409 换机信号 / 归档）、家长端 4 个接口、出站 DingDong 客户端骨架（未配置时显式报"未配置"，不伪造成功）、家长端 NFC 承接与换机界面（凭据读完即从地址栏摘掉，只留内存）、运营后台只读页「CA 账户」。**该轮本地回归：后端 266 项、前端单测 16 项、家长端真实 Chrome 4 项全绿；openapi 当时 55 operations / 65 schemas。** 设计与判定标准见 [设计/CA对接_C1_ca_account_id设计_20260916.md](设计/CA对接_C1_ca_account_id设计_20260916.md) §7；实现细节与五个环境坑见本文末尾「C1 `ca_account_id` 落地实现」。
 
 项目已完成 M1–M5 自有业务实现、M6 运营后台（`dingdong_ca.ops`），并已把运营后台部署到 tigery、通过上海公网入口完成真实浏览器验收。**当前线上版本 0.3.6**：家长端 http://110.42.225.196/dingdong/ ，运营后台 **http://110.42.225.196/ops/** ，Django 后台 /admin/ 。v0.3.6 是**运营后台界面改版**（本地化 Tabler 组件体系 + 25 个页面统一外壳 + 静态资源 `?v=` 缓存击穿 + 明文入口 COOP 静音），见本文末尾「运营后台 v0.3.6：界面改版（2026-09-14）」；交付说明 [deploy/OPS_CONSOLE_UI_20260914_V036.md](deploy/OPS_CONSOLE_UI_20260914_V036.md)。上一轮 v0.3.5 的交付见「运营后台 v0.3.5：家长端档案冲突保留输入并提供可恢复路径（2026-09-14）」。
 
@@ -45,7 +47,7 @@
 
 可读种子：backend/dingdong_ca/testsupport/question_content.py、activity_content.py。四题原文迁自参考仓库，22题涵盖日常探索、表达、观察、合作，八个活动有材料和可执行步骤。seed_mock对已知占位种子创建readable-v2，保留历史版本，不覆盖运营自行发布内容。warm仅是输入初始化兼容别名，不创建成品结果。没有reset_mock或dataset_run平台。
 
-当前OpenAPI：44条路径、51个操作、62个Schema。v0.3.4给 `/children/{child_id}` 补了 GET（家长端冲突恢复要读最新档案与修订号）。[交互规范](设计/API/前后端交互规范_V0.1.md)、[OpenAPI](设计/API/openapi.json)、[实际数据库字段](设计/数据库实际字段_M5.md)。题库目录通过GET assessment-config返回；支持purpose和questionnaire_version_id。探索完成用POST assessments/{id}/complete-exploration，测评测试仍用multipart submit。不要把内部契约当作DingDong已确认协议。
+当前OpenAPI：53条路径、61个操作、82个Schema。v0.3.4给 `/children/{child_id}` 补了 GET（家长端冲突恢复要读最新档案与修订号）；2026-09-18 的 T-032 补了四个展示面的 4 读 2 写（`companion-persona` / `growth-cycle` / `companion-health` / `reassessment` 与其两条回写），它们复用成长观察那套 7 值 `availability` 词表，请求与响应都以 `child_id` 为键。[交互规范](设计/API/前后端交互规范_V0.1.md)、[OpenAPI](设计/API/openapi.json)、[实际数据库字段](设计/数据库实际字段_M5.md)。题库目录通过GET assessment-config返回；支持purpose和questionnaire_version_id。探索完成用POST assessments/{id}/complete-exploration，测评测试仍用multipart submit。不要把内部契约当作DingDong已确认协议。
 
 ## 运行与续接
 

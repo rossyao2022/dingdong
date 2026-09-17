@@ -268,6 +268,9 @@ AUDIT_ACTION = {
     # CA 对接：家长绑机器人时建号，换机时归档旧号
     "ca_account.create": "建立 CA 账户",
     "ca_account.retire": "归档 CA 账户",
+    # 复测回写：家长对复测建议的选择与承接复测的完成
+    "ca_reassessment.response": "家长回应复测建议",
+    "ca_reassessment.complete": "家长完成复测回写",
     # 运维：按报告清单清理注入的合成测试批次（只改状态，不物理删除）
     "synthetic.dispose": "清理合成测试数据",
 }
@@ -342,6 +345,7 @@ TARGET_KIND = {
     "activity_record": "活动记录",
     "profile_snapshot": "画像快照",
     "ca_account": "CA 账户",
+    "ca_reassessment_event": "复测事件",
     "login_grant": "登录凭据",
     "algorithm_attempt": "算法尝试",
     "sync_checkpoint": "同步游标",
@@ -388,6 +392,7 @@ def humanize_action(code):
         "assessment": "答卷",
         "association": "伙伴关联",
         "auth": "登录",
+        "ca_reassessment": "复测",
         "child": "儿童档案",
         "consent": "授权",
         "content": "内容",

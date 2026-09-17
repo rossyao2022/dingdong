@@ -572,7 +572,9 @@ def test_every_openapi_operation_has_a_real_view():
     # 家长端在被 409 打回后需要读一次服务端最新档案与修订号（此前只有 PATCH）。
     # 51 增到 55：CA 对接的 CA 账户四个操作（列/建、详情、归档）——
     # 家长绑机器人（NFC 承接）与换机归档要走我们自己服务端的接口。
-    assert operations == 55
+    # 55 增到 61：四个展示面的 4 读 2 写（人设 / 周期成长报告 / 健康度 / 复测）——
+    # 一律以 child_id 为键，家长端不出现 ca_account_id。
+    assert operations == 61
 
 
 def test_initial_fixture_tracks_current_questionnaire_and_can_target_fixed_old_session(client):

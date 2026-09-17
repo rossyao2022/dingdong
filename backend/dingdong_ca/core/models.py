@@ -240,7 +240,7 @@ from .assessment_models import (  # noqa: E402,F401
     ReportTemplateVersion,
     ReportVersion,
 )
-from .ca_models import CaAccount  # noqa: E402,F401
+from .ca_models import CaAccount, CaReassessmentEvent  # noqa: E402,F401
 from .integration_models import (  # noqa: E402,F401
     DataRequest,
     ExternalAssociation,

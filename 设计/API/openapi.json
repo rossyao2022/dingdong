@@ -6323,6 +6323,1026 @@
         }
       }
     },
+    "/children/{child_id}/companion-persona": {
+      "get": {
+        "operationId": "get_children_child_id_companion_persona",
+        "tags": [
+          "CA 对接"
+        ],
+        "summary": "当前陪学伙伴（面一）",
+        "description": "以 child_id 为键，不暴露 ca_account_id。对方未接通时返回 availability=not_synced + reason=upstream_not_configured，不伪造成功、不显示 0 分。data_origin=synthetic 时界面必须挂「合成测试数据」徽标。",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "child_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "目标对象 ID，后端必须验证权限与归属",
+              "examples": [
+                "11111111-1111-4111-8111-111111111111"
+              ],
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "type": "string",
+                  "description": "请求追踪号",
+                  "examples": [
+                    "11111111-1111-4111-8111-111111111111"
+                  ],
+                  "format": "uuid"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanionPersonaView"
+                },
+                "example": {
+                  "availability": "ready",
+                  "data_origin": "synthetic",
+                  "source": "dingdong",
+                  "fetched_at": "2026-09-17T10:00:00+08:00",
+                  "reason": null,
+                  "persona": {
+                    "persona_id": "persona_art_01",
+                    "persona_name": "Mia",
+                    "persona_type": "art",
+                    "type_label": "艺术",
+                    "public_description": "艺术创作陪学伙伴",
+                    "learning_style_tags": [
+                      "imitation",
+                      "open"
+                    ],
+                    "talent_weight_version": "pw_v1"
+                  },
+                  "binding": {
+                    "binding_id": "bind_mock_001",
+                    "bind_time": "2026-09-16T09:00:00+08:00",
+                    "match_score": 82,
+                    "status": "active"
+                  },
+                  "persona_switched": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "格式错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "登录无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限/用途不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "不存在或不属于当前家庭",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "字段校验失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "请求过频",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "未预期错误，仅安全错误码及追踪号",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "依赖不可用",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/children/{child_id}/growth-cycle": {
+      "get": {
+        "operationId": "get_children_child_id_growth_cycle",
+        "tags": [
+          "CA 对接"
+        ],
+        "summary": "周期成长报告（面二）",
+        "description": "对方 growth_period 的固定 15/30 天报告，与任意区间的「成长观察」是两份数据、两个来源，不合并。period 只允许 15d / 30d，其它值按 422 处理。八维缺失时给 null，界面显示「本周期无该维度数据」，不补 0、不插值。",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "child_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "目标对象 ID，后端必须验证权限与归属",
+              "examples": [
+                "11111111-1111-4111-8111-111111111111"
+              ],
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "固定周期；任意区间请用成长观察接口",
+              "examples": [
+                "15d"
+              ],
+              "enum": [
+                "15d",
+                "30d"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "type": "string",
+                  "description": "请求追踪号",
+                  "examples": [
+                    "11111111-1111-4111-8111-111111111111"
+                  ],
+                  "format": "uuid"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GrowthCycleView"
+                },
+                "example": {
+                  "availability": "ready",
+                  "data_origin": "synthetic",
+                  "source": "dingdong",
+                  "fetched_at": "2026-09-17T10:00:00+08:00",
+                  "reason": null,
+                  "period": {
+                    "days": 15,
+                    "start": "2026-09-01",
+                    "end": "2026-09-15"
+                  },
+                  "persona": {
+                    "persona_id": "persona_art_01",
+                    "persona_name": "Mia",
+                    "persona_type": "art",
+                    "match_score": 82
+                  },
+                  "companion": {
+                    "start": 12,
+                    "end": 47,
+                    "delta": 35
+                  },
+                  "engagement": {
+                    "index": 58.31,
+                    "stage": "developing",
+                    "stage_label": "成长",
+                    "stage_progress": 55
+                  },
+                  "growth_dimensions": {
+                    "linguistic": 64,
+                    "logical": 48,
+                    "musical": 66,
+                    "spatial": 62,
+                    "bodily": 44,
+                    "intrapersonal": 57,
+                    "interpersonal": 51,
+                    "naturalistic": 42
+                  },
+                  "algorithm_version": "growth_v1",
+                  "generated_at": "2026-09-16T00:10:00+08:00"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "格式错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "登录无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限/用途不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "不存在或不属于当前家庭",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "字段校验失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "请求过频",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "未预期错误，仅安全错误码及追踪号",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "依赖不可用",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/children/{child_id}/companion-health": {
+      "get": {
+        "operationId": "get_children_child_id_companion_health",
+        "tags": [
+          "CA 对接"
+        ],
+        "summary": "互动健康度（面三）",
+        "description": "四态：insufficient_data 不做判断、normal 正常展示、watch 轻提示且不出复测 CTA、reassess 出复测入口。未知 status 落「不做判断」并记 reason=unknown_health_status，不猜、不按 normal 展示。健康度不是对孩子的评价。",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "child_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "目标对象 ID，后端必须验证权限与归属",
+              "examples": [
+                "11111111-1111-4111-8111-111111111111"
+              ],
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "type": "string",
+                  "description": "请求追踪号",
+                  "examples": [
+                    "11111111-1111-4111-8111-111111111111"
+                  ],
+                  "format": "uuid"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanionHealthView"
+                },
+                "example": {
+                  "availability": "ready",
+                  "data_origin": "synthetic",
+                  "source": "dingdong",
+                  "fetched_at": "2026-09-17T10:00:00+08:00",
+                  "reason": null,
+                  "health": {
+                    "health_id": "health_mock_002",
+                    "persona_id": "persona_science_01",
+                    "observation_days": 21,
+                    "companion_delta": 3,
+                    "health_score": 28,
+                    "status": "reassess",
+                    "reassessment_recommended": true,
+                    "trigger_reason": "continuous_low_engagement",
+                    "trigger_label": "连续多期互动偏少",
+                    "evaluated_at": "2026-09-22T09:00:00+08:00"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "格式错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "登录无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限/用途不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "不存在或不属于当前家庭",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "字段校验失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "请求过频",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "未预期错误，仅安全错误码及追踪号",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "依赖不可用",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/children/{child_id}/reassessment": {
+      "get": {
+        "operationId": "get_children_child_id_reassessment",
+        "tags": [
+          "CA 对接"
+        ],
+        "summary": "待处理的复测建议（面四）",
+        "description": "契约只有 200/404：404 就是「没有待处理建议」，返回 availability=no_data + event=null，不报错、不留空框。我方本地状态是权威，家长回写后即使对方还是旧值也按已处理展示。",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "child_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "目标对象 ID，后端必须验证权限与归属",
+              "examples": [
+                "11111111-1111-4111-8111-111111111111"
+              ],
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "type": "string",
+                  "description": "请求追踪号",
+                  "examples": [
+                    "11111111-1111-4111-8111-111111111111"
+                  ],
+                  "format": "uuid"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReassessmentView"
+                },
+                "example": {
+                  "availability": "ready",
+                  "data_origin": "synthetic",
+                  "source": "dingdong",
+                  "fetched_at": "2026-09-17T10:00:00+08:00",
+                  "reason": null,
+                  "event": {
+                    "event_id": "reassess_mock_002",
+                    "old_profile_id": "profile_mock_007",
+                    "old_persona_id": "persona_art_01",
+                    "trigger_type": "low_engagement",
+                    "trigger_label": "近期互动偏少",
+                    "recommended_at": "2026-09-30T17:00:00+08:00",
+                    "accepted": null,
+                    "new_assessment_id": null,
+                    "new_profile_id": null,
+                    "new_persona_id": null,
+                    "persona_switched": false
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "格式错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "登录无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限/用途不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "不存在或不属于当前家庭",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "字段校验失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "请求过频",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "未预期错误，仅安全错误码及追踪号",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "依赖不可用",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/children/{child_id}/reassessment/{event_id}/response": {
+      "post": {
+        "operationId": "post_children_child_id_reassessment_event_id_response",
+        "tags": [
+          "CA 对接"
+        ],
+        "summary": "回写家长对复测建议的选择",
+        "description": "同 event_id + 同 accepted 重放返回首次结果，不再出站；accepted 与首次不同返回 422。本地状态先落库、出站失败只标记 sync_pending 并给一句家长端说法，不出现半截状态。data_origin=synthetic 时只落我方库与审计，不调对方接口。",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "child_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "目标对象 ID，后端必须验证权限与归属",
+              "examples": [
+                "11111111-1111-4111-8111-111111111111"
+              ],
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "event_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "对方给的复测事件 ID（reassessment_event.event_id）",
+              "examples": [
+                "reassess_mock_002"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReassessmentResponseInput"
+              },
+              "example": {
+                "request_id": "11111111-1111-4111-8111-111111111111",
+                "accepted": true
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "已记录",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "type": "string",
+                  "description": "请求追踪号",
+                  "examples": [
+                    "11111111-1111-4111-8111-111111111111"
+                  ],
+                  "format": "uuid"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReassessmentResponseResult"
+                },
+                "example": {
+                  "event_id": "reassess_mock_002",
+                  "accepted": true,
+                  "data_origin": "synthetic",
+                  "source": "dingdong",
+                  "sync_pending": false,
+                  "sync_error": null
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "格式错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "登录无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限/用途不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "不存在或不属于当前家庭",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "状态/版本/幂等冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "字段校验失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "请求过频",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "未预期错误，仅安全错误码及追踪号",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "依赖不可用",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/children/{child_id}/reassessment/{event_id}/complete": {
+      "post": {
+        "operationId": "post_children_child_id_reassessment_event_id_complete",
+        "tags": [
+          "CA 对接"
+        ],
+        "summary": "回写复测完成结果",
+        "description": "承接既有测评流程，不新建第二套入口。同 event_id + 同 assessment_id 重放返回首次结果，不同 assessment_id 返回 422。auto_switch 恒为 false：只给建议，家长确认后才切换。",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "child_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "目标对象 ID，后端必须验证权限与归属",
+              "examples": [
+                "11111111-1111-4111-8111-111111111111"
+              ],
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "event_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "对方给的复测事件 ID（reassessment_event.event_id）",
+              "examples": [
+                "reassess_mock_002"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReassessmentCompleteInput"
+              },
+              "example": {
+                "request_id": "11111111-1111-4111-8111-111111111111",
+                "assessment_id": "11111111-1111-4111-8111-111111111111"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "已记录",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "type": "string",
+                  "description": "请求追踪号",
+                  "examples": [
+                    "11111111-1111-4111-8111-111111111111"
+                  ],
+                  "format": "uuid"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReassessmentCompleteResult"
+                },
+                "example": {
+                  "event_id": "reassess_mock_002",
+                  "new_persona_id": "persona_philosophy_01",
+                  "new_persona_name": "Socrates",
+                  "match_score": 86,
+                  "current_persona_match_score": 69,
+                  "match_delta": 17,
+                  "switch_recommended": true,
+                  "auto_switch": false,
+                  "data_origin": "synthetic",
+                  "source": "dingdong",
+                  "sync_pending": false,
+                  "sync_error": null
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "格式错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "登录无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限/用途不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "不存在或不属于当前家庭",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "状态/版本/幂等冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "字段校验失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "请求过频",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "未预期错误，仅安全错误码及追踪号",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "依赖不可用",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/children/{child_id}/observations": {
       "get": {
         "operationId": "get_children_child_id_observations",
@@ -13455,6 +14475,1253 @@
             ]
           }
         }
+      },
+      "CompanionPersonaValue": {
+        "type": "object",
+        "description": "当前陪学伙伴的公开人设；不含内部 Prompt，不含 talent_weight_version 的权重内容",
+        "additionalProperties": false,
+        "properties": {
+          "persona_id": {
+            "type": "string",
+            "examples": [
+              "persona_art_01"
+            ]
+          },
+          "persona_name": {
+            "type": "string",
+            "examples": [
+              "Mia"
+            ]
+          },
+          "persona_type": {
+            "type": "string",
+            "description": "对方契约的 6 值类型码",
+            "examples": [
+              "art"
+            ],
+            "enum": [
+              "art",
+              "science",
+              "engineering",
+              "philosophy",
+              "language",
+              "social"
+            ]
+          },
+          "type_label": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "类型中文名，映射表在后端（未知码为 null，前端不猜）",
+            "examples": [
+              "艺术"
+            ]
+          },
+          "public_description": {
+            "type": "string",
+            "examples": [
+              "艺术创作陪学伙伴"
+            ]
+          },
+          "learning_style_tags": {
+            "type": "array",
+            "description": "对方学习风格 code；契约未给 code 表，V1 按原样展示",
+            "items": {
+              "type": "string"
+            }
+          },
+          "talent_weight_version": {
+            "type": "string",
+            "examples": [
+              "pw_v1"
+            ]
+          }
+        },
+        "required": [
+          "persona_id",
+          "persona_name",
+          "persona_type",
+          "type_label",
+          "public_description",
+          "learning_style_tags",
+          "talent_weight_version"
+        ]
+      },
+      "CompanionBinding": {
+        "type": "object",
+        "description": "孩子与当前人设的绑定关系",
+        "additionalProperties": false,
+        "properties": {
+          "binding_id": {
+            "type": "string",
+            "examples": [
+              "bind_mock_001"
+            ]
+          },
+          "bind_time": {
+            "type": "string",
+            "examples": [
+              "2026-09-16T09:00:00+08:00"
+            ]
+          },
+          "match_score": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "匹配度（0-100，对方算法产出）；不是天赋分、不是适合度",
+            "examples": [
+              82
+            ],
+            "minimum": 0,
+            "maximum": 100
+          },
+          "status": {
+            "type": "string",
+            "examples": [
+              "active"
+            ]
+          }
+        },
+        "required": [
+          "binding_id",
+          "bind_time",
+          "match_score",
+          "status"
+        ]
+      },
+      "CompanionPersonaView": {
+        "type": "object",
+        "description": "面一：当前陪学伙伴。availability 非 ready 时 persona 与 binding 均为 null",
+        "additionalProperties": false,
+        "properties": {
+          "availability": {
+            "type": "string",
+            "description": "可用性；沿用成长观察的同一套 7 值词表，界面按它决定说不说话",
+            "examples": [
+              "ready"
+            ],
+            "enum": [
+              "unbound",
+              "no_consent",
+              "not_synced",
+              "no_data",
+              "ready",
+              "stale",
+              "error"
+            ]
+          },
+          "data_origin": {
+            "type": "string",
+            "description": "synthetic 是数据库注入的合成测试数据（界面必须挂「合成测试数据」徽标），live 才来自真实上游",
+            "examples": [
+              "synthetic"
+            ],
+            "enum": [
+              "synthetic",
+              "live"
+            ]
+          },
+          "source": {
+            "type": "string",
+            "description": "数据来源标识",
+            "examples": [
+              "dingdong"
+            ],
+            "enum": [
+              "dingdong"
+            ]
+          },
+          "fetched_at": {
+            "type": "string",
+            "description": "本次取数时刻",
+            "examples": [
+              "2026-09-17T10:00:00+08:00"
+            ],
+            "format": "date-time"
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "明细码（内部排查用；给家长的说法按 availability 统一给，不直接显示这个码）",
+            "examples": [
+              "upstream_not_configured"
+            ]
+          },
+          "persona": {
+            "description": "不可用或对方还没有匹配结果时为 null",
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CompanionPersonaValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "binding": {
+            "description": "不可用或尚未绑定时为 null",
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CompanionBinding"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "persona_switched": {
+            "type": "boolean",
+            "description": "是否已由家长确认切换过人设；V1 没有自动切换路径",
+            "examples": [
+              false
+            ]
+          }
+        },
+        "required": [
+          "availability",
+          "data_origin",
+          "source",
+          "fetched_at",
+          "reason",
+          "persona",
+          "binding",
+          "persona_switched"
+        ]
+      },
+      "GrowthCyclePeriod": {
+        "type": "object",
+        "description": "周期窗口；只允许 15 天与 30 天两种",
+        "additionalProperties": false,
+        "properties": {
+          "days": {
+            "type": "integer",
+            "examples": [
+              15
+            ],
+            "enum": [
+              15,
+              30
+            ]
+          },
+          "start": {
+            "type": "string",
+            "examples": [
+              "2026-09-01"
+            ]
+          },
+          "end": {
+            "type": "string",
+            "examples": [
+              "2026-09-15"
+            ]
+          }
+        },
+        "required": [
+          "days",
+          "start",
+          "end"
+        ]
+      },
+      "GrowthCyclePersona": {
+        "type": "object",
+        "description": "该周期内的人设快照",
+        "additionalProperties": false,
+        "properties": {
+          "persona_id": {
+            "type": "string",
+            "examples": [
+              "persona_art_01"
+            ]
+          },
+          "persona_name": {
+            "type": "string",
+            "examples": [
+              "Mia"
+            ]
+          },
+          "persona_type": {
+            "type": "string",
+            "examples": [
+              "art"
+            ]
+          },
+          "match_score": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "examples": [
+              82
+            ]
+          }
+        },
+        "required": [
+          "persona_id",
+          "persona_name",
+          "persona_type",
+          "match_score"
+        ]
+      },
+      "CompanionDelta": {
+        "type": "object",
+        "description": "有效陪伴互动代理量；界面文案写「陪伴值增长」，不写努力程度",
+        "additionalProperties": false,
+        "properties": {
+          "start": {
+            "type": "integer",
+            "examples": [
+              12
+            ]
+          },
+          "end": {
+            "type": "integer",
+            "examples": [
+              47
+            ]
+          },
+          "delta": {
+            "type": "integer",
+            "examples": [
+              35
+            ]
+          }
+        },
+        "required": [
+          "start",
+          "end",
+          "delta"
+        ]
+      },
+      "EngagementStage": {
+        "type": "object",
+        "description": "参与阶段与阶段进度",
+        "additionalProperties": false,
+        "properties": {
+          "index": {
+            "type": "number",
+            "examples": [
+              58.31
+            ]
+          },
+          "stage": {
+            "type": "string",
+            "examples": [
+              "developing"
+            ],
+            "enum": [
+              "initial",
+              "exploring",
+              "developing",
+              "deep",
+              "co_creation"
+            ]
+          },
+          "stage_label": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "阶段中文名，映射表在后端（未知码为 null）",
+            "examples": [
+              "成长"
+            ]
+          },
+          "stage_progress": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "0-100 的阶段进度",
+            "examples": [
+              55
+            ],
+            "minimum": 0,
+            "maximum": 100
+          }
+        },
+        "required": [
+          "index",
+          "stage",
+          "stage_label",
+          "stage_progress"
+        ]
+      },
+      "GrowthDimensions": {
+        "type": "object",
+        "description": "八维成长代理（对方算法产出，不是 CA 原始天赋分）；顺序固定，单项可空",
+        "additionalProperties": false,
+        "properties": {
+          "linguistic": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "本周期该维度为空时为 null：界面显示「本周期无该维度数据」，不补 0、不插值",
+            "examples": [
+              64
+            ]
+          },
+          "logical": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "本周期该维度为空时为 null：界面显示「本周期无该维度数据」，不补 0、不插值",
+            "examples": [
+              64
+            ]
+          },
+          "musical": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "本周期该维度为空时为 null：界面显示「本周期无该维度数据」，不补 0、不插值",
+            "examples": [
+              64
+            ]
+          },
+          "spatial": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "本周期该维度为空时为 null：界面显示「本周期无该维度数据」，不补 0、不插值",
+            "examples": [
+              64
+            ]
+          },
+          "bodily": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "本周期该维度为空时为 null：界面显示「本周期无该维度数据」，不补 0、不插值",
+            "examples": [
+              64
+            ]
+          },
+          "intrapersonal": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "本周期该维度为空时为 null：界面显示「本周期无该维度数据」，不补 0、不插值",
+            "examples": [
+              64
+            ]
+          },
+          "interpersonal": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "本周期该维度为空时为 null：界面显示「本周期无该维度数据」，不补 0、不插值",
+            "examples": [
+              64
+            ]
+          },
+          "naturalistic": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "本周期该维度为空时为 null：界面显示「本周期无该维度数据」，不补 0、不插值",
+            "examples": [
+              64
+            ]
+          }
+        },
+        "required": [
+          "linguistic",
+          "logical",
+          "musical",
+          "spatial",
+          "bodily",
+          "intrapersonal",
+          "interpersonal",
+          "naturalistic"
+        ]
+      },
+      "GrowthCycleView": {
+        "type": "object",
+        "description": "面二：固定 15/30 天的周期成长报告。与任意区间的「成长观察」是两份数据、两个来源，不合并",
+        "additionalProperties": false,
+        "properties": {
+          "availability": {
+            "type": "string",
+            "description": "可用性；沿用成长观察的同一套 7 值词表，界面按它决定说不说话",
+            "examples": [
+              "ready"
+            ],
+            "enum": [
+              "unbound",
+              "no_consent",
+              "not_synced",
+              "no_data",
+              "ready",
+              "stale",
+              "error"
+            ]
+          },
+          "data_origin": {
+            "type": "string",
+            "description": "synthetic 是数据库注入的合成测试数据（界面必须挂「合成测试数据」徽标），live 才来自真实上游",
+            "examples": [
+              "synthetic"
+            ],
+            "enum": [
+              "synthetic",
+              "live"
+            ]
+          },
+          "source": {
+            "type": "string",
+            "description": "数据来源标识",
+            "examples": [
+              "dingdong"
+            ],
+            "enum": [
+              "dingdong"
+            ]
+          },
+          "fetched_at": {
+            "type": "string",
+            "description": "本次取数时刻",
+            "examples": [
+              "2026-09-17T10:00:00+08:00"
+            ],
+            "format": "date-time"
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "明细码（内部排查用；给家长的说法按 availability 统一给，不直接显示这个码）",
+            "examples": [
+              "upstream_not_configured"
+            ]
+          },
+          "period": {
+            "description": "不可用时为 null",
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/GrowthCyclePeriod"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "persona": {
+            "description": "不可用时为 null",
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/GrowthCyclePersona"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "companion": {
+            "description": "不可用时为 null",
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CompanionDelta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "engagement": {
+            "description": "不可用时为 null",
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EngagementStage"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "growth_dimensions": {
+            "description": "不可用时为 null；可用时八维固定顺序",
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/GrowthDimensions"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "algorithm_version": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "对方算法版本号，只做展示不解释",
+            "examples": [
+              "growth_v1"
+            ]
+          },
+          "generated_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "examples": [
+              "2026-09-16T00:10:00+08:00"
+            ],
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "availability",
+          "data_origin",
+          "source",
+          "fetched_at",
+          "reason",
+          "period",
+          "persona",
+          "companion",
+          "engagement",
+          "growth_dimensions",
+          "algorithm_version",
+          "generated_at"
+        ]
+      },
+      "CompanionHealthValue": {
+        "type": "object",
+        "description": "互动健康度；四态决定界面说不说话，未知取值落「不做判断」",
+        "additionalProperties": false,
+        "properties": {
+          "health_id": {
+            "type": "string",
+            "examples": [
+              "health_mock_002"
+            ]
+          },
+          "persona_id": {
+            "type": "string",
+            "examples": [
+              "persona_science_01"
+            ]
+          },
+          "observation_days": {
+            "type": "integer",
+            "description": "观察天数；给分数时必须同时给天数，避免家长把单次分数当定论",
+            "examples": [
+              21
+            ]
+          },
+          "companion_delta": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "examples": [
+              3
+            ]
+          },
+          "health_score": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "examples": [
+              28
+            ]
+          },
+          "status": {
+            "type": "string",
+            "description": "四态：insufficient_data 不做判断（不显示分数）、normal 正常展示、watch 轻提示且不出复测 CTA、reassess 出复测入口",
+            "examples": [
+              "reassess"
+            ],
+            "enum": [
+              "insufficient_data",
+              "normal",
+              "watch",
+              "reassess"
+            ]
+          },
+          "reassessment_recommended": {
+            "type": "boolean",
+            "examples": [
+              true
+            ]
+          },
+          "trigger_reason": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "对方 code；界面只显示 trigger_label，不直接显示这个码",
+            "examples": [
+              "continuous_low_engagement"
+            ],
+            "enum": [
+              "low_engagement",
+              "continuous_low_engagement",
+              null
+            ]
+          },
+          "trigger_label": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "触发原因中文，映射表在后端",
+            "examples": [
+              "连续多期互动偏少"
+            ]
+          },
+          "evaluated_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "examples": [
+              "2026-09-22T09:00:00+08:00"
+            ],
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "health_id",
+          "persona_id",
+          "observation_days",
+          "companion_delta",
+          "health_score",
+          "status",
+          "reassessment_recommended",
+          "trigger_reason",
+          "trigger_label",
+          "evaluated_at"
+        ]
+      },
+      "CompanionHealthView": {
+        "type": "object",
+        "description": "面三：互动健康度。availability 非 ready/stale 时 health 为 null，不显示 0 分",
+        "additionalProperties": false,
+        "properties": {
+          "availability": {
+            "type": "string",
+            "description": "可用性；沿用成长观察的同一套 7 值词表，界面按它决定说不说话",
+            "examples": [
+              "ready"
+            ],
+            "enum": [
+              "unbound",
+              "no_consent",
+              "not_synced",
+              "no_data",
+              "ready",
+              "stale",
+              "error"
+            ]
+          },
+          "data_origin": {
+            "type": "string",
+            "description": "synthetic 是数据库注入的合成测试数据（界面必须挂「合成测试数据」徽标），live 才来自真实上游",
+            "examples": [
+              "synthetic"
+            ],
+            "enum": [
+              "synthetic",
+              "live"
+            ]
+          },
+          "source": {
+            "type": "string",
+            "description": "数据来源标识",
+            "examples": [
+              "dingdong"
+            ],
+            "enum": [
+              "dingdong"
+            ]
+          },
+          "fetched_at": {
+            "type": "string",
+            "description": "本次取数时刻",
+            "examples": [
+              "2026-09-17T10:00:00+08:00"
+            ],
+            "format": "date-time"
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "明细码（内部排查用；给家长的说法按 availability 统一给，不直接显示这个码）",
+            "examples": [
+              "upstream_not_configured"
+            ]
+          },
+          "health": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CompanionHealthValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "availability",
+          "data_origin",
+          "source",
+          "fetched_at",
+          "reason",
+          "health"
+        ]
+      },
+      "ReassessmentEvent": {
+        "type": "object",
+        "description": "复测建议事件；accepted 为 null 表示家长还没回写，界面每次进页面都应展示建议",
+        "additionalProperties": false,
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "examples": [
+              "reassess_mock_002"
+            ]
+          },
+          "old_profile_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "examples": [
+              "profile_mock_007"
+            ]
+          },
+          "old_persona_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "examples": [
+              "persona_art_01"
+            ]
+          },
+          "trigger_type": {
+            "type": "string",
+            "examples": [
+              "low_engagement"
+            ]
+          },
+          "trigger_label": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "触发原因中文，映射表在后端",
+            "examples": [
+              "近期互动偏少"
+            ]
+          },
+          "recommended_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "examples": [
+              "2026-09-30T17:00:00+08:00"
+            ],
+            "format": "date-time"
+          },
+          "accepted": {
+            "type": [
+              "boolean",
+              "null"
+            ],
+            "examples": [
+              null
+            ]
+          },
+          "new_assessment_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "examples": [
+              null
+            ]
+          },
+          "new_profile_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "examples": [
+              null
+            ]
+          },
+          "new_persona_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "复测完成后对方推荐的新角色；switch_recommended 为 false 时界面不展示它",
+            "examples": [
+              null
+            ]
+          },
+          "persona_switched": {
+            "type": "boolean",
+            "description": "是否已由家长确认切换；V1 没有自动切换路径",
+            "examples": [
+              false
+            ]
+          }
+        },
+        "required": [
+          "event_id",
+          "old_profile_id",
+          "old_persona_id",
+          "trigger_type",
+          "trigger_label",
+          "recommended_at",
+          "accepted",
+          "new_assessment_id",
+          "new_profile_id",
+          "new_persona_id",
+          "persona_switched"
+        ]
+      },
+      "ReassessmentView": {
+        "type": "object",
+        "description": "面四：待处理的复测建议。没有待处理建议时是 availability=no_data + event=null，不是错误",
+        "additionalProperties": false,
+        "properties": {
+          "availability": {
+            "type": "string",
+            "description": "可用性；沿用成长观察的同一套 7 值词表，界面按它决定说不说话",
+            "examples": [
+              "ready"
+            ],
+            "enum": [
+              "unbound",
+              "no_consent",
+              "not_synced",
+              "no_data",
+              "ready",
+              "stale",
+              "error"
+            ]
+          },
+          "data_origin": {
+            "type": "string",
+            "description": "synthetic 是数据库注入的合成测试数据（界面必须挂「合成测试数据」徽标），live 才来自真实上游",
+            "examples": [
+              "synthetic"
+            ],
+            "enum": [
+              "synthetic",
+              "live"
+            ]
+          },
+          "source": {
+            "type": "string",
+            "description": "数据来源标识",
+            "examples": [
+              "dingdong"
+            ],
+            "enum": [
+              "dingdong"
+            ]
+          },
+          "fetched_at": {
+            "type": "string",
+            "description": "本次取数时刻",
+            "examples": [
+              "2026-09-17T10:00:00+08:00"
+            ],
+            "format": "date-time"
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "明细码（内部排查用；给家长的说法按 availability 统一给，不直接显示这个码）",
+            "examples": [
+              "upstream_not_configured"
+            ]
+          },
+          "event": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ReassessmentEvent"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "availability",
+          "data_origin",
+          "source",
+          "fetched_at",
+          "reason",
+          "event"
+        ]
+      },
+      "ReassessmentResponseInput": {
+        "type": "object",
+        "description": "家长对复测建议的回写",
+        "additionalProperties": false,
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "description": "客户端生成的幂等键，重放同一请求返回首次结果",
+            "examples": [
+              "11111111-1111-4111-8111-111111111111"
+            ],
+            "format": "uuid"
+          },
+          "accepted": {
+            "type": "boolean",
+            "description": "true 走既有测评流程；false 表示暂不重新测评，之后不再重复打扰",
+            "examples": [
+              true
+            ]
+          }
+        },
+        "required": [
+          "request_id",
+          "accepted"
+        ]
+      },
+      "ReassessmentCompleteInput": {
+        "type": "object",
+        "description": "复测完成后的回写；assessment_id 是既有测评流程里那次答卷的 ID",
+        "additionalProperties": false,
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "description": "客户端生成的幂等键，重放同一请求返回首次结果",
+            "examples": [
+              "11111111-1111-4111-8111-111111111111"
+            ],
+            "format": "uuid"
+          },
+          "assessment_id": {
+            "type": "string",
+            "description": "我方测评 id",
+            "examples": [
+              "11111111-1111-4111-8111-111111111111"
+            ]
+          }
+        },
+        "required": [
+          "request_id",
+          "assessment_id"
+        ]
+      },
+      "ReassessmentResponseResult": {
+        "type": "object",
+        "description": "回写结果；本地状态先落库，出站失败只标记 sync_pending，不出现半截状态",
+        "additionalProperties": false,
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "examples": [
+              "reassess_mock_002"
+            ]
+          },
+          "accepted": {
+            "type": "boolean",
+            "examples": [
+              true
+            ]
+          },
+          "data_origin": {
+            "type": "string",
+            "examples": [
+              "synthetic"
+            ],
+            "enum": [
+              "synthetic",
+              "live"
+            ]
+          },
+          "source": {
+            "type": "string",
+            "examples": [
+              "dingdong"
+            ],
+            "enum": [
+              "dingdong"
+            ]
+          },
+          "sync_pending": {
+            "type": "boolean",
+            "examples": [
+              false
+            ]
+          },
+          "sync_error": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "出站失败的家长端说法（内部码不外露）",
+            "examples": [
+              "这次复测的状态已经变了，请刷新页面"
+            ]
+          }
+        },
+        "required": [
+          "event_id",
+          "accepted",
+          "data_origin",
+          "source",
+          "sync_pending",
+          "sync_error"
+        ]
+      },
+      "ReassessmentCompleteResult": {
+        "type": "object",
+        "description": "复测结果与新角色建议。switch_recommended 为 true 才展示新角色推荐卡，且仍须家长确认后才切换",
+        "additionalProperties": false,
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "examples": [
+              "reassess_mock_002"
+            ]
+          },
+          "new_persona_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "examples": [
+              "persona_philosophy_01"
+            ]
+          },
+          "new_persona_name": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "examples": [
+              "Socrates"
+            ]
+          },
+          "match_score": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "examples": [
+              86
+            ]
+          },
+          "current_persona_match_score": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "examples": [
+              69
+            ]
+          },
+          "match_delta": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "新角色相对当前角色的匹配度差；对方没给判断时按表 7.2 的阈值算",
+            "examples": [
+              17
+            ]
+          },
+          "switch_recommended": {
+            "type": [
+              "boolean",
+              "null"
+            ],
+            "description": "false 时界面只说保留当前角色，不展示新角色名",
+            "examples": [
+              true
+            ]
+          },
+          "auto_switch": {
+            "type": "boolean",
+            "description": "V1 恒为 false：任何路径都不得自动切换人设",
+            "examples": [
+              false
+            ],
+            "enum": [
+              false
+            ]
+          },
+          "data_origin": {
+            "type": "string",
+            "examples": [
+              "synthetic"
+            ],
+            "enum": [
+              "synthetic",
+              "live"
+            ]
+          },
+          "source": {
+            "type": "string",
+            "examples": [
+              "dingdong"
+            ],
+            "enum": [
+              "dingdong"
+            ]
+          },
+          "sync_pending": {
+            "type": "boolean",
+            "examples": [
+              false
+            ]
+          },
+          "sync_error": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "examples": [
+              null
+            ]
+          }
+        },
+        "required": [
+          "event_id",
+          "new_persona_id",
+          "new_persona_name",
+          "match_score",
+          "current_persona_match_score",
+          "match_delta",
+          "switch_recommended",
+          "auto_switch",
+          "data_origin",
+          "source",
+          "sync_pending",
+          "sync_error"
+        ]
       }
     }
   }
