@@ -67,14 +67,8 @@
 - gate: push
 - status: done
 - notes: 机制维护类：commit 后直接 push 并补 EXECUTED 行。只动 `queue.md`/`gates.md`/新建归档文件，不改驱动脚本与 prompt.md；todo/doing/gated/blocked 任务的 notes 保持全文不压。**2026-09-17 执行结果**：`gates.md` 95→34 行（22056→5098 字节）、`queue.md` 257→119 行（65969→16508 字节），两文件每轮读入 88025→21606 字节（-75.5%）；决定段 47 行历史移入 `.trellis/loop/gates-archive-20260917.md`（43 条 EXECUTED + 4 条一次性事后追认，逐行原文），决定段只留 T-003 常设直推规则 / T-021 批复 / DENY T-099；28 个 done 任务压成「标题 + 一行指针」（指针行首 token 仍是 `done`，指向各自 `report.md`；T-025 无 report.md，指向 queue 留档），压缩前全文 257 行留档 `.trellis/loop/queue-archive-20260917.md`；todo 任务（T-031/T-028/T-032..T-035/T-024）notes 逐字未压。验证：`python3 .trellis/tasks/T-036/verify.py` 全 PASS（含直接跑驱动脚本里真实的 `next_task`/`classify`/`loop_gate_snapshot` 解析块：`next_task` 返回 T-031、`classify(T-036)`/`classify(T-030)` 返回 DONE、`classify(T-031)` 非 DONE、门禁快照 2 行且 blocked 列表空），归档 47 行逐行核对 0 缺失且行序一致，抽查 T-030/T-022/T-025 被压缩内容均能在 report.md 或留档中找到；`python3 scripts/audit_documents.py` errors `[]`；未改驱动脚本、prompt.md、status.md、runs.log。
-
 ## T-031 存量 `core/api/common.py` 过 ruff format（T-027 连带发现）
-- goal: `backend/dingdong_ca/core/api/common.py:189` 通过 `ruff format`（HEAD 上即未格式化，最后一次改动是 T-019 提交 `2c00ac1`），只做格式化不改语义。
-- acceptance: `cd backend && uv run ruff format --check --target-version py313 .` 全绿；`git diff` 仅格式差异；相关测试（如 `tests/test_auth.py`）通过；audit errors 为空。
-- gate: none
-- status: todo
-- notes: 驱动自动标记——同一任务连续失败 2 次（2026-09-17T14:22:17Z）。**orchestrator 2026-09-17T14:25Z 解锁改回 todo**：两轮失败均为 Flash TPM 限流（开工 95s/320s 即中断，任务未做实质执行），非任务本身问题；acceptance 不变（py313 target 下已知 9 个 py314 误报文件不受影响，T-027 已验证该 target 可用）。若本任务排在 T-030 完成之前被取到：勿动 T-030 的未提交文件，只处理 common.py 并按 `[T-031]` 单独提交。
-- notes: 纯格式化 chore。机制维护类：commit 后可直接 push 并补 EXECUTED 行。
+- status: done · 见 `.trellis/tasks/T-031/report.md`（纯格式化 chore：`describe_target` 内 name 表达式按 ruff 重排，+5/−3；改后 `ruff format --check --target-version py313 .` `126 files already formatted`、`pytest tests/test_ops_audit_scope.py tests/test_auth.py -q` `26 passed in 58.97s`；已按机制维护类直推 push，远端 sha `bfe9dcdc93c0d1488175a375288209345a9d8d56`）
 
 ## T-028 起草给 DingDong 侧的澄清清单（只产出文档，不发送）
 - goal: 起草 `.trellis/tasks/T-028/dingdong-clarifications.md`，分三层：阻塞级（D10 base URL、D12 API key、D20 换机主动解绑规则）、确认级（儿童/设备映射与权属核验、窗口游标修订与指标单位、同步频率及阶段规则、甲方算法输入输出/超时幂等/一次性处理不留存约定）、后置级（真实短信与生产部署条件）；每条写清「我们为什么需要 / 没有它当前系统如何诚实降级 / 拿到后我方接入动作」。**只产出文档，不发送**。
