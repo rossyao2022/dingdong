@@ -160,8 +160,8 @@
 - goal: 用 `inject_fixture` 注入真实失败任务，验证阶段画像/数据同步失败在家长端是否可见；不可见则补可见性，可见则只记证据。
 - acceptance: 注入失败任务后家长端出现可见失败提示，或 report 明确记录「已可见」并附截图/响应原文；`cd frontend && npm run check && npm run test:unit` 通过；audit errors 为空；证据存 `.trellis/tasks/T-020/`。
 - gate: none
-- status: todo
-- notes: 不许把测试数据流程说成真实供应商接入；注入的合成数据记进 report 供清理。属第二批：commit 后可直接 push 并补 EXECUTED 行。
+- status: done
+- notes: 不许把测试数据流程说成真实供应商接入；注入的合成数据记进 report 供清理。属第二批：commit 后可直接 push 并补 EXECUTED 行。**2026-09-17 执行结果**：数据同步失败在家长端已可见，无需改产品代码；新增 `frontend/tests/sync-failure-visibility.spec.js` 1 条真实 Chrome 用例留作回归。流程：登录建档 → `inject_fixture --scenario sync_failure` → 核验关联 → 第一轮同步成功生成阶段报告 → `schedule_sync` 触发第二轮（UPSTREAM_TIMEOUT）→ 断言「成长观察」面板标题「显示上次成功同步的观察」+ 提示「同步未取得最新结果，已有数据不会当作最新数据展示。」（桌面 + 390×844 各截图，`pageerror` 为空）。验证数字：`sync-failure-visibility.spec.js` `1 passed (26.7s)`；`npm run check` exit 0；`test:unit` 16 pass 0 fail；`audit_documents.py` errors `[]`；证据 `growth-overview-after-failure.json`（`availability=stale / reason=UPSTREAM_TIMEOUT`）+ 2 张截图在 `.trellis/tasks/T-020/`。未验证项：`stage_status=failed` 分支（「处理暂未完成，请联系工作人员。」）代码存在，但现有 23 个 fixture 场景无一个能真实产生 `status=failed` 的 `stage_profile` 任务，故该分支只做代码级确认、未端到端验证（详见 report）。合成数据明细见 report 供清理。**本轮未 push**：worker 硬规则「不许 push（唯一例外是 gated+APPROVE 门禁动作）」，T-020 `gate: none` 不属例外，只本地 commit；queue 备注的「第二批可直推」留待 orchestrator 复核后由主会话 push。
 
 ## T-026 刷新 T-012 过期截图（证据保鲜小任务）
 - goal: 重跑 `frontend/tests/ca-account.spec.js` 刷新 `.trellis/tasks/T-012/shots/` 三张入库截图（T-017 轮 worker 发现其相对当前代码已过期，且已验证与 T-017 改动无关）；核对截图内容仍满足 T-012 验收（账户页不含「指纹」字样、显示同一摘要前 8 位）。
