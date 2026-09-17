@@ -168,3 +168,16 @@ test("出站没确认时给一句可重试说明", () => {
   assert.equal(view.syncNote, SYNC_PENDING_NOTE);
   assert.equal(reassessmentSection(data(event())).syncNote, "");
 });
+
+test("回写失败时错误落在复测区块自己这一块", () => {
+  const view = reassessmentSection(data(event()), {
+    error: "服务暂时不可用，请稍后再试。",
+  });
+  // 建议还在（本地没落库），错误与重试由 `app.js` 渲染在这一块内。
+  assert.equal(view.show, true);
+  assert.equal(view.phase, "suggest");
+  assert.equal(view.error, "服务暂时不可用，请稍后再试。");
+  assert.deepEqual(view.actions, ["accept", "decline"]);
+  // 没有失败时不出现任何错误文案
+  assert.equal(reassessmentSection(data(event())).error, "");
+});

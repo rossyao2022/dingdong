@@ -26,6 +26,8 @@
 
 **两个状态维度不要合并**：`CaAccount` 的 `status`（我方用不用）与 `bind_state`（对方接通没接通）刻意分开，`ca_models.py` 的模块 docstring 写明“不许假装已绑定”。同类判断先问自己是不是也在混两个语义。
 
+**约束不许比服务语义更严**（T-037 的 P-10）：库里的唯一键要和代码里的查询键一致。`CaReassessmentEvent.event_id` 曾经是**全局**唯一，而服务层读写一直按 `(ca_account, event_id)` 两键查（`services/ca_display.py` 的 `_local_event`），结果"对方按事件发放、跨账户可能重名"的 id 在第二个账户上撞约束拿 500。加约束前先照抄服务层的查询条件；要收紧到比它更严时，必须能说清为什么全局唯一是业务真需要。
+
 ## 不可变与“发布后不许原地改”
 
 - `assessment_models.ImmutableResult.save()`：非新增一律 `raise ValidationError("结果不可原地修改")`。继承它的有 `ObservationBatch`、`ProfileSnapshot`、`ReportVersion`——结果只能追加新行。

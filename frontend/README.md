@@ -180,15 +180,17 @@ npx playwright test tests/growth-cycle-panel.spec.js --reporter=list # 真实 Ch
 - **只回写本次承接的那次测评**：`state.reassessmentSession` 记下「开始复测」创建出来的测评 id，回写只认它——刷新过页面就认不出来，宁可不回写也不把别的测评 id 写过去。
 - **结果卡两个分支**：`switch_recommended=true` 展示新角色名 + 匹配度 + 当前角色匹配度 + 匹配度变化，并注明「确认入口尚未开放」；`false` 只说「保留当前角色」，**不展示新角色名**。`auto_switch` 恒为 `false`：对方响应里出现别的值也不照抄，前端没有任何自动切换路径（设计 §1.4 的不变量）。设计第 4 步的「由家长确认后才切换」在已冻结的三条接口里没有落点（澄清清单 D9 待对方答复），所以这里只呈现建议、不做假按钮。
 - **刷新后只剩中性说明**：`GET` 的事件字段里没有 `new_persona_name` / `match_score` / `switch_recommended`（只有 `new_assessment_id` / `new_persona_id`），完整结果只存在于本轮会话的 `complete` 响应里；重载后说「这次复测的结果已经回写。换不换陪学伙伴由你决定，我们不会自动更换。」
+- **回写失败的落点就在复测区块自己这一块**（T-037）：失败时不抛给 `act()` 的 catch——`showError()` 只写页面上第一个 `#main .form-error`，在 `#reports` 里那是「成长观察」的窗口表单，家长会在那儿看到一句跟自己操作无关的报错。现在 `respondReassessment()` 把错误存进 `state.reassessmentRespondError`，区块内渲染「这次没写成功，请重试。」+「重试」按钮；重试按同一个答案、同一个 `request_id` 重放（幂等），成功即回到正常状态。5xx 的文案由 `api.js` 的 `errorBody()` 统一成「服务暂时不可用，请稍后再试。」，不再把解析 HTML 调试页失败得到的「服务返回了无法识别的响应。」当用户文案。
 - **判定逻辑在 `reassessment.js`**：`reassessmentSection()` / `completionCard()` 是纯函数（不碰 DOM），由 `unit/reassessment.test.js` 盯住；合成徽标沿用面板级那一个 `testTag()`（同一个面板不挂第二个）。
 
 测试：
 
 ```sh
-npm run check && npm run test:unit                                   # 单测含 reassessment 9 项
-npx playwright test tests/reassessment-cta.spec.js --reporter=list    # 真实 Chrome 3 项
+npm run check && npm run test:unit                                          # 单测含 reassessment 10 项 + api.js 的 errorBody 4 项
+npx playwright test tests/reassessment-cta.spec.js --reporter=list           # 真实 Chrome 3 项
+npx playwright test tests/reassessment-write-failure.spec.js --reporter=list # 真实 Chrome 2 项（失败落点 + 同一 event_id 两个账户）
 ```
 
 浏览器用例覆盖：真/假两个 `switch_recommended` 分支各走一遍完整四步（含真实 22 题测评与两条真实 POST 的入参、响应断言）、`accepted=false` 后只剩一行且可展开、无建议时整块不出现、390×844 不横向溢出、结果卡上没有切换按钮、人设卡仍是原角色（没有自动切换），并收集 `pageerror`。截图 7 张在 `../.trellis/tasks/T-035/shots/`。
 
-**用例为什么要给每次注入换一个 `event_id`**：本地表 `ca_reassessment_event.event_id` 是**全局**唯一（T-032 的模型），而两个复测 mock 账号共用一份 fixture，所以同一个合成场景在全库只能被一个儿童回写一次——第二个儿童会在回写时撞唯一约束拿到 500。用例按「不写死测试数据」的纪律用 `scopeEvent()` 给这次注入换成独有 id，于是在任何库上都能重复跑。这条约束本身是后端的数据模型问题，已记在任务报告里交给编排侧决定。
+**同一个 `event_id` 现在可以由多个账户各自回写**（T-037 改的模型约束）：`ca_reassessment_event.event_id` 的唯一性从**全局**收窄为 `(ca_account, event_id)`（迁移 `0010`）——事件 id 由对方发放、跨账户可能重名（两个复测 mock 账号就共用一份 fixture），而服务层的读写一直按这两键查，约束比服务语义更严会让第二个儿童回写时撞唯一约束拿 500。`reassessment-cta.spec.js` 里的 `scopeEvent()` 留着不影响，只是不再是必需；`reassessment-write-failure.spec.js` 就用 fixture 原样的 `reassess_mock_001`，两个不同家庭的儿童先后回写都通过。

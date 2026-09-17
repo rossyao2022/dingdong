@@ -21,7 +21,7 @@ import {
   PROXY_NOTE,
   growthCycleSection,
 } from "./growth-cycle.js";
-import { reassessmentSection } from "./reassessment.js";
+import { WRITE_FAILED_TEXT, reassessmentSection } from "./reassessment.js";
 const $ = (s) => document.querySelector(s);
 const esc = (v) =>
   String(v ?? "").replace(
@@ -63,6 +63,9 @@ const state = {
   reassessmentSession: null,
   reassessmentStart: false,
   reassessmentWriteError: "",
+  // 回写「重新测评 / 先不测」失败时的落点：`{ message, accepted }`，重试要按同一个
+  // 答案再 POST 一次（同一个 `request_id`，幂等重放）。
+  reassessmentRespondError: null,
 };
 let viewEpoch = 0,
   busy = false,
@@ -107,6 +110,7 @@ function forget() {
   state.reassessmentSession = null;
   state.reassessmentStart = false;
   state.reassessmentWriteError = "";
+  state.reassessmentRespondError = null;
   childDraft = null;
   currentActivity = null;
   for (const k of Object.keys(hints)) delete hints[k];
@@ -476,6 +480,7 @@ function companionPanel(persona, health, reassessment) {
     expanded: state.reassessmentExpanded,
     sync: state.reassessmentWrite,
     completion: state.reassessmentResult,
+    error: state.reassessmentRespondError?.message,
   });
   const badge = p.synthetic || h.synthetic || r.synthetic ? testTag() : "";
   return `<section class="panel companion-panel"><div class="card-heading"><h2>陪学伙伴</h2>${badge}</div>${personaBlock(p)}${healthBlock(h, r)}<p class="note">${esc(HEALTH_FOOTER)}</p></section>`;
@@ -487,6 +492,11 @@ function reassessmentBlock(view) {
     ? `<p class="note">建议时间 ${date(view.recommendedAt)}${view.triggerLabel ? ` · 机器人服务给出的原因：${esc(view.triggerLabel)}` : ""}</p>`
     : "";
   const sync = view.syncNote ? `<p class="note">${esc(view.syncNote)}</p>` : "";
+  // 回写失败的落点就在这一块里：不借道 `showError()`，否则会写进页面上第一个
+  // `.form-error`（`#reports` 里那是「成长观察」的窗口表单）。
+  const failure = view.error
+    ? `<div class="notice error"><b>${esc(WRITE_FAILED_TEXT)}</b><p>${esc(view.error)}</p><div class="actions">${button("reassessment-retry", "重试", "", true)}</div></div>`
+    : "";
   const actions = view.actions.length
     ? `<div class="actions">${view.actions
         .map((a) =>
@@ -499,10 +509,10 @@ function reassessmentBlock(view) {
         .join("")}</div>`
     : "";
   if (view.phase === "declined")
-    return `<div class="reassessment"><p class="companion-state">${esc(view.title)}</p>${view.expanded ? when + `<p class="note">${esc(view.expandedNote)}</p>` : ""}<div class="actions">${button("reassessment-expand", view.expanded ? "收起" : "查看当时的建议", "", true)}</div>${sync}</div>`;
+    return `<div class="reassessment"><p class="companion-state">${esc(view.title)}</p>${view.expanded ? when + `<p class="note">${esc(view.expandedNote)}</p>` : ""}<div class="actions">${button("reassessment-expand", view.expanded ? "收起" : "查看当时的建议", "", true)}</div>${failure}${sync}</div>`;
   if (view.phase === "done")
-    return `<div class="reassessment"><p class="companion-state"><b>${esc(view.title)}</b></p>${view.completion ? completionBlock(view.completion) : `<p>${esc(view.note)}</p>`}${when}${sync}</div>`;
-  return `<div class="reassessment"><p class="reassessment-suggest">${esc(view.title)}</p>${view.note ? `<p>${esc(view.note)}</p>` : ""}${when}${actions}${sync}</div>`;
+    return `<div class="reassessment"><p class="companion-state"><b>${esc(view.title)}</b></p>${view.completion ? completionBlock(view.completion) : `<p>${esc(view.note)}</p>`}${when}${failure}${sync}</div>`;
+  return `<div class="reassessment"><p class="reassessment-suggest">${esc(view.title)}</p>${view.note ? `<p>${esc(view.note)}</p>` : ""}${when}${actions}${failure}${sync}</div>`;
 }
 /** `complete` 响应里的新角色建议：假分支不展示新角色名（设计 §1.4 第 4 步）。 */
 function completionBlock(card) {
@@ -1096,16 +1106,23 @@ async function createAssessment(grant) {
 async function respondReassessment(accepted) {
   const view = reassessmentSection(state.reassessment);
   if (!view.eventId) throw new Error("这条复测建议已经失效，请刷新页面。");
-  state.reassessmentWrite = await API.request(
-    `/children/${state.child.id}/reassessment/${encodeURIComponent(view.eventId)}/response`,
-    {
-      method: "POST",
-      body: {
-        request_id: requestKey(`reassessment-response:${view.eventId}:${accepted}`),
-        accepted,
+  try {
+    state.reassessmentWrite = await API.request(
+      `/children/${state.child.id}/reassessment/${encodeURIComponent(view.eventId)}/response`,
+      {
+        method: "POST",
+        body: {
+          request_id: requestKey(`reassessment-response:${view.eventId}:${accepted}`),
+          accepted,
+        },
       },
-    },
-  );
+    );
+    state.reassessmentRespondError = null;
+  } catch (e) {
+    // 失败留在复测区块内并给重试入口：抛给 `act()` 会被 `showError()` 写到页面上
+    // 第一个 `.form-error`，家长在「成长观察」看到一句跟复测无关的报错。
+    state.reassessmentRespondError = { message: errorMessage(e), accepted };
+  }
   state.reassessmentExpanded = false;
   await render();
 }
@@ -1633,6 +1650,12 @@ async function handleAction(action, el) {
       state.reassessmentExpanded = !state.reassessmentExpanded;
       await render();
       break;
+    case "reassessment-retry": {
+      const failed = state.reassessmentRespondError;
+      if (!failed) throw new Error("这次回写已经不在待重试状态，请刷新页面。");
+      await respondReassessment(failed.accepted);
+      break;
+    }
     case "start-reassessment":
       // 承接既有测评流程，不新建第二套测评入口。
       state.reassessmentStart = true;

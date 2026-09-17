@@ -392,6 +392,46 @@ def test_declined_reassessment_is_remembered_and_shown(client):
     assert read(client, REASSESS, child).json()["event"]["accepted"] is False
 
 
+def test_same_event_id_is_answerable_by_two_accounts(client):
+    """P-10：事件 id 由对方发放、跨账户可能重名，唯一性按账户而不是全局。
+
+    两个儿童各自的账户收到同一个 `event_id`（合成 fixture 的两个复测场景就是
+    这样）时，第二个不再撞唯一约束拿 500；幂等语义按账户隔离。
+    """
+    from dingdong_ca.core.ca_models import CaReassessmentEvent
+
+    first, _ = ready_child(client, "ca_display_reassess")
+    second, _ = ready_extra_child(client, "ca_display_reassess", "ROBOT-TOKEN-SECOND")
+    first_url = RESPOND % (first["id"], "reassess_mock_001")
+    second_url = RESPOND % (second["id"], "reassess_mock_001")
+
+    declined = client.post(
+        first_url, {"request_id": str(uuid.uuid4()), "accepted": False}, format="json"
+    )
+    assert declined.status_code == 200, declined.content
+    accepted = client.post(
+        second_url, {"request_id": str(uuid.uuid4()), "accepted": True}, format="json"
+    )
+    assert accepted.status_code == 200, accepted.content
+
+    # 同账户 + 同 event_id + 同 accepted 重放返回首次结果，不新增行
+    replay = client.post(
+        first_url, {"request_id": str(uuid.uuid4()), "accepted": False}, format="json"
+    )
+    assert replay.status_code == 200
+    assert replay.json() == declined.json()
+    # 换个答案仍按账户拒绝
+    conflict = client.post(
+        first_url, {"request_id": str(uuid.uuid4()), "accepted": True}, format="json"
+    )
+    assert conflict.status_code == 422
+    assert conflict.json()["code"] == "REASSESSMENT_ALREADY_ANSWERED"
+
+    assert CaReassessmentEvent.objects.count() == 2
+    assert read(client, REASSESS, first).json()["event"]["accepted"] is False
+    assert read(client, REASSESS, second).json()["event"]["accepted"] is True
+
+
 def test_complete_is_idempotent_and_never_auto_switches(client):
     from dingdong_ca.core.ca_models import CaReassessmentEvent
 

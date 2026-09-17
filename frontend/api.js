@@ -11,6 +11,18 @@ export function createRequestId(source = globalThis.crypto) {
 let access = "";
 let refreshInFlight;
 let epoch = 0;
+// 5xx 一律给这一句：后端出错时回的可能是 HTML 调试页（本地 DEBUG=True），
+// 解析失败会落到「无法识别的响应」这种内部说法，不是给家长看的文案。
+const SERVER_ERROR_MESSAGE = "服务暂时不可用，请稍后再试。";
+/**
+ * 失败响应的错误体。5xx 用统一文案，不带后端原始说法（可能是 HTML 调试页解析出的
+ * 「无法识别的响应」）；4xx 仍用后端给的业务文案与 code。
+ */
+export function errorBody(status, data) {
+  if (status >= 500)
+    return { code: data?.code, message: SERVER_ERROR_MESSAGE };
+  return data;
+}
 export class APIError extends Error {
   constructor(status, body) {
     super(body.message || "请求失败，请稍后重试。");
@@ -72,6 +84,8 @@ export async function request(
     await refresh();
     return request(path, { method, body, auth, retry: false });
   }
+  if (response.status >= 500)
+    throw new APIError(response.status, errorBody(response.status, data));
   if (!response.ok) throw new APIError(response.status, data);
   return data;
 }

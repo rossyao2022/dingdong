@@ -27,6 +27,8 @@ export const KEEP_CURRENT_NOTE =
   "新角色与当前角色的匹配度差别不大，继续用现在的陪学伙伴。";
 export const SYNC_PENDING_NOTE =
   "机器人服务还没有确认这次选择，我们会在后台重试。";
+/** 回写没成功时的落点：就落在复测区块自身，不借道页面级的错误位置。 */
+export const WRITE_FAILED_TEXT = "这次没写成功，请重试。";
 
 const HIDDEN = {
   show: false,
@@ -36,6 +38,7 @@ const HIDDEN = {
   triggerLabel: null,
   title: "",
   note: "",
+  error: "",
   actions: [],
   expandable: false,
   expanded: false,
@@ -75,6 +78,7 @@ export function reassessmentSection(data, options = {}) {
     eventId: event.event_id,
     recommendedAt: event.recommended_at || null,
     triggerLabel: event.trigger_label || null,
+    error: options.error || "",
     syncNote: options.sync?.sync_pending ? SYNC_PENDING_NOTE : "",
   };
   if (event.accepted === null || event.accepted === undefined)

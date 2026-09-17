@@ -12,8 +12,11 @@
 - `credentials: "same-origin"`，`AbortController` 20 秒超时。
 - 401 且有 `auth` 时自动 `refresh()` 一次并重试（`retry: false`，只重试一次）。
 - 204 返回 `null`；响应不是 JSON 时降级成 `{message: "服务返回了无法识别的响应。"}`。
+- **5xx 一律换成家长能读懂的统一文案**（`api.js` 的 `errorBody()` → 「服务暂时不可用，请稍后再试。」）：本地 `DEBUG=True` 时后端回的是 HTML 调试页，解析失败会落到上面那句内部说法，不能当用户文案（T-024 的 S-06，T-037 修）。4xx 仍用后端给的业务文案与 `code`。
 
 错误一律抛 `APIError`：`status`、`code`、`fields`（来自响应的 `field_errors`）。断了网/超时是 `status === 0`、`code === "NETWORK_ERROR"`，文案已经写成“操作结果可能尚未返回”，不要改成“失败”。
+
+**失败的落点跟动作走**：页面内某个区块自己的写操作失败，要渲染在那个区块里（例：复测区块的回写失败给「这次没写成功，请重试。」+ 重试按钮，`app.js` 的 `respondReassessment()` 存 `state.reassessmentRespondError`），**不要**让它冒泡到 `act()` 的 catch——`showError()` 只写页面上第一个 `#main .form-error`，家长会在别的区块（`#reports` 里那是「成长观察」的窗口表单）看到一句跟自己操作无关的报错。整页级失败（首屏取数、建档、登录）才用 `showError()`。
 
 ## 认证与登录态
 
