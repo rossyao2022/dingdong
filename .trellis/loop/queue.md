@@ -14,8 +14,8 @@
 - goal: 新建 `.trellis/tasks/T-002/hello.md`（一句话说明这是自循环门禁联调用的测试文件），并走 push 门禁流程。
 - acceptance: `.trellis/tasks/T-002/hello.md` 存在；`.trellis/loop/gates.md` 申请段出现 `REQUEST T-002 push ...`；本任务 `status` 为 `gated`；改动已用首行 `[T-002]` 的提交入库。
 - gate: push
-- status: gated
-- notes: 申请后**不要**自己 push。push 是本仓库的门禁动作，等 orchestrator 在 `gates.md` 决定段写 `APPROVE` 后才执行。
+- status: done
+- notes: 申请后**不要**自己 push。push 是本仓库的门禁动作，等 orchestrator 在 `gates.md` 决定段写 `APPROVE` 后才执行。2026-09-17 已执行：`git push origin codex/release-v0.3.6` 成功，远端 sha `de9a3d36f445313336496cb4f801842fc72cb8c1`（6edd418..de9a3d3）。
 
 ## T-004 验证模型切换
 - goal: R0e 机制自测。本任务第一轮 PRIMARY 调用会被假 grok 包装脚本伪造限流，驱动应当立即用 FALLBACK（Pro）重跑同一任务；worker 只需确认自己在 FALLBACK 重跑中正常完成、不改任何代码。

@@ -44,3 +44,20 @@ acceptance 逐条核对：
 ## 偏离与理由
 
 无偏离。除 hello.md 外只改了 `gates.md`（申请段追加）与 `queue.md`（任务状态字段），两者都是提示词第 2、6 节要求的动作。
+
+## 门禁执行（2026-09-17T06:07Z 续跑）
+
+orchestrator 已在 `gates.md` 决定段批准，本轮执行受门禁动作：
+
+```
+$ git push origin codex/release-v0.3.6
+To github.com:ivesyi/dingdong-ca.git
+   6edd418..de9a3d3  codex/release-v0.3.6 -> codex/release-v0.3.6
+
+$ git rev-parse origin/codex/release-v0.3.6
+de9a3d36f445313336496cb4f801842fc72cb8c1
+```
+
+远端 sha `de9a3d36f445313336496cb4f801842fc72cb8c1`，与本地 `HEAD` 一致；本次共推送 9 个 commit（`git rev-list --left-right --count origin/codex/release-v0.3.6...HEAD` 执行前为 `0	9`），其中含 T-002 的 `b7e30d1`。同一批次也带上了 R0d 的驱动机制 commit（`gates.md` 中 `APPROVE R0d push` 一并批准）。任务 `status` 改为 `done`，`gates.md` 决定段补 2 行 `EXECUTED`。
+
+先前「未验证项」中关于 push 闭环未跑通的部分，现已被本次执行覆盖。

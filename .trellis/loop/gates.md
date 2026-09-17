@@ -16,3 +16,9 @@ REQUEST R0d push R0d 自循环驱动机制 + 三轮实测（T-001/T-002/T-004）
 格式：`APPROVE|DENY T-xxx <gate类型> <原因>`；worker 执行完在下方补一行 `EXECUTED T-xxx ...`
 
 <!-- 下面按时间追加 -->
+
+APPROVE T-002 push 门禁联调测试，推 origin/codex/release-v0.3.6 2026-09-17T06:10Z
+APPROVE R0d push 自循环驱动机制已验收（三轮实测过），推 origin/codex/release-v0.3.6 2026-09-17T06:10Z
+
+EXECUTED T-002 push 成功：git push origin codex/release-v0.3.6，6edd418..de9a3d3，远端 sha de9a3d36f445313336496cb4f801842fc72cb8c1 2026-09-17T06:07Z
+EXECUTED R0d push 成功（同一次推送，R0d 的 9 个 commit 随分支一同上远端）：远端 sha de9a3d36f445313336496cb4f801842fc72cb8c1 2026-09-17T06:07Z
