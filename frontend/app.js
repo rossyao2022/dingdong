@@ -697,7 +697,7 @@ function accountRow(a) {
   const tags = active
     ? `<span class="tag">${esc(ACCOUNT_STATUS.active)}</span><span class="tag${bound ? "" : " warn"}">${esc(BIND_STATE[a.bind_state] || a.bind_state)}</span>`
     : `<span class="tag muted">${esc(ACCOUNT_STATUS.retired)}</span>`;
-  return `<div class="account-row${fresh ? " is-new" : ""}"><span class="account-role">${active ? "当前机器人" : "上一台机器人"}</span><div class="account-body"><code class="inline-code">${esc(a.ca_account_id)}</code>${fresh ? '<span class="tag fresh">刚生成</span>' : ""}${tags}<p class="note">机器人指纹 ${esc(a.nfc_token_fingerprint)}${a.robot_ref ? " · 设备标识 " + esc(a.robot_ref) : ""} · 建立于 ${date(a.created_at)}${a.unbound_at ? " · 归档于 " + date(a.unbound_at) : ""}</p></div></div>`;
+  return `<div class="account-row${fresh ? " is-new" : ""}"><span class="account-role">${active ? "当前机器人" : "上一台机器人"}</span><div class="account-body"><code class="inline-code">${esc(a.ca_account_id)}</code>${fresh ? '<span class="tag fresh">刚生成</span>' : ""}${tags}<p class="note">机器人标识（前 8 位）${esc(a.nfc_token_fingerprint)}${a.robot_ref ? " · 设备标识 " + esc(a.robot_ref) : ""} · 建立于 ${date(a.created_at)}${a.unbound_at ? " · 归档于 " + date(a.unbound_at) : ""}</p></div></div>`;
 }
 function robotPanel(rows) {
   const active = activeAccount(rows);
@@ -779,7 +779,7 @@ function replaceRobotDialog(account, token = "") {
   hints.replaceAccount = account;
   showDialog(
     "换一台机器人",
-    `<p>现在这台机器人（指纹 ${esc(account.nfc_token_fingerprint)}，账户号 <code class="inline-code">${esc(account.ca_account_id)}</code>）会先归档，再为新机器人发一个新号。归档后旧号不再使用。</p><div class="notice error"><b>换号会重新开始</b><p>${esc(ROBOT_REPLACEMENT_IMPACT)}</p></div><form id="replace-robot-form"><label class="field">新机器人的凭据<input name="nfc_token" value="${esc(token)}" required maxlength="2048" autocomplete="off" spellcheck="false" placeholder="从机器人标签上取得"></label><button class="button danger" type="submit">确认换机并归档旧号</button></form>`,
+    `<p>现在这台机器人（机器人标识前 8 位 ${esc(account.nfc_token_fingerprint)}，账户号 <code class="inline-code">${esc(account.ca_account_id)}</code>）会先归档，再为新机器人发一个新号。归档后旧号不再使用。</p><div class="notice error"><b>换号会重新开始</b><p>${esc(ROBOT_REPLACEMENT_IMPACT)}</p></div><form id="replace-robot-form"><label class="field">新机器人的凭据<input name="nfc_token" value="${esc(token)}" required maxlength="2048" autocomplete="off" spellcheck="false" placeholder="从机器人标签上取得"></label><button class="button danger" type="submit">确认换机并归档旧号</button></form>`,
   );
   $("#replace-robot-form").onsubmit = (e) => {
     e.preventDefault();
