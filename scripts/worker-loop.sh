@@ -9,16 +9,18 @@
 # 双模型（R0e）：启动时读 .trellis/loop/models.env 的 MODEL_PRIMARY / MODEL_FALLBACK。
 #   - 每轮先用 PRIMARY 跑；该轮 grok 进程疑似限流（TooManyRequests / rate limit / 429）时，
 #     立刻用 FALLBACK 重跑同一任务；下一轮回到 PRIMARY。两个都限流才 sleep 退避（连续翻倍，封顶 1800s）。
-#   - 只允许 Flash→Pro 升级，不写降级路径。FALLBACK 单日次数有上限（T-025，默认 6），超限不切 Pro 按失败处理。
+#   - 只允许 Flash→Pro 升级，不写降级路径。R0m 起不自设兜底次数上限（Yihu 指示：TPM 本来就由
+#     供应商限，自己再加一层只会自我受限）；节奏完全由真实限流与退避决定。
 # 长程语义（T-025，R0k 调整）：真 7×24——限流退避（连续翻倍封顶 1800s）是唯一的自然节流；每日轮次上限只作
-#   防失控安全阀（默认 480，正常节奏一天约 100 轮封顶，永不触发），到点才睡到 UTC 零点继续；唯一退出方式仍是 STOP。
+#   防失控安全阀（默认 480，正常节奏一天远打不满，永不触发），到点才睡到 UTC 零点继续；唯一退出方式仍是 STOP。
 # 配套 scripts/loop-watchdog.sh（可由 launchd 每 5 分钟探活拉起）。
-# 收尾钩子（T-022）：每轮 worker 退出后，与本轮开工时的基线对比——`gates.md` 申请段
-#   新增了 REQUEST 行、或 `queue.md` 里新出现 `status: blocked` 的任务——就调一次
-#   `herdr agent prompt <面板> "查岗：…"`（不带 --wait）叫醒 orchestrator。每轮至多一次；
+# 收尾钩子（T-022，R0m 修正）：每轮 worker 退出后，与本轮开工时的基线对比——`gates.md` 里
+#   **任何位置**新增了 REQUEST 行（R0m 起对全文件做指纹，不再只扫申请段——T-042 的 REQUEST 被写进
+#   决定段、唤醒没触发、驱动空转约 2 小时的教训）、或 `queue.md` 里新出现 `status: blocked` 的任务
+#   ——就调一次 `herdr agent prompt <面板> "查岗：…"`（不带 --wait）叫醒 orchestrator。每轮至多一次；
 #   该命令失败只记一行日志，不改变驱动退出码、不影响后续轮询。
 # 可调环境变量：LOOP_IDLE_SLEEP / LOOP_ROUND_TIMEOUT / LOOP_RATE_LIMIT_SLEEP /
-#              LOOP_DAILY_LIMIT / LOOP_FALLBACK_DAILY_LIMIT（Pro 兜底单日上限，默认 6）/
+#              LOOP_DAILY_LIMIT（防失控安全阀，默认 480）/
 #              LOOP_GROK_BIN（联调可指向假 grok 包装脚本）/
 #              LOOP_ORCH_PANE（orchestrator 面板，默认 w0:p4）/
 #              LOOP_WAKE_CMD（联调可指向假唤醒命令，默认调 herdr）
@@ -38,10 +40,9 @@ STOP="$LOOP_DIR/STOP"
 
 GROK_BIN="${LOOP_GROK_BIN:-$HOME/.grok/bin/grok}"
 IDLE_SLEEP="${LOOP_IDLE_SLEEP:-600}"
-ROUND_TIMEOUT="${LOOP_ROUND_TIMEOUT:-2400}"
+ROUND_TIMEOUT="${LOOP_ROUND_TIMEOUT:-3600}"
 RATE_SLEEP="${LOOP_RATE_LIMIT_SLEEP:-180}"
 DAILY_LIMIT="${LOOP_DAILY_LIMIT:-480}"
-FALLBACK_DAILY_LIMIT="${LOOP_FALLBACK_DAILY_LIMIT:-6}"
 ORCH_PANE="${LOOP_ORCH_PANE:-w0:p4}"
 WAKE_CMD="${LOOP_WAKE_CMD:-}"
 ORCH_WAKE_TEXT="查岗：读 .trellis/loop/ORCHESTRATOR.md 的门禁规则，处理 gates.md 新申请"
@@ -127,16 +128,18 @@ for path in (out, err):
         pass
 rate = bool(re.search(r"TooManyRequests|too many requests|rate limit|rate_limit|429", blob, re.I))
 
+# 终态优先（R0m）：worker 自己写下的 done/gated/blocked 是权威收口——轮内撞过限流字样但
+# 仍完成收口是常态，不能误判成 RATE_LIMITED 再白烧一次 FALLBACK 重跑。
 if status == "done":
     print("DONE")
-elif rate:
-    print("RATE_LIMITED")
-elif timed_out == 1 or rc != 0:
-    print("FAIL")
 elif status == "gated":
     print("GATED")
 elif status == "blocked":
     print("BLOCKED")
+elif rate:
+    print("RATE_LIMITED")
+elif timed_out == 1 or rc != 0:
+    print("FAIL")
 else:
     print("FAIL")
 PY
@@ -169,22 +172,6 @@ import datetime, sys
 today = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d")
 print(sum(1 for line in open(sys.argv[1], encoding="utf-8")
           if line.startswith(today) and " ROUND " in line))
-PY
-}
-
-# 今天已用 FALLBACK 跑掉的轮数（按 runs.log 的模型列统计，无论成败）。
-fallbacks_today() {
-  python3 - "$RUNS_LOG" "$MODEL_FALLBACK" <<'PY'
-import datetime, sys
-
-today = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d")
-model = sys.argv[2]
-n = 0
-for line in open(sys.argv[1], encoding="utf-8"):
-    parts = line.split()
-    if len(parts) >= 7 and parts[0].startswith(today) and parts[1] == "ROUND" and parts[6] == model:
-        n += 1
-print(n)
 PY
 }
 
@@ -265,7 +252,7 @@ print("RESET" if reset else "NOOP")
 PY
 }
 
-# 门禁快照：两行——申请段 REQUEST 行的指纹、queue.md 里 blocked 任务 id 列表。
+# 门禁快照：两行——gates.md 全文件 REQUEST 行的指纹（R0m）、queue.md 里 blocked 任务 id 列表。
 loop_gate_snapshot() {
   python3 - "$GATES" "$QUEUE" <<'PY'
 import hashlib, re, sys
@@ -273,8 +260,9 @@ import hashlib, re, sys
 gates = open(sys.argv[1], encoding="utf-8").read()
 queue = open(sys.argv[2], encoding="utf-8").read()
 
-apply_sec = gates.split("## 申请", 1)[1].split("## 决定", 1)[0] if "## 申请" in gates else ""
-reqs = "\n".join(re.findall(r"^REQUEST\s+\S+.*$", apply_sec, re.M))
+# R0m：REQUEST 写对段落是纪律要求，但钩子不能赌纪律——对全文件扫描，
+# 写错段（如 T-042 把 REQUEST 写进决定段）也要能触发唤醒，杜绝空转。
+reqs = "\n".join(re.findall(r"^REQUEST\s+\S+.*$", gates, re.M))
 
 blocked, cur = [], None
 for line in queue.splitlines():
@@ -413,24 +401,18 @@ run_round() {
   result="$(classify "$task" "$_rc" "$out" "$err" "$_timed_out")"
   record_round "$task" "$result" "$_dur" "$MODEL_PRIMARY" "rc=$_rc"
 
-  # 限流 → 用 FALLBACK 重跑同一任务（只做 Flash→Pro 升级；单日次数有上限，超限按限流失败处理）
+  # 限流 → 用 FALLBACK 重跑同一任务（只做 Flash→Pro 升级；R0m 起不设单日次数上限——
+  # TPM 由供应商限，自加一层只会自我受限，节奏交给真实限流与下面的退避）。
   if [ "$result" = "RATE_LIMITED" ]; then
-    local fb_today
-    fb_today="$(fallbacks_today)"
-    if [ "$fb_today" -ge "$FALLBACK_DAILY_LIMIT" ]; then
-      logline "FALLBACK_LIMIT $task Pro 兜底单日上限已到（${fb_today}/${FALLBACK_DAILY_LIMIT}），本轮不切 Pro，按限流失败处理"
-      say "Pro 兜底已达单日上限（${fb_today}/${FALLBACK_DAILY_LIMIT}），本轮不切 Pro，按失败处理"
-    else
-      local ts2 out2 err2 result2
-      ts2="$(date -u +%Y%m%dT%H%M%SZ)"
-      out2="$RUNS/$ts2-$task-fallback.json"
-      err2="$RUNS/$ts2-$task-fallback.err"
-      say "疑似限流，立即用 FALLBACK（${MODEL_FALLBACK}）重跑 ${task}（今日 Pro 第 $((fb_today + 1)) 轮，上限 ${FALLBACK_DAILY_LIMIT}）"
-      run_once "$task" "$MODEL_FALLBACK" "$out2" "$err2"
-      result2="$(classify "$task" "$_rc" "$out2" "$err2" "$_timed_out")"
-      record_round "$task" "$result2" "$_dur" "$MODEL_FALLBACK" "rc=$_rc"
-      result="$result2"
-    fi
+    local ts2 out2 err2 result2
+    ts2="$(date -u +%Y%m%dT%H%M%SZ)"
+    out2="$RUNS/$ts2-$task-fallback.json"
+    err2="$RUNS/$ts2-$task-fallback.err"
+    say "疑似限流，立即用 FALLBACK（${MODEL_FALLBACK}）重跑 ${task}"
+    run_once "$task" "$MODEL_FALLBACK" "$out2" "$err2"
+    result2="$(classify "$task" "$_rc" "$out2" "$err2" "$_timed_out")"
+    record_round "$task" "$result2" "$_dur" "$MODEL_FALLBACK" "rc=$_rc"
+    result="$result2"
 
     if [ "$result" = "RATE_LIMITED" ]; then
       _rl_streak=$((_rl_streak + 1))
@@ -478,8 +460,8 @@ if [ -z "$WAKE_CMD" ] && command -v herdr >/dev/null 2>&1; then
   fi
 fi
 
-say "驱动启动：root=$PROJECT_ROOT 空转间隔=${IDLE_SLEEP}s 单轮上限=${ROUND_TIMEOUT}s 每日上限=${DAILY_LIMIT}（防失控安全阀，R0k 起 480） Pro兜底日限=${FALLBACK_DAILY_LIMIT} PRIMARY=$MODEL_PRIMARY FALLBACK=$MODEL_FALLBACK"
-logline "START 驱动启动 idle=${IDLE_SLEEP}s round_timeout=${ROUND_TIMEOUT}s daily_limit=${DAILY_LIMIT} fallback_daily_limit=${FALLBACK_DAILY_LIMIT} primary=$MODEL_PRIMARY fallback=$MODEL_FALLBACK"
+say "驱动启动：root=$PROJECT_ROOT 空转间隔=${IDLE_SLEEP}s 单轮上限=${ROUND_TIMEOUT}s 每日上限=${DAILY_LIMIT}（防失控安全阀，正常节奏永不触发） PRIMARY=${MODEL_PRIMARY} FALLBACK=${MODEL_FALLBACK}（无自设次数上限，R0m）"
+logline "START 驱动启动 idle=${IDLE_SLEEP}s round_timeout=${ROUND_TIMEOUT}s daily_limit=${DAILY_LIMIT} primary=$MODEL_PRIMARY fallback=$MODEL_FALLBACK"
 
 while :; do
   if [ -f "$STOP" ]; then
