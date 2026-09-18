@@ -54,6 +54,23 @@ def test_service_detail_uses_business_language_and_records_history():
     assert str(support.pk) in body  # 事项编号对运营可见，便于与家长沟通
 
 
+def test_service_detail_other_requests_exclude_current_row():
+    """O-13：标题写着「其他事项」，就不能把当前这条事项自己列进去。"""
+    _child, _parent, support, correction, deletion = seed_requests()
+    staff = ops_client(make_staff("operations"))
+
+    page = staff.get(f"/ops/services/{support.pk}/")
+    assert {row.pk for row in page.context["child_requests"]} == {correction.pk, deletion.pk}
+    assert "该儿童的其他事项" in page.content.decode()
+
+    # 该儿童只有这一条事项时，整块不显示
+    _family, children, parent = make_family(child_name="小单", phone="+8613800000029")
+    only = make_service_request(children[0], parent)
+    solo = staff.get(f"/ops/services/{only.pk}/")
+    assert list(solo.context["child_requests"]) == []
+    assert "该儿童的其他事项" not in solo.content.decode()
+
+
 def test_requester_column_does_not_repeat_phone_when_name_is_blank():
     """O-08：家长没填姓名时姓名列给「未填写」，手机号只出现一次。
 

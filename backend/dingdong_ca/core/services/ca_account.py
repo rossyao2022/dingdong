@@ -19,7 +19,9 @@ from django.utils import timezone
 
 from dingdong_ca.core.api.common import ApiError, audit
 from dingdong_ca.core.ca_models import CaAccount
-from dingdong_ca.core.models import Child
+from dingdong_ca.core.models import Child, ExternalAssociation
+from dingdong_ca.core.services.associations import end_association
+from dingdong_ca.core.services.sync import lock_association
 
 logger = logging.getLogger(__name__)
 
@@ -188,11 +190,23 @@ def resolve_account(ca_account_id):
 
 
 def retire_account(account, user):
-    """归档账户。换机时先调它，旧号保留可查、永不重用。"""
+    """归档账户。换机时先调它，旧号保留可查、永不重用。
+
+    归档是「这台机器人不再属于这个孩子」，所以要一并结束该儿童的已核验关联：
+    账户页的关联区块、成长观察、三个展示面都按关联/活跃账户取数，只改账户状态
+    会让同一页出现「还没有机器人账户号」与「已核验 · 同步已启用」并存。
+    """
     if account.status == "retired":
         return account
-    account.status = "retired"
-    account.unbound_at = timezone.now()
-    account.save(update_fields=["status", "unbound_at", "updated_at"])
-    audit(user, "ca_account.retire", account)
+    with transaction.atomic():
+        account.status = "retired"
+        account.unbound_at = timezone.now()
+        account.save(update_fields=["status", "unbound_at", "updated_at"])
+        audit(user, "ca_account.retire", account)
+        # 换机流程由 `ca_account_one_active_child` 保证「先归档旧号才能发新号」，
+        # 所以此刻该儿童最多一条 verified 关联，且就是这台旧机器人的。
+        for ident in ExternalAssociation.objects.filter(
+            child_id=account.child_id, status="verified"
+        ).values_list("pk", flat=True):
+            end_association(lock_association(ident), user)
     return account

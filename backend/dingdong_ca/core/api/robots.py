@@ -8,6 +8,7 @@ from rest_framework import serializers
 from rest_framework.response import Response
 
 from dingdong_ca.core.models import ConsentGrant, ExternalAssociation, SyncCheckpoint
+from dingdong_ca.core.services.associations import end_association
 from dingdong_ca.core.services.sync import lock_association, schedule_sync
 from dingdong_ca.testsupport.adapter import FixtureFailure
 from dingdong_ca.testsupport.models import TestFixture
@@ -134,11 +135,6 @@ def revoke(request, association_id):
         ExternalAssociation, pk=association_id, child__family=family_for(request.user)
     )
     with transaction.atomic():
-        a = lock_association(association_id)
-        if a.status != "revoked":
-            a.status = "revoked"
-            a.ended_at = timezone.now()
-            a.save()
-            SyncCheckpoint.objects.filter(association=a).update(status="blocked", next_due_at=None)
-            audit(request.user, "association.revoke", a)
+        # 与「归档旧号」共用同一个结束动作，两处落的状态不会漂移。
+        a = end_association(lock_association(association_id), request.user)
         return Response(serialize_association(a))

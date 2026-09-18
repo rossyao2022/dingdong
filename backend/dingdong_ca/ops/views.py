@@ -620,7 +620,10 @@ def service_detail(request, request_id):
             can_handle=can(request, "service.handle"),
             can_delete=can(request, "service.delete"),
             can_view_audit=can_view_audit,
-            child_requests=DataRequest.objects.filter(child=row.child).order_by("-created_at")
+            # 「该儿童的其他事项」不列当前这条；只剩当前一条时整块不显示。
+            child_requests=DataRequest.objects.filter(child=row.child)
+            .exclude(pk=row.pk)
+            .order_by("-created_at")
             if row.child_id
             else [],
         ),

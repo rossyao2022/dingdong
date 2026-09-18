@@ -182,6 +182,55 @@ def test_dashboard_failed_job_uses_business_language():
     assert "RENDER_FAILED" not in body
 
 
+def test_dashboard_failed_job_card_label_matches_all_kinds():
+    """O-12：卡片与区块装的是全部失败生成任务，标签就不能只写「报告」。
+
+    实测库里 `kind=sync` 的失败任务会被算进这张卡片，运营按「报告」去找会扑空。
+    """
+    from ops_helpers import make_failed_job
+
+    make_failed_job(kind="sync")
+    make_failed_job(kind="report")
+    client = ops_client(make_staff("technical"))
+    response = client.get(reverse("ops:dashboard"))
+    body = response.content.decode()
+    assert response.context["counters"]["failed_jobs"] == 2
+    assert response.context["counters"]["failed_report_jobs"] == 1
+    assert "生成任务异常" in body
+    assert "报告生成异常" not in body
+    # 卡片数字与标签同一个口径
+    assert re.search(
+        r'ops-stat-label">生成任务异常</span>\s*</span>\s*'
+        r'<span class="ops-stat-value">2</span>',
+        body,
+    )
+    # 区块按任务类型逐条列出，同步与报告都在
+    assert "数据同步" in body and "报告生成" in body
+
+
+def test_dashboard_todo_lists_newest_five_service_requests():
+    """O-14：待办清单·服务事项取最新 5 条，并写明截断与排序。"""
+    from datetime import timedelta
+
+    from django.utils import timezone
+    from ops_helpers import make_service_request
+
+    from dingdong_ca.core.models import DataRequest
+
+    _family, children, parent = make_family()
+    rows = [make_service_request(children[0], parent) for _ in range(7)]
+    base = timezone.now() - timedelta(minutes=10)
+    for index, row in enumerate(rows):
+        DataRequest.objects.filter(pk=row.pk).update(created_at=base + timedelta(minutes=index))
+    client = ops_client(make_staff("operations"))
+    response = client.get(reverse("ops:dashboard"))
+    items = response.context["open_service_items"]
+    assert len(items) == 5
+    # 倒序：最新一条在前，最旧两条不出现
+    assert [row.pk for row in items] == [row.pk for row in reversed(rows[2:])]
+    assert "最多显示 5 条（按提交时间从新到旧）" in response.content.decode()
+
+
 # --------------------------------------------------------------------------- 家庭与儿童
 
 

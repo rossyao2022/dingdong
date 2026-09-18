@@ -378,6 +378,49 @@ def test_fresh_overview_no_fake_zero_profile_and_invalid_windows(client):
         assert client.get(url, query).status_code == 422
 
 
+def test_retiring_account_ends_verified_association(client):
+    """P-19：归档旧号要一并结束该儿童的已核验关联，否则同一页两种口径。
+
+    归档前：账户页关联区块「已核验 · 同步已启用」、成长观察「正在等待首次同步」、
+    展示面按活跃账户号取数。归档后三处必须一致落到未绑定态，历史数据不删。
+    """
+    child, _, _, _ = setup_robot(client)
+    run_jobs()
+    account = client.post(
+        f"/api/v1/children/{child['id']}/ca-accounts",
+        {"request_id": str(uuid.uuid4()), "nfc_token": "ROBOT-TOKEN-RETIRE"},
+        format="json",
+    ).json()
+    persona_url = f"/api/v1/children/{child['id']}/companion-persona"
+    assert client.get(persona_url).json()["availability"] != "unbound"
+
+    retired = client.post(
+        "/api/v1/ca-accounts/" + account["ca_account_id"] + "/retire", {}, format="json"
+    )
+    assert retired.status_code == 200
+    assert retired.json()["status"] == "retired"
+
+    # ① 账户页关联区块只渲染 verified 关联，归档后不该再有
+    rows = client.get(f"/api/v1/children/{child['id']}/associations").json()["items"]
+    assert [(a["status"], a["sync_status"]) for a in rows] == [("revoked", "blocked")]
+    assert rows[0]["ended_at"]
+    # ② 成长观察不再按「已核验、等首次同步」算
+    assert (
+        client.get(f"/api/v1/children/{child['id']}/observations", WINDOW).json()["availability"]
+        == "unbound"
+    )
+    # ③ 三个展示面为未绑定态
+    for path in ["companion-persona", "companion-health"]:
+        assert (
+            client.get(f"/api/v1/children/{child['id']}/{path}").json()["availability"] == "unbound"
+        )
+    # 归档不移除已有观察记录与报告，历史报告仍看得到
+    assert apps.get_model("core", "ObservationBatch").objects.count() == 1
+    assert [
+        row["kind"] for row in client.get(f"/api/v1/children/{child['id']}/reports").json()["items"]
+    ] == ["stage"]
+
+
 def test_unbind_stops_sync_without_moving_historical_records(client):
     child, _, association, _ = setup_robot(client)
     run_jobs()

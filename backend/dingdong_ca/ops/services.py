@@ -322,7 +322,8 @@ def dashboard_data(user=None):
         "open_service_items": list(
             DataRequest.objects.filter(status__in=["open", "processing"])
             .select_related("child")
-            .order_by("created_at")[:5]
+            # 首页先看刚进来的求助：取最新的 5 条（模板写明条数与排序）。
+            .order_by("-created_at")[:5]
         )
         if can_services
         else [],

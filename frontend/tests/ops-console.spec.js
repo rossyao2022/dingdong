@@ -134,7 +134,7 @@ test.describe("运营后台", () => {
 
       await expect(page.getByRole("heading", { name: "工作首页" })).toBeVisible();
       await expect(page.getByText("待处理服务事项")).toBeVisible();
-      await expect(page.getByText("报告生成异常").first()).toBeVisible();
+      await expect(page.getByText("生成任务异常").first()).toBeVisible();
       await expect(page.getByRole("heading", { name: "待办清单" })).toBeVisible();
       await expect(page.getByRole("heading", { name: "快捷入口" })).toBeVisible();
 
