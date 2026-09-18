@@ -6,6 +6,8 @@
 
 格式：`REQUEST T-xxx <gate类型> <一句话原因> <时间>`
 
+**护栏**：REQUEST 行必须追加在本申请段末尾、决定段标题行之前——驱动唤醒钩子只对申请段做指纹对比，写进决定段不会触发 orchestrator 叫醒（T-042 实际发生过：REQUEST 写进决定段，p4 未被叫醒，驱动空转约 2 小时）。
+
 <!-- 下面按时间追加 -->
 REQUEST T-099 push 驱动收尾钩子实测，T-022 钩子自测，可忽略 2026-09-17T07:20Z
 
@@ -16,6 +18,8 @@ REQUEST T-021 review 四个展示面（人设 / 15–30 天成长报告 / 健康
 REQUEST T-024 review 产品巡检 backlog 已写完（家长端 6 条 + 运营端 2 条 + T-003 未修复查 + 稳定性 1 条，含 P-10 复测回写 500 的真实响应体与截图证据），需复看后再决定导入哪些 2026-09-18T03:30Z
 REQUEST T-028 external 给 DingDong 的三层澄清清单已写完（`.trellis/tasks/T-028/dingdong-clarifications.md`，阻塞级 3 / 确认级 27 / 后置级 2，含 D1–D20 落点对照与 N1–N10 新增问题），只到「文档就绪待发」；发送属 external 动作，须 Yihu 放行后由人执行 2026-09-17T15:24Z
 REQUEST T-040 review 第三轮产品巡检 backlog 已写完（`.trellis/tasks/T-040/backlog.md`：家长端 2 条新条目，含 P-16 复测「开始复测」对话框被自动重渲染关掉的 100ms 采样证据与请求表；运营端 4 条新条目 O-08…O-11；T-037 两个儿童同 `event_id` 端到端复核 200/200；T-038/T-039/O-06/O-07 复核通过；源开关 `dingdong` 未配置支已复核），需复看后再决定导入哪些 2026-09-18T05:30Z
+
+REQUEST T-042 review 第四轮产品巡检 backlog 已写完（`.trellis/tasks/T-042/backlog.md`：家长端 2 条新条目 P-18 人设卡学习风格说明含内部流程话术 / P-19 归档旧号后账户页与展示面状态自相矛盾，运营端 3 条 O-12 工作首页「报告生成异常」卡片与区块装的是全部失败任务（实测 report kind 失败 0 条）/ O-13 服务事项详情「该儿童的其他事项」含当前事项自身 / O-14 待办清单只列最旧 5 条且不写截断，稳定性 1 条 S-07 `flows.spec.js` 本地必失败根因定位为单线程 worker 排队而非频控，另把 T-040 遗留的 console 401 定位到 `POST /api/v1/auth/refresh` 未登录探测），需复看后再决定导入哪些 2026-09-17T23:25Z
 
 ## 决定（orchestrator 追加）
 
@@ -64,4 +68,4 @@ APPROVE T-040 review 第三轮巡检 backlog 复看通过，走查方式合格�
 
 EXECUTED T-041 push 按本任务 notes「commit 后直接 push origin/codex/release-v0.3.6 并补 EXECUTED 行」执行：`git push origin codex/release-v0.3.6` → `89d9994..bddf02c`，远端 sha `bddf02c24ce57e41da24c46c44c9a88f9afb934a`（本次推送含两个提交：`dbbba00` = T-040 收尾的 progress.md 记录（orchestrator 已批「T-040 status 改 done，收尾轮可直推」，此前未推）、`bddf02c` = `[T-041]` 提交（42 文件 +830/−35：`app.js` 的 `leaveContext()`/`closeDialog()`/`schedulePoll()`/`pollPending` + 五处显式 `closeDialog()` + `render()` 补回朗读取消、`robots.py` 的 `PROOF_INVALID_MESSAGE`、`ops/labels.py` 三张词表 + `ops_labels.py` 的 `known_label`、七个运营模板、五个后端测试文件 + 新 spec `frontend/tests/t041-dialog-and-labels.spec.js`、`.trellis/spec/frontend/state-and-rendering.md`、`frontend/README.md`、`PROJECT_MEMORY.md`、T-041 任务记录与 10 张截图 + 先失败日志、T-012/T-019 被回归刷新脏的截图、`文档/文档校验结果.json`）；收尾记录提交紧随其后同一轮再推，分支头以 origin 为准） 2026-09-18T07:20Z
 
-REQUEST T-042 review 第四轮产品巡检 backlog 已写完（`.trellis/tasks/T-042/backlog.md`：家长端 2 条新条目 P-18 人设卡学习风格说明含内部流程话术 / P-19 归档旧号后账户页与展示面状态自相矛盾，运营端 3 条 O-12 工作首页「报告生成异常」卡片与区块装的是全部失败任务（实测 report kind 失败 0 条）/ O-13 服务事项详情「该儿童的其他事项」含当前事项自身 / O-14 待办清单只列最旧 5 条且不写截断，稳定性 1 条 S-07 `flows.spec.js` 本地必失败根因定位为单线程 worker 排队而非频控，另把 T-040 遗留的 console 401 定位到 `POST /api/v1/auth/refresh` 未登录探测），需复看后再决定导入哪些 2026-09-17T23:25Z
+APPROVE T-042 review 第四轮巡检 backlog 复看通过，走查方式合格（复测真假双分支端到端走通、归档探针定点取证、S-07 读库定位为本地单线程 worker 排队并证伪频控假设、把 T-040 遗留 console 401 定位到未登录 refresh 探测，纪律都对）。五条确认为真缺陷，修法裁定：**P-19 采用建议①**——`retire_account()` 归档账户时一并结束该儿童的已核验 `ExternalAssociation`（模型已有 `status`/`ended_at` 字段，不加迁移、不动对外契约；若发现 verified 关联与该账户对应不上，停下如实报告不硬凑）；**O-12 最小修法**——卡片标签「报告生成异常」改「生成任务异常」对齐区块口径（`ops/services.py` 已有 `failed_report_jobs` 可直接用，按 kind 拆两个计数不强制，拆了就卡片/区块/链接参数一并对齐）；**O-13**——`child_requests` 加 `.exclude(pk=row.pk)`，排除后为空则整块不显示；**O-14**——待办清单改按提交时间倒序取最新 5 条，说明写明截断与排序。S-07 属本地环境问题（单线程 Celery worker 排队），不改产品代码，作为 T-045 巡检固定判断项（是否放宽该用例的报告等待）。执行动作：由 orchestrator 导入 queue.md 为 T-043（P-18 人设卡说明文案去内部话术）与 T-044（P-19 + O-12/O-13/O-14 打包），插入本任务之后、T-028 之前；队尾追加下一次巡检 T-045（含归档路径端到端复核项）。T-042 `status` 改 `done`，收尾轮可直推（含本批准相关的 gates/queue 改动）。另（流程修正）：本任务的 `REQUEST T-042 review` 被 worker 写进了决定段，唤醒钩子只对申请段做指纹对比 → p4 未被叫醒、驱动空转约 2 小时；orchestrator 已把该行移回申请段并在申请段加护栏说明，后续 REQUEST 一律写在「## 决定」标题之前。 2026-09-18T01:19Z
