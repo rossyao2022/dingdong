@@ -1,0 +1,46 @@
+(node:13950) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:13980) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:13985) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✘  1 tests/t043-persona-copy.spec.js:105:1 › 人设卡学习风格说明是家长话术（P-18） (1.7m)
+
+
+  1) tests/t043-persona-copy.spec.js:105:1 › 人设卡学习风格说明是家长话术（P-18） ──────────────────────────────────
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('.companion-persona')
+    Expected substring: "仅供参考"
+    Received string:    "Newton科学科学探索陪学伙伴匹配度73 / 100匹配度是机器人服务按孩子的互动给出的（0–100），不是天赋分或能力分。学习风格：认知（中文对照由我方按取值直译，对方 code 表确认后核对；悬停可看原始取值）。绑定于 2026/09/01 02:05 · 权重版本 v1"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" locator('.companion-persona') with timeout 5000ms
+      - waiting for locator('.companion-persona')
+        14 × locator resolved to <div class="companion-persona">…</div>
+           - unexpected value "Newton科学科学探索陪学伙伴匹配度73 / 100匹配度是机器人服务按孩子的互动给出的（0–100），不是天赋分或能力分。学习风格：认知（中文对照由我方按取值直译，对方 code 表确认后核对；悬停可看原始取值）。绑定于 2026/09/01 02:05 · 权重版本 v1"
+
+
+      127 |
+      128 |   // 新说法要交代来源与「仅供参考」。
+    > 129 |   await expect(persona).toContainText("仅供参考");
+          |                         ^
+      130 |
+      131 |   const cardText = await persona.innerText();
+      132 |   const pageText = await page.evaluate(() => document.body.innerText);
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/t043-persona-copy.spec.js:129:25
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    .pw-out-t043/t043-persona-copy-人设卡学习风格说明是家长话术（P-18）/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .pw-out-t043/t043-persona-copy-人设卡学习风格说明是家长话术（P-18）/error-context.md
+
+  1 failed
+    tests/t043-persona-copy.spec.js:105:1 › 人设卡学习风格说明是家长话术（P-18） ───────────────────────────────────

@@ -1,0 +1,117 @@
+(node:18155) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18185) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 5 tests using 1 worker
+
+(node:18186) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/companion-panel.spec.js:193:1 › 6 个合成场景逐个走查：人设卡与健康度四态（真实 Chrome） (11.0s)
+(node:18276) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/companion-panel.spec.js:248:1 › 陪学伙伴面板：390×844 不横向溢出，账户页有只读人设行 (10.0s)
+(node:18328) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 tests/t038-copy-and-format.spec.js:115:1 › 家长端五条：P-11 原因标签、P-12 学习风格、P-13 单位、P-14 时间口径、P-15 来源说明 (12.0s)
+(node:18386) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 tests/t038-copy-and-format.spec.js:230:1 › 家长端空态：成长观察还没关联也有来源说明（P-15 边界） (27.9s)
+  ✓  5 tests/t038-copy-and-format.spec.js:254:1 › 运营端两条：O-06 家长列不重复手机号、O-07 新增口径标签 (44.8s)
+
+
+  1) tests/companion-panel.spec.js:193:1 › 6 个合成场景逐个走查：人设卡与健康度四态（真实 Chrome） ────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: '建立儿童档案' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: '建立儿童档案' }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: '建立儿童档案' })
+
+
+      29 |   await expect(
+      30 |     page.getByRole("heading", { name: "建立儿童档案" }),
+    > 31 |   ).toBeVisible();
+         |     ^
+      32 | }
+      33 |
+      34 | async function child(page, name) {
+        at login (/Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/companion-panel.spec.js:31:5)
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/companion-panel.spec.js:201:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    .pw-out-t043/companion-panel-6-个合成场景逐个走查：人设卡与健康度四态（真实-Chrome）/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .pw-out-t043/companion-panel-6-个合成场景逐个走查：人设卡与健康度四态（真实-Chrome）/error-context.md
+
+  2) tests/companion-panel.spec.js:248:1 › 陪学伙伴面板：390×844 不横向溢出，账户页有只读人设行 ──────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: '建立儿童档案' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: '建立儿童档案' }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: '建立儿童档案' })
+
+
+      29 |   await expect(
+      30 |     page.getByRole("heading", { name: "建立儿童档案" }),
+    > 31 |   ).toBeVisible();
+         |     ^
+      32 | }
+      33 |
+      34 | async function child(page, name) {
+        at login (/Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/companion-panel.spec.js:31:5)
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/companion-panel.spec.js:256:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    .pw-out-t043/companion-panel-陪学伙伴面板：390×844-不横向溢出，账户页有只读人设行/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .pw-out-t043/companion-panel-陪学伙伴面板：390×844-不横向溢出，账户页有只读人设行/error-context.md
+
+  3) tests/t038-copy-and-format.spec.js:115:1 › 家长端五条：P-11 原因标签、P-12 学习风格、P-13 单位、P-14 时间口径、P-15 来源说明 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: '建立儿童档案' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: '建立儿童档案' }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: '建立儿童档案' })
+
+
+      30 |   await expect(
+      31 |     page.getByRole("heading", { name: "建立儿童档案" }),
+    > 32 |   ).toBeVisible();
+         |     ^
+      33 | }
+      34 |
+      35 | async function child(page, name) {
+        at login (/Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/t038-copy-and-format.spec.js:32:5)
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/t038-copy-and-format.spec.js:123:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    .pw-out-t043/t038-copy-and-format-家长端五条-920a6-P-13-单位、P-14-时间口径、P-15-来源说明/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .pw-out-t043/t038-copy-and-format-家长端五条-920a6-P-13-单位、P-14-时间口径、P-15-来源说明/error-context.md
+
+  3 failed
+    tests/companion-panel.spec.js:193:1 › 6 个合成场景逐个走查：人设卡与健康度四态（真实 Chrome） ─────────────────────────
+    tests/companion-panel.spec.js:248:1 › 陪学伙伴面板：390×844 不横向溢出，账户页有只读人设行 ───────────────────────────
+    tests/t038-copy-and-format.spec.js:115:1 › 家长端五条：P-11 原因标签、P-12 学习风格、P-13 单位、P-14 时间口径、P-15 来源说明 
+  2 passed (1.8m)

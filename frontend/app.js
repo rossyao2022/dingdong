@@ -504,7 +504,7 @@ function personaBlock(view) {
       return `<span title="${esc(code)}">${esc(label)}</span>`;
     })
     .join("、");
-  return `<div class="companion-persona"><div class="companion-head"><h3>${esc(p.persona_name)}</h3>${p.type_label ? `<span class="tag">${esc(p.type_label)}</span>` : ""}</div>${p.public_description ? `<p>${esc(p.public_description)}</p>` : ""}${view.matchScore === null ? "" : metrics([{ label: "匹配度", value: view.matchScore, unit: "/ 100" }])}<p class="note">匹配度是机器人服务按孩子的互动给出的（0–100），不是天赋分或能力分。</p>${tags ? `<p class="note">学习风格：${tags}（中文对照由我方按取值直译，对方 code 表确认后核对；悬停可看原始取值）。</p>` : ""}<p class="note">绑定于 ${date(view.binding?.bind_time)} · 权重版本 <span title="${esc(p.talent_weight_version)}">${esc(versionLabel(p.talent_weight_version))}</span></p>${staleNotice(view)}</div>`;
+  return `<div class="companion-persona"><div class="companion-head"><h3>${esc(p.persona_name)}</h3>${p.type_label ? `<span class="tag">${esc(p.type_label)}</span>` : ""}</div>${p.public_description ? `<p>${esc(p.public_description)}</p>` : ""}${view.matchScore === null ? "" : metrics([{ label: "匹配度", value: view.matchScore, unit: "/ 100" }])}<p class="note">匹配度是机器人服务按孩子的互动给出的（0–100），不是天赋分或能力分。</p>${tags ? `<p class="note">学习风格：${tags}（来自机器人服务，中文名仅供参考；悬停可看原始取值）。</p>` : ""}<p class="note">绑定于 ${date(view.binding?.bind_time)} · 权重版本 <span title="${esc(p.talent_weight_version)}">${esc(versionLabel(p.talent_weight_version))}</span></p>${staleNotice(view)}</div>`;
 }
 /** 面三：互动健康度四态。分数只在 `normal` 出现，且必须与观察天数一起给。 */
 function healthBlock(view, reassessment = { show: false }) {
