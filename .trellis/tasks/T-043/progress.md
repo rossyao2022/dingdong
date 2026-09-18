@@ -23,6 +23,7 @@
 - 回归跑脏的他人截图（`T-033/shots/reassess-mobile.png`、`T-038/shots/o06-families.png`、`o07-dashboard.png`）已 `git checkout --` 复原。
 - `python3 scripts/audit_documents.py` → `{"markdown_files": 83, "local_links_checked": 518, "archived_files_checked": 85, "operations": 61, "schemas": 83, "errors": []}`。
 
-## Finish（进行中）
-- `queue.md` T-043 `status` 改 `done`（本任务 `gate: none`，按 notes 直推）；`gates.md` 决定段补 `EXECUTED T-042 push` 与 `EXECUTED T-043 push`；`experiment-log.md` 追加一行；`status.md` 整文件重写（保留末尾 `## 驱动告警` 原样）。
-- 下一步：提交（首行 `[T-043]`）并 push `origin/codex/release-v0.3.6`。
+## Finish（已完成）
+- 提交与推送：`[T-043]` 产品与任务记录提交 `8b6e6de`（16 文件；`frontend/app.js` 1 行 1 处 + 新用例 + `frontend/README.md` + `PROJECT_MEMORY.md` + T-043 记录与截图）→ `git push origin codex/release-v0.3.6` → `dcc692f..8b6e6de`，远端 sha `8b6e6deb1d9983d687265ccef5494f0d9bbe25f3`；随后同一轮再推收尾记录提交（queue/gates/status/experiment-log/progress + 文档校验结果）。
+- `queue.md` T-043 `status` 改 `done` 并补执行结果；`gates.md` 决定段补 `EXECUTED T-042 push`（`dcc692f`）与 `EXECUTED T-043 push`（`8b6e6de`）；`experiment-log.md` 追加 T-043 一行（含 5 个卡点）；`status.md` 整文件重写（末尾 `## 驱动告警` 原样保留）。
+- 本任务 `gate: none`，无门禁申请。
