@@ -137,7 +137,7 @@ npx playwright test tests/ca-account.spec.js --reporter=list  # 真实 Chrome 4 
 - **四态分支**：`insufficient_data` 只说「还在收集互动数据，暂时不做判断。」；`normal` 显健康度分数与观察天数；`watch` 只出轻提示、**不出复测 CTA**；`reassess` 只出「建议重新测评」文案。四态里只有 `normal` 出现分数，其余连 0 都不显示。未知 `status` 落「不做判断」分支，不按 `normal` 展示。
 - **判定逻辑在 `companion.js`**：`personaSection()` / `healthSection()` 是纯函数（不碰 DOM），负责四态分支、是否显分、空态与错误态文案，由 `unit/companion.test.js` 盯住；`app.js` 只把返回值拼成 HTML。新增顶层 `.js` 要同步 `server.cjs` 的静态白名单（照 C1 那节）。
 - **文案纪律**：`match_score` 写「匹配度 n / 100」并注明由机器人服务产出、不是天赋分或能力分；`persona_type` / `trigger_reason` / 学习风格取值的中文由后端下发（`type_label` / `trigger_label` / `learning_style_labels`），前端不维护映射表；学习风格正文只给中文对照，对方原始 code 只进 `title`（见 C5 一节）；内部 code 不进正文。**家长端只说「来自机器人服务，中文名仅供参考」**——「我方直译 / 对方 code 表尚未确认」这类对接状态是内部信息，不进家长端（T-043 的 P-18）。
-- **合成数据必须标**：`data_origin == "synthetic"` 时面板级挂 `testTag()`。`availability != "ready"`（含 `stale`）按后端给的说法显示，不显示任何数值——尤其不把 `not_synced`（服务没接通）说成「暂无数据」。
+- **合成标注纪律（2026-09-20 新口径）**：家长端**不再显示**合成标注——`testTag()` 为空实现（app.js 里保留调用点），`data_origin == "synthetic"` 不挂任何徽标；「不冒充真实供应商接入」的底线不变，但约束移到测试与运营侧（测试脚本断言家长端页面无「合成/本地测试/测试环境」字样，运营侧文案不受影响）。`availability != "ready"`（含 `stale`）按后端给的说法显示，不显示任何数值——尤其不把 `not_synced`（服务没接通）说成「暂无数据」。
 - **复测 CTA 不在本面板的这一步**：`reassess` 态的回写闭环（按钮 → `response` → 承接测评 → `complete`）是后续任务，本面板只呈现四态本身。
 
 测试：
@@ -160,7 +160,7 @@ npx playwright test tests/companion-panel.spec.js --reporter=list   # 真实 Chr
 - **判定逻辑在 `growth-cycle.js`**：`growthCycleSection()` 是纯函数（不碰 DOM），负责空态/错误态文案、哪些数值能显示、八维顺序与缺失维度，由 `unit/growth-cycle.test.js` 盯住；可用性文案与陈旧提示直接复用 `companion.js` 的 `AVAILABILITY_TEXT` / `STALE_NOTICE`，同一件事不出现两种说法。
 - **八维成长代理**：按固定顺序渲染条形（原生 `<progress>`），某一维为 `null` 时该行显示「本周期无该维度数据」，**不补 0、不插值**（值为 `0` 是数据，照常显示）；区块下方固定标注「成长代理（对方算法产出，不是 CA 原始天赋分）。」。**中文维度名由后端 `growth_dimension_labels` 下发**（键与 `growth_dimensions` 同序同集，映射表在 `ca_display.py`，与 `type_label` / `stage_label` 同一做法，见 T-039）；前端只保留八维的固定**键顺序** `DIMENSION_KEYS`，不再维护第二套中文映射，后端没给该维名字时兜底「未识别维度」、不把英文 code 当维度名显示。
 - **空态分两句**：`reason == "period_incomplete"`（绑定不满 15 天）说「成长周期还没走完，满 15 天后会生成第一份周期报告。」；其余 `no_data` 说「这个周期还没有报告。」。真源模式下 404 只带回业务码 `40401`，区分不出两者，会落到后一句（只有合成模式会给 `period_incomplete`）。
-- **合成徽标与数值纪律同 C2**：`data_origin == "synthetic"` 时面板级挂 `testTag()`；`availability` 不是 `ready` / `stale` 时不显示任何数值（连 0 都不显示），也不出八维条形。`stale` 照常显示上次成功的数据并标注。
+- **数值纪律同 C2**：`availability` 不是 `ready` / `stale` 时不显示任何数值（连 0 都不显示），也不出八维条形。`stale` 照常显示上次成功的数据并标注。合成徽标已按 2026-09-20 新口径取消（`testTag()` 空实现）。
 - **不展示的字段**：`engagement.index`（互动参与指数）与 `period.days` 的原始字段名不进界面——设计 §1.2 的展示规则只要求 `companion.delta`、`engagement.stage` + `stage_progress` 与八维。
 
 测试：
@@ -182,7 +182,7 @@ npx playwright test tests/growth-cycle-panel.spec.js --reporter=list # 真实 Ch
 - **结果卡两个分支**：`switch_recommended=true` 展示新角色名 + 匹配度 + 当前角色匹配度 + 匹配度变化，并注明「确认入口尚未开放」；`false` 只说「保留当前角色」，**不展示新角色名**。`auto_switch` 恒为 `false`：对方响应里出现别的值也不照抄，前端没有任何自动切换路径（设计 §1.4 的不变量）。设计第 4 步的「由家长确认后才切换」在已冻结的三条接口里没有落点（澄清清单 D9 待对方答复），所以这里只呈现建议、不做假按钮。
 - **刷新后只剩中性说明**：`GET` 的事件字段里没有 `new_persona_name` / `match_score` / `switch_recommended`（只有 `new_assessment_id` / `new_persona_id`），完整结果只存在于本轮会话的 `complete` 响应里；重载后说「这次复测的结果已经回写。换不换陪学伙伴由你决定，我们不会自动更换。」
 - **回写失败的落点就在复测区块自己这一块**（T-037）：失败时不抛给 `act()` 的 catch——`showError()` 只写页面上第一个 `#main .form-error`，在 `#reports` 里那是「成长观察」的窗口表单，家长会在那儿看到一句跟自己操作无关的报错。现在 `respondReassessment()` 把错误存进 `state.reassessmentRespondError`，区块内渲染「这次没写成功，请重试。」+「重试」按钮；重试按同一个答案、同一个 `request_id` 重放（幂等），成功即回到正常状态。5xx 的文案由 `api.js` 的 `errorBody()` 统一成「服务暂时不可用，请稍后再试。」，不再把解析 HTML 调试页失败得到的「服务返回了无法识别的响应。」当用户文案。
-- **判定逻辑在 `reassessment.js`**：`reassessmentSection()` / `completionCard()` 是纯函数（不碰 DOM），由 `unit/reassessment.test.js` 盯住；合成徽标沿用面板级那一个 `testTag()`（同一个面板不挂第二个）。
+- **判定逻辑在 `reassessment.js`**：`reassessmentSection()` / `completionCard()` 是纯函数（不碰 DOM），由 `unit/reassessment.test.js` 盯住；徽标沿用面板级那一个 `testTag()` 空实现（同一个面板不挂第二个，2026-09-20 起家长端不显示合成标注）。
 
 测试：
 
