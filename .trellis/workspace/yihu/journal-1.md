@@ -47,3 +47,28 @@
 
 - 等 orchestrator 放行后再 push；本地提交停在 06abb2c
 - 待拍板：门禁①是否豁免 merge commit、npm test（Playwright e2e）4 项失败是否单开一轮、审计是否 SKIP 掉 .trellis/.claude/.cursor
+
+
+## Session 2: T-047 家长端文案清理收尾 + T-046/T-047 归档
+<!-- trellis-session: v=2 fp=297434598ffba6c1 -->
+
+**Date**: 2026-09-20
+**Task**: T-047 家长端文案清理收尾 + T-046/T-047 归档
+**Branch**: `codex/release-v0.3.6`
+
+### Summary
+
+T-047 收尾：README 合成标注纪律改新口径（testTag 空实现，家长端不显示合成标注）；TYPESAFE_API_KEY 补设后重跑完整 GUI 测试 run3，30/30（21 门禁 + 9 Jev，0 SKIP）；PROJECT_MEMORY.md 同步两轮记录；T-046/T-047 task.json 置 completed 后双双归档至 .trellis/tasks/archive/2026-09/。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `2520abf` | [T-047] fix(parent+core): 家长端清理合成/测试类文案与冗长免责 + 完整 GUI 重测 |
+| `3834372` | [T-047] chore(docs): 收尾——README 合成标注纪律改新口径 + Jev 复验补跑 9/9 + 记忆与证据同步 |
+| `0accbd8` | [T-047] chore(task): 任务状态置 completed |
+| `18d2a2a` | [T-046] chore(task): 任务状态置 completed |
+
+### Status
+
+[OK] **Completed**
