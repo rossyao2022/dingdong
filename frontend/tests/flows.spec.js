@@ -149,6 +149,9 @@ test("真实登录、活动完成、刷新恢复、退出清理", async ({ page 
 });
 
 test("用途授权、22题、合成输入、真实初始报告", async ({ page }) => {
+  // 22 题逐题保存 + 异步报告流水线（sync → stage_profile → report）实测 75s+；
+  // 与 reassessment-cta.spec.js 同一测评流程的做法一致，显式放宽到 10 分钟。
+  test.setTimeout(600000);
   await login(page);
   const id = await child(page);
   inject(id, "assessment_success");
@@ -169,19 +172,19 @@ test("用途授权、22题、合成输入、真实初始报告", async ({ page }
       .click();
   }
   await expect(
-    page.getByText("真实指纹采集尚未开放", { exact: true }),
+    page.getByText("提交五张样例完成本次测评", { exact: false }),
   ).toBeVisible();
   await page.reload();
   await expect(
-    page.getByText("真实指纹采集尚未开放", { exact: true }),
+    page.getByText("提交五张样例完成本次测评", { exact: false }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "提交合成样例", exact: true }).click();
+  await page.getByRole("button", { name: "提交样例", exact: true }).click();
   await expect(
     page.getByRole("button", { name: "查看初始报告", exact: true }),
   ).toBeVisible({ timeout: 20000 });
   await page.getByRole("button", { name: "查看初始报告", exact: true }).click();
   await expect(
-    page.getByText("专业测评结果（尚未接入）: 暂无数据", { exact: true }),
+    page.getByText("专业测评结果: 暂无数据", { exact: true }),
   ).toBeVisible();
 });
 

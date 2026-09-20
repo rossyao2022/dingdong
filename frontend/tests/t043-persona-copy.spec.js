@@ -133,8 +133,8 @@ test("人设卡学习风格说明是家长话术（P-18）", async ({ page }) =>
   // 原始取值仍在 `title` 里（悬停可看 code 这条不变）。
   await expect(persona.locator('span[title="cognitive"]')).toHaveText("认知");
 
-  // 新说法要交代来源与「仅供参考」。
-  await expect(persona).toContainText("仅供参考");
+  // 新说法交代来源（机器人服务）。
+  await expect(persona).toContainText("由机器人服务提供");
 
   const cardText = await persona.innerText();
   const pageText = await page.evaluate(() => document.body.innerText);

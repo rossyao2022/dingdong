@@ -45,7 +45,7 @@ export const DIMENSION_MISSING = "本周期无该维度数据";
 export const DIMENSION_UNKNOWN = "未识别维度";
 
 /** 八维的性质标注（设计 §1.2），与「网页活动是家庭自报记录」同一纪律。 */
-export const PROXY_NOTE = "成长代理（对方算法产出，不是 CA 原始天赋分）。";
+export const PROXY_NOTE = "成长代理由机器人服务算法产出，不是能力评分。";
 
 /** 空态两句分开写（设计 §3.2）：周期没走完 ≠ 对方没有这个周期。 */
 export const PERIOD_INCOMPLETE = "成长周期还没走完，满 15 天后会生成第一份周期报告。";

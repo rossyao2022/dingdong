@@ -236,6 +236,6 @@ test("来源标记：非合成数据不挂合成徽标", () => {
   assert.equal(growthCycleSection(growthData({ data_origin: "live" })).synthetic, false);
 });
 
-test("面二：八维标注写明是成长代理，不是 CA 原始天赋分", () => {
-  assert.equal(PROXY_NOTE, "成长代理（对方算法产出，不是 CA 原始天赋分）。");
+test("面二：八维标注写明是成长代理，不是能力评分", () => {
+  assert.equal(PROXY_NOTE, "成长代理由机器人服务算法产出，不是能力评分。");
 });

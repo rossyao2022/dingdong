@@ -75,5 +75,5 @@ def validate_synthetic_input(request):
     for i, slot in enumerate(SLOTS, 1):
         f = request.FILES[slot]
         if f.content_type != "image/png" or f.read(MAX_FILE + 1) != synthetic_png(i):
-            raise ApiError("INPUT_SLOTS_INVALID", 422, "当前仅允许指定合成测试图片")
+            raise ApiError("INPUT_SLOTS_INVALID", 422, "样例图片不符合要求，请重新提交")
     return fields

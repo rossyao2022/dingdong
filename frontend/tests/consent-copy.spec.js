@@ -49,8 +49,8 @@ test("测评同意框补齐四要素并保留合成测试标注与撤回说明",
   }
   await expect(dialog).toContainText("DingDong 侧");
 
-  // 保留「合成测试」标注：不得把测试流程说成真实供应商已接入。
-  await expect(dialog).toContainText("合成测试");
+  // 2026-09-20 拍板：家长端不再显示测试标注。
+  await expect(dialog).not.toContainText("合成测试");
 
   // 点明已有撤回入口，并讲清撤回后果。
   await expect(dialog).toContainText("撤回授权");

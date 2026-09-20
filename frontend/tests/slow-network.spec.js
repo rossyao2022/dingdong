@@ -38,7 +38,7 @@ test("4 秒延迟下点「登录」：按钮给出可见进行中态，慢网结
   await page.goto("/");
   await page.getByLabel("手机号", { exact: true }).fill(phone());
   await page.getByRole("button", { name: "获取验证码", exact: true }).click();
-  await expect(page.locator("#toast")).toContainText("验证码已准备好");
+  await expect(page.locator("#toast")).toContainText("验证码已发送");
   await page.getByLabel("验证码", { exact: true }).fill("00000");
 
   const cdp = await page.context().newCDPSession(page);
@@ -68,7 +68,7 @@ test("登录失败时按钮回到「登录」原样，可再次提交", async ({
   await page.goto("/");
   await page.getByLabel("手机号", { exact: true }).fill(phone());
   await page.getByRole("button", { name: "获取验证码", exact: true }).click();
-  await expect(page.locator("#toast")).toContainText("验证码已准备好");
+  await expect(page.locator("#toast")).toContainText("验证码已发送");
   await page.getByLabel("验证码", { exact: true }).fill("11111");
 
   const cdp = await page.context().newCDPSession(page);

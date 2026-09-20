@@ -49,7 +49,7 @@ test("填了合法手机号仍能拿到验证码并登录（回归）", async ({
   await page.goto("/");
   await page.getByLabel("手机号", { exact: true }).fill(number);
   await page.getByRole("button", { name: "获取验证码", exact: true }).click();
-  await expect(page.locator("#toast")).toContainText("验证码已准备好");
+  await expect(page.locator("#toast")).toContainText("验证码已发送");
   await expect(formError(page)).toHaveText("");
   const submit = page.getByRole("button", { name: "登录", exact: true });
   await expect(submit).toBeEnabled();

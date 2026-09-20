@@ -163,9 +163,9 @@ async function completeAssessment(page) {
       .click();
   }
   await expect(
-    page.getByText("真实指纹采集尚未开放", { exact: true }),
+    page.getByText("提交五张样例完成本次测评", { exact: false }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "提交合成样例", exact: true }).click();
+  await page.getByRole("button", { name: "提交样例", exact: true }).click();
   await expect(
     page.getByText("本次测评已处理完成", { exact: true }),
   ).toBeVisible({ timeout: 60000 });

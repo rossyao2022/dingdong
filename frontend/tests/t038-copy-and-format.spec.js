@@ -162,11 +162,11 @@ test("家长端五条：P-11 原因标签、P-12 学习风格、P-13 单位、P-
     animations: "disabled",
   });
 
-  // P-13：合成观察单位是中文，界面不再出现 "count"。
+  // P-13：观察单位是中文，界面不再出现 "count"。
   const observation = page.locator("section.panel", {
     hasText: "机器人行为观察",
   });
-  await expect(observation).toContainText("合成观察次数");
+  await expect(observation).toContainText("观察次数");
   await expect(observation).toContainText("次");
   expect(visible).not.toContain("count");
   await observation.screenshot({
@@ -175,8 +175,7 @@ test("家长端五条：P-11 原因标签、P-12 学习风格、P-13 单位、P-
   });
 
   // P-15：成长观察区块有来源说明。
-  await expect(observation).toContainText("数据来源：");
-  await expect(observation).toContainText("本机同步到的机器人行为观察");
+  await expect(observation).toContainText("此处为机器人行为观察");
   await observation.locator("p.note").last().screenshot({
     path: path.join(SHOTS, "p15-observation-source.png"),
     animations: "disabled",
@@ -212,7 +211,7 @@ test("家长端五条：P-11 原因标签、P-12 学习风格、P-13 单位、P-
   // 窄屏同页：五条都在，且不横向溢出。
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(persona).toContainText("学习风格：认知");
-  await expect(observation).toContainText("数据来源：");
+  await expect(observation).toContainText("此处为机器人行为观察");
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth - window.innerWidth,
@@ -240,8 +239,10 @@ test("家长端空态：成长观察还没关联也有来源说明（P-15 边界
   await openReports(page);
 
   const observation = page.locator("section.panel", { hasText: "尚未关联机器人数据" });
-  await expect(observation).toContainText("数据来源：");
-  await expect(observation).toContainText("不能直接混成一个分数");
+  await expect(observation).toContainText("此处为机器人行为观察");
+  // 「不能混成一个分数」的来源纪律说明在「家长支持」页（P-15 边界：空态只保留一句来源说明）。
+  await nav(page, "家长支持");
+  await expect(page.locator("body")).toContainText("不能直接混成一个分数");
   await page.screenshot({
     path: path.join(SHOTS, "p15-reports-unbound.png"),
     fullPage: true,

@@ -13,7 +13,7 @@ import { root, shell, uvBin } from "./support.js";
  */
 
 const SHOTS = path.join(root, ".trellis", "tasks", "T-034", "shots");
-const PROXY_NOTE = "成长代理（对方算法产出，不是 CA 原始天赋分）";
+const PROXY_NOTE = "成长代理由机器人服务算法产出，不是能力评分。";
 const STALE_NOTICE = "最近一次同步没有成功，下面是上次成功同步的内容。";
 const PERIOD_INCOMPLETE = "成长周期还没走完，满 15 天后会生成第一份周期报告。";
 const NO_PERIOD_DATA = "这个周期还没有报告。";
@@ -204,7 +204,7 @@ test("成长周期报告：15/30 天 Tab、周期空态与八维条形（真实 
   await openReports(page);
   await expect(panel).toContainText(PERIOD_INCOMPLETE);
   await expect(panel).not.toContainText(NO_PERIOD_DATA);
-  await expect(panel.locator(".tag.test")).toHaveText("合成测试数据");
+  await expect(panel.locator(".tag.test")).toHaveCount(0);
   await expectNoNumbers(page);
   await shot(page, "new-user-desktop.png");
 

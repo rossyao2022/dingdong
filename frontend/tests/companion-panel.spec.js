@@ -162,7 +162,8 @@ async function assertCase(page, item) {
   const health = panel.locator(".companion-health");
 
   await expect(panel).toContainText(FOOTER);
-  await expect(panel.locator(".tag.test")).toHaveText("合成测试数据");
+  // 2026-09-20 拍板：家长端不再显示合成标注（testTag 空实现）。
+  await expect(panel.locator(".tag.test")).toHaveCount(0);
 
   // 面一：人设卡
   await expect(persona).toContainText(item.persona.name);
@@ -170,7 +171,7 @@ async function assertCase(page, item) {
   await expect(persona).toContainText(item.persona.description);
   await expect(persona.locator(".metric-list")).toContainText("匹配度");
   await expect(persona.locator(".metric-list")).toContainText(item.persona.match);
-  await expect(persona).toContainText("不是天赋分或能力分");
+  await expect(persona).toContainText("不是能力评价");
   await expect(persona).toContainText("学习风格：");
 
   // 面三：四态分支

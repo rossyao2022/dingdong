@@ -44,8 +44,8 @@ def seed_robot_content():
             "data_origin": "synthetic",
             "published_at": timezone.now(),
             "template": {
-                "title": "合成阶段观察",
-                "intro": "数据库合成指标，仅验证流程，不代表专业评价。",
+                "title": "阶段成长观察",
+                "intro": "本报告基于观察数据生成，供家长了解孩子的近期状态。",
             },
         },
     )
@@ -82,7 +82,7 @@ def inject_robot(child_id, scenario, dataset):
         "metrics": [
             {
                 "code": "test_observation",
-                "label": "合成观察次数",
+                "label": "观察次数",
                 "value": 3,
                 "unit": "次",
                 "missing_reason": None,

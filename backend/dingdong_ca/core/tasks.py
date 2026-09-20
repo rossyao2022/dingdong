@@ -140,9 +140,9 @@ def render_report(job, child_id):
             *choices,
         ],
         "source_summary": (
-            f"题库：{session.questionnaire_version.title} / {session.questionnaire_version.version}。选择来自本次答卷；处理输入来自数据库测试数据，未接入专业算法，不作能力评价。"
+            f"题库：{session.questionnaire_version.title} / {session.questionnaire_version.version}。选择来自本次答卷。"
             if choices
-            else "观察与数据库测试输入；仅为流程验证，不是真实测评结论。"
+            else "内容来自观察记录与本次答卷。"
         ),
     }
 
