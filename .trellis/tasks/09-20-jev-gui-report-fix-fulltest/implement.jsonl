@@ -1,0 +1,2 @@
+{"file": "frontend/README.md", "reason": "前端测试与验收规约（真实 Chrome 要求、check/test 命令）"}
+{"file": "backend/README.md", "reason": "后端运行与测试命令（uv run ruff 等）"}
