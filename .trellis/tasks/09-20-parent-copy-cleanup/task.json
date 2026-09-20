@@ -3,7 +3,7 @@
   "name": "parent-copy-cleanup",
   "title": "家长端清理合成/测试类文案与冗长免责 + 重新完整 GUI 测试",
   "description": "家长端页面零出现合成/测试类字样，冗长免责精简；同步后端 seed 政策与报告模板文案、测试断言、README 纪律；重跑回归门禁与完整前后端 GUI 测试",
-  "status": "in_progress",
+  "status": "completed",
   "dev_type": null,
   "scope": null,
   "package": null,
