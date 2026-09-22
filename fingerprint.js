@@ -17,13 +17,13 @@
   let sourceName = '';
 
   function fingerprint(id = 'whorl', extra = '') {
-    return `<img class="fp-print ${extra}" src="assets/fingerprints/${id}.webp" alt="${patterns.find(p=>p.id===id)?.name||'斗纹'}原始示意图" width="240" height="240">`;
+    return `<img class="fp-print ${extra}" src="assets/fingerprints/${id}.webp" alt="${patterns.find(p=>p.id===id)?.name||'斗纹'}纹路示意图" width="240" height="240">`;
   }
 
   function render() {
     return `<div class="fp-page" id="fingerprint-lab">
       <header class="fp-heading"><div><a class="fp-back" href="#explore">← 回到天赋探索</a><p class="fp-kicker">DINGDONG · LITTLE DISCOVERY LAB</p><h1>指尖里，藏着一个<span>小宇宙<span class="fp-title-star" aria-hidden="true">✦</span></span></h1><p class="fp-intro">伸出小手，和叮咚一起找找纹路里的漩涡、小河与山丘。</p></div><div class="fp-lab-sticker" aria-hidden="true"><span>好奇心</span><b>实验室</b><i>✧ EXPLORE ✧</i></div></header>
-      <ol class="fp-journey" aria-label="探索步骤"><li><b>01</b><span>准备一张指纹</span><i>✧</i></li><li><b>02</b><span>用眼睛找一找</span><i>✧</i></li><li><b>03</b><span>阅读对应参考卡</span><i>★</i></li></ol>
+      <ol class="fp-journey" aria-label="探索步骤"><li><b>01</b><span>准备一张指纹</span><i>✧</i></li><li><b>02</b><span>用眼睛找一找</span><i>✧</i></li><li><b>03</b><span>找到陪伴小建议</span><i>★</i></li></ol>
       <div class="fp-layout">
         <section class="fp-scanner-card" aria-labelledby="fp-scanner-heading">
           <div class="fp-card-heading"><span class="fp-number">01</span><div><h2 id="fp-scanner-heading">小手准备好了吗？</h2><p>先用示例玩一玩，也可以观察自己的纹路</p></div><span class="fp-live-dot" aria-hidden="true"></span></div>
@@ -34,7 +34,7 @@
           <input id="fp-file-input" type="file" accept="image/jpeg,image/png,image/webp" hidden aria-label="选择指纹图片">
           <p class="fp-local-note"><span aria-hidden="true">⌂</span> 照片仅在此页面临时预览，不会上传或保存。支持 JPG / PNG / WebP，最大 10 MB。</p>
         </section>
-        <section class="fp-comparison" aria-labelledby="fp-comparison-heading"><div class="fp-compare-heading"><span class="fp-number">02</span><div><h2 id="fp-comparison-heading">它更像哪一种？</h2><p>仔细看一看，亲手选择相近的纹路，查看对应说明。</p></div><span class="fp-doodle" aria-hidden="true">↙</span></div><div class="fp-pattern-grid">${patterns.map(p => `<button class="fp-pattern fp-${p.color}" data-fp-action="pattern" data-fp-pattern="${p.id}" aria-pressed="false"><span class="fp-check" aria-hidden="true">✓</span><span class="fp-pattern-art">${fingerprint(p.id)}</span><span class="fp-pattern-name">${p.name}</span><span class="fp-pattern-nickname">${window.FingerprintGuide.guides[p.id].title} · ${window.FingerprintGuide.guides[p.id].code}</span><span class="fp-pattern-select">查看对应说明 <span aria-hidden="true">↗</span></span></button>`).join('')}</div><p class="fp-diagram-note">使用原版纹路示意图。左右手、手指方向和镜像会影响箕纹的辨别；本页由你手动选择，不会自动识别。</p><div class="fp-observation" id="fp-observation" aria-live="polite"><span class="fp-observation-star" aria-hidden="true">✧</span><div><h3>没有标准答案，先发现一点不同</h3><p>看纹路的中心、走向和开口。找到一个小细节，就是今天的发现！</p></div></div></section>
+        <section class="fp-comparison" aria-labelledby="fp-comparison-heading"><div class="fp-compare-heading"><span class="fp-number">02</span><div><h2 id="fp-comparison-heading">它更像哪一种？</h2><p>仔细看一看，亲手选择相近的纹路，查看对应说明。</p></div><span class="fp-doodle" aria-hidden="true">↙</span></div><div class="fp-pattern-grid">${patterns.map(p => `<button class="fp-pattern fp-${p.color}" data-fp-action="pattern" data-fp-pattern="${p.id}" aria-pressed="false"><span class="fp-check" aria-hidden="true">✓</span><span class="fp-pattern-art">${fingerprint(p.id)}</span><span class="fp-pattern-name">${p.name}</span><span class="fp-pattern-nickname">${window.FingerprintGuide.guides[p.id].title} · ${window.FingerprintGuide.guides[p.id].code}</span><span class="fp-pattern-select">查看对应说明 <span aria-hidden="true">↗</span></span></button>`).join('')}</div><p class="fp-diagram-note">对照纹路示意图进行观察。左右手、手指方向和镜像会影响箕纹的辨别；本页由你手动选择，不会自动识别。</p><div class="fp-observation" id="fp-observation" aria-live="polite"><span class="fp-observation-star" aria-hidden="true">✧</span><div><h3>没有标准答案，先发现一点不同</h3><p>看纹路的中心、走向和开口。找到一个小细节，就是今天的发现！</p></div></div></section>
       </div>
       <div id="fp-guide-container" aria-live="polite"></div>
       <aside class="fp-robot-note"><img src="assets/dingdong/robot-wave.webp" alt="叮咚机器人"><div><span>叮咚想告诉你</span><h2>你有多少可能，<em>要一起探索才知道。</em></h2><p>纹路选择只用来观察指纹，不代表能力、性格或天赋。真正的发现，藏在你喜欢尝试的每件小事里。</p></div><a class="button fp-next" href="#explore">去解锁一个小挑战 <span aria-hidden="true">→</span></a><span class="fp-note-spark" aria-hidden="true">✦</span></aside>
@@ -233,7 +233,7 @@
       button.setAttribute('aria-pressed', String(active));
     });
     query('#fp-observation').classList.add('fp-observation-selected');
-    query('#fp-observation').innerHTML = `<span class="fp-observation-star" aria-hidden="true">★</span><div><span class="fp-manual-label">我的手动观察</span><h3>我选择了「${item.name}」</h3><p>${item.detail}</p><small>不是能力或性格结论。下方已展开原资料对应的参考说明。</small><a class="text-button" href="#fp-guide-report" data-fp-action="read-guide">阅读${window.FingerprintGuide.guides[id].title}参考卡 ↓</a></div>`;
+    query('#fp-observation').innerHTML = `<span class="fp-observation-star" aria-hidden="true">★</span><div><span class="fp-manual-label">我的手动观察</span><h3>我选择了「${item.name}」</h3><p>${item.detail}</p><small>下方已展开纹路特点、学习建议和亲子小行动。</small><a class="text-button" href="#fp-guide-report" data-fp-action="read-guide">阅读${window.FingerprintGuide.guides[id].title}陪伴指南 ↓</a></div>`;
     query('#fp-guide-container').innerHTML=window.FingerprintGuide.render(id);
   }
 
@@ -248,7 +248,7 @@
     else if (action === 'camera') camera();
     else if (action === 'capture') capture();
     else if (action === 'reset') reset();
-    else if (action === 'pattern') choosePattern(target.dataset.fpPattern);
+    else if (action === 'pattern') { choosePattern(target.dataset.fpPattern || target.dataset.fpGuidePattern); if(target.dataset.fpGuidePattern) query(`[data-fp-guide-pattern="${target.dataset.fpGuidePattern}"]`)?.focus(); else query('#fp-guide-report')?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'}); }
   }
   function onChange(event) { if (event.target.id === 'fp-file-input') upload(event.target.files[0]); }
   function onPageHide() { if (root) reset(); }

@@ -103,7 +103,7 @@ with sync_playwright() as p:
         expect(page.locator('#fp-guide-title')).to_contain_text(title)
         expect(page.locator('.fp-guide-columns article')).to_have_count(3)
         expect(page.locator('.fp-guide-header')).to_contain_text(label)
-        expect(page.locator('.fp-guide-source')).to_contain_text('不是本产品验证过的')
+        expect(page.locator('.fp-guide-footnote')).to_contain_text('指纹仅用于形态观察')
         assert page.locator('.fp-pattern [src="assets/fingerprints/'+id+'.webp"]').evaluate('(img)=>img.complete&&img.naturalWidth>0')
         page.locator('[data-fp-action=read-guide]').click()
         assert page.url.endswith('#fingerprint')
