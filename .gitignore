@@ -72,3 +72,11 @@ HANDOVER.md
 .trellis/loop/STOP
 .trellis/loop/*.done
 
+# ── 本机 AI 工具自动配置：IDE 装 skills 时生成的本地产物 ──────────
+# .trae/ 是 Trae IDE 的 skills 安装目录（如 typesafe-ai/Jev 调用指引），
+# skills-lock.json 是对应的版本锁文件；均为本机工具自动生成与更新，
+# 不同机器内容不同，不入库。
+.trae/
+skills-lock.json
+
+
