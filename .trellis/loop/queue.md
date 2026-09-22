@@ -211,3 +211,10 @@
 - gate: review
 - status: todo
 - notes: 巡检是产品活。orchestrator 复看批准后按批次导入修复任务并追加下一次巡检（编号顺延）。排除项不变：8 个出站接口、主动解绑、发版部署、external 类动作。
+
+## T-050 DingDong 联调第一轮：客户端合同适配 + code 表入库
+- goal: 对方交付两份 docx（API 集成指南 v1.0 + Prototype 演示逻辑 v1.0，已存 `材料/文档/`）与测试 X-API-Key（2026-09-22 微信渠道，存 `backend/.env` 不入库）后，用真实调用验证合同并适配我方客户端：①`dingdong_client` 强制 HTTPS 与对方纯 HTTP 联调地址冲突 → 加 `DINGDONG_ALLOW_HTTP` 显式豁免开关；②实测发现对方把业务错误码承载在非 2xx HTTP 状态（404→40401、409→40901、401→40101），原 HTTPError 分支不解析 body 会把 empty/conflict/stop 判定全丢 → HTTPError 时解析 body 封套、非封套（FastAPI 原生 `{"detail":"Not Found"}`）落 `HTTP_xxx` 兜底；③对方微信回复的三张 code 表（测评类型六值 + 学习风格三值 + persona/companion/growth 字段）入库为 `设计/CA对接_DingDong_code表_20260922.md`。
+- acceptance: `pytest tests/test_ca_accounts.py` 全绿（含新增豁免/HTTPError 封套/兜底用例）；ruff check+format 干净；用我方 client 栈真实调用对方端点端到端通过；Key 不出现在任何入库文件。
+- gate: none
+- status: done
+- notes: 真实调用实测记录（2026-09-22，对方 mock）：health 200 provider=mock；POST /profile 201 + 读回一致（分数返回字符串 `"72.00"` 与文档 0-100/null 不符，待对方答复，我方消费层做 float(str) 兼容）；重复 profile_id 40901 拒绝式幂等；reassessment 空态 200 data:null；bind 40401 NFC token 白名单制（联调 token 待对方提供）；prototype/insights 40401 Prototype mode disabled（待对方开）；路由 404 为 FastAPI 原生格式。待对方：测试 NFC token、开 PROTOTYPE_MODE+CA_PUSH_URL/SECRET、分数类型口径、42901 限流。测试默认语义改「未配置」由 autouse fixture 清空 DingDong 配置实现（.env 已有真实值）。分支直推规则沿用 T-045 批复（v0.3.7）。

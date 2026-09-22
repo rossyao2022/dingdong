@@ -1,10 +1,14 @@
 """DingDong Data Service 的调用客户端（出站）。
 
-契约：8 个 `/api/v1/ca/*` 全部由**我方发起**，请求头带 `X-API-Key`，全链路
-HTTPS，响应封套 `{code, message, request_id}`，业务码见 docx 表 13。
+契约：`/api/v1/ca/*` 全部由**我方发起**，请求头带 `X-API-Key`，正式链路 HTTPS
+（联调可显式开 `DINGDONG_ALLOW_HTTP` 走对方纯 HTTP 测试地址），响应封套
+`{code, message, request_id}`，业务码见 docx 表 13；非 2xx 的业务错误同样
+走封套（2026-09-22 实测：404→40401、409→40901、401→40101），由
+`_raise_for_envelope` 统一映射。
 
-**这一层现在只覆盖传输与错误码映射**：base URL 与 `X-API-Key` 还没拿到
-（澄清清单 D10 / D12），所以 `is_configured()` 为假时调用直接抛
+**这一层只覆盖传输与错误码映射**：base URL 与测试 `X-API-Key` 已于 2026-09-22
+到手并经真实调用验证（Key 存后端 `.env`，不入库）；`is_configured()` 为假时
+调用直接抛
 `DingDongNotConfigured`——**绝不伪造成功**，也不接 fixture 冒充对方。
 ``request_id`` 放请求头是临时约定：文档只说"建议携带 `request_id`"，
 没写位置，最终以 D5 的答复为准，所以不额外往 body 里塞字段
@@ -71,9 +75,12 @@ def is_configured():
 def _endpoint(path):
     base = settings.DINGDONG_BASE_URL.rstrip("/")
     parts = urllib.parse.urlsplit(base)
-    if parts.scheme != "https":
-        # 文档表 12 要求所有接口走 HTTPS；对方或我方配成明文就应当立刻失败，
-        # 而不是把凭据和画像明文发出去。
+    if parts.scheme == "https" or (parts.scheme == "http" and settings.DINGDONG_ALLOW_HTTP):
+        # HTTPS 永远放行；HTTP 仅在显式开 DINGDONG_ALLOW_HTTP（联调豁免，
+        # 对方测试环境 443 未开、仅 HTTP）时放行。除此之外配成明文就立刻
+        # 失败，不把凭据和画像明文发出去。
+        pass
+    else:
         raise DingDongError("INSECURE_ENDPOINT", "接口必须使用 HTTPS", http_status=None)
     if not parts.netloc:
         raise DingDongError("INVALID_BASE_URL", "base URL 不合法")
@@ -82,7 +89,20 @@ def _endpoint(path):
 
 def _open(request, timeout):
     """独立成函数，便于测试注入假传输层。"""
-    return urllib.request.urlopen(request, timeout=timeout)  # noqa: S310 - 已强制 https
+    return urllib.request.urlopen(request, timeout=timeout)  # noqa: S310 - https 或显式联调豁免
+
+
+def _raise_for_envelope(envelope, *, http_status=None):
+    """封套业务码非 0 时按码表抛错；成功（code=0）不动，由调用方取 data。"""
+    code = str(envelope["code"])
+    if code == "0":
+        return
+    meaning, action = BUSINESS_CODES.get(code, ("未知业务码", "fatal"))
+    if action == "stop":
+        logger.error("DingDong 鉴权失败（%s），停止调用并检查密钥配置", code)
+    raise DingDongError(
+        code, envelope.get("message") or meaning, http_status=http_status, action=action
+    )
 
 
 def call(method, path, *, payload=None, query=None, request_id=None):
@@ -111,6 +131,16 @@ def call(method, path, *, payload=None, query=None, request_id=None):
         with _open(request, settings.DINGDONG_TIMEOUT_SECONDS) as response:
             raw = response.read().decode("utf-8")
     except urllib.error.HTTPError as exc:
+        # 2026-09-22 实测：对方把业务错误码承载在非 2xx HTTP 状态里
+        # （404→40401、409→40901、401→40101）。必须读 body 解析封套，
+        # 否则 empty/conflict/stop 判定全部失效；body 不是封套（如路由层
+        # FastAPI 原生 {"detail": "Not Found"}）才落 HTTP_xxx 兜底。
+        try:
+            envelope = json.loads(exc.read().decode("utf-8"))
+        except OSError, ValueError:
+            envelope = None
+        if isinstance(envelope, dict) and "code" in envelope:
+            _raise_for_envelope(envelope, http_status=exc.code)
         raise DingDongError(
             "HTTP_" + str(exc.code), "对方返回 HTTP 错误", http_status=exc.code
         ) from None
@@ -122,12 +152,7 @@ def call(method, path, *, payload=None, query=None, request_id=None):
         raise DingDongError("MALFORMED_BODY", "对方返回的不是 JSON") from None
     if not isinstance(envelope, dict) or "code" not in envelope:
         raise DingDongError("MALFORMED_BODY", "响应缺少 code 字段") from None
-    code = str(envelope["code"])
-    if code != "0":
-        meaning, action = BUSINESS_CODES.get(code, ("未知业务码", "fatal"))
-        if action == "stop":
-            logger.error("DingDong 鉴权失败（%s），停止调用并检查密钥配置", code)
-        raise DingDongError(code, envelope.get("message") or meaning, action=action)
+    _raise_for_envelope(envelope)
     return envelope.get("data", envelope)
 
 

@@ -29,6 +29,9 @@ NFC_TOKEN_HMAC_KEY = env("NFC_TOKEN_HMAC_KEY", default="") or (SECRET_KEY + ":ca
 DINGDONG_BASE_URL = env("DINGDONG_BASE_URL", default="")
 DINGDONG_API_KEY = env("DINGDONG_API_KEY", default="")
 DINGDONG_TIMEOUT_SECONDS = env.float("DINGDONG_TIMEOUT_SECONDS", default=5.0)
+# 联调豁免：对方 v1.0 联调地址是纯 HTTP（122.51.108.225，443 未开），仅限
+# 测试 Key 短期联调显式打开；正式联调/生产必须 HTTPS 且本开关保持关闭。
+DINGDONG_ALLOW_HTTP = env.bool("DINGDONG_ALLOW_HTTP", default=False)
 # 四个展示面（人设 / 周期成长报告 / 健康度 / 复测）的数据源，见
 # `.trellis/tasks/T-021/design.md` §2。与 INTEGRATION_DATA_SOURCE 分开：
 # 那个管测评与观察的 fixture 闸门，语义不同，不共用值域。

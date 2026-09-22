@@ -223,13 +223,22 @@ class FakeResponse:
 
 @pytest.fixture(autouse=True)
 def no_real_network(monkeypatch):
-    """测试里绝不允许真连对方端点：宁可报错，也不要偷偷发一次网络请求。"""
+    """测试里绝不允许真连对方端点：宁可报错，也不要偷偷发一次网络请求。
+
+    顺带把 DingDong 配置清空：本地 ``backend/.env`` 已配真实联调值，测试的
+    默认语义是「未配置」；需要已配置语义的用例用 ``override_settings`` 显式写。
+    """
+    from django.conf import settings
+
     from dingdong_ca.core.services import dingdong_client
 
     def refuse(*args, **kwargs):
         raise AssertionError("测试不得发起真实出站调用")
 
     monkeypatch.setattr(dingdong_client, "_open", refuse)
+    monkeypatch.setattr(settings, "DINGDONG_BASE_URL", "")
+    monkeypatch.setattr(settings, "DINGDONG_API_KEY", "")
+    monkeypatch.setattr(settings, "DINGDONG_ALLOW_HTTP", False)
 
 
 @pytest.fixture
@@ -277,6 +286,92 @@ def test_client_rejects_plaintext_base_url():
     with pytest.raises(DingDongError) as exc:
         call("GET", "/api/v1/ca/profile/current")
     assert exc.value.code == "INSECURE_ENDPOINT"
+
+
+@override_settings(
+    DINGDONG_BASE_URL="http://dd.example.com", DINGDONG_API_KEY="k-test", DINGDONG_ALLOW_HTTP=True
+)
+def test_client_allows_plaintext_base_url_when_explicitly_opted_in(transport):
+    """联调豁免：DINGDONG_ALLOW_HTTP=True 时放行对方纯 HTTP 测试地址。"""
+    from dingdong_ca.core.services import dingdong_client
+
+    dingdong_client.call("GET", "/api/v1/ca/persona/current")
+    assert transport["request"].full_url.startswith("http://dd.example.com/api/v1/ca/")
+
+
+def _raise_http_error(monkeypatch, http_code, body):
+    """让 `_open` 抛一个带 body 的 HTTPError，模拟对方非 2xx 响应。"""
+    import io
+    import json
+    import urllib.error
+
+    from dingdong_ca.core.services import dingdong_client
+
+    def fake_open(request, timeout):
+        raise urllib.error.HTTPError(
+            "https://dd.example.com/x",
+            http_code,
+            "err",
+            None,
+            io.BytesIO(json.dumps(body).encode()),
+        )
+
+    monkeypatch.setattr(dingdong_client, "_open", fake_open)
+
+
+@pytest.mark.parametrize(
+    ("http_code", "body", "want_code", "want_action", "want_empty"),
+    [
+        # 2026-09-22 实测合同：对方把业务错误码承载在非 2xx HTTP 状态里，
+        # 封套在 body——必须解析，否则 empty/conflict/stop 判定失效。
+        (
+            404,
+            {"code": 40401, "message": "Active binding not found", "request_id": "r-1"},
+            "40401",
+            "empty",
+            True,
+        ),
+        (
+            409,
+            {"code": 40901, "message": "Profile ID already exists", "request_id": "r-2"},
+            "40901",
+            "conflict",
+            False,
+        ),
+        (
+            401,
+            {"code": 40101, "message": "Invalid API key", "request_id": "r-3"},
+            "40101",
+            "stop",
+            False,
+        ),
+    ],
+)
+def test_business_codes_arriving_on_http_errors_are_parsed_from_body(
+    monkeypatch, http_code, body, want_code, want_action, want_empty
+):
+    from dingdong_ca.core.services.dingdong_client import DingDongError, call
+
+    _raise_http_error(monkeypatch, http_code, body)
+    with override_settings(DINGDONG_BASE_URL="https://dd.example.com", DINGDONG_API_KEY="k"):
+        with pytest.raises(DingDongError) as exc:
+            call("GET", "/api/v1/ca/persona/current")
+    assert exc.value.code == want_code
+    assert exc.value.action == want_action
+    assert exc.value.means_empty is want_empty
+    assert exc.value.http_status == http_code
+
+
+def test_non_envelope_http_error_falls_back_to_http_status(monkeypatch):
+    """路由层 FastAPI 原生 404（{"detail":"Not Found"}，无 code）落 HTTP_xxx。"""
+    from dingdong_ca.core.services.dingdong_client import DingDongError, call
+
+    _raise_http_error(monkeypatch, 404, {"detail": "Not Found"})
+    with override_settings(DINGDONG_BASE_URL="https://dd.example.com", DINGDONG_API_KEY="k"):
+        with pytest.raises(DingDongError) as exc:
+            call("GET", "/api/v1/ca/nonexistent/path")
+    assert exc.value.code == "HTTP_404"
+    assert exc.value.http_status == 404
 
 
 @pytest.mark.parametrize(
