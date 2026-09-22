@@ -144,10 +144,17 @@
 - goal: 以家长第一视角（`http://127.0.0.1:4173/`，任意手机号 + 验证码 `00000`）与运营视角（`http://127.0.0.1:8017/ops/`，`admin` / `dingdong-admin`）把产品再完整走一遍，重点复核 T-043/T-044 修复处（人设卡说明文案、归档后三处口径、运营端三项），并对 S-07（`flows.spec.js` 本地必失败，根因单线程 worker 排队）给出是否放宽用例报告等待的判断，找出**新的**真实卡点，产出 `.trellis/tasks/T-045/backlog.md` 并申请 review。常设供给：本轮修复磨完自动巡检。
 - acceptance: 同 T-024/T-040/T-042（每项含「用户在哪一步困惑/现状/建议改法/完善还是扩散/工作量档位」、真实 Chrome 复现截图、不重复报已修条目、稳定性单列、只产出文档不改代码、`status` 为 `gated` 且 gates.md 有 `REQUEST T-045 review`、audit errors 为空）；额外：归档旧号端到端复核（P-19 修复后账户页 / 成长观察 / 三展示面口径一致）；**REQUEST 行必须追加在 `gates.md` 的「## 申请」段内（`## 决定` 标题之前）——T-042 教训：写进决定段唤醒钩子不触发**。
 - gate: review
-- status: gated
+- status: done
 - notes: 巡检是产品活。orchestrator 复看批准后按批次导入修复任务并追加下一次巡检（编号顺延）。排除项不变：8 个出站接口、主动解绑、发版部署、external 类动作。S-07 若建议改用例，只放宽报告等待上限或前置「worker 队列空」检查，不改产品代码。**2026-09-22 复位说明**：09-18 轮已写好走查脚本 `walk-parent.mjs` 并置 `doing`，驱动随后停止、轮次未收口；现复位 `todo` 供下轮重取（脚本入库，注意其断言基于 09-20 文案清理与 v0.3.7 之前的界面，重取时需先核对）。
 
 - **2026-09-22 执行结果**：只产出文档，未改产品代码。走查方式与证据见 `.trellis/tasks/T-045/backlog.md`「审计方式」；脚本 `walk-parent-v5.mjs` / `walk-ops-v5.mjs`（适配 v0.3.7 与 09-20 文案清理）。产出：运营端 2 条新条目（**O-15** 归档/解除关联后儿童详情「同步」列显示「未知（blocked）」——T-044 新引入的 `SyncCheckpoint.status="blocked"` 没进 `ops/labels.py` 的 `CHECKPOINT_STATUS` 词表；**O-16** 22 题测评「用途」仍是「测评流程（测试）」，与家长端「初始测评」口径不一致）；**S-07 判断**：建议把 `flows.spec.js:184` 的 `toBeVisible({ timeout: 20000 })` 放宽到 120s（外层已放宽到 10 分钟但内层仍 20s，口径不一致；本轮 beat STOP、队列空时实测 `1 passed (24.6s)`，20s 够用，放宽属防御）。**复核通过**：T-043 人设卡「由机器人服务提供」无内部话术、`title` 保留 `cognitive`；T-044 归档后端到端五处口径一致（账户页/关联区块/三展示面/成长观察/上一台机器账户）+ O-12「生成任务异常」/O-14 待办「最新 5 条」说明；O-13 本轮无服务事项数据未走 UI（代码已修）。**如实记录**：运营端登录凭据 `admin`/`dingdong-admin` 已失效（本地库无 staff 账号），临时建 `t045walk` 完成走查（走查后已停用）；家长端每轮 2 条 `console 401`（未登录 refresh 探测，非缺陷）；fixture `ca_display_reassess` 硬编码 `generated_at=2026-09-23` 未来时间戳；短信 2 次/50。`audit_documents.py` errors `[]`（83 markdown / 523 local links / 61 operations / 83 schemas）。截图 40 张在 `.trellis/tasks/T-045/shots/`。**本任务 `status` 为 `gated` 并申请 review**。详见 `.trellis/tasks/T-045/report.md`。
+
+## T-048 O-15 同步状态词表补 blocked + O-16 测评用途口径 + S-07 用例等待收口
+- goal: 修 T-045 巡检坐实的两条运营端小项与一条用例口径。**O-15**：`backend/dingdong_ca/ops/labels.py` 的 `CHECKPOINT_STATUS` 补 `"blocked": "已停用"`（与家长端「归档后不再同步」语义对齐），归档/解除关联后儿童详情「同步」列不再显示「未知（blocked）」；「恢复同步」按钮对 blocked 的显示保留。**O-16**：`ops/labels.py:26` 的 `QUESTIONNAIRE_PURPOSE["assessment"]` 由「测评流程（测试）」改「初始测评」；`backend/dingdong_ca/core/assessment_models.py:80` 的 choice「正式测评流程（测试）」改「正式测评流程」、默认 title「日常情境问卷（测试）」去「（测试）」（choice 文案改动按 `makemigrations` 生成迁移随提交入库）；核对本地库 `QuestionnaireVersion.purpose` 实际存值（若存中文则 queryset 清理为 code 并记 report）。**S-07**：`frontend/tests/flows.spec.js:184` 的 `toBeVisible({ timeout: 20000 })` 放宽到 `120000`，注释写明「外层 setTimeout 10 分钟、实测报告就绪 75s+，队列积压时 20s 会复现 T-042 红灯」。
+- acceptance: O-15 归档旧号后儿童详情「同步」列显示「已停用」、整页无「未知（」字样（真实 Chrome 截图到 `.trellis/tasks/T-048/shots/`）；O-16 运营端题库列表/详情「用途」列显示「初始测评」、无「（测试）」字样（截图）；后端新增/更新用例覆盖 blocked 渲染与 purpose 词表（先失败后通过）；S-07 改后 `flows.spec.js` 报告用例通过；`cd backend && uv run pytest tests/test_ops_console.py` 与相关用例、`cd frontend && npm run check && npm run test:unit` 通过；`ruff check`/`ruff format --check`、`manage.py makemigrations --check --dry-run` 干净；audit errors 为空；改动以首行 `[T-048]` 提交。
+- gate: none
+- status: todo
+- notes: 修法取自 T-045 backlog 建议并经 orchestrator 批复（gates.md APPROVE T-045 2026-09-22T03:56Z），执行中不再重新讨论。commit 后直接 push origin codex/release-v0.3.7 并补 EXECUTED 行（直推许可自本轮起延续到 v0.3.7，见 APPROVE 行）。收口项：PROJECT_MEMORY.md 同步。
 
 ## T-028 起草给 DingDong 侧的澄清清单（只产出文档，不发送）
 - goal: 起草 `.trellis/tasks/T-028/dingdong-clarifications.md`，分三层：阻塞级（D10 base URL、D12 API key、D20 换机主动解绑规则）、确认级（儿童/设备映射与权属核验、窗口游标修订与指标单位、同步频率及阶段规则、甲方算法输入输出/超时幂等/一次性处理不留存约定）、后置级（真实短信与生产部署条件）；每条写清「我们为什么需要 / 没有它当前系统如何诚实降级 / 拿到后我方接入动作」。**只产出文档，不发送**。
@@ -196,3 +203,10 @@
 - notes: 巡检是产品活，属正常队列，不算机制插队。orchestrator 复看批准后：按批次导入修复任务，并在队尾追加下一次巡检任务（编号顺延）；若某轮巡检产出为 0 条新问题，在 report 如实记录并照常 gated，由 orchestrator 决定下一轮巡检是否改走抽查模式。明确排除项不变：8 个出站接口、主动解绑、发版部署、external 类动作。**orchestrator 2026-09-17T19:34Z 批复**：backlog 复看通过，P-10 修法裁定改模型约束（按 ca_account 唯一）不改 fixture；导入 T-037/T-038/T-039 排 T-028 之后，队尾追加 T-040 巡检；O-05 维持暂缓；本任务 `status` 改 `done`，收尾轮可直推。详见 gates.md APPROVE T-024 行。
 
 - **2026-09-18 执行结果**：只产出文档，未改产品代码。走查方式与证据见 `.trellis/tasks/T-024/backlog.md` 的「审计方式」一节。产出：家长端 6 条新条目（P-10 真缺陷：复测「先不测」回写 `POST .../reassessment/reassess_mock_001/response` 得 **500 IntegrityError**（`CaReassessmentEvent.event_id` 全局唯一 + 两个复测场景共用 fixture），界面无提示、失败文案还被渲染进「成长观察」区块；P-11 同一区块两个「机器人服务给出的原因」互相矛盾；P-12 人设卡展示内部英文 `学习风格 code`；P-13 指标单位英文 `count`；P-14 同一页两种时间口径；P-15 同一页「已观察 15 天」与「尚未关联机器人数据」并列且无来源说明）、运营端 2 条（O-06 家庭列表「家长」列回落成手机号与「手机号」列重复；O-07 工作首页「近 7 天新增儿童 275」>「在册儿童 274」）、T-003 未修复查 1 条（O-05 仍在）、稳定性 1 条（S-06 5xx HTML 被当家长文案）。验证：`#home` 4 轮重载 `settledAtMs` 2070/1015/2040/2039（证伪「卡死」，第一轮 1s 采样拍到的加载态已删图不作为证据）；390×844 五页 `scrollWidth` 均 390 无横向溢出；运营端 26 个页面 `ERRORS []`；`python3 scripts/audit_documents.py` errors 为空。截图 15 张在 `.trellis/tasks/T-024/shots/`（含 390×844）。未验证：真源路径、生产、复测其余分支。**本任务 `status` 为 `gated` 并申请 review**。详见 `.trellis/tasks/T-024/report.md`。
+
+## T-049 产品巡检（第六轮，常设循环任务）
+- goal: 以家长第一视角（`http://127.0.0.1:4173/`，任意手机号 + 验证码 `00000`）与运营视角（`http://127.0.0.1:8017/ops/`）把产品再完整走一遍，重点复核 T-048 修复处（儿童详情「同步」列 blocked 显示「已停用」、题库「用途」显示「初始测评」无「（测试）」），找出**新的**真实卡点，产出 `.trellis/tasks/T-049/backlog.md` 并申请 review。常设供给：本轮修复磨完自动巡检。
+- acceptance: 同 T-024/T-040/T-042/T-045（每项含「用户在哪一步困惑/现状/建议改法/完善还是扩散/工作量档位」、真实 Chrome 复现截图、不重复报已修条目、稳定性单列、只产出文档不改代码、`status` 为 `gated` 且 gates.md 申请段有 `REQUEST T-049 review`、audit errors 为空）；运营端走查账号：本地库无 staff 账号，先建临时 staff 走查账号、走查后停用（沿用 T-045 做法，report 如实记录）；REQUEST 行必须追加在 `gates.md` 的「## 申请」段内（`## 决定` 标题之前）。
+- gate: review
+- status: todo
+- notes: 巡检是产品活。orchestrator 复看批准后按批次导入修复任务并追加下一次巡检（编号顺延）。排除项不变：8 个出站接口、主动解绑、发版部署、external 类动作。
