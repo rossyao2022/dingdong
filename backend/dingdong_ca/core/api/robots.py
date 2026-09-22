@@ -8,6 +8,7 @@ from rest_framework import serializers
 from rest_framework.response import Response
 
 from dingdong_ca.core.models import ConsentGrant, ExternalAssociation, SyncCheckpoint
+from dingdong_ca.core.services.associations import end_association
 from dingdong_ca.core.services.sync import lock_association, schedule_sync
 from dingdong_ca.testsupport.adapter import FixtureFailure
 from dingdong_ca.testsupport.models import TestFixture
@@ -16,6 +17,10 @@ from dingdong_ca.testsupport.robot import require_fixture_mode
 from .children import owned_child
 from .common import ApiError, audit, endpoint, family_for, paginate, validate
 from .inputs import StrictSerializer
+
+# `PROOF_INVALID` 的默认文案就是 code 本身，家长在核验对话框里只会看到
+# 一行 `PROOF_INVALID`（T-040 的 P-17）。这里给一句能照做的中文。
+PROOF_INVALID_MESSAGE = "凭据无法核验，请核对机器人标签上的凭据，或重新绑定机器人。"
 
 
 class VerifyInput(StrictSerializer):
@@ -72,7 +77,7 @@ def verify(request, child_id):
                 .first()
             )
             if not fixture or fixture.consumed_at:
-                raise ApiError("PROOF_INVALID", 422)
+                raise ApiError("PROOF_INVALID", 422, PROOF_INVALID_MESSAGE)
             payload = fixture.payload
             try:
                 expiry = parse_datetime(payload["expires_at"])
@@ -91,7 +96,7 @@ def verify(request, child_id):
             except (KeyError, TypeError, ValueError):
                 valid = False
             if not valid:
-                raise ApiError("PROOF_INVALID", 422)
+                raise ApiError("PROOF_INVALID", 422, PROOF_INVALID_MESSAGE)
             a = ExternalAssociation.objects.create(
                 child=child,
                 requested_by=request.user,
@@ -130,11 +135,6 @@ def revoke(request, association_id):
         ExternalAssociation, pk=association_id, child__family=family_for(request.user)
     )
     with transaction.atomic():
-        a = lock_association(association_id)
-        if a.status != "revoked":
-            a.status = "revoked"
-            a.ended_at = timezone.now()
-            a.save()
-            SyncCheckpoint.objects.filter(association=a).update(status="blocked", next_due_at=None)
-            audit(request.user, "association.revoke", a)
+        # 与「归档旧号」共用同一个结束动作，两处落的状态不会漂移。
+        a = end_association(lock_association(association_id), request.user)
         return Response(serialize_association(a))

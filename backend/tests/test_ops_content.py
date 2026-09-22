@@ -361,6 +361,42 @@ def create_activity(client, title="运营新建活动"):
     return response.json()["activity"]["id"]
 
 
+def test_activity_tags_show_chinese_for_known_codes_and_keep_free_text():
+    """O-10：岛屿/情绪是自由填写的标签——已知代码给中文，运营自己写的原样显示。
+
+    列表原先直接渲染原始值，把内部英文 code（`imagination · calm`）给运营看，
+    与家长端和本页「可展示风格」的中文口径不一致；而套 `|label` 又会把运营写的
+    「观察岛」说成「未知（观察岛）」。原始值放 `title` 供排查。
+    """
+    client = ops_client(make_staff("content"))
+    free_text = create_activity(client, title="自由标签活动")  # 观察岛 · 好奇
+    known = post_json(
+        client,
+        "/ops/api/activities",
+        {
+            "code": "act-" + uuid.uuid4().hex[:8],
+            "version": "v1",
+            "title": "英文代码活动",
+            "island": "imagination",
+            "mood": "calm",
+            "duration_minutes": 10,
+        },
+    ).json()["activity"]["id"]
+
+    body = client.get("/ops/activities/").content.decode()
+    assert "创意想象 · 平静如水" in body
+    assert "观察岛 · 好奇" in body
+    assert "未知（观察岛）" not in body
+    assert 'title="imagination · calm"' in body
+
+    preview = client.get(f"/ops/activities/{known}/preview/").content.decode()
+    assert "创意想象 · 平静如水" in preview
+    assert 'title="imagination · calm"' in preview
+
+    free_preview = client.get(f"/ops/activities/{free_text}/preview/").content.decode()
+    assert "观察岛 · 好奇" in free_preview
+
+
 def test_activity_draft_publish_flow_and_step_order():
     client = ops_client(make_staff("content"))
     activity_id = create_activity(client)

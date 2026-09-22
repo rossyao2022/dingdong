@@ -271,9 +271,9 @@ def dashboard_data(user=None):
             },
             {
                 "key": "new_children",
-                "label": "近 7 天新增儿童",
+                "label": "近 7 天新建档案（含已归档）",
                 "value": Child.objects.filter(created_at__gte=since).count(),
-                "scope": "口径：创建时间在过去 7 天内的儿童档案数。",
+                "scope": "口径：创建时间在过去 7 天内的儿童档案数，含已归档；与“在册儿童”不同口径，所以可能更大。",
             },
         ]
     if can_reports:
@@ -322,7 +322,8 @@ def dashboard_data(user=None):
         "open_service_items": list(
             DataRequest.objects.filter(status__in=["open", "processing"])
             .select_related("child")
-            .order_by("created_at")[:5]
+            # 首页先看刚进来的求助：取最新的 5 条（模板写明条数与排序）。
+            .order_by("-created_at")[:5]
         )
         if can_services
         else [],
@@ -411,6 +412,7 @@ def child_bundle(child, include_audit=True):
     from dingdong_ca.core.models import (
         ActivityRecord,
         AssessmentSession,
+        CaAccount,
         ConsentGrant,
         DataRequest,
         ExternalAssociation,
@@ -440,6 +442,10 @@ def child_bundle(child, include_audit=True):
         "profiles": profiles,
         "reports": reports,
         "associations": [(a, checkpoints.get(a.pk)) for a in associations],
+        # 同一孩子同一时刻只有一个活跃号（数据库条件唯一约束保证）；换机后的旧号是
+        # retired，只说明"这个孩子以前绑过机器人"，不作为在用的账户展示。
+        "ca_account": CaAccount.objects.filter(child=child, status="active").first(),
+        "retired_accounts": CaAccount.objects.filter(child=child, status="retired").count(),
         "activities": list(
             ActivityRecord.objects.filter(child=child)
             .select_related("activity_version")

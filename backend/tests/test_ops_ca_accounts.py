@@ -1,6 +1,8 @@
 """运营后台：CA 账户只读页的展示、筛选与权限边界。"""
 
+import re
 import uuid
+from pathlib import Path
 
 import pytest
 from ops_helpers import make_family, make_staff, ops_client
@@ -10,6 +12,8 @@ from dingdong_ca.core.services import ca_account as service
 pytestmark = pytest.mark.django_db
 
 TOKEN = "ROBOT-TOKEN-PLAINTEXT-7788"
+
+OPS_TEMPLATES = Path(__file__).resolve().parents[1] / "dingdong_ca" / "ops" / "templates"
 
 
 def seed_account(child_name="小芽", token=TOKEN, phone="+8613800000007"):
@@ -43,6 +47,18 @@ def test_page_lists_account_without_leaking_token():
     assert 'class="alert alert-info"' in body
     assert "alert-heading" in body
     assert account.nfc_token_hash[:8] in body
+
+
+def test_parent_without_name_shows_phone_not_internal_account():
+    """CA 账户页「绑定家长」列：家长没填姓名时回落手机号，不显示 parent-<uuid>。"""
+    account, child, parent = seed_account()
+    parent.name = ""
+    parent.save(update_fields=["name"])
+    staff = ops_client(make_staff("operations"))
+    body = staff.get("/ops/ca-accounts/").content.decode()
+    assert "parent-" not in body
+    assert parent.username not in body
+    assert parent.phone in body
 
 
 def test_page_filters_by_status_bind_state_and_keyword():
@@ -80,6 +96,51 @@ def test_content_role_has_no_access():
     seed_account()
     staff = ops_client(make_staff("content"))
     assert staff.get("/ops/ca-accounts/").status_code == 403
+
+
+def test_page_does_not_render_template_comment_as_text():
+    seed_account()
+    staff = ops_client(make_staff("operations"))
+    body = staff.get("/ops/ca-accounts/").content.decode()
+    assert "{#" not in body
+    assert "内容必须包在一个块级容器里" not in body
+
+
+def test_bound_parent_column_and_credential_label():
+    """O-08/O-11：绑定家长列不重复手机号；凭据摘要不再叫「指纹」。
+
+    「指纹」在家长端已因容易被理解成生物特征而去掉（T-012/P-09），运营端
+    同一份界面里还留着，两处口径不一致。
+    """
+    family, children, parent = make_family(
+        child_name="小芽", phone="+8613800000029", parent_name=""
+    )
+    service.issue_account(
+        child=children[0],
+        user=parent,
+        request_id=uuid.uuid4(),
+        nfc_token="ROBOT-TOKEN-PLAINTEXT-0041",
+        robot_ref="DD-ROBOT-0041",
+    )
+    staff = ops_client(make_staff("operations"))
+
+    body = staff.get("/ops/ca-accounts/").content.decode()
+    assert body.count(parent.phone) == 1
+    assert "未填写" in body
+    assert "凭据前 8 位" in body
+    assert "指纹" not in body
+
+
+def test_ops_templates_have_no_multiline_django_comment():
+    """Django 的 tag_re 不带 re.DOTALL，跨行 {# … #} 不会当注释，会原样渲染成正文。"""
+    offenders = []
+    for path in sorted(OPS_TEMPLATES.rglob("*.html")):
+        text = path.read_text(encoding="utf-8")
+        for match in re.finditer(r"\{#(.*?)#\}", text, flags=re.DOTALL):
+            if "\n" in match.group(1):
+                line = text[: match.start()].count("\n") + 1
+                offenders.append(f"{path.relative_to(OPS_TEMPLATES)}:{line}")
+    assert offenders == []
 
 
 def test_parent_never_reaches_ops_page():

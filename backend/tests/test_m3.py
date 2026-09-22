@@ -79,6 +79,8 @@ def test_verify_and_sync_stage_report_contract(client):
     assert_schema("ObservationView", r.json())
     assert r.json()["availability"] == "ready"
     assert r.json()["metrics"][0]["value"] == 3
+    # 合成指标的单位也是中文，界面不出现英文 "count"。
+    assert r.json()["metrics"][0]["unit"] == "次"
     r = client.get(f"/api/v1/children/{child['id']}/growth-overview", WINDOW)
     assert_schema("GrowthOverview", r.json())
     assert r.json()["stage_status"] == "ready"
@@ -376,6 +378,49 @@ def test_fresh_overview_no_fake_zero_profile_and_invalid_windows(client):
         assert client.get(url, query).status_code == 422
 
 
+def test_retiring_account_ends_verified_association(client):
+    """P-19：归档旧号要一并结束该儿童的已核验关联，否则同一页两种口径。
+
+    归档前：账户页关联区块「已核验 · 同步已启用」、成长观察「正在等待首次同步」、
+    展示面按活跃账户号取数。归档后三处必须一致落到未绑定态，历史数据不删。
+    """
+    child, _, _, _ = setup_robot(client)
+    run_jobs()
+    account = client.post(
+        f"/api/v1/children/{child['id']}/ca-accounts",
+        {"request_id": str(uuid.uuid4()), "nfc_token": "ROBOT-TOKEN-RETIRE"},
+        format="json",
+    ).json()
+    persona_url = f"/api/v1/children/{child['id']}/companion-persona"
+    assert client.get(persona_url).json()["availability"] != "unbound"
+
+    retired = client.post(
+        "/api/v1/ca-accounts/" + account["ca_account_id"] + "/retire", {}, format="json"
+    )
+    assert retired.status_code == 200
+    assert retired.json()["status"] == "retired"
+
+    # ① 账户页关联区块只渲染 verified 关联，归档后不该再有
+    rows = client.get(f"/api/v1/children/{child['id']}/associations").json()["items"]
+    assert [(a["status"], a["sync_status"]) for a in rows] == [("revoked", "blocked")]
+    assert rows[0]["ended_at"]
+    # ② 成长观察不再按「已核验、等首次同步」算
+    assert (
+        client.get(f"/api/v1/children/{child['id']}/observations", WINDOW).json()["availability"]
+        == "unbound"
+    )
+    # ③ 三个展示面为未绑定态
+    for path in ["companion-persona", "companion-health"]:
+        assert (
+            client.get(f"/api/v1/children/{child['id']}/{path}").json()["availability"] == "unbound"
+        )
+    # 归档不移除已有观察记录与报告，历史报告仍看得到
+    assert apps.get_model("core", "ObservationBatch").objects.count() == 1
+    assert [
+        row["kind"] for row in client.get(f"/api/v1/children/{child['id']}/reports").json()["items"]
+    ] == ["stage"]
+
+
 def test_unbind_stops_sync_without_moving_historical_records(client):
     child, _, association, _ = setup_robot(client)
     run_jobs()
@@ -516,7 +561,13 @@ def test_expired_or_consumed_proof_cannot_create_new_association(client):
     proof.payload["expires_at"] = (timezone.now() - timedelta(seconds=1)).isoformat()
     proof.save()
     url = f"/api/v1/children/{child['id']}/associations/verify"
-    assert client.post(url, data, format="json").status_code == 422
+    rejected = client.post(url, data, format="json")
+    assert rejected.status_code == 422
+    # P-17：家长在核验对话框里看到的是这句中文，不是 `PROOF_INVALID` 本身。
+    assert rejected.json()["code"] == "PROOF_INVALID"
+    assert (
+        rejected.json()["message"] == "凭据无法核验，请核对机器人标签上的凭据，或重新绑定机器人。"
+    )
     proof.payload["expires_at"] = (timezone.now() + timedelta(hours=1)).isoformat()
     proof.save()
     association = client.post(url, data, format="json").json()
@@ -572,7 +623,9 @@ def test_every_openapi_operation_has_a_real_view():
     # 家长端在被 409 打回后需要读一次服务端最新档案与修订号（此前只有 PATCH）。
     # 51 增到 55：CA 对接的 CA 账户四个操作（列/建、详情、归档）——
     # 家长绑机器人（NFC 承接）与换机归档要走我们自己服务端的接口。
-    assert operations == 55
+    # 55 增到 61：四个展示面的 4 读 2 写（人设 / 周期成长报告 / 健康度 / 复测）——
+    # 一律以 child_id 为键，家长端不出现 ca_account_id。
+    assert operations == 61
 
 
 def test_initial_fixture_tracks_current_questionnaire_and_can_target_fixed_old_session(client):

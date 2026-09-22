@@ -74,3 +74,71 @@ class CaAccount(Entity):
 
     def __str__(self):
         return self.ca_account_id
+
+
+class CaReassessmentEvent(Entity):
+    """复测事件（`reassessment_event`）在**我方**的本地状态。
+
+    对方是事件与结果的权威（表 3.7「CA 写入：部分」）；这里只存家长的回写选择、
+    承接复测的结果，以及出站同步状态。三条不变量落到库里，不靠应用层自觉：
+
+    - 回写选择与回写时间同生同灭（``accepted`` 为 null 就是还没回写）；
+    - 复测完成与完成时间同生同灭；
+    - 同一账户下的同一 ``event_id`` 只有一行，重复回写走幂等重放而不是插入新行。
+
+    ``event_id`` 由对方按事件发放，**跨账户可能重名**（合成 fixture 的两个复测
+    mock 账号就共用一份事件），所以唯一性是 ``(ca_account, event_id)`` 而不是
+    全局——服务层的读写本来就按这两键查（``services/ca_display.py`` 的
+    ``_local_event``），约束比服务语义更严会把"第二个账户也能回写"变成 500。
+
+    ``pending_sync`` / ``last_error`` 表示"本地已落库、出站还没成功"：不出现
+    "本地已切换、对方不知道"的半截状态，也不把未同步说成已同步。
+    """
+
+    event_id = models.CharField(max_length=64)
+    ca_account = models.ForeignKey(CaAccount, on_delete=models.PROTECT, related_name="+")
+    child = models.ForeignKey("Child", on_delete=models.PROTECT)
+    trigger_type = models.CharField(max_length=32)
+    recommended_at = models.DateTimeField()
+    old_profile_id = models.CharField(max_length=64, null=True, blank=True)
+    old_persona_id = models.CharField(max_length=64, null=True, blank=True)
+    accepted = models.BooleanField(null=True)
+    responded_at = models.DateTimeField(null=True)
+    response_request_key = models.UUIDField(null=True, blank=True)
+    new_assessment_id = models.CharField(max_length=64, null=True, blank=True)
+    new_profile_id = models.CharField(max_length=64, null=True, blank=True)
+    completed_at = models.DateTimeField(null=True)
+    complete_request_key = models.UUIDField(null=True, blank=True)
+    # 复测完成时对方给的结果（新角色建议等）。只存原样，不改语义。
+    result = models.JSONField(default=dict, blank=True)
+    # 家长确认后由我方落标记；V1 没有自动切换路径，默认恒为 false。
+    persona_switched = models.BooleanField(default=False)
+    pending_sync = models.BooleanField(default=False)
+    last_error = models.CharField(max_length=64, null=True, blank=True)
+
+    class Meta:
+        db_table = "ca_reassessment_event"
+        verbose_name = verbose_name_plural = "复测事件"
+        constraints = [
+            # 事件 id 按账户唯一：对方发放的事件 id 跨账户可能重名。
+            models.UniqueConstraint(
+                fields=["ca_account", "event_id"], name="ca_reassessment_event_account_unique"
+            ),
+            models.CheckConstraint(
+                condition=Q(trigger_type__in=["low_engagement", "periodic", "manual"]),
+                name="ca_reassessment_trigger_valid",
+            ),
+            models.CheckConstraint(
+                condition=Q(accepted__isnull=True, responded_at__isnull=True)
+                | Q(accepted__isnull=False, responded_at__isnull=False),
+                name="ca_reassessment_response_valid",
+            ),
+            models.CheckConstraint(
+                condition=Q(new_assessment_id__isnull=True, completed_at__isnull=True)
+                | Q(new_assessment_id__isnull=False, completed_at__isnull=False),
+                name="ca_reassessment_complete_valid",
+            ),
+        ]
+
+    def __str__(self):
+        return self.event_id

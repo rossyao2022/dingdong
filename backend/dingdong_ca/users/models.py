@@ -15,6 +15,19 @@ class User(AbstractUser):
     account_kind = models.CharField(max_length=16, default="staff")
     phone = models.CharField(max_length=16, null=True, blank=True)
 
+    @property
+    def display_name(self):
+        """运营界面可见的账号名：姓名 →（家长）手机号 → 用户名。
+
+        家长账号的 username 是 `parent-<uuid>` 内部标识，不该给运营看；
+        没填姓名时回落到手机号，比内部账号好认。
+        """
+        if self.name:
+            return self.name
+        if self.account_kind == "parent":
+            return self.phone or ""
+        return self.username or ""
+
     class Meta:
         db_table = "app_user"
         constraints = [

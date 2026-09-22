@@ -817,7 +817,7 @@ def _family_label(family):
     if member is None:
         return f"家庭 编号 {str(family.pk)[:8]}"
     user = member.user
-    name = getattr(user, "name", "") or getattr(user, "username", "") or "未登记家长"
+    name = getattr(user, "display_name", "") or "未登记家长"
     phone = getattr(user, "phone", "") or ""
     return f"{name} 的家庭（尾号 {phone[-4:]}）" if len(phone) >= 4 else f"{name} 的家庭"
 

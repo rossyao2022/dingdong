@@ -92,13 +92,13 @@ class Command(BaseCommand):
                 defaults={
                     "code": f"test-activity-{i}",
                     "version": "readable-v2",
-                    "title": "[合成测试]" + title,
+                    "title": title,
                     "island": ["science", "story", "nature", "imagination"][i % 4],
                     "mood": ["energy", "focus", "inspire", "calm"][i % 4],
                     "duration_minutes": 3,
                     "content": {
                         "materials": materials,
-                        "goal": "和孩子一起尝试，留下一个日常小发现（测试活动）。",
+                        "goal": "和孩子一起尝试，留下一个日常小发现。",
                         "alternative": "没有材料时，可以先聊聊你们会怎样尝试。",
                         "allowed_styles": ["cognitive", "emotional", "creative", "exploratory"],
                         "steps": [

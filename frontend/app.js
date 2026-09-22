@@ -9,6 +9,19 @@ import {
   retiredAccounts,
   stripBindingParams,
 } from "./ca-link.js";
+import {
+  HEALTH_FOOTER,
+  STALE_NOTICE,
+  healthSection,
+  personaSection,
+} from "./companion.js";
+import {
+  DIMENSION_MISSING,
+  PERIODS,
+  PROXY_NOTE,
+  growthCycleSection,
+} from "./growth-cycle.js";
+import { WRITE_FAILED_TEXT, reassessmentSection } from "./reassessment.js";
 const $ = (s) => document.querySelector(s);
 const esc = (v) =>
   String(v ?? "").replace(
@@ -18,6 +31,12 @@ const esc = (v) =>
         c
       ],
   );
+// 内部版本 code（如 readable-v2）不给家长看：正文只放版本号，原始 code 走 title 属性。
+// 题库中文名一律取服务端下发的 title，不在前端维护映射表。
+const versionLabel = (v) => {
+  const found = String(v ?? "").match(/v\d+(?:\.\d+)*/gi);
+  return found ? found[found.length - 1] : String(v ?? "");
+};
 const state = {
   user: null,
   children: [],
@@ -32,10 +51,28 @@ const state = {
   record: null,
   consents: [],
   window: { from: "2026-09-01T00:00:00Z", to: "2026-09-08T00:00:00Z" },
+  // 「成长周期报告」的两个固定 Tab；任意区间归「成长观察」，两处不共用状态。
+  growthPeriod: "15d",
+  // 复测面：`reassessment` 是读到的建议，`write`/`result` 是两条回写的响应，
+  // 只有 `result`（`complete` 的响应）带得出新角色名与匹配度差。
+  reassessment: null,
+  reassessmentWrite: null,
+  reassessmentResult: null,
+  reassessmentExpanded: false,
+  // 这次「开始复测」承接的是哪一次测评：回写只认它，避免把别的测评 id 回写过去。
+  reassessmentSession: null,
+  reassessmentStart: false,
+  reassessmentWriteError: "",
+  // 回写「重新测评 / 先不测」失败时的落点：`{ message, accepted }`，重试要按同一个
+  // 答案再 POST 一次（同一个 `request_id`，幂等重放）。
+  reassessmentRespondError: null,
 };
 let viewEpoch = 0,
   busy = false,
   pollTimer,
+  // 对话框打开期间不排轮询（重渲染会打断家长正在读的内容），但这一轮该排的那次要
+  // 记住：对话框关掉后由 close 事件补上，否则观察状态再也不刷新了。
+  pollPending = false,
   currentActivity,
   nextCursor,
   childDraft = null,
@@ -51,12 +88,34 @@ const formData = (form) => Object.fromEntries(new FormData(form));
 const hints = {};
 const channel =
   "BroadcastChannel" in window ? new BroadcastChannel("dingdong-auth") : null;
-function stopWork() {
-  clearTimeout(pollTimer);
-  window.speechSynthesis?.cancel();
+/**
+ * 离开当前上下文：关对话框、结束编辑会话。只有换路由/换儿童/退出登录才算离开，
+ * 重渲染不算——`render()` 每次进来都关对话框会让打开中的对话框被轮询渲染关掉
+ * （T-040 的 P-16：复测「开始复测」的同意对话框只闪现约 1.7 秒）。
+ */
+function leaveContext() {
   if ($("#dialog").open) $("#dialog").close();
   // 对话框一关，编辑会话就结束：不允许残留的基准修订号在下次打开时复用。
   childEdit = null;
+}
+/** 对话框流程走完：关掉它并结束编辑会话，供「提交成功后重渲染」的流程调用。 */
+function closeDialog() {
+  leaveContext();
+  window.speechSynthesis?.cancel();
+}
+function stopWork() {
+  clearTimeout(pollTimer);
+  closeDialog();
+}
+/** 观察未就绪时按固定间隔重渲染一次；对话框打开期间挂起，关闭后恢复。 */
+function schedulePoll(tick, delay) {
+  if ($("#dialog").open) {
+    pollPending = true;
+    return;
+  }
+  pollTimer = setTimeout(() => {
+    if (tick === viewEpoch) render();
+  }, delay);
 }
 function forget() {
   viewEpoch++;
@@ -69,6 +128,14 @@ function forget() {
   state.consents = [];
   state.challenge = null;
   state.question = 0;
+  state.reassessment = null;
+  state.reassessmentWrite = null;
+  state.reassessmentResult = null;
+  state.reassessmentExpanded = false;
+  state.reassessmentSession = null;
+  state.reassessmentStart = false;
+  state.reassessmentWriteError = "";
+  state.reassessmentRespondError = null;
   childDraft = null;
   currentActivity = null;
   for (const k of Object.keys(hints)) delete hints[k];
@@ -83,10 +150,29 @@ function saveHints() {
     );
   } catch {}
 }
+// 时间展示统一走这里：本地时区、零填充到分钟（与成长观察窗口输入框的口径一致，
+// 同页不出现「2026/9/1 00:00:00」和「2026/09/01 08:00」两种写法）。
+const DATE_TIME = {
+  hour12: false,
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+};
 function date(v) {
-  return v
-    ? new Date(v).toLocaleString("zh-CN", { hour12: false })
-    : "尚无记录";
+  return v ? new Date(v).toLocaleString("zh-CN", DATE_TIME) : "尚无记录";
+}
+/** 只到日的时间展示。纯日期字符串直接改写，避免按 UTC 解析后跨时区差一天。 */
+function dateOnly(v) {
+  if (!v) return "尚无记录";
+  const plain = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(v));
+  if (plain) return `${plain[1]}/${plain[2]}/${plain[3]}`;
+  return new Date(v).toLocaleDateString("zh-CN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
 }
 function head(title, desc = "", action = "") {
   return `<div class="page-head"><div><span class="eyebrow">${esc(state.child?.name || "DINGDONG")} · 成长空间</span><h1>${esc(title)}</h1><p>${esc(desc)}</p></div>${action}</div>`;
@@ -98,7 +184,8 @@ function button(action, label, data = "", secondary = false) {
   return `<button type="button" class="button ${secondary ? "secondary" : ""}" data-action="${action}" ${data}>${label}</button>`;
 }
 function testTag() {
-  return '<span class="tag test">合成测试数据</span>';
+  // 家长端不再显示测试标注（2026-09-20 拍板）：保留空实现，调用点与 CSS 纪律见 README。
+  return "";
 }
 function showDialog(title, html) {
   $("#dialog-content").innerHTML =
@@ -123,6 +210,20 @@ function showError(e) {
         : "");
   else toast(errorMessage(e));
 }
+/** 提交期间给按钮一个可见的进行中态：换文案 + `aria-busy`，返回恢复函数。 */
+function busyButton(el, label) {
+  if (!el) return () => {};
+  const idle = el.textContent;
+  el.disabled = true;
+  el.setAttribute("aria-busy", "true");
+  el.textContent = label;
+  return () => {
+    if (!el.isConnected) return;
+    el.disabled = false;
+    el.removeAttribute("aria-busy");
+    el.textContent = idle;
+  };
+}
 async function act(fn, el) {
   if (busy) return;
   busy = true;
@@ -139,6 +240,7 @@ async function act(fn, el) {
   }
 }
 function to(route) {
+  leaveContext();
   if (location.hash === "#" + route) render();
   else location.hash = route;
 }
@@ -198,7 +300,7 @@ function page(html) {
 }
 function loginPage() {
   page(
-    `<div class="login-layout"><section class="login-scene"><span class="eyebrow">CA × DINGDONG</span><h1>陪孩子探索，<br>把每个发现留下来。</h1><p>从今天的小行动开始，慢慢看见成长。</p><img src="assets/dingdong.svg" alt="DingDong 成长伙伴"></section><form id="login-form" class="login-form"><span class="eyebrow">欢迎回到成长空间</span><h2>家长登录</h2><p class="muted">登录后，查看孩子的档案与陪伴记录。</p><label class="field">手机号<input name="phone" type="tel" autocomplete="tel" required placeholder="请输入手机号"></label><div class="inline"><label class="field">验证码<input name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="5" required placeholder="5 位验证码"></label><button type="button" class="button secondary" id="send-code">获取验证码</button></div><div class="form-error" role="alert"></div><p class="note">当前为本地测试环境，验证码统一为 00000。</p><button class="button primary" type="submit" disabled>登录</button></form></div>`,
+    `<div class="login-layout"><section class="login-scene"><span class="eyebrow">CA × DINGDONG</span><h1>陪孩子探索，<br>把每个发现留下来。</h1><p>从今天的小行动开始，慢慢看见成长。</p><img src="assets/dingdong.svg" alt="DingDong 成长伙伴"></section><form id="login-form" class="login-form"><span class="eyebrow">欢迎回到成长空间</span><h2>家长登录</h2><p class="muted">登录后，查看孩子的档案与陪伴记录。</p><label class="field">手机号<input name="phone" type="tel" autocomplete="tel" required placeholder="请输入手机号"></label><div class="inline"><label class="field">验证码<input name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="5" required placeholder="5 位验证码"></label><button type="button" class="button secondary" id="send-code">获取验证码</button></div><div class="form-error" role="alert"></div><button class="button primary" type="submit" disabled>登录</button></form></div>`,
   );
   $("#login-form").phone.oninput = () => {
     state.challenge = null;
@@ -206,8 +308,14 @@ function loginPage() {
   };
   $("#send-code").onclick = async (e) => {
     const b = e.currentTarget;
+    const form = $("#login-form");
+    const requestedPhone = form.phone.value.trim();
+    if (!requestedPhone) {
+      $(".form-error").textContent = "请先填写手机号，再获取验证码。";
+      form.phone.focus();
+      return;
+    }
     b.disabled = true;
-    const requestedPhone = $("#login-form").phone.value;
     try {
       await API.request("/auth/csrf", { auth: false });
       const r = await API.request("/auth/sms", {
@@ -215,11 +323,11 @@ function loginPage() {
         auth: false,
         body: { phone: requestedPhone },
       });
-      if ($("#login-form").phone.value !== requestedPhone) return;
+      if (form.phone.value.trim() !== requestedPhone) return;
       state.challenge = r.challenge_id;
       $("#login-form button[type=submit]").disabled = false;
       $(".form-error").textContent = "";
-      toast("验证码已准备好，本地测试请输入 00000。");
+      toast("验证码已发送，请查看手机。");
     } catch (err) {
       $(".form-error").textContent = errorMessage(err);
     } finally {
@@ -228,8 +336,8 @@ function loginPage() {
   };
   $("#login-form").onsubmit = async (e) => {
     e.preventDefault();
-    const b = e.submitter;
-    b.disabled = true;
+    // 慢网下登录要几秒，按钮只变灰会让家长以为点空了、反复点。
+    const restore = busyButton(e.submitter, "登录中…");
     try {
       if (!state.challenge) throw new Error("请先获取验证码。");
       state.user = await API.login(state.challenge, e.target.code.value);
@@ -239,7 +347,7 @@ function loginPage() {
     } catch (err) {
       $(".form-error").textContent = errorMessage(err);
     } finally {
-      b.disabled = false;
+      restore();
     }
   };
 }
@@ -344,7 +452,7 @@ function sessionView(s) {
         s.title || "测评问卷",
         s.description || "题库与答案保存在当前儿童档案中。",
       ) +
-      `<section class="panel question">${testTag()}<p class="note">第 ${state.question + 1} / ${s.questions.length} 题 · ${s.missing_question_codes.length ? "尚有 " + s.missing_question_codes.length + " 题未完成" : "全部题目已保存"}</p><progress value="${state.question + 1}" max="${s.questions.length}" aria-label="问卷进度"></progress><form id="answer-form"><fieldset><legend>${esc(q.title)}</legend><p class="note">${q.required ? "必填" : "选填，可跳过"} · ${q.type === "single_choice" ? "单选" : "最多选 " + q.max_choices + " 项"} · 题库版本 ${esc(s.version)}</p>${q.options.map((o) => `<label class="answer-option"><input type="${q.type === "single_choice" ? "radio" : "checkbox"}" name="answer" value="${esc(o.code)}" ${answers.includes(o.code) ? "checked" : ""}>${esc(o.label)}</label>`).join("")}</fieldset><div class="form-error" role="alert"></div><div class="actions">${state.question ? button("previous-question", "上一题", "", true) : ""}<button type="submit" class="button">${state.question === s.questions.length - 1 ? "保存并继续" : "保存并下一题"}</button>${button("cancel-assessment", "取消本次测评", "", true)}</div></form></section>`
+      `<section class="panel question">${testTag()}<p class="note">第 ${state.question + 1} / ${s.questions.length} 题 · ${s.missing_question_codes.length ? "尚有 " + s.missing_question_codes.length + " 题未完成" : "全部题目已保存"}</p><progress value="${state.question + 1}" max="${s.questions.length}" aria-label="问卷进度"></progress><form id="answer-form"><fieldset><legend>${esc(q.title)}</legend><p class="note">${q.required ? "必填" : "选填，可跳过"} · ${q.type === "single_choice" ? "单选" : "最多选 " + q.max_choices + " 项"} · 题库「${esc(s.title)}」<span title="${esc(s.version)}">（${esc(versionLabel(s.version))}）</span></p>${q.options.map((o) => `<label class="answer-option"><input type="${q.type === "single_choice" ? "radio" : "checkbox"}" name="answer" value="${esc(o.code)}" ${answers.includes(o.code) ? "checked" : ""}>${esc(o.label)}</label>`).join("")}</fieldset><div class="form-error" role="alert"></div><div class="actions">${state.question ? button("previous-question", "上一题", "", true) : ""}<button type="submit" class="button">${state.question === s.questions.length - 1 ? "保存并完成" : "保存并下一题"}</button>${button("cancel-assessment", "取消本次测评", "", true)}</div></form></section>`
     );
   }
   return submissionView(s);
@@ -357,7 +465,7 @@ function submissionView(s) {
     );
   return (
     head("本次测评", statusNames[s.status] || s.status) +
-    `<section class="panel question">${testTag()}${["ready", "needs_recapture"].includes(s.status) ? `<h2>真实指纹采集尚未开放</h2><p>当前仅用五张合成样例验证处理流程，不采集真实指纹，也不会产生专业测评结论。</p><p class="note">问卷答案已保存，合成样例仅随本次请求提交。</p><div class="actions">${button("submit-samples", "提交合成样例")}${button("review-answers", "查看问卷", "", true)}</div>` : s.status === "completed" ? `<h2>本次测评已处理完成</h2><p>${s.report_status === "ready" ? "报告已经生成，可以查看。" : s.report_status === "failed" ? "报告生成失败，请提交服务事项，由工作人员处理。" : "报告正在生成，页面会自动更新。"}</p>${s.report_id ? button("report", "查看初始报告", `data-id="${s.report_id}"`) : button("refresh", "刷新处理状态", "", true)}` : s.status === "result_unknown" ? `<h2>处理结果待确认</h2><p>本次请求未取得确定结果。请先查询最新状态，或取消本次测评后重新开始。</p>${button("refresh", "查询最新状态")}` : ["cancelled", "expired"].includes(s.status) ? `<h2>${esc(statusNames[s.status])}</h2>${button("begin-assessment", "重新开始测评")}` : `<h2>正在处理本次测评</h2><p>请稍候，页面会自动查询处理状态。</p>${button("refresh", "查询最新状态", "", true)}`}<div class="form-error" role="alert"></div><div class="actions">${!["completed", "cancelled", "expired"].includes(s.status) ? button("cancel-assessment", "取消本次测评", "", true) : ""}<a class="text-button" href="#reports">返回测评与报告</a></div></section>`
+    `<section class="panel question">${testTag()}${["ready", "needs_recapture"].includes(s.status) ? `<h2>提交观察样例</h2><p>提交五张样例完成本次测评；样例仅随本次请求提交，不保存在浏览器中。</p><div class="actions">${button("submit-samples", "提交样例")}${button("review-answers", "查看问卷", "", true)}</div>` : s.status === "completed" ? `<h2>本次测评已处理完成</h2><p>${s.report_status === "ready" ? "报告已经生成，可以查看。" : s.report_status === "failed" ? "报告生成失败，请提交服务事项，由工作人员处理。" : "报告正在生成，页面会自动更新。"}</p>${s.report_id ? button("report", "查看初始报告", `data-id="${s.report_id}"`) : button("refresh", "刷新处理状态", "", true)}` : s.status === "result_unknown" ? `<h2>处理结果待确认</h2><p>本次请求未取得确定结果。请先查询最新状态，或取消本次测评后重新开始。</p>${button("refresh", "查询最新状态")}` : ["cancelled", "expired"].includes(s.status) ? `<h2>${esc(statusNames[s.status])}</h2>${button("begin-assessment", "重新开始测评")}` : `<h2>正在处理本次测评</h2><p>请稍候，页面会自动查询处理状态。</p>${button("refresh", "查询最新状态", "", true)}`}<div class="form-error" role="alert"></div><div class="actions">${!["completed", "cancelled", "expired"].includes(s.status) ? button("cancel-assessment", "取消本次测评", "", true) : ""}<a class="text-button" href="#reports">返回测评与报告</a></div></section>`
   );
 }
 function metrics(rows) {
@@ -375,14 +483,161 @@ function observationBlock(obs) {
     error: "同步暂时遇到问题",
     ready: "机器人行为观察",
   };
-  return `<section class="panel"><div class="card-heading"><h2>${titles[obs.availability] || "行为观察"}</h2>${testTag()}</div>${["stale", "error"].includes(obs.availability) ? '<div class="notice error">同步未取得最新结果，已有数据不会当作最新数据展示。</div>' : ""}${metrics(obs.metrics)}<p class="note">最近成功同步：${date(obs.last_success_at)}</p>${obs.availability === "unbound" || obs.availability === "no_consent" ? '<a class="button secondary" href="#settings">管理关联与授权</a>' : ""}</section>`;
+  return `<section class="panel"><div class="card-heading"><h2>${titles[obs.availability] || "行为观察"}</h2>${testTag()}</div>${["stale", "error"].includes(obs.availability) ? '<div class="notice error">同步未取得最新结果，已有数据不会当作最新数据展示。</div>' : ""}${metrics(obs.metrics)}<p class="note">最近成功同步：${date(obs.last_success_at)} · 此处为机器人行为观察，与「陪学伙伴」等机器人服务数据来源不同。</p>${obs.availability === "unbound" || obs.availability === "no_consent" ? '<a class="button secondary" href="#settings">管理关联与授权</a>' : ""}</section>`;
+}
+/** 面一 + 面三的空态/错误态正文：一句状态 + 可选的去向。 */
+function faceEmpty(view) {
+  return `<p class="companion-state"><b>${esc(view.title)}</b></p>${view.note ? `<p>${esc(view.note)}</p>` : ""}${view.settings ? '<a class="button secondary" href="#settings">管理关联与授权</a>' : ""}`;
+}
+function staleNotice(view) {
+  return view.stale ? `<div class="notice">${esc(STALE_NOTICE)}</div>` : "";
+}
+/** 面一：人设卡。后端已给中文 `type_label` 与 `learning_style_labels`，前端不维护映射表。 */
+function personaBlock(view) {
+  if (!view.showData)
+    return `<div class="companion-persona">${faceEmpty(view)}</div>`;
+  const p = view.persona;
+  // 学习风格：正文只给中文对照，对方原始 code 只进 title（对方 code 表尚未确认）。
+  const labels = p.learning_style_labels || [];
+  const tags = (p.learning_style_tags || [])
+    .map((code, index) => {
+      const label = labels[index] || "未识别取值";
+      return `<span title="${esc(code)}">${esc(label)}</span>`;
+    })
+    .join("、");
+  return `<div class="companion-persona"><div class="companion-head"><h3>${esc(p.persona_name)}</h3>${p.type_label ? `<span class="tag">${esc(p.type_label)}</span>` : ""}</div>${p.public_description ? `<p>${esc(p.public_description)}</p>` : ""}${view.matchScore === null ? "" : metrics([{ label: "匹配度", value: view.matchScore, unit: "/ 100" }])}<p class="note">匹配度由机器人服务按互动给出（0–100），不是能力评价。</p>${tags ? `<p class="note">学习风格：${tags}（由机器人服务提供）。</p>` : ""}<p class="note" title="权重版本 ${esc(p.talent_weight_version)}">绑定于 ${date(view.binding?.bind_time)}</p>${staleNotice(view)}</div>`;
+}
+/** 面三：互动健康度四态。分数只在 `normal` 出现，且必须与观察天数一起给。 */
+function healthBlock(view, reassessment = { show: false }) {
+  const state = `<p class="companion-state"><b>${esc(view.label)}</b></p>${view.note ? `<p>${esc(view.note)}</p>` : ""}`;
+  const facts = view.showScore
+    ? metrics([
+        { label: "健康度分数", value: view.score, unit: "/ 100" },
+        { label: "观察天数", value: view.observationDays, unit: "天" },
+      ])
+    : view.observationDays === null
+      ? ""
+      : `<p class="note">已观察 ${view.observationDays} 天。</p>`;
+  return `<div class="companion-health"><h3>互动健康度</h3>${view.showData ? state + (view.triggerLabel ? `<p class="note">机器人服务给出的原因：${esc(view.triggerLabel)}</p>` : "") + facts + staleNotice(view) : faceEmpty(view)}${reassessmentBlock(reassessment)}</div>`;
+}
+/**
+ * 「陪学伙伴」面板：人设卡在上、互动健康度在下，复测 CTA 落在健康度这一段内。
+ *
+ * 复测是产品里唯一的入口（设计 §1.4），面板级徽标只挂一次，
+ * 三个面共用同一个 `testTag()`（当前为空实现，见函数注释）。
+ */
+function companionPanel(persona, health, reassessment) {
+  const p = personaSection(persona);
+  const h = healthSection(health);
+  const r = reassessmentSection(reassessment, {
+    expanded: state.reassessmentExpanded,
+    sync: state.reassessmentWrite,
+    completion: state.reassessmentResult,
+    error: state.reassessmentRespondError?.message,
+  });
+  const badge = p.synthetic || h.synthetic || r.synthetic ? testTag() : "";
+  return `<section class="panel companion-panel"><div class="card-heading"><h2>陪学伙伴</h2>${badge}</div>${personaBlock(p)}${healthBlock(h, r)}<p class="note">${esc(HEALTH_FOOTER)}</p></section>`;
+}
+/** 面四：复测建议与回写。没有待处理建议时整块不出现（设计 §3.2）。 */
+function reassessmentBlock(view) {
+  if (!view.show) return "";
+  const when = view.recommendedAt
+    ? `<p class="note">建议时间 ${date(view.recommendedAt)}${view.triggerLabel ? ` · 这次建议的原因：${esc(view.triggerLabel)}` : ""}</p>`
+    : "";
+  const sync = view.syncNote ? `<p class="note">${esc(view.syncNote)}</p>` : "";
+  // 回写失败的落点就在这一块里：不借道 `showError()`，否则会写进页面上第一个
+  // `.form-error`（`#reports` 里那是「成长观察」的窗口表单）。
+  const failure = view.error
+    ? `<div class="notice error"><b>${esc(WRITE_FAILED_TEXT)}</b><p>${esc(view.error)}</p><div class="actions">${button("reassessment-retry", "重试", "", true)}</div></div>`
+    : "";
+  const actions = view.actions.length
+    ? `<div class="actions">${view.actions
+        .map((a) =>
+          a === "accept"
+            ? button("reassessment-accept", "重新测评")
+            : a === "decline"
+              ? button("reassessment-decline", "先不测", "", true)
+              : button("start-reassessment", "开始复测"),
+        )
+        .join("")}</div>`
+    : "";
+  if (view.phase === "declined")
+    return `<div class="reassessment"><p class="companion-state">${esc(view.title)}</p>${view.expanded ? when + `<p class="note">${esc(view.expandedNote)}</p>` : ""}<div class="actions">${button("reassessment-expand", view.expanded ? "收起" : "查看当时的建议", "", true)}</div>${failure}${sync}</div>`;
+  if (view.phase === "done")
+    return `<div class="reassessment"><p class="companion-state"><b>${esc(view.title)}</b></p>${view.completion ? completionBlock(view.completion) : `<p>${esc(view.note)}</p>`}${when}${failure}${sync}</div>`;
+  return `<div class="reassessment"><p class="reassessment-suggest">${esc(view.title)}</p>${view.note ? `<p>${esc(view.note)}</p>` : ""}${when}${actions}${failure}${sync}</div>`;
+}
+/** `complete` 响应里的新角色建议：假分支不展示新角色名（设计 §1.4 第 4 步）。 */
+function completionBlock(card) {
+  const name = card.newPersonaName
+    ? `<p>新角色 <b>${esc(card.newPersonaName)}</b>${card.matchScore === null ? "" : ` · 匹配度 ${card.matchScore} / 100`}</p>`
+    : "";
+  const rows = [];
+  if (card.currentScore !== null)
+    rows.push({ label: "当前角色匹配度", value: card.currentScore, unit: "/ 100" });
+  if (card.delta !== null)
+    rows.push({ label: "匹配度变化", value: card.delta, unit: "" });
+  return `<p class="companion-state"><b>${esc(card.title)}</b></p>${name}${rows.length ? metrics(rows) : ""}<p class="note">${esc(card.note)}</p>`;
+}
+/** 复测承接的这次测评跑完后，把结果回写；失败如实说，不静默。 */
+function reassessmentWriteBackBlock() {
+  if (state.reassessmentResult)
+    return `<div class="notice"><b>本次复测的结果已经回写。</b><p>是否更换陪学伙伴，去「测评与报告」的陪学伙伴面板看建议。</p></div>`;
+  if (state.reassessmentWriteError)
+    return `<div class="notice error"><b>复测结果还没有回写成功。</b><p>${esc(state.reassessmentWriteError)}</p><div class="actions">${button("refresh", "重试", "", true)}</div></div>`;
+  return "";
+}
+/** 面二的两个固定 Tab；任意区间由既有「成长观察」承担，不是同一份数据。 */
+function growthTabs() {
+  return `<div class="growth-tabs" role="group" aria-label="周期长度">${PERIODS.map(
+    ([value, label]) =>
+      `<button type="button" class="chip ${state.growthPeriod === value ? "active" : ""}" data-action="growth-period" data-value="${value}" aria-pressed="${state.growthPeriod === value}">${label}</button>`,
+  ).join("")}</div>`;
+}
+/** 八维条形。缺失维度只给一句说明：不出条形、不出 0、不插值。 */
+function dimensionBars(rows) {
+  return `<ul class="growth-dimensions">${rows
+    .map((d) =>
+      d.value === null
+        ? `<li class="missing"><span class="dim-label">${esc(d.label)}</span><span class="dim-note">${esc(DIMENSION_MISSING)}</span></li>`
+        : `<li><span class="dim-label">${esc(d.label)}</span><progress value="${d.value}" max="100" aria-label="${esc(d.label)}"></progress><strong>${d.value}</strong></li>`,
+    )
+    .join("")}</ul>`;
+}
+/**
+ * 「成长周期报告」面板（设计 §1.2）：对方的 `growth_period`，固定 15/30 天。
+ * 与「成长观察」（我方观察记录 + 任意窗口）是两份数据、两个来源，不合并。
+ */
+function growthCyclePanel(data) {
+  const v = growthCycleSection(data);
+  const head = `<div class="card-heading"><h2>成长周期报告</h2>${v.synthetic ? testTag() : ""}</div>${growthTabs()}`;
+  if (!v.showData)
+    return `<section class="panel growth-panel">${head}${faceEmpty(v)}</section>`;
+  const companion =
+    v.companionDelta === null
+      ? ""
+      : metrics([{ label: "陪伴值增长", value: v.companionDelta, unit: "" }]);
+  const range =
+    v.companionStart === null || v.companionEnd === null
+      ? ""
+      : `<p class="note">周期初 ${v.companionStart} → 周期末 ${v.companionEnd}。陪伴值是有效陪伴互动的代理量。</p>`;
+  const stage = v.stageNote
+    ? `<p class="note">${esc(v.stageNote)}</p>`
+    : `<p class="growth-stage">陪学成长阶段：<b>${esc(v.stageLabel)}</b>${v.stageProgress === null ? "" : ` · 阶段进度 ${v.stageProgress}%`}</p>`;
+  const meta = [
+    v.algorithmVersion
+      ? `算法版本 <span title="${esc(v.algorithmVersion)}">${esc(versionLabel(v.algorithmVersion))}</span>`
+      : "",
+    v.generatedAt ? `生成于 ${date(v.generatedAt)}` : "",
+  ].filter(Boolean);
+  return `<section class="panel growth-panel">${head}<p class="note">本周期 ${esc(dateOnly(v.period.start))} — ${esc(dateOnly(v.period.end))}${v.personaName ? ` · 当前陪学伙伴 ${esc(v.personaName)}` : ""}</p>${companion}${range}${stage}<h3>八维成长代理</h3>${dimensionBars(v.dimensions)}<p class="note">${esc(PROXY_NOTE)}</p>${meta.length ? `<p class="note">${meta.join(" · ")}</p>` : ""}${staleNotice(v)}</section>`;
 }
 function localValue(v) {
   const d = new Date(v);
   return new Date(d - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
 }
 function windowForm() {
-  return `<form id="window-form" class="window-form"><label class="field">开始时间<input type="datetime-local" name="from" required value="${localValue(state.window.from)}"></label><label class="field">结束时间<input type="datetime-local" name="to" required value="${localValue(state.window.to)}"></label><button class="button secondary" type="submit">查看这个窗口</button></form><p class="note">按当前设备时区显示；结束时间不计入窗口。默认展示合成样例的观察窗口。</p>`;
+  return `<form id="window-form" class="window-form"><label class="field">开始时间<input type="datetime-local" name="from" required value="${localValue(state.window.from)}"></label><label class="field">结束时间<input type="datetime-local" name="to" required value="${localValue(state.window.to)}"></label><div class="form-error" role="alert"></div><button class="button secondary" type="submit">查看这个窗口</button></form><p class="note">按当前设备时区显示；结束时间不计入窗口。</p>`;
 }
 function queryWindow() {
   return "?" + new URLSearchParams(state.window);
@@ -397,7 +652,11 @@ function reportCards(rows) {
 }
 async function render() {
   const tick = ++viewEpoch;
-  stopWork();
+  // 重渲染只取消待执行的轮询与还在读的语音，不关对话框、不动编辑会话
+  // （T-041 的 P-16）。朗读不跟着重渲染停会盖住新一题/下一步的内容。
+  clearTimeout(pollTimer);
+  pollPending = false;
+  window.speechSynthesis?.cancel();
   header();
   if (!state.user) return loginPage();
   if (!state.child) {
@@ -479,17 +738,19 @@ async function render() {
       }
       state.session = s;
       state.question = Math.min(state.question, s.questions.length - 1);
+      await writeBackReassessment(child, s);
       html =
-        hints.showSubmission !== false && s.status === "ready"
+        (hints.showSubmission !== false && s.status === "ready"
           ? submissionView(s)
-          : sessionView(s);
+          : sessionView(s)) +
+        (s.purpose === "assessment" && s.status === "completed"
+          ? reassessmentWriteBackBlock()
+          : "");
       if (
         ["processing", "result_unknown"].includes(s.status) ||
         (s.status === "completed" && s.report_status === "processing")
       )
-        pollTimer = setTimeout(() => {
-          if (tick === viewEpoch) render();
-        }, 2500);
+        schedulePoll(tick, 2500);
     } else if (route === "report" && id) {
       const r = await API.request("/reports/" + id);
       if (r.child_id !== child) throw new Error("请先切换到对应的儿童档案。");
@@ -501,21 +762,27 @@ async function render() {
         ) +
         `<article class="panel">${testTag()}<p class="note">生成于 ${date(r.generated_at)} · ${esc(r.template_version)}</p>${r.window ? `<p>观察窗口：${date(r.window.start)} — ${date(r.window.end)}</p>` : ""}${r.sections.map((s) => `<section class="report-section"><h2>${esc(s.title)}</h2>${s.paragraphs.map((p) => `<p>${esc(p)}</p>`).join("")}</section>`).join("")}<p class="notice">${esc(r.source_summary)}</p></article>`;
     } else if (route === "reports") {
-      const [reports, sessions, overview, catalog] = await Promise.all([
-        API.all(`/children/${child}/reports`),
-        API.all(`/children/${child}/assessments`),
-        API.request(`/children/${child}/growth-overview` + queryWindow()),
-        API.request("/assessment-config"),
-      ]);
+      const [reports, sessions, overview, catalog, companion, health, cycle, reassessment] =
+        await Promise.all([
+          API.all(`/children/${child}/reports`),
+          API.all(`/children/${child}/assessments`),
+          API.request(`/children/${child}/growth-overview` + queryWindow()),
+          API.request("/assessment-config"),
+          API.request(`/children/${child}/companion-persona`),
+          API.request(`/children/${child}/companion-health`),
+          API.request(
+            `/children/${child}/growth-cycle?period=${state.growthPeriod}`,
+          ),
+          API.request(`/children/${child}/reassessment`),
+        ]);
+      state.reassessment = reassessment;
       if (
         overview.robot_observation.availability === "not_synced" ||
         overview.stage_status === "processing" ||
         (overview.stage_status === "ready" &&
           !reports.some((r) => r.kind === "stage"))
       )
-        pollTimer = setTimeout(() => {
-          if (tick === viewEpoch) render();
-        }, 3000);
+        schedulePoll(tick, 3000);
       const active = [...sessions]
         .reverse()
         .find(
@@ -544,7 +811,7 @@ async function render() {
                 s.questionnaire_code === q.code &&
                 !["completed", "cancelled", "expired"].includes(s.status),
             );
-          return `<section class="panel"><h2>${esc(q.title)}</h2><p>${esc(q.description)}</p><p class="note">${q.question_count} 题 · ${esc(q.version)}</p>${resume ? button("continue-assessment", "继续这份问卷", `data-id="${resume.id}"`) : button("begin-bank", "开始这份问卷", `data-id="${q.id}" data-purpose="${q.purpose}"`)}</section>`;
+          return `<section class="panel"><h2>${esc(q.title)}</h2><p>${esc(q.description)}</p><p class="note">${q.question_count} 题 · 版本 <span title="${esc(q.version)}">${esc(versionLabel(q.version))}</span></p>${resume ? button("continue-assessment", "继续这份问卷", `data-id="${resume.id}"`) : button("begin-bank", "开始这份问卷", `data-id="${q.id}" data-purpose="${q.purpose}"`)}</section>`;
         })
         .join("");
       const history = sessions.filter(
@@ -552,14 +819,16 @@ async function render() {
       );
       html =
         head("测评与报告", "初始测评、机器人观察与网页活动分别呈现。") +
-        `<div class="grid">${bankCards}${explorationCard}<div class="panel"><div class="card-heading"><h2>${active ? "本次测评尚未结束" : "初始测评"}</h2>${testTag()}</div><p>${active ? esc(statusNames[active.status]) : "正式算法与专业量表尚未接入。当前为日常情境测试题，只验证问卷和报告流程，不作专业结论。"}</p>${active ? button("continue-assessment", "继续本次测评", `data-id="${active.id}"`) : button("begin-assessment", "开始测评")}</div></div>${history.length ? `<section class="panel"><h2>已完成的探索体验</h2>${history.map((s) => button("continue-assessment", esc(s.title) + " · 查看选择", `data-id="${s.id}"`, true)).join("")}</section>` : ""}<h2 style="margin:28px 0 18px">已生成报告</h2>${reportCards(reports.reverse())}<h2 style="margin:30px 0 0">成长观察</h2>${windowForm()}<div class="grid">${observationBlock(overview.robot_observation)}<section class="panel"><h2>阶段画像与变化</h2><p>${{ no_data: "还没有可处理的观察记录。", waiting_rule: "观察已收到，等待发布处理规则。", processing: "正在处理最新观察。", ready: "当前观察已生成阶段画像。", failed: "处理暂未完成，请联系工作人员。" }[overview.stage_status]}</p>${overview.trend.available ? metrics(overview.trend.changes.map((m) => ({ label: m.code, value: m.delta, unit: m.unit }))) : '<p class="notice">目前没有兼容、相邻且等长的两期结果，暂不展示变化。</p>'}<p class="note">网页活动完成数不参与阶段画像计算。</p>${button("refresh", "刷新观察状态", "", true)}</section></div>`;
+        `<div class="grid">${bankCards}${explorationCard}<div class="panel"><div class="card-heading"><h2>${active ? "本次测评尚未结束" : "初始测评"}</h2>${testTag()}</div><p>${active ? esc(statusNames[active.status]) : "通过日常情境题了解孩子的近期状态，完成后生成初始报告。"}</p>${active ? button("continue-assessment", "继续本次测评", `data-id="${active.id}"`) : button("begin-assessment", "开始测评")}</div></div>${companionPanel(companion, health, reassessment)}${history.length ? `<section class="panel"><h2>已完成的探索体验</h2>${history.map((s) => button("continue-assessment", esc(s.title) + " · 查看选择", `data-id="${s.id}"`, true)).join("")}</section>` : ""}<h2 style="margin:28px 0 18px">已生成报告</h2>${reportCards(reports.reverse())}${growthCyclePanel(cycle)}<h2 style="margin:30px 0 0">成长观察</h2>${windowForm()}<div class="grid">${observationBlock(overview.robot_observation)}<section class="panel"><h2>阶段画像与变化</h2><p>${{ no_data: "还没有可处理的观察记录。", waiting_rule: "观察已收到，等待发布处理规则。", processing: "正在处理最新观察。", ready: "当前观察已生成阶段画像。", failed: "处理暂未完成，请联系工作人员。" }[overview.stage_status]}</p>${overview.trend.available ? metrics(overview.trend.changes.map((m) => ({ label: m.code, value: m.delta, unit: m.unit }))) : '<p class="notice">目前没有兼容、相邻且等长的两期结果，暂不展示变化。</p>'}<p class="note">网页活动完成数不参与阶段画像计算。</p>${button("refresh", "刷新观察状态", "", true)}</section></div>`;
     } else if (route === "settings") {
-      const [consents, associations, receipts, accounts] = await Promise.all([
-        API.all(`/children/${child}/consents`),
-        API.all(`/children/${child}/associations`),
-        API.all("/data-requests"),
-        API.all(`/children/${child}/ca-accounts`),
-      ]);
+      const [consents, associations, receipts, accounts, companion] =
+        await Promise.all([
+          API.all(`/children/${child}/consents`),
+          API.all(`/children/${child}/associations`),
+          API.all("/data-requests"),
+          API.all(`/children/${child}/ca-accounts`),
+          API.request(`/children/${child}/companion-persona`),
+        ]);
       state.consents = consents;
       hints.accounts = accounts;
       html =
@@ -578,7 +847,7 @@ async function render() {
           })
           .join(
             "",
-          )}<p class="note">撤回会阻止后续处理；如果需要清除已有数据，请提交删除事项。</p></section>${robotPanel(accounts)}<section class="panel"><h2>机器人数据关联</h2>${
+          )}<p class="note">撤回会阻止后续处理；如果需要清除已有数据，请提交删除事项。</p></section>${robotPanel(accounts, companion)}<section class="panel"><h2>机器人数据关联</h2>${
           associations.some((a) => a.status === "verified")
             ? associations
                 .filter((a) => a.status === "verified")
@@ -587,7 +856,7 @@ async function render() {
                     `<span class="tag">已核验 · ${!consents.some((c) => c.purpose === "dingdong_sync" && !c.revoked_at) ? "同步授权已撤回" : a.sync_status === "enabled" ? "同步已启用" : a.sync_status === "paused" ? "同步已暂停" : "同步已停止"}</span><p class="note">最近成功同步：${date(a.last_success_at)}</p>${button("revoke-association", "解除本地关联", `data-id="${a.id}"`, true)}`,
                 )
                 .join("")
-            : `<p>使用数据提供方的核验凭据确认儿童归属。当前仅可使用合成测试凭据。</p>${button("link-robot", "核验并关联")}`
+            : `<p>使用数据提供方的核验凭据确认儿童归属。</p>${button("link-robot", "核验并关联")}`
         }<p class="note">此处只管理 CA 的本地关联，不代表已修改机器人的设置。</p></section></div><section class="panel receipts"><h2>服务与数据处理</h2><p>需要帮助、资料修正或删除儿童数据时，可以登记事项并查看处理结果。</p><div class="actions">${button("data-request", "需要帮助", 'data-kind="support"', true)}${button("data-request", "申请资料修正", 'data-kind="correction"', true)}${button("data-request", "申请删除儿童数据", 'data-kind="deletion"', true)}</div>${receiptList(receipts.reverse())}</section>`;
     } else if (route === "companion") {
       html =
@@ -608,7 +877,7 @@ async function render() {
     } else if (route === "services") {
       html =
         head("家长支持", "不急着下结论，先陪孩子多看一眼、多试一次。") +
-        `<div class="grid"><article class="panel"><h2>陪伴时，可以这样做</h2><p>把指令换成邀请：“要不要一起试试看？”</p><p>先问孩子看到了什么，再说自己的观察。</p><p>活动没有做完也没关系，允许休息、跳过与重新尝试。</p></article><article class="panel"><h2>如何阅读成长记录</h2><p>网页活动是家庭自报记录。机器人行为观察与测评报告使用各自的来源，不能直接混成一个分数。</p><p>当前报告全部是合成测试结果，不应用来评价孩子。</p><a class="button secondary" href="#settings">服务与数据处理</a></article></div>`;
+        `<div class="grid"><article class="panel"><h2>陪伴时，可以这样做</h2><p>把指令换成邀请：“要不要一起试试看？”</p><p>先问孩子看到了什么，再说自己的观察。</p><p>活动没有做完也没关系，允许休息、跳过与重新尝试。</p></article><article class="panel"><h2>如何阅读成长记录</h2><p>网页活动、机器人观察与测评报告各有来源，不能直接混成一个分数。</p><a class="button secondary" href="#settings">服务与数据处理</a></article></div>`;
     } else {
       html = empty(
         "没有找到这个页面",
@@ -618,6 +887,8 @@ async function render() {
     }
     if (tick !== viewEpoch || state.child?.id !== child) return;
     page(html);
+    // 「刚生成」只强调一次：账户页渲染出来之后这个号就不再冒充新号。
+    if (route === "settings") hints.newAccountId = "";
     bindForms();
     // 凭据是在登录之前就取到的：等页面真的渲染出来再弹绑定，
     // 家长不必自己找入口。只在有凭据时弹一次。
@@ -669,15 +940,22 @@ const ROBOT_REPLACEMENT_IMPACT =
 function accountRow(a) {
   const active = a.status === "active";
   const bound = a.bind_state === "bound";
+  // 这次会话里刚生成的号高亮一次：家长绑定完第一眼要看到的就是它。
+  const fresh = a.ca_account_id === hints.newAccountId;
   // 归档的号不显示接通状态：对方侧那边怎么处置还没定（D20），我们只能保证本地这一半。
   const tags = active
     ? `<span class="tag">${esc(ACCOUNT_STATUS.active)}</span><span class="tag${bound ? "" : " warn"}">${esc(BIND_STATE[a.bind_state] || a.bind_state)}</span>`
     : `<span class="tag muted">${esc(ACCOUNT_STATUS.retired)}</span>`;
-  return `<div class="account-row"><span class="account-role">${active ? "当前机器人" : "上一台机器人"}</span><div class="account-body"><code class="inline-code">${esc(a.ca_account_id)}</code>${tags}<p class="note">机器人指纹 ${esc(a.nfc_token_fingerprint)}${a.robot_ref ? " · 设备标识 " + esc(a.robot_ref) : ""} · 建立于 ${date(a.created_at)}${a.unbound_at ? " · 归档于 " + date(a.unbound_at) : ""}</p></div></div>`;
+  return `<div class="account-row${fresh ? " is-new" : ""}"><span class="account-role">${active ? "当前机器人" : "上一台机器人"}</span><div class="account-body"><code class="inline-code">${esc(a.ca_account_id)}</code>${fresh ? '<span class="tag fresh">刚生成</span>' : ""}${tags}<p class="note">机器人标识（前 8 位）${esc(a.nfc_token_fingerprint)}${a.robot_ref ? " · 设备标识 " + esc(a.robot_ref) : ""} · 建立于 ${date(a.created_at)}${a.unbound_at ? " · 归档于 " + date(a.unbound_at) : ""}</p></div></div>`;
 }
-function robotPanel(rows) {
+function robotPanel(rows, companion = null) {
   const active = activeAccount(rows);
   const retired = retiredAccounts(rows);
+  // 只读人设行：人设由机器人服务下发，家长端不提供修改入口，取不到就不显示这一行。
+  const persona = personaSection(companion);
+  const companionLine = persona.showData
+    ? `<p class="note">当前陪学伙伴：<b>${esc(persona.persona.persona_name)}</b>${persona.persona.type_label ? " · " + esc(persona.persona.type_label) : ""}（只读，由机器人服务下发）</p>`
+    : "";
   const detected = hints.nfcToken
     ? `<div class="notice"><b>收到一台机器人的绑定请求</b><p>链接里带着这台机器人的凭据。确认绑定时凭据只用于这一次，不会留在浏览器地址里。</p><div class="actions">${button("bind-robot", "绑定这台机器人")}${button("drop-nfc", "这次不绑", "", true)}</div></div>`
     : "";
@@ -691,15 +969,20 @@ function robotPanel(rows) {
   const history = retired.length
     ? `<h3 style="margin-top:26px">上一台机器的账户</h3>${retired.map(accountRow).join("")}<p class="note">旧号归档后不再使用，也永远不会重发给别的机器人。这段时期的报告按孩子保存，在「测评与报告」里仍然看得到。</p>`
     : "";
-  return `<section class="panel"><div class="card-heading"><h2>机器人账户</h2>${testTag()}</div>${detected}<p>每台机器人配一个账户号，DingDong 侧按这个号交换这台机器人上属于 <b>${esc(state.child.name)}</b> 的观察数据。号由我方生成，对方只做不透明保存。</p>${current}${history}<p class="note">一台机器人只服务一个孩子；同一台机器人再次绑定会复用原来的号，不换号。它与下面的「机器人数据关联」是两件事：账户号是我们给机器人的身份，关联是我们本地确认数据算谁。</p></section>`;
+  return `<section class="panel"><div class="card-heading"><h2>机器人账户</h2>${testTag()}</div>${detected}<p>每台机器人配一个账户号，DingDong 侧按这个号交换这台机器人上属于 <b>${esc(state.child.name)}</b> 的观察数据。号由我方生成，对方只做不透明保存。</p>${current}${companionLine}${history}<p class="note">一台机器人只服务一个孩子；同一台机器人再次绑定会复用原来的号，不换号。它与下面的「机器人数据关联」是两件事：账户号是我们给机器人的身份，关联是我们本地确认数据算谁。</p></section>`;
 }
 function bindRobotDialog(token = "") {
   showDialog(
     "绑定机器人",
-    `<p>机器人上的标签会带着凭据打开这个页面。确认后，系统会为这台机器人生成一个账户号。</p><form id="bind-robot-form"><label class="field">这台机器人服务的孩子<select name="child_id">${state.children.map((c) => `<option value="${c.id}" ${c.id === state.child?.id ? "selected" : ""}>${esc(c.name)}</option>`).join("")}</select></label><label class="field">机器人凭据<input name="nfc_token" value="${esc(token)}" required maxlength="2048" autocomplete="off" spellcheck="false" placeholder="从机器人标签上取得"></label><p class="note">凭据只用于本次绑定：不保存在浏览器里，也不写进日志。一台机器人只服务一个孩子。</p><button class="button" type="submit">确认绑定</button></form>`,
+    `<p>用手机碰一下机器人上的标签，凭据会自动带回到这个页面；也可以手动输入。确认后，系统会为这台机器人生成一个账户号。</p><form id="bind-robot-form" novalidate><label class="field">这台机器人服务的孩子<select name="child_id">${state.children.map((c) => `<option value="${c.id}" ${c.id === state.child?.id ? "selected" : ""}>${esc(c.name)}</option>`).join("")}</select></label><label class="field">机器人凭据<input name="nfc_token" value="${esc(token)}" required maxlength="2048" autocomplete="off" spellcheck="false" placeholder="从机器人标签上取得"></label><p class="note">凭据通常是一串字母和数字，最长 2048 个字符；只用于本次绑定，不保存在浏览器里，也不写进日志。一台机器人只服务一个孩子。</p><button class="button" type="submit">确认绑定</button></form>`,
   );
   $("#bind-robot-form").onsubmit = (e) => {
     e.preventDefault();
+    if (!e.target.elements.nfc_token.value.trim()) {
+      $("#dialog .form-error").textContent =
+        "请先填写机器人凭据，或让手机碰一下机器人上的标签自动带进来。";
+      return;
+    }
     act(() => submitRobotBinding(e.target), e.submitter);
   };
 }
@@ -719,12 +1002,15 @@ async function submitRobotBinding(form) {
     keys.delete("ca-issue:" + child + ":" + token);
     hints.nfcToken = "";
     hints.nfcPrompted = true;
+    // 标签是裸链接时地址里没有任何路由，停在默认的探索页等于把刚生成的号藏起来：
+    // 绑定成功一律落到「账户与关联」，并把这个号高亮一次。
+    hints.newAccountId = account.ca_account_id;
     toast(
       account.bind_state === "bound"
         ? "这台机器人的账户号已建立并接通。"
         : "账户号已建立，正在等待机器人确认接通。",
     );
-    await render();
+    to("settings");
   } catch (e) {
     if (!replaceFlowNeeded(e)) throw e;
     // 这个孩子已经有另一台机器人的活跃账户：换机是对外可见的两步，
@@ -747,7 +1033,7 @@ function replaceRobotDialog(account, token = "") {
   hints.replaceAccount = account;
   showDialog(
     "换一台机器人",
-    `<p>现在这台机器人（指纹 ${esc(account.nfc_token_fingerprint)}，账户号 <code class="inline-code">${esc(account.ca_account_id)}</code>）会先归档，再为新机器人发一个新号。归档后旧号不再使用。</p><div class="notice error"><b>换号会重新开始</b><p>${esc(ROBOT_REPLACEMENT_IMPACT)}</p></div><form id="replace-robot-form"><label class="field">新机器人的凭据<input name="nfc_token" value="${esc(token)}" required maxlength="2048" autocomplete="off" spellcheck="false" placeholder="从机器人标签上取得"></label><button class="button danger" type="submit">确认换机并归档旧号</button></form>`,
+    `<p>现在这台机器人（机器人标识前 8 位 ${esc(account.nfc_token_fingerprint)}，账户号 <code class="inline-code">${esc(account.ca_account_id)}</code>）会先归档，再为新机器人发一个新号。归档后旧号不再使用。</p><div class="notice error"><b>换号会重新开始</b><p>${esc(ROBOT_REPLACEMENT_IMPACT)}</p></div><form id="replace-robot-form"><label class="field">新机器人的凭据<input name="nfc_token" value="${esc(token)}" required maxlength="2048" autocomplete="off" spellcheck="false" placeholder="从机器人标签上取得"></label><button class="button danger" type="submit">确认换机并归档旧号</button></form>`,
   );
   $("#replace-robot-form").onsubmit = (e) => {
     e.preventDefault();
@@ -777,12 +1063,13 @@ async function submitRobotReplacement(form) {
     keys.delete(key);
     hints.nfcToken = "";
     hints.nfcPrompted = true;
+    hints.newAccountId = created.ca_account_id;
     toast(
       created.bind_state === "bound"
         ? "已换到新机器人，账号已接通。"
         : "已换到新机器人，正在等待接通。",
     );
-    await render();
+    to("settings");
   } catch (e) {
     throw new Error(
       "旧号已经归档，但新号没有建立成功：" +
@@ -832,7 +1119,7 @@ async function beginAssessment(purpose = "assessment", versionId = "") {
   hints.policy = policy;
   showDialog(
     "本次测评用途",
-    `<div class="policy-body">${esc(policy.body)}</div><label class="checkline"><input id="consent-check" type="checkbox">我已阅读并同意本次测评用途</label><div class="actions">${button("agree-assessment", "同意并开始")}</div>`,
+    `<div class="policy-body">${esc(policy.body)}</div><div class="notice"><b>处理目的</b><p>生成这次测评的观察记录与报告，供你在「测评与报告」查看，并作为后续复测的对照。</p><b>数据范围</b><p>孩子的问卷选择、答题时间与所用题库版本。</p><b>数据去向</b><p>处理在本项目服务端完成，结果保存在你的账户里，不会下发给 DingDong 侧；机器人行为观察是另一路，与测评结果分开展示。</p><b>保留与撤回</b><p>记录保留在你的账户中。可在「账户与关联 → 用途授权」撤回授权；撤回不会自动删除已生成的报告，需清除数据请提交删除事项。</p></div><label class="checkline"><input id="consent-check" type="checkbox">我已阅读并同意本次测评用途</label><div class="actions">${button("agree-assessment", "同意并开始")}</div>`,
   );
 }
 async function createAssessment(grant) {
@@ -848,7 +1135,75 @@ async function createAssessment(grant) {
   state.session = result;
   state.question = 0;
   hints.showSubmission = false;
+  // 这次测评如果是「开始复测」承接来的，记下它的 id：完成后只回写它。
+  if (state.reassessmentStart) {
+    state.reassessmentSession = result.id;
+    state.reassessmentStart = false;
+  }
   to("assessment/" + result.id);
+}
+/**
+ * 复测回写（设计 §1.4 第 2 步）：本地状态先落库，出站没确认就如实说一句。
+ *
+ * 同一个 `event_id` + 同一个 `accepted` 重放返回首次结果，所以重试安全；
+ * 换个答案会被后端按 422 拒绝，前端因此不给第二个「重新测评」按钮。
+ */
+async function respondReassessment(accepted) {
+  const view = reassessmentSection(state.reassessment);
+  if (!view.eventId) throw new Error("这条复测建议已经失效，请刷新页面。");
+  try {
+    state.reassessmentWrite = await API.request(
+      `/children/${state.child.id}/reassessment/${encodeURIComponent(view.eventId)}/response`,
+      {
+        method: "POST",
+        body: {
+          request_id: requestKey(`reassessment-response:${view.eventId}:${accepted}`),
+          accepted,
+        },
+      },
+    );
+    state.reassessmentRespondError = null;
+  } catch (e) {
+    // 失败留在复测区块内并给重试入口：抛给 `act()` 会被 `showError()` 写到页面上
+    // 第一个 `.form-error`，家长在「成长观察」看到一句跟复测无关的报错。
+    state.reassessmentRespondError = { message: errorMessage(e), accepted };
+  }
+  state.reassessmentExpanded = false;
+  await render();
+}
+/**
+ * 复测承接（设计 §1.4 第 3 步）：这次测评跑完后，把它的 id 作为
+ * `new_assessment_id` 回写 `POST .../complete`，结果供结果卡展示。
+ *
+ * 只回写「开始复测」承接的那一次测评（`state.reassessmentSession`），
+ * 刷新过页面就认不出来，宁可不回写也不把别的测评 id 写过去。
+ */
+async function writeBackReassessment(child, session) {
+  const view = reassessmentSection(state.reassessment);
+  if (
+    session.purpose !== "assessment" ||
+    session.status !== "completed" ||
+    view.phase !== "accepted" ||
+    state.reassessmentSession !== session.id
+  )
+    return;
+  try {
+    state.reassessmentResult = await API.request(
+      `/children/${child}/reassessment/${encodeURIComponent(view.eventId)}/complete`,
+      {
+        method: "POST",
+        body: {
+          request_id: requestKey("reassessment-complete:" + view.eventId),
+          assessment_id: session.id,
+        },
+      },
+    );
+    state.reassessmentWriteError = "";
+    // 回写成功后不再重复 POST；失败则保留标记，重试走同一个 `request_id`。
+    state.reassessmentSession = null;
+  } catch (e) {
+    state.reassessmentWriteError = errorMessage(e);
+  }
 }
 async function consent(purpose, policy) {
   const result = await API.request(`/children/${state.child.id}/consents`, {
@@ -872,7 +1227,7 @@ async function linkRobot() {
   );
   showDialog(
     "核验机器人数据归属",
-    `<p>核验通过后，系统会主动获取该儿童的观察数据。</p><div class="policy-body">${esc(policy.body)}</div>${!hints.linkGrant ? '<label class="checkline"><input type="checkbox" id="sync-check">我已阅读并同意机器人数据同步用途</label>' : '<p class="saved">你已同意此用途。</p>'}<form id="link-form"><label class="field">核验凭据<input name="entry_proof" required maxlength="2048" autocomplete="off" placeholder="输入提供方给出的凭据"></label><p class="note">当前仅支持合成测试凭据。凭据只用于本次核验，不保存在浏览器中。</p><button class="button" type="submit">确认核验</button></form>`,
+    `<p>核验通过后，系统会主动获取该儿童的观察数据。</p><div class="policy-body">${esc(policy.body)}</div>${!hints.linkGrant ? '<label class="checkline"><input type="checkbox" id="sync-check">我已阅读并同意机器人数据同步用途</label>' : '<p class="saved">你已同意此用途。</p>'}<form id="link-form"><label class="field">核验凭据<input name="entry_proof" required maxlength="2048" autocomplete="off" placeholder="输入提供方给出的凭据"></label><p class="note">凭据只用于本次核验，不保存在浏览器中。</p><button class="button" type="submit">确认核验</button></form>`,
   );
   $("#link-form").onsubmit = (e) => {
     e.preventDefault();
@@ -893,6 +1248,7 @@ async function linkRobot() {
       });
       e.target.reset();
       keys.clear();
+      closeDialog();
       toast("归属核验成功，正在等待同步结果。");
       await render();
     }, e.submitter);
@@ -1031,6 +1387,7 @@ async function saveChildEdit() {
   }
   childEdit = null;
   await loadChildren();
+  closeDialog();
   await render();
   toast("档案已更新。");
 }
@@ -1152,16 +1509,37 @@ function bindForms() {
         await render();
       }, e.submitter);
     };
-  if ($("#window-form"))
-    $("#window-form").onsubmit = (e) => {
+  if ($("#window-form")) {
+    const form = $("#window-form");
+    const windowRangeError = (show) => {
+      form.querySelector(".form-error").textContent = show
+        ? "结束时间要晚于开始时间"
+        : "";
+      for (const name of ["from", "to"]) {
+        const input = form.querySelector(`input[name="${name}"]`);
+        if (show) {
+          input.setAttribute("aria-invalid", "true");
+          input.classList.add("is-invalid");
+        } else {
+          input.removeAttribute("aria-invalid");
+          input.classList.remove("is-invalid");
+        }
+      }
+    };
+    for (const name of ["from", "to"])
+      form.querySelector(`input[name="${name}"]`).oninput = () =>
+        windowRangeError(false);
+    form.onsubmit = (e) => {
       e.preventDefault();
       const d = formData(e.target),
         from = new Date(d.from),
         toDate = new Date(d.to);
-      if (!(from < toDate)) return toast("结束时间需要晚于开始时间。");
+      if (!(from < toDate)) return windowRangeError(true);
+      windowRangeError(false);
       state.window = { from: from.toISOString(), to: toDate.toISOString() };
       render();
     };
+  }
 }
 async function handleAction(action, el) {
   const id = el.dataset.id;
@@ -1173,8 +1551,7 @@ async function handleAction(action, el) {
         renderChildConflict();
         break;
       }
-      $("#dialog").close();
-      window.speechSynthesis?.cancel();
+      closeDialog();
       break;
     case "child-conflict-view":
       await childConflictView();
@@ -1199,9 +1576,7 @@ async function handleAction(action, el) {
       await childConflictApplyMine();
       break;
     case "child-conflict-close-confirm":
-      childEdit = null;
-      $("#dialog").close();
-      window.speechSynthesis?.cancel();
+      closeDialog();
       break;
     case "refresh":
       await render();
@@ -1304,6 +1679,33 @@ async function handleAction(action, el) {
       state.style = el.dataset.value;
       await render();
       break;
+    case "growth-period":
+      // 两个固定 Tab；换 Tab 重新取该周期的报告，「成长观察」的窗口不受影响。
+      state.growthPeriod = el.dataset.value;
+      await render();
+      break;
+    case "reassessment-accept":
+      await respondReassessment(true);
+      break;
+    case "reassessment-decline":
+      await respondReassessment(false);
+      break;
+    case "reassessment-expand":
+      state.reassessmentExpanded = !state.reassessmentExpanded;
+      await render();
+      break;
+    case "reassessment-retry": {
+      const failed = state.reassessmentRespondError;
+      if (!failed) throw new Error("这次回写已经不在待重试状态，请刷新页面。");
+      await respondReassessment(failed.accepted);
+      break;
+    }
+    case "start-reassessment":
+      // 承接既有测评流程，不新建第二套测评入口。
+      state.reassessmentStart = true;
+      state.reassessmentWriteError = "";
+      await beginAssessment();
+      break;
     case "more-records": {
       const r = await API.request(
         `/children/${state.child.id}/activity-records?page_size=20&cursor=` +
@@ -1373,7 +1775,7 @@ async function handleAction(action, el) {
       form.set("revision", String(s.revision));
       for (let i = 1; i <= 5; i++) {
         const r = await fetch(`assets/sample-${i}.png`);
-        if (!r.ok) throw new Error("合成样例暂不可用。");
+        if (!r.ok) throw new Error("观察样例暂不可用，请稍后再试。");
         form.set(`slot_${i}`, await r.blob(), `sample-${i}.png`);
       }
       try {
@@ -1440,6 +1842,7 @@ async function handleAction(action, el) {
         method: "POST",
         body: {},
       });
+      closeDialog();
       toast("这个账户号已归档。");
       await render();
       break;
@@ -1477,6 +1880,7 @@ async function handleAction(action, el) {
         },
       });
       keys.clear();
+      closeDialog();
       await render();
       toast("申请已登记，可以在处理回执中查看状态。");
       break;
@@ -1522,7 +1926,16 @@ window.addEventListener("hashchange", () => {
     state.child = childDraft;
     childDraft = null;
   }
+  leaveContext();
   render();
+});
+// 对话框关闭后补上被挂起的那次轮询。推迟一个任务：换路由引起的关闭会紧接着重渲染
+// 一次（那时 pollPending 已清），只有「用完对话框还留在同一页」才需要在这里补。
+$("#dialog").addEventListener("close", () => {
+  if (!pollPending) return;
+  setTimeout(() => {
+    if (pollPending) render();
+  }, 0);
 });
 $("#child-select").onchange = (e) => {
   stopWork();
@@ -1561,12 +1974,9 @@ async function boot() {
   }
   try {
     state.runtime = await API.request("/runtime", { auth: false });
-    $("#environment").textContent =
-      state.runtime.data_source === "database_fixture"
-        ? "本地测试 · 合成数据"
-        : "成长空间";
-    $("#source-note").textContent =
-      "记录保存于账户 · 测评与机器人数据为合成样例";
+    $("#environment").textContent = "成长空间";
+    $("#source-note").textContent = "";
+    $("#environment").hidden = true;
     try {
       await API.refresh();
       state.user = await API.request("/me");

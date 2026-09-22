@@ -1,5 +1,8 @@
 """模板过滤器：把内部代码翻译成运营看得懂的中文，避免在模板里写 if 链。"""
 
+import re
+from functools import lru_cache
+
 from django import template
 
 from dingdong_ca.ops import labels as L
@@ -16,6 +19,9 @@ MAPS = {
     "DATA_ORIGIN": L.DATA_ORIGIN,
     "QUESTION_TYPE": L.QUESTION_TYPE,
     "ACTIVITY_STYLE": L.ACTIVITY_STYLE,
+    "ACTIVITY_ISLAND": L.ACTIVITY_ISLAND,
+    "ACTIVITY_MOOD": L.ACTIVITY_MOOD,
+    "FAMILY_ROLE": L.FAMILY_ROLE,
     "ACTIVITY_RECORD_STATUS": L.ACTIVITY_RECORD_STATUS,
     "ASSESSMENT_STATUS": L.ASSESSMENT_STATUS,
     "PROFILE_KIND": L.PROFILE_KIND,
@@ -75,9 +81,40 @@ def label(value, mapping_name):
 
 
 @register.filter
+def known_label(value, mapping_name):
+    """自由填写字段的中文优先显示：词表命中给中文，未命中原样返回。
+
+    不能直接用 `label`：它把未命中的取值渲染成「未知（观察岛）」，而岛屿与情绪
+    是运营自己填的自由文本（`Activity.island` / `mood` 没有 choices），把运营
+    写的标签说成「未知」比显示原文更糟。
+    """
+    if not value:
+        return "—"
+    return MAPS.get(mapping_name, {}).get(value) or value
+
+
+@register.filter
 def tone(value):
     """状态 -> Tabler 浅色底色工具类。未知状态回退中性色，不显示成醒目颜色。"""
     return STATUS_TONE.get(value, "bg-secondary-lt")
+
+
+@register.filter
+def audit_target(value):
+    """审计「对象」名。describe_target 的兜底写成「英文模型名（关联对象名）」，运营看不懂。"""
+    return L.target_name(value, _model_names_by_verbose_name())
+
+
+@lru_cache(maxsize=1)
+def _model_names_by_verbose_name():
+    """英文模型名 -> 中文对象词条。取自模型注册表，不手抄一份英文名。"""
+    from django.apps import apps
+
+    return {
+        model._meta.verbose_name: L.TARGET_KIND[model._meta.db_table]
+        for model in apps.get_models()
+        if model._meta.db_table in L.TARGET_KIND
+    }
 
 
 @register.filter
@@ -131,15 +168,41 @@ def job_retryable(value):
 
 @register.filter
 def display_name(value, fallback="系统"):
-    """安全地取一个账号的展示名：姓名 → 用户名 → 兜底文字。
+    """安全地取一个账号的展示名：姓名 →（家长）手机号 → 用户名 → 兜底文字。
 
     不要写成 `{{ user.name|default:user.username|default:"系统" }}`：
     default 的参数会被提前求值，user 为 None 时会抛 VariableDoesNotExist，
     把整个页面变成 500。审计记录的操作人是可空的，必须在这里兜住。
+    家长账号的 username 是 `parent-<uuid>` 内部标识，没填姓名时回落手机号，
+    不给运营看内部账号。
     """
     if value is None:
         return fallback
-    return getattr(value, "name", "") or getattr(value, "username", "") or fallback
+    return getattr(value, "display_name", "") or fallback
+
+
+@register.filter
+def account_name(value, fallback="未填写"):
+    """账号的姓名本身，不回落手机号。
+
+    列表里「家长」与「手机号」是相邻两列时用这个：`display_name` 会在没填姓名时
+    回落手机号，两列就重复同一个号码。需要手机号的地方仍用 `display_name`。
+    """
+    if value is None:
+        return fallback
+    return getattr(value, "name", "") or fallback
+
+
+@register.filter
+def version_label(value, fallback="—"):
+    """内容版本代码的展示名：只留版本号（`readable-v2` → `v2`）。
+
+    内部 code 不进正文；模板需要时自己把它放进 `title` 属性。
+    """
+    if not value:
+        return fallback
+    found = re.findall(r"v\d+(?:\.\d+)*", str(value), re.IGNORECASE)
+    return found[-1] if found else str(value)
 
 
 @register.filter

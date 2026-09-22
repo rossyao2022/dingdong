@@ -49,6 +49,29 @@ ACTIVITY_STYLE = {
     "exploratory": "探索",
 }
 
+# 岛屿与情绪是运营自由填写的标签（模型里是 CharField，不是 choices），
+# 这里的词表只覆盖已知取值，未命中的原样显示——见 ops_labels.known_label。
+# 取值与家长端的叫法对齐（`frontend/app.js` 的 islands / moods）。
+ACTIVITY_ISLAND = {
+    "science": "科学发现",
+    "story": "故事表达",
+    "nature": "自然观察",
+    "imagination": "创意想象",
+}
+
+ACTIVITY_MOOD = {
+    "energy": "能量满满",
+    "focus": "正在专注",
+    "inspire": "需要启发",
+    "calm": "平静如水",
+}
+
+# 家庭角色。模型约束里目前只有 owner 一个取值（`family_membership` 的
+# membership_role_owner），模板直接渲染会显示英文 `owner`。
+FAMILY_ROLE = {
+    "owner": "主要家长",
+}
+
 ACTIVITY_RECORD_STATUS = {
     "active": "进行中",
     "completed": "已完成",
@@ -268,6 +291,11 @@ AUDIT_ACTION = {
     # CA 对接：家长绑机器人时建号，换机时归档旧号
     "ca_account.create": "建立 CA 账户",
     "ca_account.retire": "归档 CA 账户",
+    # 复测回写：家长对复测建议的选择与承接复测的完成
+    "ca_reassessment.response": "家长回应复测建议",
+    "ca_reassessment.complete": "家长完成复测回写",
+    # 运维：按报告清单清理注入的合成测试批次（只改状态，不物理删除）
+    "synthetic.dispose": "清理合成测试数据",
 }
 
 # 审计 detail 里的字段名 -> 运营看得懂的说法
@@ -340,7 +368,30 @@ TARGET_KIND = {
     "activity_record": "活动记录",
     "profile_snapshot": "画像快照",
     "ca_account": "CA 账户",
+    "ca_reassessment_event": "复测事件",
+    "login_grant": "登录凭据",
+    "algorithm_attempt": "算法尝试",
+    "sync_checkpoint": "同步游标",
+    "family_membership": "家庭成员",
 }
+
+
+def target_name(value, model_names=None):
+    """审计对象名里的英文模型名换回中文。
+
+    `core/api/common.py` 的 describe_target 在没有业务名称可借时写的是
+    「英文模型名（关联对象名）」（如 `login grant（parent-xxx）`），运营看不懂
+    英文模型名。这里按调用方给的「英文模型名 -> 中文对象词条」表换掉前缀，
+    换不掉的（已经是业务名称、或词表里没有的模型）原样返回。
+    """
+    text = (value or "").strip()
+    if not text:
+        return ""
+    prefix, sep, rest = text.partition("（")
+    if not sep:
+        return text
+    chinese = (model_names or {}).get(prefix.strip())
+    return f"{chinese}（{rest}" if chinese else text
 
 
 def label(mapping, code, fallback=None):
@@ -364,6 +415,7 @@ def humanize_action(code):
         "assessment": "答卷",
         "association": "伙伴关联",
         "auth": "登录",
+        "ca_reassessment": "复测",
         "child": "儿童档案",
         "consent": "授权",
         "content": "内容",

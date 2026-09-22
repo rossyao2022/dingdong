@@ -61,3 +61,22 @@ HANDOVER.md
 **/*-hosts.env
 **/*-deploy-host*
 
+# ── 本机测试环境备忘：账号/端口/启动命令，只在本机流通 ──────────
+本地测试环境.md
+
+# ── 自循环驱动的运行产物：每轮的原始输出与临时状态，只在本机 ──────
+# 每轮 grok 的 JSON/stderr 会很大且含会话细节，不入库；轮次摘要走
+# .trellis/loop/runs.log（一行一轮，入库）。STOP 是停机信号，*.done 是
+# 轮次完成标记，都是本机运行态，同样不入库。
+.trellis/loop/runs/
+.trellis/loop/STOP
+.trellis/loop/*.done
+
+# ── 本机 AI 工具自动配置：IDE 装 skills 时生成的本地产物 ──────────
+# .trae/ 是 Trae IDE 的 skills 安装目录（如 typesafe-ai/Jev 调用指引），
+# skills-lock.json 是对应的版本锁文件；均为本机工具自动生成与更新，
+# 不同机器内容不同，不入库。
+.trae/
+skills-lock.json
+
+

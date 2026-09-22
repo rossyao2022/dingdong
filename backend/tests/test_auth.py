@@ -1,3 +1,5 @@
+import json
+import re
 from datetime import timedelta
 
 import pytest
@@ -7,6 +9,22 @@ from django.utils import timezone
 from rest_framework.test import APIClient
 
 pytestmark = pytest.mark.django_db
+
+
+@pytest.mark.parametrize("phone", ["", "   "])
+def test_blank_phone_error_is_chinese_without_internal_repr(client, phone):
+    """空手机号必须回中文提示；不许把 ErrorDetail 的 repr 当文案透给家长端。"""
+    csrf(client)
+    r = client.post("/api/v1/auth/sms", {"phone": phone}, format="json")
+    assert r.status_code == 422
+    data = r.json()
+    assert_schema("Error", data)
+    assert "ErrorDetail(" not in json.dumps(data, ensure_ascii=False)
+    assert data["field_errors"], "空手机号应给出字段级提示"
+    for item in data["field_errors"]:
+        assert item["message"].strip()
+        assert not item["message"].startswith("[")
+        assert re.search(r"[\u4e00-\u9fff]", item["message"])
 
 
 def test_fixed_code_login_creates_real_family_and_grant(client):

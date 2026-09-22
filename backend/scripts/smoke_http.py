@@ -34,7 +34,7 @@ call("GET", "/auth/csrf")
 _, challenge = call("POST", "/auth/sms", {"phone": "+86137" + f"{secrets.randbelow(10**8):08d}"})
 _, login = call("POST", "/auth/login", {"challenge_id": challenge["challenge_id"], "code": "00000"})
 access = login["access_token"]
-_, child = call("POST", "/children", {"request_id": str(uuid.uuid4()), "name": "HTTP合成测试儿童"})
+_, child = call("POST", "/children", {"request_id": str(uuid.uuid4()), "name": "HTTP 冒烟儿童"})
 _, activities = call("GET", "/activities")
 activity = activities["items"][0]
 _, record = call(

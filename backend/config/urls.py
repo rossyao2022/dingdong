@@ -7,6 +7,7 @@ from dingdong_ca.core.api import (
     activities,
     assessments,
     ca_accounts,
+    ca_display,
     children,
     consents,
     data_requests,
@@ -97,4 +98,17 @@ urlpatterns = [
     path("api/v1/children/<uuid:child_id>/ca-accounts", ca_accounts.child_accounts),
     path("api/v1/ca-accounts/<str:ca_account_id>", ca_accounts.account_detail),
     path("api/v1/ca-accounts/<str:ca_account_id>/retire", ca_accounts.account_retire),
+    # 四个展示面（人设 / 周期成长报告 / 健康度 / 复测）：一律以 child_id 为键
+    path("api/v1/children/<uuid:child_id>/companion-persona", ca_display.companion_persona),
+    path("api/v1/children/<uuid:child_id>/growth-cycle", ca_display.growth_cycle),
+    path("api/v1/children/<uuid:child_id>/companion-health", ca_display.companion_health),
+    path("api/v1/children/<uuid:child_id>/reassessment", ca_display.reassessment),
+    path(
+        "api/v1/children/<uuid:child_id>/reassessment/<str:event_id>/response",
+        ca_display.reassessment_response,
+    ),
+    path(
+        "api/v1/children/<uuid:child_id>/reassessment/<str:event_id>/complete",
+        ca_display.reassessment_complete,
+    ),
 ]

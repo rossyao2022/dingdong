@@ -4,6 +4,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
 from dingdong_ca.core.models import Child
+from dingdong_ca.testsupport.ca_display import DISPLAY_SCENARIOS, inject_display
 from dingdong_ca.testsupport.models import TestFixture
 from dingdong_ca.testsupport.robot import SCENARIOS, inject_robot
 from dingdong_ca.testsupport.seed import inject, seed_content
@@ -33,6 +34,7 @@ class Command(BaseCommand):
             required=True,
             choices=SCENARIOS
             + LOCAL_SCENARIOS
+            + list(DISPLAY_SCENARIOS)
             + [
                 "assessment_success",
                 "assessment_timeout",
@@ -51,7 +53,11 @@ class Command(BaseCommand):
         if not Child.objects.filter(pk=options["child_id"]).exists():
             raise CommandError("Child does not exist")
         scenario = options["scenario"]
-        if scenario in LOCAL_SCENARIOS:
+        if scenario in DISPLAY_SCENARIOS:
+            # 四个展示面的合成输入：按活跃 CA 账户写入，不调任何外部接口。
+            account_id = inject_display(options["child_id"], scenario, options["dataset"])
+            self.stdout.write("Display scenario ready: " + scenario + " for " + account_id)
+        elif scenario in LOCAL_SCENARIOS:
             seed_content()
             if scenario == "permission":
                 call_command("seed_base", stdout=self.stdout)

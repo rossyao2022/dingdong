@@ -11,6 +11,8 @@
 4. 停用账号与角色变更对已登录会话立即生效。
 """
 
+import uuid
+
 import pytest
 from django.contrib.auth.models import Group
 from ops_helpers import make_family, make_service_request, make_staff, ops_client, post_json
@@ -199,6 +201,72 @@ def test_role_change_applies_to_existing_session():
     user.groups.set(Group.objects.filter(name="content"))
     assert client.get("/ops/accounts/").status_code == 403
     assert client.get("/ops/questionnaires/").status_code == 200
+
+
+# --------------------------------------------------------------------------- 对象列
+
+
+def test_audit_object_column_shows_chinese_target_names():
+    """审计「对象」列必须是运营看得懂的中文，不能出现表名或英文模型名。
+
+    真实记录（本地合成库 2026-09-17 10:15）：家长登录一条写的是
+    「未知（login_grant） login grant（parent-a4f7a3365ec2479fbb61a3ffc9c6a5d4）」。
+    """
+    from django.utils import timezone
+
+    from dingdong_ca.core.api.common import audit
+    from dingdong_ca.core.models import LoginGrant
+
+    # 家长没填姓名时 describe_target 会借关联家长的名字，正是线上那条记录的形状
+    _, _, parent = make_family(child_name="对象词条儿童", parent_name="")
+    grant = LoginGrant.objects.create(
+        user=parent,
+        current_refresh_jti=uuid.uuid4(),
+        expires_at=timezone.now() + timezone.timedelta(days=1),
+    )
+    audit(parent, "auth.login", grant)
+
+    body = ops_client(make_staff("account_admin")).get("/ops/audit/").content.decode()
+    rows = body.split("<tbody>", 1)[1].split("</tbody>", 1)[0]
+
+    assert "登录凭据" in rows
+    for raw in ("login_grant", "login grant"):
+        assert raw not in rows, f"审计表格出现了内部码 {raw}"
+
+
+def test_audit_object_subline_parent_name_falls_back_to_phone():
+    """审计「对象」列副行里，家长没填姓名时回落手机号，不显示 parent-<uuid>。"""
+    from django.utils import timezone
+
+    from dingdong_ca.core.api.common import audit
+    from dingdong_ca.core.models import LoginGrant
+
+    _, _, parent = make_family(child_name="副行儿童", parent_name="")
+    grant = LoginGrant.objects.create(
+        user=parent,
+        current_refresh_jti=uuid.uuid4(),
+        expires_at=timezone.now() + timezone.timedelta(days=1),
+    )
+    audit(parent, "auth.login", grant)
+
+    body = ops_client(make_staff("account_admin")).get("/ops/audit/").content.decode()
+    rows = body.split("<tbody>", 1)[1].split("</tbody>", 1)[0]
+    assert "parent-" not in rows
+    assert parent.username not in rows
+    assert parent.phone in rows
+
+
+def test_audit_object_label_translates_model_names():
+    """`describe_target` 的「英文模型名（关联对象名）」写法在页面上要变成中文。"""
+    from dingdong_ca.ops.templatetags.ops_labels import audit_target
+
+    assert audit_target("login grant（家长甲）") == "登录凭据（家长甲）"
+    assert audit_target("assessment session（小芽）") == "答卷（小芽）"
+    assert audit_target("consent grant（小芽）") == "授权记录（小芽）"
+    # 已经是业务名称的标签、空值、未知模型名都不动
+    assert audit_target("小芽") == "小芽"
+    assert audit_target("") == ""
+    assert audit_target("synthetic fixture（小芽）") == "synthetic fixture（小芽）"
 
 
 def reverse_url():

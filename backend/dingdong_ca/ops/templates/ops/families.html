@@ -54,7 +54,7 @@
               <tr>
                 <td>
                   {% if item.member %}
-                    {{ item.member.user|display_name:"未登记" }}
+                    {{ item.member.user|account_name:"未填写" }}
                   {% else %}<span class="badge bg-yellow-lt">无有效家长</span>{% endif %}
                 </td>
                 <td class="nowrap">{{ item.member.user.phone|default:"—" }}</td>

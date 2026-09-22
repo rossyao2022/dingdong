@@ -1,62 +1,32 @@
-# 叮咚 × CA 天赋成长伙伴 · CA 侧完整实现
+# 叮咚机器人项目资料
 
-本分支是 **CA 侧**在仓库 `main`（DingDong 天赋探索网页原型）基础上完成的完整实现：家长端应用 + 后端服务。
+新会话先读 [项目记忆与交接](PROJECT_MEMORY.md)，本仓库工作指引见 [AGENTS.md](AGENTS.md)。
 
-`main` 分支持有原始静态原型（根目录的 `index.html`、`app.js`、`styles.css`、`playworld.js` 等）。本分支为**独立提交线**，不改动 `main` 的任何文件，便于并排对照与评审。
+先看 [文档索引](文档/文档索引.md)：当前运行说明、历史设计和原始材料已分开整理。[文档完整性与链接校验](文档/文档处理记录_20260912.md)。
 
-## 目录
+M5 已加入后台可视化题库、探索/测评用途区分、可读测试内容与真实浏览器验收；98 项后端测试、9 个真实 Chrome 场景通过，当前 50 个 API 操作。家长端本地入口 http://127.0.0.1:4173 ，[前端启动说明](frontend/README.md)。[运行说明](backend/README.md)、[测试用例计划](backend/docs/TDD_CASES.md)、[最新验收记录](backend/docs/M5_RESULT.md)。
 
-| 路径 | 内容 |
-| --- | --- |
-| `backend/` | Django + DRF 后端：家庭与儿童档案、活动记录、日常情境测评、成长画像与报告、运营后台、异步任务 |
-| `frontend/` | 家长端应用（原生 JS，无框架构建）及其单元测试 |
-| `deploy/` | 容器化与配置：两个 Dockerfile、compose 编排、环境变量生成脚本、nginx 模板 |
+前后端接口契约：[交互规范、OpenAPI 与初始化测试数据](设计/API/前后端交互规范_V0.1.md)。
 
-- 后端运行说明、接口清单与约定：`backend/README.md`
-- 运营后台的组件体系与类名约定：`backend/dingdong_ca/ops/README.md`
-- 第三方前端资源的版本与许可：`backend/dingdong_ca/ops/static/ops/vendor/THIRD_PARTY_NOTICES.md`
+一期功能与联调：[后台/前端功能、API及业务闭环评估](设计/一期功能_API与业务闭环_V0.1.md)。
 
-`frontend/` 的样式与图形资源以 `main` 分支的同名文件为起点继续演进，其余为本次新增。
+数据库设计：[表结构 V0.1（字段、关联、约束与 ER 图）](设计/数据库表结构_V0.1.md)。
 
-## 本地启动
+历史后台设计：[V0.2：脚手架与一期菜单权限](设计/后台总体设计_V0.2.md)。
 
-### 后端
+从飞书“姚易【叮咚机器人】”归档，导出日期2026-09-09。
 
-```sh
-cd backend
-uv sync --locked                     # Python 3.14；依赖精确版本见 uv.lock
-docker-compose up -d --wait          # PostgreSQL 与 Redis
-uv run python manage.py migrate
-uv run python manage.py seed_base
-uv run python manage.py seed_mock --dataset phase1-v1 --mode cold
-uv run python manage.py runserver 127.0.0.1:8017
-```
+历史参考需求依据：[一期核心需求与参考代码差距](需求/一期核心需求与代码差距_20260911.md)（2026-09-11，结合原讨论与最新仓库）。
 
-登录走短信挑战 + 固定验证码（本地开发态有效）：先 `GET /api/v1/auth/csrf`，带 `X-CSRFToken` 调 `POST /api/v1/auth/sms`，再用 `00000` 调 `POST /api/v1/auth/login`。运营后台入口 `/ops/`，Django 后台 `/admin/` —— 管理员需自行 `createsuperuser`，没有预设密码。
 
-报告生成与同步任务另开两个终端：
+历史材料判断可看[项目分析](项目分析.md)，再查[材料清单](材料清单.md)。
 
-```sh
-uv run celery -A config worker --pool=solo --loglevel=WARNING --queues=dingdong-ca
-uv run celery -A config beat --loglevel=WARNING --schedule=/tmp/dingdong-ca-celerybeat
-```
+- `材料/附件/`：飞书中的3份Word、2份Excel原文件。
+- `材料/文档/`：飞书主文档的Markdown和Word导出。
+- `材料/可检索文本/`：Word全文、Excel全部11个工作表的文本与CSV，以及网页文字。
+- `材料/网页/`：公司介绍、TalentRadar项目及关联结果页的网页源码和资源快照。
+- `材料/原始数据/`：来源元数据、下载结果、网页清单、SHA-256校验清单。
 
-### 前端
+原始Office附件未改写，公式、格式等以原文件为准。文本/CSV供检索和分析，不能替代原始版式。网页快照是资料留档，并非完整可离线运行的网站；原始HTML中的外部地址保持原样，下载失败的装饰图片单列于材料清单。
 
-`frontend/` 为静态资源，由任意静态服务器托管即可，接口地址指向上面启动的后端。
-
-## 测试
-
-```sh
-cd backend  && uv run pytest -q && uv run ruff check .
-cd ../frontend && npm ci && npm test
-```
-
-后端测试使用独立的测试数据库，结束即清理，不重置开发库；并发相关用例用独立连接与线程验证锁与唯一约束。
-
-## 需要知道的几点
-
-- **必须用 PostgreSQL。** 实现依赖 `pg_advisory_xact_lock` 与 `hashtextextended`，SQLite 不可用。
-- **本分支不含内部运维与交付材料。** 部署与验收记录、运营手册、原始对接材料与项目分析未纳入。因此 `backend/README.md` 里指向 `docs/OPS_MANUAL.md`、`docs/M6_OPS_RESULT.md`、`../frontend/README.md` 的三处链接在本分支内点不开。
-- **不含任何真实凭据、服务器地址或私有端点。** `deploy/configure.py` 在首次部署时于本机生成密钥（不覆盖已有文件、权限 600），密钥不随仓库分发。
-- `backend/docs/seed-manifest.local.json` 记录的是合成测试数据（虚构儿童与手机号），不是真实用户数据。
+2026-09-09报告针对旧TalentRadar网页：其中指纹页随机生成天赋类型。最新仓库V3已改为手动观察，不沿用这一结果逻辑；正式五枚指纹采集与甲方算法接入仍未完成，详见2026-09-11需求分析。

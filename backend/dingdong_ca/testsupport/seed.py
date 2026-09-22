@@ -14,14 +14,14 @@ def seed_content():
             defaults={
                 **common,
                 "code": purpose,
-                "body": "[合成测试]仅用于功能验证；不采集或保存真实指纹。",
+                "body": "仅用于功能验证；不采集或保存真实指纹。",
             },
         )
     from .question_content import DAILY, EXPLORATION, questions
 
     # Upgrade only the known placeholder seed. Operator publications are never replaced.
     for code, purpose, title, rows in [
-        ("initial-assessment", "assessment", "日常探索问卷（流程测试）", DAILY),
+        ("initial-assessment", "assessment", "日常探索问卷", DAILY),
         ("exploration", "exploration", "四个小情境：探索偏好体验", EXPLORATION),
     ]:
         if not QuestionnaireVersion.objects.filter(code=code, version="readable-v2").exists():
@@ -35,7 +35,7 @@ def seed_content():
                 version="readable-v2",
                 purpose=purpose,
                 title=title,
-                description="非正式测评，仅用于体验或流程测试；记录本次选择，不评定天赋或能力。",
+                description="通过日常情境题了解孩子的近期状态；记录本次选择，不评定天赋或能力。",
                 questions=questions(rows),
                 data_origin="synthetic",
                 status="published" if publish else "draft",
@@ -47,7 +47,10 @@ def seed_content():
         version="test-template-v1",
         defaults={
             **common,
-            "template": {"title": "合成测试观察", "intro": "用于验证报告生成，不是实际测评结论。"},
+            "template": {
+                "title": "成长观察",
+                "intro": "本报告基于问卷选择与观察数据生成，供家长了解孩子的近期状态。",
+            },
         },
     )
     return q
@@ -73,7 +76,7 @@ def inject(child_id, scenario, dataset="phase1-v1", questionnaire_version_id=Non
                 "metrics": [
                     {
                         "code": "test_professional_result",
-                        "label": "专业测评结果（尚未接入）",
+                        "label": "专业测评结果",
                         "value": None,
                         "unit": "",
                         "missing_reason": "not_provided",

@@ -29,6 +29,12 @@ NFC_TOKEN_HMAC_KEY = env("NFC_TOKEN_HMAC_KEY", default="") or (SECRET_KEY + ":ca
 DINGDONG_BASE_URL = env("DINGDONG_BASE_URL", default="")
 DINGDONG_API_KEY = env("DINGDONG_API_KEY", default="")
 DINGDONG_TIMEOUT_SECONDS = env.float("DINGDONG_TIMEOUT_SECONDS", default=5.0)
+# 四个展示面（人设 / 周期成长报告 / 健康度 / 复测）的数据源，见
+# `.trellis/tasks/T-021/design.md` §2。与 INTEGRATION_DATA_SOURCE 分开：
+# 那个管测评与观察的 fixture 闸门，语义不同，不共用值域。
+# synthetic_fixture 读 test_fixture 表且零出站；dingdong 调对方，未配置时
+# 返回 not_synced + upstream_not_configured，不伪造成功。
+CA_DISPLAY_DATA_SOURCE = env("CA_DISPLAY_DATA_SOURCE", default="synthetic_fixture")
 
 COOKIE_SECURE = env.bool("COOKIE_SECURE", default=APP_ENV == "production")
 if APP_ENV == "production":

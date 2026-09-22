@@ -24,7 +24,7 @@
           <a class="ops-stat ops-stat-danger" href="{% url 'ops:jobs' %}?status=failed" data-nav>
             <span class="ops-stat-head">
               <i class="ti ti-alert-triangle" aria-hidden="true"></i>
-              <span class="ops-stat-label">报告生成异常</span>
+              <span class="ops-stat-label">生成任务异常</span>
             </span>
             <span class="ops-stat-value">{{ counters.failed_jobs }}</span>
             <span class="ops-stat-note">口径：生成任务中状态为“失败”的数量，这类任务不会自动重试。</span>
@@ -111,6 +111,7 @@
         <div class="card-body">
           {% if perms.services %}
             <h3 class="subheader">服务事项</h3>
+            <p class="text-secondary small">最多显示 5 条（按提交时间从新到旧）。</p>
             {% if open_service_items %}
               <div class="table-responsive">
                 <table class="table table-vcenter ops-table">
@@ -134,7 +135,7 @@
           {% endif %}
 
           {% if perms.jobs %}
-            <h3 class="subheader">报告生成异常</h3>
+            <h3 class="subheader">生成任务异常</h3>
             {% if failed_job_items %}
               <div class="table-responsive">
                 <table class="table table-vcenter ops-table">
@@ -233,7 +234,7 @@
                   <li>
                     <div>
                       {{ row.action|audit_action }} ·
-                      {% if row.target_label %}{{ row.target_label }}{% else %}{{ row.target_kind|label:"TARGET_KIND" }}{% endif %}
+                      {% if row.target_label %}{{ row.target_label|audit_target }}{% else %}{{ row.target_kind|label:"TARGET_KIND" }}{% endif %}
                     </div>
                     <time>{{ row.created_at|date:"Y-m-d H:i" }} · {{ row.actor|display_name }}</time>
                   </li>

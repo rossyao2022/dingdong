@@ -7,8 +7,10 @@
 {% block content %}
   {% include "ops/_filter_problems.html" %}
 
-  {# 注意：Tabler 的 .alert 是 flex 容器，散落的文本节点会各占一列。
-     内容必须包在一个块级容器里，与其他页面保持一致。 #}
+  {% comment %}
+    注意：Tabler 的 .alert 是 flex 容器，散落的文本节点会各占一列。
+    内容必须包在一个块级容器里，与其他页面保持一致。
+  {% endcomment %}
   <div class="alert alert-info" role="note">
     <div>
       <h4 class="alert-heading">只读页 · 账户号一经生成不修改、不重用</h4>
@@ -94,7 +96,7 @@
     <div class="card-header">
       <div>
         <h2 class="card-title">账户列表</h2>
-        <div class="card-subtitle">共 {{ page.total }} 条，每页 20 条。不展示 NFC token 原文，只有前 8 位摘要指纹。</div>
+        <div class="card-subtitle">共 {{ page.total }} 条，每页 20 条。不展示 NFC token 原文，只有前 8 位摘要。</div>
       </div>
     </div>
 
@@ -119,12 +121,12 @@
                 <td class="nowrap"><code>{{ row.ca_account_id }}</code></td>
                 <td>{{ row.child.name }}</td>
                 <td class="nowrap">
-                  {{ row.bound_by|display_name:"未登记" }}
+                  {{ row.bound_by|account_name:"未填写" }}
                   <span class="text-secondary small">{{ row.bound_by.phone|default:"未登记手机号" }}</span>
                 </td>
                 <td class="nowrap">
                   {{ row.robot_ref|default:"未上报" }}
-                  <span class="text-secondary small">指纹 {{ row.nfc_token_hash|slice:":8" }}</span>
+                  <span class="text-secondary small">凭据前 8 位 {{ row.nfc_token_hash|slice:":8" }}</span>
                 </td>
                 <td><span class="badge {{ row.bind_state|tone }}">{{ row.bind_state|label:"CA_ACCOUNT_BIND_STATE" }}</span></td>
                 <td><span class="badge {{ row.status|tone }}">{{ row.status|label:"CA_ACCOUNT_STATUS" }}</span></td>

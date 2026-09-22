@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "node server.cjs",
     "start": "node server.cjs",
-    "check": "node --check app.js && node --check api.js && node --check playworld.js && node --check server.cjs",
+    "check": "node --check app.js && node --check api.js && node --check ca-link.js && node --check companion.js && node --check growth-cycle.js && node --check reassessment.js && node --check playworld.js && node --check server.cjs",
     "test": "playwright test",
     "test:unit": "node --test unit/*.test.js",
     "test:public": "playwright test --config=playwright.public.config.js"

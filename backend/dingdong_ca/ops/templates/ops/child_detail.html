@@ -26,7 +26,23 @@
         <dt>档案状态</dt><dd><span class="badge {{ child.status|tone }}">{{ child.status|label:"CHILD_STATUS" }}</span></dd>
         <dt>所属家庭</dt>
         <dd><a href="{% url 'ops:family_detail' family.pk %}" data-nav>查看家庭</a>
-          {% if member %} · 家长 {{ member.user|display_name:"未登记" }}（{{ member.user.phone|default:"未登记手机号" }}）{% endif %}
+          {% if member %} · 家长 {{ member.user|account_name:"未填写" }}（{{ member.user.phone|default:"未登记手机号" }}）{% endif %}
+        </dd>
+        <dt>机器人账户</dt>
+        <dd>
+          {% if ca_account %}
+            <code>{{ ca_account.ca_account_id }}</code>
+            <span class="badge {{ ca_account.bind_state|tone }}">{{ ca_account.bind_state|label:"CA_ACCOUNT_BIND_STATE" }}</span>
+            <span class="badge {{ ca_account.status|tone }}">{{ ca_account.status|label:"CA_ACCOUNT_STATUS" }}</span>
+            <a href="{% url 'ops:ca_accounts' %}?q={{ ca_account.ca_account_id }}" data-nav>在 CA 账户页查看</a>
+            <div class="text-secondary small">绑定状态说的是与 DingDong 是否已接通；对方端点未开通时会一直是「待接通」，不是故障。</div>
+          {% else %}
+            还没有机器人账户
+            <div class="text-secondary small">
+              家长用机器人 NFC 绑定时才会生成账户号。
+              {% if retired_accounts %}已归档 {{ retired_accounts }} 个旧号（换机器人后保留，可到 CA 账户页按儿童称呼查）。{% endif %}
+            </div>
+          {% endif %}
         </dd>
         <dt>创建时间</dt><dd>{{ child.created_at|date:"Y-m-d H:i" }}</dd>
       </dl>
@@ -87,7 +103,7 @@
               <span class="badge {{ session.status|tone }}">{{ session.status|label:"ASSESSMENT_STATUS" }}</span>
               <span class="text-secondary small">
                 · {{ session.questionnaire_version.purpose|label:"QUESTIONNAIRE_PURPOSE" }}
-                · 版本 {{ session.questionnaire_version.version }}
+                · 版本 <span title="{{ session.questionnaire_version.version }}">{{ session.questionnaire_version.version|version_label }}</span>
                 · {{ session.created_at|date:"Y-m-d H:i" }}
               </span>
             </summary>

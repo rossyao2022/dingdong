@@ -1,6 +1,7 @@
 """运营后台：登录、权限、工作首页、家庭与儿童、账号与审计。"""
 
 import json
+import re
 import uuid
 
 import pytest
@@ -181,6 +182,55 @@ def test_dashboard_failed_job_uses_business_language():
     assert "RENDER_FAILED" not in body
 
 
+def test_dashboard_failed_job_card_label_matches_all_kinds():
+    """O-12：卡片与区块装的是全部失败生成任务，标签就不能只写「报告」。
+
+    实测库里 `kind=sync` 的失败任务会被算进这张卡片，运营按「报告」去找会扑空。
+    """
+    from ops_helpers import make_failed_job
+
+    make_failed_job(kind="sync")
+    make_failed_job(kind="report")
+    client = ops_client(make_staff("technical"))
+    response = client.get(reverse("ops:dashboard"))
+    body = response.content.decode()
+    assert response.context["counters"]["failed_jobs"] == 2
+    assert response.context["counters"]["failed_report_jobs"] == 1
+    assert "生成任务异常" in body
+    assert "报告生成异常" not in body
+    # 卡片数字与标签同一个口径
+    assert re.search(
+        r'ops-stat-label">生成任务异常</span>\s*</span>\s*'
+        r'<span class="ops-stat-value">2</span>',
+        body,
+    )
+    # 区块按任务类型逐条列出，同步与报告都在
+    assert "数据同步" in body and "报告生成" in body
+
+
+def test_dashboard_todo_lists_newest_five_service_requests():
+    """O-14：待办清单·服务事项取最新 5 条，并写明截断与排序。"""
+    from datetime import timedelta
+
+    from django.utils import timezone
+    from ops_helpers import make_service_request
+
+    from dingdong_ca.core.models import DataRequest
+
+    _family, children, parent = make_family()
+    rows = [make_service_request(children[0], parent) for _ in range(7)]
+    base = timezone.now() - timedelta(minutes=10)
+    for index, row in enumerate(rows):
+        DataRequest.objects.filter(pk=row.pk).update(created_at=base + timedelta(minutes=index))
+    client = ops_client(make_staff("operations"))
+    response = client.get(reverse("ops:dashboard"))
+    items = response.context["open_service_items"]
+    assert len(items) == 5
+    # 倒序：最新一条在前，最旧两条不出现
+    assert [row.pk for row in items] == [row.pk for row in reversed(rows[2:])]
+    assert "最多显示 5 条（按提交时间从新到旧）" in response.content.decode()
+
+
 # --------------------------------------------------------------------------- 家庭与儿童
 
 
@@ -231,6 +281,92 @@ def test_child_detail_aggregates_related_records():
     ]:
         assert section in body
     assert children[0].name in body
+
+
+def test_child_detail_shows_version_number_not_internal_code():
+    """答卷区给运营看版本号；内部 code 只留在 title 属性里，不进正文。"""
+    from ops_helpers import make_session
+
+    from dingdong_ca.core.models import QuestionnaireVersion
+
+    family, children, parent = make_family()
+    version = QuestionnaireVersion.objects.create(
+        code="ops-version-label",
+        version="readable-v2",
+        title="四个小情境：探索偏好体验",
+        purpose="exploration",
+        data_origin="synthetic",
+        status="published",
+        questions=[],
+    )
+    make_session(children[0], parent, version)
+    client = ops_client(make_staff("operations"))
+    response = client.get(reverse("ops:child_detail", args=[children[0].pk]))
+    assert response.status_code == 200
+    body = response.content.decode()
+    text = re.sub(r"<[^>]+>", "", body)
+    assert "四个小情境：探索偏好体验" in text
+    assert "版本 v2" in text
+    assert 'title="readable-v2"' in body
+    assert "readable-v2" not in text
+
+
+def test_child_detail_shows_robot_account_row():
+    """儿童详情直接给出机器人账户号与绑定状态，运营排查同步问题不必切页按手机号搜。"""
+    from dingdong_ca.core.services import ca_account as ca_service
+
+    _family, children, parent = make_family()
+    account, _created = ca_service.issue_account(
+        child=children[0],
+        user=parent,
+        request_id=uuid.uuid4(),
+        nfc_token="ROBOT-TOKEN-CHILD-DETAIL",
+        robot_ref="DD-ROBOT-CHILD-DETAIL",
+    )
+    client = ops_client(make_staff("operations"))
+    response = client.get(reverse("ops:child_detail", args=[children[0].pk]))
+    assert response.status_code == 200
+    body = response.content.decode()
+    text = re.sub(r"<[^>]+>", "", body)
+    assert "机器人账户" in text
+    assert account.ca_account_id in text
+    # 显示的是词条不是内部码；两个状态维度各自成词
+    assert "待接通" in text and "使用中" in text
+    assert "unbound" not in text
+    # 就地给出到 CA 账户页的入口，带上账户号当筛选词
+    assert f'href="/ops/ca-accounts/?q={account.ca_account_id}"' in body
+
+
+def test_child_detail_robot_account_empty_state():
+    """没有活跃账户时说明空态；只有换机后的旧号时，旧号不当作在用账户展示。"""
+    from dingdong_ca.core.services import ca_account as ca_service
+
+    _family, children, parent = make_family()
+    client = ops_client(make_staff("operations"))
+
+    none_text = re.sub(
+        r"<[^>]+>",
+        "",
+        client.get(reverse("ops:child_detail", args=[children[0].pk])).content.decode(),
+    )
+    assert "还没有机器人账户" in none_text
+
+    account, _created = ca_service.issue_account(
+        child=children[0],
+        user=parent,
+        request_id=uuid.uuid4(),
+        nfc_token="ROBOT-TOKEN-CHILD-RETIRED",
+        robot_ref="DD-ROBOT-CHILD-RETIRED",
+    )
+    ca_service.retire_account(account, parent)
+    retired_text = re.sub(
+        r"<[^>]+>",
+        "",
+        client.get(reverse("ops:child_detail", args=[children[0].pk])).content.decode(),
+    )
+    assert "还没有机器人账户" in retired_text
+    assert "已归档 1 个旧号" in retired_text
+    assert account.ca_account_id not in retired_text
 
 
 def test_family_freeze_requires_role_and_writes_audit():
@@ -462,6 +598,76 @@ def test_ops_pages_do_not_leak_json_or_uuid_only_ui():
     assert "created_by" not in body
 
 
+def test_parent_without_name_falls_back_to_phone_not_internal_account():
+    """家长没填姓名时不显示 parent-<uuid>：列表走相邻「手机号」列，详情页带手机号。"""
+    family, children, parent = make_family(parent_name="")
+    client = ops_client(make_staff("operations"))
+
+    for url in [
+        reverse("ops:families"),
+        reverse("ops:family_detail", args=[family.pk]),
+        reverse("ops:child_detail", args=[children[0].pk]),
+    ]:
+        body = client.get(url).content.decode()
+        assert "parent-" not in body, url
+        assert parent.username not in body, url
+        assert parent.phone in body, url
+
+
+def test_families_list_does_not_repeat_phone_in_parent_column():
+    """「家长」与「手机号」相邻：空姓名的家长列给「未填写」，号码只出现一次。"""
+    _, _, blank = make_family(phone="+8613800000002", parent_name="")
+    _, _, named = make_family(phone="+8613800000003", parent_name="家长乙")
+    client = ops_client(make_staff("operations"))
+
+    body = client.get(reverse("ops:families")).content.decode()
+    assert "未填写" in body
+    assert body.count(blank.phone) == 1
+    # 有姓名的家庭照常显示姓名，过滤器没有把正常路径一起改掉。
+    assert named.name in body
+
+
+def test_family_detail_shows_role_in_chinese_and_blank_name_as_unfilled():
+    """O-09：家庭详情「家长」行不再显示内部英文角色 `owner`，手机号只在下行。
+
+    角色取值是模型约束里的 `owner`（`family_membership` 的 membership_role_owner），
+    模板直接渲染就会给运营看英文码。
+    """
+    family, _children, parent = make_family(phone="+8613800000012", parent_name="")
+    client = ops_client(make_staff("operations"))
+
+    body = client.get(reverse("ops:family_detail", args=[family.pk])).content.decode()
+    assert "（owner）" not in body
+    assert "主要家长" in body
+    assert "未填写" in body
+    assert body.count(parent.phone) == 1
+
+
+def test_child_detail_does_not_repeat_parent_phone():
+    """O-08：「所属家庭」行的家长姓名空时给「未填写」，号码不出现两遍。"""
+    _family, children, parent = make_family(phone="+8613800000013", parent_name="")
+    client = ops_client(make_staff("operations"))
+
+    body = client.get(reverse("ops:child_detail", args=[children[0].pk])).content.decode()
+    assert body.count(parent.phone) == 1
+    assert "未填写" in body
+
+
+def test_dashboard_new_children_metric_states_its_scope():
+    """「近 7 天新建档案（含已归档）」与「在册儿童」不同口径，标签写全。"""
+    _, children, _ = make_family(children=2)
+    Child.objects.filter(pk=children[0].pk).update(status="archived")
+    client = ops_client(make_staff("operations"))
+
+    metrics = client.get(reverse("ops:dashboard")).context["metrics"]
+    new_children = next(m for m in metrics if m["key"] == "new_children")
+    assert new_children["label"] == "近 7 天新建档案（含已归档）"
+    assert new_children["value"] == 2
+    assert "含已归档" in new_children["scope"]
+    enrolled = next(m for m in metrics if m["key"] == "children")
+    assert enrolled["value"] == 1
+
+
 def test_child_status_filter_and_counts():
     family, children, parent = make_family(children=3)
     Child.objects.filter(pk=children[0].pk).update(status="archived")
@@ -590,6 +796,19 @@ def test_audit_detail_is_human_readable():
 
     # 正式动作优先走词条，不走兜底
     assert L.AUDIT_ACTION["assessment.create"] == "家长开始答题"
+
+
+def test_synthetic_dispose_audit_vocabulary():
+    """合成测试批次清理（T-030）写的审计，动作与对象类型都要有中文词条。
+
+    这条清理动作由仓库外的运维脚本触发，扫描源码的覆盖用例看不见它，
+    所以在这里单独钉住，避免以后改动词表时运营端退回英文代码。
+    """
+    from dingdong_ca.ops import labels as L
+
+    assert L.AUDIT_ACTION["synthetic.dispose"] == "清理合成测试数据"
+    assert L.TARGET_KIND["sync_checkpoint"] == "同步游标"
+    assert L.TARGET_KIND["family_membership"] == "家庭成员"
 
 
 def test_audit_page_shows_no_english_codes_or_full_uuids():

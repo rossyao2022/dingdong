@@ -1,7 +1,58 @@
 import { test, expect } from "@playwright/test";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
-import { root, uvBin } from "./support.js";
+import {
+  cliDatabaseIdentity,
+  cliPolicyVersionId,
+  root,
+  uvBin,
+} from "./support.js";
+
+/**
+ * 前置一致性：浏览器那侧（`server.cjs` 代理到 127.0.0.1:8017）与 CLI 侧（`manage.py`）
+ * 必须连同一个库。种子生成的记录主键逐库不同，所以两边读同一条已发布用途说明的 id
+ * 就能判定同库。不一致时 `inject_fixture` 会报「Child does not exist」——那是本地环境
+ * 漂移，不是产品缺陷，这里先失败并把两侧身份说清楚。
+ */
+test.beforeAll(async ({ request }) => {
+  const response = await request.get(
+    "/api/v1/policies/current?purpose=assessment_processing",
+  );
+  if (!response.ok()) {
+    throw new Error(
+      `本地 e2e 前置不满足：浏览器侧后端（server.cjs 代理 127.0.0.1:8017）读已发布用途说明返回 ${response.status()}。` +
+        `先确认后端在跑且已完成 seed（冷启动 seed 会发布用途说明）。`,
+    );
+  }
+  const browserSide = (await response.json()).id;
+  const identity = cliDbIdentityOrUnknown();
+  let cliSide;
+  try {
+    cliSide = cliPolicyVersionId();
+  } catch (error) {
+    throw new Error(
+      `本地 e2e 前置不满足：CLI 侧 manage.py 读不到已发布用途说明（CLI 侧库：${identity}）。` +
+        `原始错误：${String(error.message).split("\n")[0]}`,
+    );
+  }
+  if (browserSide !== cliSide) {
+    throw new Error(
+      `本地 e2e 前置不一致：浏览器侧后端的用途说明 id 是 ${browserSide}，CLI 侧 manage.py 读到的是 ${cliSide}` +
+        `（CLI 侧库：${identity}）。两边不是同一个库，inject_fixture 会报「Child does not exist」。` +
+        `先让后端进程与 CLI 指向同一个 DATABASE_URL 再跑；这是环境漂移，不是产品缺陷。`,
+    );
+  }
+});
+
+/** 读库标识本身失败时不掩盖真正的原因。 */
+function cliDbIdentityOrUnknown() {
+  try {
+    return cliDatabaseIdentity();
+  } catch {
+    return "（读不到）";
+  }
+}
+
 const phone = () =>
   "138" + String(Math.floor(Math.random() * 1e8)).padStart(8, "0");
 async function login(page, number = phone()) {
@@ -29,23 +80,34 @@ async function child(page, name = "浏览器合成儿童") {
   return id;
 }
 function inject(id, scenario) {
-  execFileSync(
-    uvBin(),
-    [
-      "run",
-      "--no-sync",
-      "--directory",
-      path.join(root, "backend"),
-      "python",
-      "manage.py",
-      "inject_fixture",
-      "--child-id",
-      id,
-      "--scenario",
-      scenario,
-    ],
-    { cwd: root },
-  );
+  try {
+    execFileSync(
+      uvBin(),
+      [
+        "run",
+        "--no-sync",
+        "--directory",
+        path.join(root, "backend"),
+        "python",
+        "manage.py",
+        "inject_fixture",
+        "--child-id",
+        id,
+        "--scenario",
+        scenario,
+      ],
+      { cwd: root },
+    );
+  } catch (error) {
+    const stderr = String(error.stderr ?? "");
+    if (!stderr.includes("Child does not exist")) throw error;
+    // 浏览器刚建的儿童在 CLI 侧看不到，只可能是两边连的库不同。
+    throw new Error(
+      `inject_fixture 在 CLI 侧看不到浏览器刚建的儿童 ${id}（CLI 侧库：${cliDbIdentityOrUnknown()}），` +
+        `而浏览器那侧走 server.cjs 代理到 127.0.0.1:8017。两边不是同一个库，属本地环境漂移，不是产品缺陷。` +
+        `原始输出：${stderr.trim()}`,
+    );
+  }
 }
 async function nav(page, name) {
   await page
@@ -87,6 +149,9 @@ test("真实登录、活动完成、刷新恢复、退出清理", async ({ page 
 });
 
 test("用途授权、22题、合成输入、真实初始报告", async ({ page }) => {
+  // 22 题逐题保存 + 异步报告流水线（sync → stage_profile → report）实测 75s+；
+  // 与 reassessment-cta.spec.js 同一测评流程的做法一致，显式放宽到 10 分钟。
+  test.setTimeout(600000);
   await login(page);
   const id = await child(page);
   inject(id, "assessment_success");
@@ -101,25 +166,25 @@ test("用途授权、22题、合成输入、真实初始报告", async ({ page }
     await page.getByRole("radio").first().check();
     await page
       .getByRole("button", {
-        name: i === 22 ? "保存并继续" : "保存并下一题",
+        name: i === 22 ? "保存并完成" : "保存并下一题",
         exact: true,
       })
       .click();
   }
   await expect(
-    page.getByText("真实指纹采集尚未开放", { exact: true }),
+    page.getByText("提交五张样例完成本次测评", { exact: false }),
   ).toBeVisible();
   await page.reload();
   await expect(
-    page.getByText("真实指纹采集尚未开放", { exact: true }),
+    page.getByText("提交五张样例完成本次测评", { exact: false }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "提交合成样例", exact: true }).click();
+  await page.getByRole("button", { name: "提交样例", exact: true }).click();
   await expect(
     page.getByRole("button", { name: "查看初始报告", exact: true }),
   ).toBeVisible({ timeout: 20000 });
   await page.getByRole("button", { name: "查看初始报告", exact: true }).click();
   await expect(
-    page.getByText("专业测评结果（尚未接入）: 暂无数据", { exact: true }),
+    page.getByText("专业测评结果: 暂无数据", { exact: true }),
   ).toBeVisible();
 });
 
@@ -322,7 +387,7 @@ test("探索四题、刷新恢复、返回修改、完成仅展示选择", async
     await page.getByRole("radio").first().check();
     await page
       .getByRole("button", {
-        name: i === 4 ? "保存并继续" : "保存并下一题",
+        name: i === 4 ? "保存并完成" : "保存并下一题",
         exact: true,
       })
       .click();
@@ -397,7 +462,11 @@ test("移动端各页面、无效关联提示、资料编辑与帮助回执", as
   await page.getByRole("button", { name: "编辑档案", exact: true }).click();
   await page.getByLabel("姓名或称呼").fill("小米的新称呼");
   await page.getByRole("button", { name: "保存修改", exact: true }).click();
-  await expect(page.locator("#main").getByText("小米的新称呼", { exact: true })).toBeVisible();
+  // 儿童称呼在「儿童档案」「机器人账户」等处都会出现，这里只断言档案那一格已更新。
+  const profilePanel = page.locator("#main section.panel").filter({
+    has: page.getByRole("heading", { name: "儿童档案", exact: true }),
+  });
+  await expect(profilePanel.getByText("小米的新称呼", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "核验并关联", exact: true }).click();
   await page.getByLabel("我已阅读并同意机器人数据同步用途").check();
   await page.getByLabel("核验凭据", { exact: true }).fill("INVALID-TEST-PROOF");
