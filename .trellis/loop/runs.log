@@ -85,3 +85,12 @@
 2026-09-17T22:25:51Z ROUND T-041 FAIL 2406s dbbba00 deepseek-v4-1-flash-260910 rc=143,dirty-worktree
 2026-09-17T22:25:51Z RESET T-041 doing→todo（本轮未收口，复位供下一轮重取）
 2026-09-17T23:05:57Z ROUND T-041 DONE 2406s 9954d2e deepseek-v4-1-flash-260910 rc=143
+2026-09-17T23:27:20Z ROUND T-042 RATE_LIMITED 1283s 09bc2ca deepseek-v4-1-flash-260910 rc=0
+2026-09-17T23:27:20Z FALLBACK_LIMIT T-042 Pro 兜底单日上限已到（6/6），本轮不切 Pro，按限流失败处理
+2026-09-17T23:27:20Z RATE_LIMITED T-042 两个模型都限流（连续第 2 次），sleep 360s
+2026-09-18T01:51:30Z ROUND T-042 DONE 1688s e6d940a deepseek-v4-1-flash-260910 rc=0
+2026-09-18T02:30:27Z ROUND T-044 DONE 2335s 59888f2 deepseek-v4-1-flash-260910 rc=0,dirty-worktree
+2026-09-18T02:30:27Z STOP 驱动退出
+2026-09-18T10:41:24Z START 驱动启动 idle=600s round_timeout=3600s daily_limit=480 primary=deepseek-v4-1-flash-260910 fallback=deepseek-v4-pro
+2026-09-18T10:41:24Z STOP 驱动退出
+2026-09-18T10:41:30Z START 驱动启动 idle=600s round_timeout=3600s daily_limit=480 primary=deepseek-v4-1-flash-260910 fallback=deepseek-v4-pro
