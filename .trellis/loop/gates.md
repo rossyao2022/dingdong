@@ -21,6 +21,8 @@ REQUEST T-040 review 第三轮产品巡检 backlog 已写完（`.trellis/tasks/T
 
 REQUEST T-042 review 第四轮产品巡检 backlog 已写完（`.trellis/tasks/T-042/backlog.md`：家长端 2 条新条目 P-18 人设卡学习风格说明含内部流程话术 / P-19 归档旧号后账户页与展示面状态自相矛盾，运营端 3 条 O-12 工作首页「报告生成异常」卡片与区块装的是全部失败任务（实测 report kind 失败 0 条）/ O-13 服务事项详情「该儿童的其他事项」含当前事项自身 / O-14 待办清单只列最旧 5 条且不写截断，稳定性 1 条 S-07 `flows.spec.js` 本地必失败根因定位为单线程 worker 排队而非频控，另把 T-040 遗留的 console 401 定位到 `POST /api/v1/auth/refresh` 未登录探测），需复看后再决定导入哪些 2026-09-17T23:25Z
 
+REQUEST T-045 review 第五轮产品巡检 backlog 已写完（`.trellis/tasks/T-045/backlog.md`：运营端 2 条新条目 O-15 归档/解除关联后儿童详情「同步」列显示「未知（blocked）」——T-044 新引入的 `SyncCheckpoint.status="blocked"` 未进 `CHECKPOINT_STATUS` 词表 / O-16 22 题测评「用途」仍带「（测试）」，另给出 S-07 是否放宽 `flows.spec.js` 报告等待的判断（建议内层 `toBeVisible` 20s→120s，本轮实测 20s 够用）；T-043/T-044 修复处端到端复核通过），需复看后再决定导入哪些 2026-09-22T04:30Z
+
 ## 决定（orchestrator 追加）
 
 格式：`APPROVE|DENY T-xxx <gate类型> <原因>`；worker 执行完在下方补一行 `EXECUTED T-xxx ...`
