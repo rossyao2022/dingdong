@@ -72,3 +72,28 @@ T-047 收尾：README 合成标注纪律改新口径（testTag 空实现，家�
 ### Status
 
 [OK] **Completed**
+
+
+## Session 3: v0.3.7 公网部署 + 前后端保姆级指南 + 字幕遮罩 GUI 重测
+<!-- trellis-session: v=2 fp=16ede361ffe46df9 -->
+
+**Date**: 2026-09-22
+**Task**: v0.3.7 公网部署 + 前后端保姆级指南 + 字幕遮罩 GUI 重测
+**Branch**: `codex/release-v0.3.7`
+
+### Summary
+
+版本 bump 五处统一并打 tag v0.3.7，发布包 dist/dingdong-v0.3.7.tar.gz 部署至 tigery（dingdong-demo compose 原地升级，迁移 0008-0010 自动应用，容器全 healthy）；公网冒烟发现 Dockerfile.web COPY 清单漏 4 个前端新模块致 404，显式列举修复后重打包重部署，真实 Chrome 公网冒烟 4/4。产出 dist/guides/ 家长端与运营后台保姆级指南（含 13 张自动化截图），公网库建 tester 运营测试账号（凭据不入 git）。字幕遮罩全流程 GUI 重测 30/31，唯一失败 S7-jev-copy 经消融定位为判定指令口径漂移并重写指令（非产品缺陷）。环境实录：mihomo TUN 劫持 22 端口改走 Tailscale 别名 dell；原始 repo rossyao2022/dingdong 已同步两提交干净历史，本地 origin 未推。收尾：PROJECT_MEMORY 同步、loop 账本补记、T-045 复位 todo。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `f225061` | [T-047] chore: ignore 本机 AI 工具自动配置产物 |
+| `ad3508f` | [T-047] chore(release): bump 版本 0.3.7 |
+| `8ee9fe0` | [T-047] fix(deploy): Dockerfile.web 补齐前端新增 JS 模块 |
+| `bdeed76` | [T-047] chore(docs): v0.3.7 部署会话记忆同步 + loop 账本补记 |
+
+### Status
+
+[OK] **Completed**
