@@ -23,7 +23,7 @@ GENDER = {
 
 QUESTIONNAIRE_PURPOSE = {
     "exploration": "探索体验",
-    "assessment": "测评流程（测试）",
+    "assessment": "初始测评",
 }
 
 CONTENT_STATUS = {
@@ -102,6 +102,7 @@ ASSOCIATION_STATUS = {
 CHECKPOINT_STATUS = {
     "enabled": "同步中",
     "paused": "已暂停",
+    "blocked": "已停用",
 }
 
 # CA 账户：本地占用状态与「与对方的绑定状态」是两件事，不要合成一个词

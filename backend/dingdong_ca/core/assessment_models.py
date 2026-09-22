@@ -77,9 +77,9 @@ class QuestionnaireVersion(PublishedVersion):
     purpose = models.CharField(
         max_length=24,
         default="assessment",
-        choices=[("exploration", "探索偏好体验"), ("assessment", "正式测评流程（测试）")],
+        choices=[("exploration", "探索偏好体验"), ("assessment", "正式测评流程")],
     )
-    title = models.CharField(max_length=160, default="日常情境问卷（测试）")
+    title = models.CharField(max_length=160, default="日常情境问卷")
     description = models.TextField(default="仅用于测试流程，非专业量表，不作能力评价。")
     schema_version = models.CharField(max_length=32, default="questionnaire-v1")
     questions = models.JSONField(default=list, blank=True)

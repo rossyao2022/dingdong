@@ -179,9 +179,11 @@ test("用途授权、22题、合成输入、真实初始报告", async ({ page }
     page.getByText("提交五张样例完成本次测评", { exact: false }),
   ).toBeVisible();
   await page.getByRole("button", { name: "提交样例", exact: true }).click();
+  // 外层 setTimeout 10 分钟、实测报告就绪 75s+；队列积压时 20s 会复现 T-042 红灯，
+  // 内层等待放宽到 120s，与「实测 75s+」的注释口径一致。
   await expect(
     page.getByRole("button", { name: "查看初始报告", exact: true }),
-  ).toBeVisible({ timeout: 20000 });
+  ).toBeVisible({ timeout: 120000 });
   await page.getByRole("button", { name: "查看初始报告", exact: true }).click();
   await expect(
     page.getByText("专业测评结果: 暂无数据", { exact: true }),

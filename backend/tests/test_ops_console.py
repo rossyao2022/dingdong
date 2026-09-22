@@ -369,6 +369,61 @@ def test_child_detail_robot_account_empty_state():
     assert account.ca_account_id not in retired_text
 
 
+def test_blocked_checkpoint_renders_stopped_label():
+    """O-15：归档/解除关联后同步游标 status=blocked，「同步」列显示「已停用」。
+
+    落不到词表时 `label` 会兜底成「未知（blocked）」，运营看不懂；这里直接
+    构造一条 blocked 游标走真实模板，钉住「已停用」并排除整页「未知（」。
+    """
+    from django.utils import timezone
+
+    from dingdong_ca.core.models import (
+        ConsentGrant,
+        ExternalAssociation,
+        PolicyVersion,
+        SyncCheckpoint,
+    )
+
+    _family, children, parent = make_family()
+    policy = PolicyVersion.objects.create(
+        code="policy-dingdong-sync",
+        version="v1",
+        purpose="dingdong_sync",
+        data_origin="synthetic",
+        body="测试用授权条款。",
+        status="published",
+        published_at=timezone.now(),
+    )
+    consent = ConsentGrant.objects.create(
+        child=children[0],
+        granted_by=parent,
+        policy_version=policy,
+        purpose="dingdong_sync",
+        create_request_key=uuid.uuid4(),
+    )
+    association = ExternalAssociation.objects.create(
+        child=children[0],
+        requested_by=parent,
+        consent_grant=consent,
+        create_request_key=uuid.uuid4(),
+        proof_digest="a" * 64,
+        external_subject_id="SUBJECT-BLOCKED",
+        status="revoked",
+        verified_at=timezone.now(),
+        ended_at=timezone.now(),
+    )
+    SyncCheckpoint.objects.create(association=association, status="blocked")
+
+    body = (
+        ops_client(make_staff("operations"))
+        .get(reverse("ops:child_detail", args=[children[0].pk]))
+        .content.decode()
+    )
+    assert "已停用" in body
+    assert "未知（blocked）" not in body
+    assert "未知（" not in body
+
+
 def test_family_freeze_requires_role_and_writes_audit():
     family, children, parent = make_family()
     operations = ops_client(make_staff("operations"))
@@ -796,6 +851,23 @@ def test_audit_detail_is_human_readable():
 
     # 正式动作优先走词条，不走兜底
     assert L.AUDIT_ACTION["assessment.create"] == "家长开始答题"
+
+
+def test_questionnaire_purpose_label_and_model_drop_test_wording():
+    """O-16：题库用途与模型 choice/默认 title 去掉「（测试）」，与家长端「初始测评」口径一致。"""
+    from dingdong_ca.core.models import QuestionnaireVersion
+    from dingdong_ca.ops import labels as L
+
+    assert L.QUESTIONNAIRE_PURPOSE["assessment"] == "初始测评"
+    assert "（测试）" not in L.QUESTIONNAIRE_PURPOSE["assessment"]
+
+    purpose_choices = dict(QuestionnaireVersion._meta.get_field("purpose").choices)
+    assert purpose_choices["assessment"] == "正式测评流程"
+    assert "（测试）" not in purpose_choices["assessment"]
+
+    default_title = QuestionnaireVersion._meta.get_field("title").default
+    assert default_title == "日常情境问卷"
+    assert "（测试）" not in default_title
 
 
 def test_synthetic_dispose_audit_vocabulary():

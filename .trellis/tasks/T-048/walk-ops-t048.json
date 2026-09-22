@@ -1,0 +1,45 @@
+{
+  "checks": [
+    {
+      "name": "ops login lands on dashboard",
+      "ok": true,
+      "detail": "http://127.0.0.1:8017/ops/"
+    },
+    {
+      "name": "O-16 list shows 初始测评",
+      "ok": true
+    },
+    {
+      "name": "O-16 list has no （测试）",
+      "ok": true
+    },
+    {
+      "name": "O-16 list detail link",
+      "ok": true,
+      "detail": "/ops/questionnaires/175dfc84-fc71-42eb-b9d0-55a20866fd04/"
+    },
+    {
+      "name": "O-16 detail shows 初始测评",
+      "ok": true
+    },
+    {
+      "name": "O-16 detail has no （测试）",
+      "ok": true
+    },
+    {
+      "name": "O-15 child detail shows 已停用",
+      "ok": true
+    },
+    {
+      "name": "O-15 child detail has no 未知（",
+      "ok": true
+    },
+    {
+      "name": "O-15 child detail http 200",
+      "ok": true,
+      "detail": "status=200"
+    }
+  ],
+  "errors": [],
+  "failed": []
+}
