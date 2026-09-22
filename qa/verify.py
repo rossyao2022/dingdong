@@ -85,7 +85,7 @@ with sync_playwright() as p:
  expect(page.locator('.record')).to_contain_text('纸折起来以后')
  ok('Journey filter displays actual records and sources')
  # Assessment is resumable and produces preference counts rather than diagnostic scores.
- route('explore');action('assessment')
+ route('companion');action('assessment')
  for i in range(2):
   page.locator('[data-action=answer][data-value="'+str(i)+'"]').click()
   action('assessment-next')
@@ -137,7 +137,7 @@ with sync_playwright() as p:
  page.keyboard.press('Escape');expect(page.locator('dialog')).not_to_be_visible()
  ok('Optional demo preferences start off; device dialog and Escape work')
  # Legacy paths and NFC token are source signals only.
- for file,target in [('test.html','explore'),('thumb.html','fingerprint'),('daily.html','home'),('report.html','reports'),('blindbox.html','explore'),('island.html','explore')]:
+ for file,target in [('test.html','talents'),('thumb.html','fingerprint'),('daily.html','home'),('report.html','reports'),('blindbox.html','explore'),('island.html','explore')]:
   page.goto(BASE+file)
   page.wait_for_url('**#'+target)
  page.goto(BASE+'?nfc_token=demo-placeholder#home')

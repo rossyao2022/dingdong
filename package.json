@@ -1,11 +1,11 @@
 {
   "name": "dingdong-growth-companion",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "private": true,
   "description": "CA × DingDong 互动成长网页 · 产品演示",
   "scripts": {
     "dev": "node server.cjs",
     "start": "node server.cjs",
-    "check": "node --check app.js && node --check api.js && node --check riasec.js && node --check island-explorer.js && node --check playworld.js && node --check fingerprint-guide.js && node --check fingerprint.js && node --check legacy.js && node --check server.cjs"
+    "check": "node --check app.js && node --check api.js && node --check riasec.js && node --check island-explorer.js && node --check playworld.js && node --check fingerprint-guide.js && node --check fingerprint.js && node --check legacy.js && node --check server.cjs && node --check talent-data.js && node --check talent-explorer.js && node --check career-data.js && node --check career-explorer.js"
   }
 }

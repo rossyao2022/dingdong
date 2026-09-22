@@ -1,8 +1,16 @@
-# DingDong · 天赋成长伙伴 V4
+# DingDong · 天赋成长伙伴 V5
 
 面向亲子互动的原生 HTML / CSS / JavaScript 网页演示。
 
 在线体验：[happykua.com/dingdong/](https://happykua.com/dingdong/)
+
+## V5 新增
+
+- 恢复原版 `capage/test.html` 的 24 题，以及 `capage/result.html` 的八维计分。入口 `#talents`，完成后展示八维雷达、全部维度解释、职业认识和每周行动。
+- 每维 3 题、每题 1–5 分，原始分为 3–15。不复制旧结果页的默认造分；并列第三全部展示，全同分不强行排名。修改答案重新求和，未完成不生成报告。
+- 20 种三岛组合（含所有顺序）均有职业参考及三步一周计划。职业代码来自 O*NET 对应兴趣列表，保留职业自身的三字母顺序；不是本站计算的匹配概率。
+- 六张原创 AI 岛屿图使用 DingDong 机器人身份参考重新生成，替换场景。见 `assets/generated/` 和 [完整生成提示词](IMAGE_PROMPTS.md)。
+- 四题引导偏好保留在“我的 DingDong”，与八维观察分开。
 
 ## 六岛兴趣探索
 
@@ -18,7 +26,7 @@
 
 这些对应关系来自原资料，未经本产品的科学效度验证；不由指纹推断能力、性格或职业，也不自动设置机器人。内容整理为可选择的沟通建议。图片只在当前页面临时预览，不上传、不写入持久存储，重置或离开会释放照片与相机。相机需要 HTTPS 或 localhost 及浏览器授权。
 
-页面采用提供的 DingDong 紫色机器人、场景和礼盒素材。当前尚未接入正式后端、正式测评题库或实体机器人；设备数据保持待接入状态。
+页面采用提供的 DingDong 紫色机器人与礼盒，六岛场景使用本次重新生成的原创插画。当前尚未接入正式后端、正式测评题库或实体机器人；设备数据保持待接入状态。
 
 ## 本地运行
 
@@ -39,9 +47,10 @@ python -m playwright install chromium
 python -X utf8 qa/verify.py
 python -X utf8 qa/verify_media.py
 python -X utf8 qa/verify_v4.py
+python -X utf8 qa/verify_v5.py
 ```
 
-测试需先运行本地服务。三个脚本支持环境变量 `DINGDONG_BASE` 覆盖默认地址；V4 脚本默认使用 `http://127.0.0.1:4184/dingdong/`，其他脚本默认使用 4173。媒体测试使用模拟摄像头，不会调用物理摄像头。
+测试需先运行本地服务。所有脚本支持环境变量 `DINGDONG_BASE` 覆盖默认地址；V4 / V5 脚本默认使用 `http://127.0.0.1:4184/dingdong/`，其他脚本默认使用 4173。媒体测试使用模拟摄像头，不会调用物理摄像头。
 
 V4 覆盖 20 种三岛组合、顺序调整、三方向九题、逐题评分、断点恢复、四类指纹说明、六个结果行动入口、八页五种屏宽、存储错误和清空。媒体测试覆盖拍照与释放、图片格式和大小边界、拒绝相机权限、盲盒与减弱动画。测试输出不提交到仓库。
 
@@ -56,3 +65,11 @@ V4 覆盖 20 种三岛组合、顺序调整、三方向九题、逐题评分、�
 - `CONTENT_NOTES.md`、`ASSET_SOURCES.md`：内容边界和素材来源。
 
 发布时上传根目录浏览器 HTML / CSS / JS 与 `assets/`，不上传开发服务器、文档和 QA 目录。默认页采用 hash 路由，资源路径相对目录。`dingdong-demo-v2` 保存原有演示记录；`dingdong-islands-v4` 单独保存新版兴趣体验，账户清空与导出同时包含两者。指纹图片不保存在这两个键中。
+
+## 八维数据交接
+
+`talent-data.js` 保留原题 id（1–24）、type（word/music/logic/space/body/self/social/nature）与问卷版本 `talent-original-24-v1`。`talent-explorer.js` 单独保存于 `dingdong-talents-v1`，导出字段 `talentExploration` 含 answers、index、completed、completedAt，以及完成后的八项 scores（id/name/score/max）。未完成 scores 为 null。
+
+`career-data.js` 为 2026-09-22 的 O*NET 列表快照；20 个组合以 RIASEC 固定字符顺序作为键。组合排列顺序保留用户原选择，职业代码单独展示。中文解释与活动由 DingDong 编辑整理。正式服务端应接收答案与版本，复核每题取值及完整性后重算，不信任前端得分或 URL 查询参数。旧 `test.html` / `result.html` 跳转八维入口；`report.html` 仍进入成长观察。
+
+八维与兴趣结果均为浏览器内演示数据，尚未发送给机器人或正式后端。账户清空和导出覆盖三个存储模块。
