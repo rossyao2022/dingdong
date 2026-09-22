@@ -1,5 +1,5 @@
 FROM nginx:1.28-alpine
 COPY deploy/nginx.conf.template /etc/nginx/templates/default.conf.template
-COPY frontend/index.html frontend/*.css frontend/app.js frontend/api.js frontend/playworld.js /usr/share/nginx/html/
+COPY frontend/index.html frontend/*.css frontend/app.js frontend/api.js frontend/playworld.js frontend/companion.js frontend/reassessment.js frontend/growth-cycle.js frontend/ca-link.js /usr/share/nginx/html/
 COPY frontend/assets /usr/share/nginx/html/assets
 COPY VERSION /usr/share/nginx/html/version.txt
