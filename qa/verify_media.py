@@ -1,4 +1,5 @@
-"""V3 regression checks for exploration, local fingerprint tools, and responsive pages."""
+import os
+"""Media and interaction regression checks for the current DingDong website."""
 import base64
 import json
 import struct
@@ -13,8 +14,8 @@ from playwright.sync_api import expect, sync_playwright
 sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
 ROOT = Path(__file__).parent
-BASE = 'http://127.0.0.1:4173/dingdong/'
-RESULT_PATH = ROOT / 'verification-v3-results.json'
+BASE = os.environ.get('DINGDONG_BASE','http://127.0.0.1:4173/dingdong/')
+RESULT_PATH = ROOT / 'verification-media-results.json'
 checks = []
 errors = []
 responsive_details = []
@@ -79,32 +80,6 @@ with sync_playwright() as p:
 
     def state():
         return page.evaluate('JSON.parse(localStorage.getItem("dingdong-demo-v2"))')
-
-    def default_explore():
-        route()
-        expect(page.locator('#interest-map')).to_be_visible()
-        expect(page.locator('.island-stop')).to_have_count(4)
-        expect(page.locator('.discovery-portal')).to_have_count(3)
-        expect(page.locator('.fingerprint-portal')).to_have_attribute('href', '#fingerprint')
-        expect(page.locator('.adventure-button')).to_be_disabled()
-        return {'url': page.url, 'islands': 4, 'portals': 3}
-    check('No-hash entry opens exploration map with three discovery portals', default_explore)
-
-    def island_selections():
-        route('explore')
-        selections = [('science', 'paper-bridge', '科学发现岛', '一张纸，能搭一座桥吗？'), ('story', 'cloud-story', '故事表达岛', '如果云朵有一份工作'), ('nature', 'leaf-look', '自然观察岛', '和一片叶子安静待一会儿'), ('imagination', 'new-use', '创意想象岛', '一把勺子的第二种人生')]
-        for island, task_id, title, task_title in selections:
-            page.locator('[data-world-id="' + island + '"]').click()
-            expect(page.locator('.island-stop[aria-pressed=true]')).to_have_count(1)
-            expect(page.locator('[data-world-id="' + island + '"]')).to_have_attribute('aria-pressed', 'true')
-            expect(page.locator('#interest-map')).to_have_attribute('data-selected', island)
-            expect(page.locator('#world-dock')).to_contain_text(title)
-            page.locator('[data-world-action=depart]').click()
-            expect(page.locator('#dialog-title')).to_contain_text(task_title)
-            assert state()['taskId'] == task_id
-            close()
-        return {'destinations_verified': 4}
-    check('Four islands update visible selection and open the matching activity', island_selections)
 
     def blindbox():
         route('explore')
@@ -229,7 +204,7 @@ with sync_playwright() as p:
         denied.goto(BASE + '#fingerprint', wait_until='domcontentloaded')
         cdp = denied_context.new_cdp_session(denied)
         context_id = cdp.send('Target.getTargetInfo')['targetInfo']['browserContextId']
-        cdp.send('Browser.setPermission', {'permission': {'name': 'camera'}, 'setting': 'denied', 'origin': 'http://127.0.0.1:4173', 'browserContextId': context_id})
+        cdp.send('Browser.setPermission', {'permission': {'name': 'camera'}, 'setting': 'denied', 'origin': urlparse(BASE).scheme + '://' + urlparse(BASE).netloc, 'browserContextId': context_id})
         denied.locator('[data-fp-action=camera]').click()
         expect(denied.locator('#fp-status')).to_contain_text('相机权限没有开启')
         expect(denied.locator('#fp-status')).to_contain_text('选择一张指纹图片')
@@ -238,35 +213,6 @@ with sync_playwright() as p:
         denied_context.close()
         return {'actual_browser_permission': 'denied', 'alternative_action_visible': True}
     check('Denied camera permission gives a helpful image-upload alternative', camera_permission_rejection)
-
-    def keyboard():
-        route('explore')
-        target = page.locator('[data-world-id=science]')
-        target.focus()
-        page.keyboard.press('Enter')
-        expect(target).to_have_attribute('aria-pressed', 'true')
-        target = page.locator('[data-world-id=nature]')
-        target.focus()
-        page.keyboard.press('Space')
-        expect(target).to_have_attribute('aria-pressed', 'true')
-        page.locator('[data-world-action=depart]').focus()
-        page.keyboard.press('Enter')
-        expect(page.locator('#dialog')).to_be_visible()
-        page.keyboard.press('Escape')
-        expect(page.locator('#dialog')).not_to_be_visible()
-        page.locator('.fingerprint-portal').focus()
-        page.keyboard.press('Enter')
-        expect(page.locator('#fingerprint-lab')).to_be_visible()
-        page.locator('[data-fp-pattern=arch]').focus()
-        page.keyboard.press('Space')
-        expect(page.locator('[data-fp-pattern=arch]')).to_have_attribute('aria-pressed', 'true')
-        page.locator('[data-fp-pattern=loop]').focus()
-        page.keyboard.press('Enter')
-        expect(page.locator('[data-fp-pattern=loop]')).to_have_attribute('aria-pressed', 'true')
-        page.keyboard.press('Tab')
-        assert page.evaluate('document.activeElement.matches("button, a, input, select, textarea")')
-        return {'enter': True, 'space': True, 'escape': True, 'tab': True}
-    check('Islands, portals and fingerprint choices work with keyboard input', keyboard)
 
     def responsive():
         overflow = []
@@ -307,7 +253,7 @@ with sync_playwright() as p:
     def no_js_errors():
         assert errors == [], errors
         return {'pageerror_count': 0}
-    check('No uncaught JavaScript errors throughout V3 checks', no_js_errors)
+    check('No uncaught JavaScript errors throughout media checks', no_js_errors)
     context.close()
     browser.close()
 

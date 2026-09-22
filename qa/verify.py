@@ -1,9 +1,10 @@
+import os
 import json
 from pathlib import Path
 from playwright.sync_api import sync_playwright, expect
 
 ROOT=Path(__file__).parent
-BASE='http://127.0.0.1:4173/dingdong/'
+BASE=os.environ.get('DINGDONG_BASE','http://127.0.0.1:4173/dingdong/')
 results=[]
 def ok(name):
  results.append(name)
@@ -167,7 +168,7 @@ with sync_playwright() as p:
  restricted.add_init_script('Object.defineProperty(window, "localStorage", {get(){throw new Error("unavailable")}});Object.defineProperty(window,"sessionStorage",{get(){throw new Error("unavailable")}});')
  badpage=restricted.new_page()
  badpage.goto(BASE)
- expect(badpage.locator('.adventure-world')).to_be_visible()
+ expect(badpage.locator('.six-island-world')).to_be_visible()
  expect(badpage.locator('.storage-warning')).to_be_visible()
  ok('App remains usable when browser storage is unavailable')
  context.close();restricted.close();browser.close()

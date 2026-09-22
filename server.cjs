@@ -2,7 +2,7 @@ const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
 const root = __dirname;
-const types = { '.html':'text/html; charset=utf-8', '.css':'text/css; charset=utf-8', '.js':'text/javascript; charset=utf-8', '.svg':'image/svg+xml', '.json':'application/json; charset=utf-8', '.png':'image/png', '.md':'text/plain; charset=utf-8' };
+const types = { '.html':'text/html; charset=utf-8', '.css':'text/css; charset=utf-8', '.js':'text/javascript; charset=utf-8', '.svg':'image/svg+xml', '.webp':'image/webp', '.json':'application/json; charset=utf-8', '.png':'image/png', '.md':'text/plain; charset=utf-8' };
 http.createServer((req,res) => {
   let requestUrl, pathname;
   try { requestUrl = new URL(req.url,'http://localhost'); pathname = decodeURIComponent(requestUrl.pathname); } catch {res.writeHead(400).end();return;}

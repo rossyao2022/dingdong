@@ -17,33 +17,13 @@
   let sourceName = '';
 
   function fingerprint(id = 'whorl', extra = '') {
-    const paths = id === 'arch' ? [
-      'M16 85 Q60 12 104 85', 'M17 96 Q60 31 103 96', 'M15 74 Q60 -1 105 74',
-      'M22 106 Q60 49 98 106', 'M26 61 Q60 9 94 61', 'M32 115 Q60 68 88 115',
-      'M32 47 Q60 10 88 47', 'M44 119 Q60 90 76 119',
-    ] : id === 'loop' || id === 'reverse' ? [
-      'M24 110 C-3 35 33 8 66 20 C111 36 105 94 79 113',
-      'M32 115 C7 47 37 19 63 29 C98 42 98 91 73 111',
-      'M41 115 C18 54 42 29 61 39 C86 51 85 83 69 98 C55 113 34 99 41 77',
-      'M51 114 C28 81 37 46 58 48 C79 53 76 78 64 88 C54 96 45 90 49 75',
-      'M58 78 C51 62 68 61 64 73', 'M91 115 C120 58 94 10 60 10',
-      'M16 93 C-4 40 15 12 39 9',
-    ] : [
-      'M22 100 C-2 49 22 9 59 10 C103 11 123 66 95 111',
-      'M32 111 C7 69 17 22 55 21 C95 18 112 63 88 105',
-      'M43 117 C17 91 20 36 55 32 C89 26 103 65 80 97',
-      'M55 119 C26 101 28 54 49 45 C76 30 97 63 74 87 C54 109 31 90 42 64',
-      'M64 112 C88 105 102 88 106 73',
-      'M51 82 C40 72 49 51 63 54 C83 59 72 85 60 83 C49 80 52 66 61 65',
-      'M19 118 L11 104',
-    ];
-    return `<svg class="fp-print ${extra}" viewBox="0 0 120 130" aria-hidden="true" fill="none"><g ${id === 'reverse' ? 'transform="translate(120 0) scale(-1 1)"' : ''} stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">${paths.map(d => `<path d="${d}"/>`).join('')}</g></svg>`;
+    return `<img class="fp-print ${extra}" src="assets/fingerprints/${id}.webp" alt="${patterns.find(p=>p.id===id)?.name||'斗纹'}原始示意图" width="240" height="240">`;
   }
 
   function render() {
     return `<div class="fp-page" id="fingerprint-lab">
       <header class="fp-heading"><div><a class="fp-back" href="#explore">← 回到天赋探索</a><p class="fp-kicker">DINGDONG · LITTLE DISCOVERY LAB</p><h1>指尖里，藏着一个<span>小宇宙<span class="fp-title-star" aria-hidden="true">✦</span></span></h1><p class="fp-intro">伸出小手，和叮咚一起找找纹路里的漩涡、小河与山丘。</p></div><div class="fp-lab-sticker" aria-hidden="true"><span>好奇心</span><b>实验室</b><i>✧ EXPLORE ✧</i></div></header>
-      <ol class="fp-journey" aria-label="探索步骤"><li><b>01</b><span>准备一张指纹</span><i>✧</i></li><li><b>02</b><span>用眼睛找一找</span><i>✧</i></li><li><b>03</b><span>发现独特的你</span><i>★</i></li></ol>
+      <ol class="fp-journey" aria-label="探索步骤"><li><b>01</b><span>准备一张指纹</span><i>✧</i></li><li><b>02</b><span>用眼睛找一找</span><i>✧</i></li><li><b>03</b><span>阅读对应参考卡</span><i>★</i></li></ol>
       <div class="fp-layout">
         <section class="fp-scanner-card" aria-labelledby="fp-scanner-heading">
           <div class="fp-card-heading"><span class="fp-number">01</span><div><h2 id="fp-scanner-heading">小手准备好了吗？</h2><p>先用示例玩一玩，也可以观察自己的纹路</p></div><span class="fp-live-dot" aria-hidden="true"></span></div>
@@ -54,9 +34,10 @@
           <input id="fp-file-input" type="file" accept="image/jpeg,image/png,image/webp" hidden aria-label="选择指纹图片">
           <p class="fp-local-note"><span aria-hidden="true">⌂</span> 照片仅在此页面临时预览，不会上传或保存。支持 JPG / PNG / WebP，最大 10 MB。</p>
         </section>
-        <section class="fp-comparison" aria-labelledby="fp-comparison-heading"><div class="fp-compare-heading"><span class="fp-number">02</span><div><h2 id="fp-comparison-heading">它更像哪一种？</h2><p>仔细看一看，亲手选出你观察到的纹路。</p></div><span class="fp-doodle" aria-hidden="true">↙</span></div><div class="fp-pattern-grid">${patterns.map(p => `<button class="fp-pattern fp-${p.color}" data-fp-action="pattern" data-fp-pattern="${p.id}" aria-pressed="false"><span class="fp-check" aria-hidden="true">✓</span><span class="fp-pattern-art">${fingerprint(p.id)}</span><span class="fp-pattern-name">${p.name}</span><span class="fp-pattern-nickname">${p.nickname}</span><span class="fp-pattern-select">选这一种 <span aria-hidden="true">↗</span></span></button>`).join('')}</div><p class="fp-diagram-note">以上是示意图。左右手、拍摄方向会影响箕纹的辨别；不确定也没关系，可以换个角度再观察。</p><div class="fp-observation" id="fp-observation" aria-live="polite"><span class="fp-observation-star" aria-hidden="true">✧</span><div><h3>没有标准答案，先发现一点不同</h3><p>看纹路的中心、走向和开口。找到一个小细节，就是今天的发现！</p></div></div></section>
+        <section class="fp-comparison" aria-labelledby="fp-comparison-heading"><div class="fp-compare-heading"><span class="fp-number">02</span><div><h2 id="fp-comparison-heading">它更像哪一种？</h2><p>仔细看一看，亲手选择相近的纹路，查看对应说明。</p></div><span class="fp-doodle" aria-hidden="true">↙</span></div><div class="fp-pattern-grid">${patterns.map(p => `<button class="fp-pattern fp-${p.color}" data-fp-action="pattern" data-fp-pattern="${p.id}" aria-pressed="false"><span class="fp-check" aria-hidden="true">✓</span><span class="fp-pattern-art">${fingerprint(p.id)}</span><span class="fp-pattern-name">${p.name}</span><span class="fp-pattern-nickname">${window.FingerprintGuide.guides[p.id].title} · ${window.FingerprintGuide.guides[p.id].code}</span><span class="fp-pattern-select">查看对应说明 <span aria-hidden="true">↗</span></span></button>`).join('')}</div><p class="fp-diagram-note">使用原版纹路示意图。左右手、手指方向和镜像会影响箕纹的辨别；本页由你手动选择，不会自动识别。</p><div class="fp-observation" id="fp-observation" aria-live="polite"><span class="fp-observation-star" aria-hidden="true">✧</span><div><h3>没有标准答案，先发现一点不同</h3><p>看纹路的中心、走向和开口。找到一个小细节，就是今天的发现！</p></div></div></section>
       </div>
-      <aside class="fp-robot-note"><img src="assets/dingdong.svg" alt="叮咚机器人"><div><span>叮咚想告诉你</span><h2>你有多少可能，<em>要一起探索才知道。</em></h2><p>纹路选择只用来观察指纹，不代表能力、性格或天赋。真正的发现，藏在你喜欢尝试的每件小事里。</p></div><a class="button fp-next" href="#explore">去解锁一个小挑战 <span aria-hidden="true">→</span></a><span class="fp-note-spark" aria-hidden="true">✦</span></aside>
+      <div id="fp-guide-container" aria-live="polite"></div>
+      <aside class="fp-robot-note"><img src="assets/dingdong/robot-wave.webp" alt="叮咚机器人"><div><span>叮咚想告诉你</span><h2>你有多少可能，<em>要一起探索才知道。</em></h2><p>纹路选择只用来观察指纹，不代表能力、性格或天赋。真正的发现，藏在你喜欢尝试的每件小事里。</p></div><a class="button fp-next" href="#explore">去解锁一个小挑战 <span aria-hidden="true">→</span></a><span class="fp-note-spark" aria-hidden="true">✦</span></aside>
     </div>`;
   }
 
@@ -113,6 +94,7 @@
     query('.fp-pattern-grid').querySelectorAll('button').forEach(b => { b.classList.remove('fp-selected'); b.setAttribute('aria-pressed', 'false'); });
     query('#fp-observation').innerHTML = '<span class="fp-observation-star" aria-hidden="true">✧</span><div><h3>没有标准答案，先发现一点不同</h3><p>看纹路的中心、走向和开口。找到一个小细节，就是今天的发现！</p></div>';
     query('#fp-observation').classList.remove('fp-observation-selected');
+    query('#fp-guide-container').innerHTML='';
     buttons('empty');
     setCaption('每一根手指，都是一张独特的地图');
     status('还没有准备图片？点击下方按钮，和示例纹路打个招呼。');
@@ -251,13 +233,15 @@
       button.setAttribute('aria-pressed', String(active));
     });
     query('#fp-observation').classList.add('fp-observation-selected');
-    query('#fp-observation').innerHTML = `<span class="fp-observation-star" aria-hidden="true">★</span><div><span class="fp-manual-label">我的手动观察</span><h3>我发现了「${item.nickname}」！</h3><p>${item.detail}</p><small>你选择了${item.name}，仅作纹路观察，不是能力或性格结论。</small></div>`;
+    query('#fp-observation').innerHTML = `<span class="fp-observation-star" aria-hidden="true">★</span><div><span class="fp-manual-label">我的手动观察</span><h3>我选择了「${item.name}」</h3><p>${item.detail}</p><small>不是能力或性格结论。下方已展开原资料对应的参考说明。</small><a class="text-button" href="#fp-guide-report" data-fp-action="read-guide">阅读${window.FingerprintGuide.guides[id].title}参考卡 ↓</a></div>`;
+    query('#fp-guide-container').innerHTML=window.FingerprintGuide.render(id);
   }
 
   function onClick(event) {
     const target = event.target.closest('[data-fp-action]');
     if (!target || !root?.contains(target)) return;
     const action = target.dataset.fpAction;
+    if (action === 'read-guide') { event.preventDefault(); query('#fp-guide-report')?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'}); }
     if (action === 'sample') sample();
     else if (action === 'scan') scan();
     else if (action === 'upload') query('#fp-file-input').click();
