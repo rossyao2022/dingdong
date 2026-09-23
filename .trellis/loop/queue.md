@@ -218,3 +218,10 @@
 - gate: none
 - status: done
 - notes: 真实调用实测记录（2026-09-22，对方 mock）：health 200 provider=mock；POST /profile 201 + 读回一致（分数返回字符串 `"72.00"` 与文档 0-100/null 不符，待对方答复，我方消费层做 float(str) 兼容）；重复 profile_id 40901 拒绝式幂等；reassessment 空态 200 data:null；bind 40401 NFC token 白名单制（联调 token 待对方提供）；prototype/insights 40401 Prototype mode disabled（待对方开）；路由 404 为 FastAPI 原生格式。待对方：测试 NFC token、开 PROTOTYPE_MODE+CA_PUSH_URL/SECRET、分数类型口径、42901 限流。测试默认语义改「未配置」由 autouse fixture 清空 DingDong 配置实现（.env 已有真实值）。分支直推规则沿用 T-045 批复（v0.3.7）。
+
+## T-051 DingDong → CA Prototype webhook 接收端落地
+- goal: 10.4 展前对方演示逻辑 v1.0 §7–§11 要求我方提供 webhook 接收对方主动推送的里程碑事件。按用户指令「先实现再提供出去」：在把 URL 给对方之前先落地可收流量。四要件：HMAC-SHA256 验签（`HMAC_SHA256(CA_PUSH_SECRET, X-Dingdong-Timestamp + "." + 原始 body)`，按原始字节不重序列化）、`X-Dingdong-Event-ID` 幂等（重复回 2xx 止住对方 outbox 补偿投递、不落第二条）、timestamp 时间窗（默认 2h 覆盖对方约 1h 退避重投）、成功 2xx。
+- acceptance: 新端点 `POST /api/dingdong/prototype/events`（匿名、拒 CSRF 外的验签路径全覆盖：未配置 secret/缺头/坏签名/过期时间戳/坏 JSON/非对象 payload/合法落库/幂等）；`DingDongPushEvent` 模型 + 迁移 0012；全量 `pytest` 绿；ruff check 干净；secret 未约定前如实 403 不伪造通过。
+- gate: none
+- status: done
+- notes: 实现：`core/api/dingdong_push.py`（`hmac.compare_digest` 常数时间比对；原始 body 必须在 DRF parser 消费流之前取；savepoint 隔离唯一键冲突，避免 IntegrityError 弄坏外层事务——测试里事务标记 broken 后续查询必炸，实测踩过）；`core/integration_models.py` 加 `DingDongPushEvent`；`config/urls.py` 挂路由；`.env` 侧 `DINGDONG_PUSH_SECRET` 留空待与对方约定。测试基建修复（本任务顺带收口）：①「未配置默认语义」autouse 从 `test_ca_accounts.py` 提到 `tests/conftest.py` 全局——`.env` 真实联调值此前泄漏进 `test_ca_display.py` 等 41 个用例（`is_configured()` 变真 → bind 真出站 → 撞「禁止真实出站」哨兵 500）；②修 status.md 悬置事项 1 的 T-047 遗留红灯：`test_questionnaires.py` 断言 `"非正式" in q.description` 改 `"不评定天赋或能力" in q.description`（seed 描述 2520abf 已改）。验证：全量 `pytest` 361 passed 0 failed；`ruff check` 我方 11 个涉改文件全过（历史 11 文件的 format 差异是 ruff 0.16.7 py314 PEP 758 新风格，不属本任务）。待对方：NFC 测试 token、PROTOTYPE_MODE、CA_PUSH_SECRET 约定后再给 URL。

@@ -1,8 +1,8 @@
 {
-  "date": "2026-09-22",
+  "date": "2026-09-23",
   "scope": "本地文档链接、原始归档哈希/ZIP、提取产物、OpenAPI 引用与 operationId/路径参数；不验证远端链接、Office 版式或真实供应商协议。",
-  "markdown_files": 83,
-  "local_links_checked": 523,
+  "markdown_files": 84,
+  "local_links_checked": 525,
   "archived_files_checked": 85,
   "attachments": [
     {
@@ -161,6 +161,7 @@
     "backend/README.md",
     "设计/一期功能_API与业务闭环_V0.1.md",
     "设计/登录认证设计_V0.1.md",
+    "设计/CA对接_DingDong_code表_20260922.md",
     "设计/数据库实际字段_M5.md",
     "设计/后台总体设计_V0.2.md",
     "设计/数据库表结构_V0.1.md",

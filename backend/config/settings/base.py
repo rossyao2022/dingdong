@@ -32,6 +32,14 @@ DINGDONG_TIMEOUT_SECONDS = env.float("DINGDONG_TIMEOUT_SECONDS", default=5.0)
 # 联调豁免：对方 v1.0 联调地址是纯 HTTP（122.51.108.225，443 未开），仅限
 # 测试 Key 短期联调显式打开；正式联调/生产必须 HTTPS 且本开关保持关闭。
 DINGDONG_ALLOW_HTTP = env.bool("DINGDONG_ALLOW_HTTP", default=False)
+# DingDong → CA Prototype webhook（入站推送）的验签密钥，双方约定后经安全
+# 渠道交付（对应对方 CA_PUSH_SECRET）；未配置时接收端拒绝所有推送，不伪造通过。
+DINGDONG_PUSH_SECRET = env("DINGDONG_PUSH_SECRET", default="")
+# X-Dingdong-Timestamp 的允许时间窗：默认 2 小时，覆盖对方 outbox 补偿投递
+# 的最长约 1 小时退避（对方文档 §7），避免合法重试被时间窗误拒。
+DINGDONG_PUSH_TIMESTAMP_WINDOW_SECONDS = env.float(
+    "DINGDONG_PUSH_TIMESTAMP_WINDOW_SECONDS", default=7200.0
+)
 # 四个展示面（人设 / 周期成长报告 / 健康度 / 复测）的数据源，见
 # `.trellis/tasks/T-021/design.md` §2。与 INTEGRATION_DATA_SOURCE 分开：
 # 那个管测评与观察的 fixture 闸门，语义不同，不共用值域。

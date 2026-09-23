@@ -53,19 +53,11 @@ class FakeResponse:
         return False
 
 
-@pytest.fixture(autouse=True)
-def no_real_network(monkeypatch):
-    """测试里绝不允许真连对方端点：宁可报错，也不要偷偷发一次网络请求。"""
-    from dingdong_ca.core.services import dingdong_client
-
-    def refuse(*args, **kwargs):
-        raise AssertionError("测试不得发起真实出站调用")
-
-    monkeypatch.setattr(dingdong_client, "_open", refuse)
+# `no_real_network`（拒绝真实出站 + 清空 DingDong 配置）在 conftest 全局 autouse。
 
 
 @pytest.fixture
-def transport(no_real_network, monkeypatch):
+def transport(monkeypatch):
     """假传输层：`calls` 记录每次出站请求，`payload` / `http_error` 决定对方怎么答。"""
     from dingdong_ca.core.services import dingdong_client
 

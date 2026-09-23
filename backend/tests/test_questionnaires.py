@@ -55,7 +55,7 @@ def test_reference_exploration_is_seeded_and_meaningful():
     q = QuestionnaireVersion.objects.get(purpose="exploration", status="published")
     assert len(q.questions) == 4
     assert q.questions[0]["title"] == "遇到一件从没见过的小玩意儿，你更想先……"
-    assert "非正式" in q.description
+    assert "不评定天赋或能力" in q.description
     for q in QuestionnaireVersion.objects.filter(status="published"):
         assert all(
             "合成选项" not in o["label"] for question in q.questions for o in question["options"]

@@ -243,6 +243,7 @@ from .assessment_models import (  # noqa: E402,F401
 from .ca_models import CaAccount, CaReassessmentEvent  # noqa: E402,F401
 from .integration_models import (  # noqa: E402,F401
     DataRequest,
+    DingDongPushEvent,
     ExternalAssociation,
     JobObservation,
     ObservationBatch,

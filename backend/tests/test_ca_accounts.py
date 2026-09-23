@@ -221,28 +221,11 @@ class FakeResponse:
         return False
 
 
-@pytest.fixture(autouse=True)
-def no_real_network(monkeypatch):
-    """测试里绝不允许真连对方端点：宁可报错，也不要偷偷发一次网络请求。
-
-    顺带把 DingDong 配置清空：本地 ``backend/.env`` 已配真实联调值，测试的
-    默认语义是「未配置」；需要已配置语义的用例用 ``override_settings`` 显式写。
-    """
-    from django.conf import settings
-
-    from dingdong_ca.core.services import dingdong_client
-
-    def refuse(*args, **kwargs):
-        raise AssertionError("测试不得发起真实出站调用")
-
-    monkeypatch.setattr(dingdong_client, "_open", refuse)
-    monkeypatch.setattr(settings, "DINGDONG_BASE_URL", "")
-    monkeypatch.setattr(settings, "DINGDONG_API_KEY", "")
-    monkeypatch.setattr(settings, "DINGDONG_ALLOW_HTTP", False)
+# `no_real_network`（拒绝真实出站 + 清空 DingDong 配置）在 conftest 全局 autouse。
 
 
 @pytest.fixture
-def transport(no_real_network, monkeypatch):
+def transport(monkeypatch):
     from dingdong_ca.core.services import dingdong_client
 
     seen = {"payload": {"code": 0, "message": "ok", "request_id": "r-1", "data": {}}}

@@ -142,3 +142,25 @@ class DataRequest(Entity):
                 fields=["requester", "create_request_key"], name="data_request_create_unique"
             )
         ]
+
+
+class DingDongPushEvent(Entity):
+    """DingDong → CA 主动推送的入站事件（Prototype webhook）。
+
+    对方在互动里程碑（每 3 次有效对话）POST 该时刻完整 Prototype Insights，
+    合同见 `材料/文档/DingDong_CA_Prototype_Demo_Logic_v1.0.docx` §7–§9。
+    幂等以 ``event_id`` 为准：网络重试导致同一事件多次到达时只落一条，
+    但每次都回 2xx，让对方的 outbox 补偿投递停止。
+    """
+
+    event_id = models.CharField(max_length=64, unique=True)
+    event_type = models.CharField(max_length=64, blank=True, default="")
+    # payload 原文里的 occurred_at / data.ca_account_id 提列为冗余列，
+    # 供运营查询与后续展示面消费；解析不到就留空，不以提取成败定接收成败。
+    ca_account_id = models.CharField(max_length=64, blank=True, default="")
+    occurred_at = models.CharField(max_length=64, blank=True, default="")
+    payload = models.JSONField()
+
+    class Meta:
+        db_table = "dingdong_push_event"
+        indexes = [models.Index(fields=["created_at"])]

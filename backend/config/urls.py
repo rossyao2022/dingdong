@@ -11,6 +11,7 @@ from dingdong_ca.core.api import (
     children,
     consents,
     data_requests,
+    dingdong_push,
     growth,
     reports,
     robots,
@@ -37,6 +38,9 @@ def handler404(request, exception=None):
 
 
 urlpatterns = [
+    # DingDong → CA 的 Prototype webhook 入站推送（验签 + event_id 幂等）。
+    # 路径按对方文档 §11 的建议：POST /api/dingdong/prototype/events。
+    path("api/dingdong/prototype/events", dingdong_push.prototype_events),
     path("api/v1/children/<uuid:child_id>/associations/verify", robots.verify),
     path("api/v1/children/<uuid:child_id>/associations", robots.associations),
     path("api/v1/associations/<uuid:association_id>/revoke", robots.revoke),
