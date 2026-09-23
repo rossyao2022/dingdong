@@ -162,7 +162,7 @@ wheels = [
 
 [[package]]
 name = "dingdong-ca-backend"
-version = "0.3.7"
+version = "0.3.8"
 source = { virtual = "." }
 dependencies = [
     { name = "celery", extra = ["redis"] },
