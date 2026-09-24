@@ -1,8 +1,10 @@
 # 叮咚项目记忆与会话交接
 
-最后更新：2026-09-23 16:40，Asia/Shanghai。适用于本目录中的后续会话。本文记录已核对事实，不代替代码和最新用户指令。
+最后更新：2026-09-24 10:05，Asia/Shanghai。适用于本目录中的后续会话。本文记录已核对事实，不代替代码和最新用户指令。
 
 ## 当前结论与最近工作
+
+**生产环境服务器（2026-09-24 用户提供并核实）：`1.15.23.152`（晴幂，腾讯云）。** 用途：**当前项目的生产环境**。访问：`ssh -i ~/.ssh/id_ed25519 root@1.15.23.152`（root 密钥登录已验证可用）。密钥事实：本机 `~/.ssh/id_ed25519` 与 air 机是**同一把**（指纹一致 `SHA256:/ZheIK6q0D5k4p5zlns0P5oNwYmPk0x8W35B8XC7uJA deadykual@gmail.com`），无需搬运；公钥由 air 侧 2026-09-24 会话经 `ubuntu` 用户 sudo 追加进 root 的 `authorized_keys`（root 原本未开放该密钥）。机器形态：VM-0-4-ubuntu，Ubuntu 24.04.4，3.6G 内存（可用约 2.7G）/ 59G 盘（已用 15G）。**同机已跑晴幂其他生产业务**（Lifebook .NET API、HappyKua 系列、Kuakua AI、life-puzzle、starfire、xinling-ai-v2 等 systemd 服务，`/root/project`、`/root/docker-compose.yml`），部署叮咚时注意共存、端口冲突与内存余量；nginx 有备份包（2026-06-14 改动痕迹）。
 
 **最近一轮工作：DingDong Prototype webhook 接收端 + v0.3.8 公网部署（任务 T-051，2026-09-23，用户驱动）。** 状态：**已实现、全量测试绿、已发版 v0.3.8、已部署公网并验收**。①**webhook 接收端**：`POST http://110.42.225.196/api/dingdong/prototype/events`（对方文档 §7–§11 四要件）：HMAC-SHA256 验签（`HMAC_SHA256(CA_PUSH_SECRET, X-Dingdong-Timestamp + "." + 原始 body)`，常数时间比对、原始字节不重序列化）、`X-Dingdong-Event-ID` 幂等（重复回 200 duplicate:true 止住对方 outbox 补偿、不落第二条，savepoint 隔离唯一键冲突）、timestamp 时间窗（默认 2h）、未约定 secret 时如实 403 不伪造通过；`DingDongPushEvent` 模型 + 迁移 `0012` + 9 用例。②**测试基建**：「未配置默认语义 + 禁止真实出站」autouse 提到 `tests/conftest.py` 全局（`.env` 真实联调值此前泄漏导致 `test_ca_display.py` 等 41 用例红灯）；修 T-047 遗留断言（`test_questionnaires.py` 改 `"不评定天赋或能力" in q.description`）。③**v0.3.8 发版部署**（用户放行 push+部署）：compose env 白名单补 `DINGDONG_*` 透传（留空=未接通语义；`CA_DISPLAY_DATA_SOURCE` 一并透传，10.4 切真源只改 tigery `.env`）；tigery `dingdong-demo` 原地升级（init 自动跑迁移 0011+0012，容器全 healthy）；**上海入口 nginx 实测坑**：webhook 路由不带 `/api/v1/` 前缀，`deploy/relay/nginx-location.conf` 漏配 `/api/dingdong/` 会落到静态站（POST 405），已补 location 并与仓库同步一致。**公网验收**：`/dingdong/version.txt`=0.3.8、`/ops/login/` 200、无头 400 PUSH_HEADERS_MISSING、坏签名 403、真签名经公网 201 落库（`ca_dingdong`）+ 重发幂等 200，冒烟行已清。**验证**：后端全量 `pytest` 361 passed 0 failed；`ruff check` 干净；deploy 配置测试 9 passed。**联调状态**：对方已开 `PROTOTYPE_MODE=true`（固定账号 `ca_dingdong`，共用关联账号已自动创建）；我方 `DINGDONG_PUSH_SECRET` 已生成配置在 tigery `deploy/.env`（不入 git），**待用户经微信把 webhook URL + secret 交对方**（对方需配同 secret + `CA_PUSH_URL`）；仍待对方：测试 NFC token、分数字符串口径、42901 限流。细节见 [.trellis/loop/queue.md](.trellis/loop/queue.md) T-051 条目。
 
