@@ -97,3 +97,68 @@ T-047 收尾：README 合成标注纪律改新口径（testTag 空实现，家�
 ### Status
 
 [OK] **Completed**
+
+
+## Session 4: DingDong Prototype 微信草稿事实核验
+<!-- trellis-session: v=2 fp=e6d3460ae639f1c3 -->
+
+**Date**: 2026-09-24
+**Task**: DingDong Prototype 微信草稿事实核验
+**Branch**: `codex/release-v0.3.8`
+
+### Summary
+
+核对 9 月 22 日 API Guide、Prototype Demo、代码与 T-050/T-051 记录；识别草稿八项中的合同误读与联调边界，给出修改指示；未改业务代码或联系对方。
+
+### Git Commits
+
+(No commits - planning session)
+
+### Testing
+
+- [OK] 只读核对文档与代码；git 工作区此前干净
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- worker 修改草稿并经既定渠道交付 webhook URL 与共享密钥；真实推送到达后再称闭环完成。
+
+
+## Session 5: T-052 紫色素材合并、全量核查与 v0.3.9 测试部署
+<!-- trellis-session: v=2 fp=be3afe8139c62f95 -->
+
+**Date**: 2026-09-27
+**Task**: T-052 紫色素材合并、全量核查与 v0.3.9 测试部署
+**Branch**: `codex/release-v0.3.9`
+
+### Summary
+
+择取 upstream 紫色素材并适配四岛页面；修复 Prototype 扁平人设读取；完成分段浏览器回归与测试环境 v0.3.9 部署。
+
+### Main Changes
+
+- 四岛和机器人 WebP、页面配色与布局已进入发布包，CA API 结构保持。
+- 扁平 persona/current 的 character_name 和字符串匹配度在展示边界规范处理。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `c531e87` | [T-052] feat: 合入紫色 DingDong 素材并适配 Prototype 人设 |
+| `708e6de` | [T-052] docs: 记录 v0.3.9 测试部署与联调边界 |
+
+### Testing
+
+- [OK] 后端全量 362 通过、90% 覆盖率；最终展示专项 56 通过；前端单测 67、部署测试 9 通过。
+- [OK] Chrome 64 项分段覆盖：61 通过、3 项历史批次跳过；公网版本、六图与桌面/手机布局验收。
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- 等待 DingDong 确认正式四子接口、NFC/账号规则与推送配置；真实 milestone 到达后再做端到端闭环验收。
