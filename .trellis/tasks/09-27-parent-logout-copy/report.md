@@ -19,3 +19,7 @@
 ## 边界
 
 本轮 UI 验证不等于 DingDong 正式接口联调完成。测试环境的数据源仍是合成 fixture，正式 NFC 规则、四子接口与真实推送仍待对方确认。
+
+## 发布准备
+
+本地代码提交 `4ee8f6ea28e75c0c9e079d451dfa7bf8cca794f8`。发布包 `dist/dingdong-v0.3.10.tar.gz` 按上版白名单和该提交的 Git 内容生成，共 291 个文件；SHA-256：`8d4331a6bf2029cb67b3d3a57ef6d96b81b5ca184eca965b72511823129e1c7a`。已校验摘要、`RELEASE.json` 指向该提交，包内没有 `.env`、PEM 或 `.key` 文件。远端推送、部署及公网验收尚未执行。
