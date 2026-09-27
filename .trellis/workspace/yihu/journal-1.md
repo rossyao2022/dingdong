@@ -162,3 +162,26 @@ T-047 收尾：README 合成标注纪律改新口径（testTag 空实现，家�
 ### Next Steps
 
 - 等待 DingDong 确认正式四子接口、NFC/账号规则与推送配置；真实 milestone 到达后再做端到端闭环验收。
+
+
+## Session 6: 家长端退出与文案清理
+<!-- trellis-session: v=2 fp=d7b682a911456a33 -->
+
+**Date**: 2026-09-27
+**Task**: 家长端退出与文案清理
+**Branch**: `codex/release-v0.3.10`
+
+### Summary
+
+完成家长端常驻退出入口、删除内部文案、明确演示报告；本地浏览器与单测验证通过，准备 v0.3.10 包，远端尚未部署。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `4ee8f6e` | [T-parent-logout-copy] feat: 清理家长端内部文案并提供常驻退出入口 |
+| `293988a` | [T-parent-logout-copy] docs: 记录 v0.3.10 本地发布包与验证 |
+
+### Status
+
+[OK] **Completed**
