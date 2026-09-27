@@ -1,8 +1,10 @@
 # 叮咚项目记忆与会话交接
 
-最后更新：2026-09-24 10:05，Asia/Shanghai。适用于本目录中的后续会话。本文记录已核对事实，不代替代码和最新用户指令。
+最后更新：2026-09-27，Asia/Shanghai。适用于本目录中的后续会话。本文记录已核对事实，不代替代码和最新用户指令。
 
 ## 当前结论与最近工作
+
+**最新一轮：T-052 / v0.3.9 测试部署（2026-09-27）。** 用户确认“前端设定调整”指页面配色与图片布局，并授权完成合并、测试、测试环境部署。代码提交 `c531e87`：从 `upstream/main@3b8723e` 择取紫色 DingDong 机器人两图和四张 V5 岛图，适配现有四岛页面；修复我方 `ca_display._persona_out` 对 Prototype 扁平人设响应的读取，`character_name` 映射展示名，历史字符串分数 `"72.00"` 规范为整数 72。后端全量 362 passed / 90% 覆盖率（最终补丁的展示专项又 56 passed），前端 67 单测、部署 9 测试通过；真实 Chrome 的 64 项经分段与失败项复测，61 passed / 3 项历史一次性批次按配置跳过。测试基建发现本地共享库短信每 IP 每小时 50 次限流和旧 Celery 进程失联；改用本地另一本机来源地址完成回归、启用健康的回归 worker，异步失败项均复测通过。`dingdong-demo` 已升级到 v0.3.9，公网版本、runtime、运营登录页、六张 WebP 与 Chrome 桌面/390px 页面均验收；部署记录见 [v0.3.9 测试发布](deploy/TEST_RELEASE_20260927_V039.md)。测试环境 `CA_DISPLAY_DATA_SOURCE=synthetic_fixture`，**不能称四展示面真源或 milestone 真实推送已闭环**。正式 NFC/账号校验、四子接口、推送双方配置、枚举与分数类型仍待对方确认。
 
 **生产环境服务器（2026-09-24 用户提供并核实）：`1.15.23.152`（晴幂，腾讯云）。** 用途：**当前项目的生产环境**。访问：`ssh -i ~/.ssh/id_ed25519 root@1.15.23.152`（root 密钥登录已验证可用）。密钥事实：本机 `~/.ssh/id_ed25519` 与 air 机是**同一把**（指纹一致 `SHA256:/ZheIK6q0D5k4p5zlns0P5oNwYmPk0x8W35B8XC7uJA deadykual@gmail.com`），无需搬运；公钥由 air 侧 2026-09-24 会话经 `ubuntu` 用户 sudo 追加进 root 的 `authorized_keys`（root 原本未开放该密钥）。机器形态：VM-0-4-ubuntu，Ubuntu 24.04.4，3.6G 内存（可用约 2.7G）/ 59G 盘（已用 15G）。**同机已跑晴幂其他生产业务**（Lifebook .NET API、HappyKua 系列、Kuakua AI、life-puzzle、starfire、xinling-ai-v2 等 systemd 服务，`/root/project`、`/root/docker-compose.yml`），部署叮咚时注意共存、端口冲突与内存余量；nginx 有备份包（2026-06-14 改动痕迹）。
 

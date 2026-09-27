@@ -1,12 +1,26 @@
-# 回滚说明 · 叮咚运营后台 v0.3.6
+# 回滚说明 · 当前测试环境 v0.3.9
 
 本文件说明如何在 tigery 演示环境回退到上一版本，以及各层需要同时还原什么。
+
+## 当前版本：v0.3.9 → v0.3.8
+
+v0.3.9 无新增数据库迁移。测试环境升级前备份位于 `/home/tigery/services/dingdong/backups/pre-v0.3.9-20260927.dump`。若需回退，沿用 v0.3.8 发布目录及其原有主机侧配置，在 `tigery` 上执行：
+
+```sh
+base=/home/tigery/services/dingdong/releases
+APP_VERSION=0.3.8 docker compose \
+  --env-file "$base/dingdong-v0.3.8/deploy/.env" \
+  -f "$base/dingdong-v0.3.8/deploy/compose.yml" \
+  up -d --build --wait
+```
+
+随后核对公网 `/dingdong/version.txt` 为 `0.3.8`、`/api/v1/runtime` 为 `demo`、`/ops/login/` 可打开。保留原数据卷，不执行 `down -v`。以下是更早版本的历史回退说明，涉及 v0.3.4 等旧路径时不能直接套用于当前版本。
 
 **关键原则：回滚不是"换一个镜像标签"就完事。** 版本、镜像标签、入口配置、数据库迁移四者必须一起考虑，只改其一会出现接口 404、Host 不匹配或迁移残留。
 
 ---
 
-## 0. 本次发布（v0.3.6 / v0.3.5 / v0.3.4 / v0.3.3 / v0.3.2 / v0.3.1 / v0.3.0）引入了什么
+## 0. 历史发布（v0.3.6 / v0.3.5 / v0.3.4 / v0.3.3 / v0.3.2 / v0.3.1 / v0.3.0）引入了什么
 
 | 类别 | 内容 | 回滚影响 |
 | --- | --- | --- |

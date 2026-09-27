@@ -1,8 +1,8 @@
 {
-  "date": "2026-09-24",
+  "date": "2026-09-27",
   "scope": "本地文档链接、原始归档哈希/ZIP、提取产物、OpenAPI 引用与 operationId/路径参数；不验证远端链接、Office 版式或真实供应商协议。",
-  "markdown_files": 84,
-  "local_links_checked": 526,
+  "markdown_files": 85,
+  "local_links_checked": 528,
   "archived_files_checked": 85,
   "attachments": [
     {
@@ -146,6 +146,7 @@
     "deploy/OPS_INDEPENDENT_REVIEW_20260913.md",
     "deploy/DEPLOYMENT_20260912.md",
     "deploy/INNER_BROWSER_DEMO_20260914.md",
+    "deploy/TEST_RELEASE_20260927_V039.md",
     "deploy/OPS_UI_INDEPENDENT_REVIEW_20260914.md",
     "deploy/README.md",
     "deploy/OPS_FULL_ACCEPTANCE_20260915.md",

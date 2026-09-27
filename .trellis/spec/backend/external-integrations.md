@@ -1,6 +1,6 @@
 # 外部依赖与出站调用纪律
 
-> 本仓库当前**没有接任何真实供应商**（短信、算法、DingDong Data Service 都未接通）。这一节规定：缺依赖时怎么表现，以及不许用什么方式“让它看起来通了”。
+> 短信和测评算法仍是测试模式。DingDong Prototype 已做主动调用实测，但四展示面及真实 webhook 推送尚未闭环；测试部署的展示数据仍取 `synthetic_fixture`。这一节规定缺依赖时怎么表现，以及不许用什么方式“让它看起来通了”。
 
 ## 三条硬纪律
 
@@ -31,6 +31,13 @@ CA 侧是主动调用方，8 个 `/api/v1/ca/*` 都是我方发起（`PROJECT_ME
 - **业务码映射**：`BUSINESS_CODES` 把封套 `code` 映射成 `(中文含义, 处置)`，处置取值 `ok/retry/stop/empty/fatal/conflict`；`DingDongError.action` / `.retryable` / `.means_empty` 供调用方决策。`40101` 要 `logger.error` 停止调用并告警；`42901` 退避用 `retry_delay_seconds()`。
 - **绑定状态如实反映**：`services/ca_account.attempt_bind()` 只在对方确认成功后把 `bind_state` 改成 `bound`；未配置或失败都保持 `unbound`（回归 `test_bind_failure_keeps_account_and_stays_unbound`）。
 - 测试里**禁止真实出站**：`tests/test_ca_accounts.py` 用 autouse fixture `no_real_network` 把 `dingdong_client._open` 换成会 `AssertionError` 的函数；需要假传输层时用 `transport` fixture（monkeypatch `_open`，不是 monkeypatch `call`）。
+
+### Prototype 实测与展示适配（2026-09-27）
+
+- `persona/current` 在 Prototype 中把 `persona_id`、`character_name`、`persona_type`、`match_score`、`bind_time` 放在顶层；我方展示 API 的 `persona_name` 应取 `character_name`，同时继续兼容原有 `persona`/`binding` 嵌套 fixture。缺失的学习风格和绑定状态应留空，不自行编造。
+- 曾实测 `match_score` 返回数字字符串 `"72.00"`。展示边界把整数值字符串转成 0–100 的整数；非整数字符串和越界值留空。正式分数类型仍待对方确定。
+- Prototype 的 `growth/profile`（15d/30d）和 `persona/health` 返回 40401，`reassessment/current` 为 `data:null`，`prototype/insights` 才有聚合数据。不可因后者有数便把四个正式展示子接口标为已接通。
+- `ca_dingdong` 对任意 NFC token 可 bind，而我方 ULID 账号被拒并收到不准确的 NFC 报错。正式账号和 NFC 校验规则未确认。webhook 接收端自测通过，但双方尚未共享密钥并配置推送目标，真实 milestone 未到达。
 
 ## 生成任务被外部依赖卡住时的表现
 

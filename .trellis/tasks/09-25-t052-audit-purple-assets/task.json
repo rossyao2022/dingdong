@@ -1,0 +1,29 @@
+{
+  "id": "t052-audit-purple-assets",
+  "name": "t052-audit-purple-assets",
+  "title": "T-052 项目核查与紫色素材合并",
+  "description": "核查本地和供应商联调缺口，并从 upstream/main 择取最新紫色素材集成到 CA 页面",
+  "status": "planning",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "yihu",
+  "assignee": "yihu",
+  "createdAt": "2026-09-25",
+  "completedAt": null,
+  "branch": "codex/release-v0.3.9",
+  "base_branch": "codex/release-v0.3.6",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [
+    "09-25-t052a-test-integration-audit",
+    "09-25-t052b-purple-assets"
+  ],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {}
+}

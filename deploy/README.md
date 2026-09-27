@@ -1,10 +1,17 @@
-# tigery Docker 演示部署 · v0.3.6
+# tigery Docker 演示部署 · v0.3.9
 
 当前公网入口：**http://110.42.225.196/dingdong/**（家长端），运营后台 **http://110.42.225.196/ops/**，Django 后台 http://110.42.225.196/admin/ 。使用上海服务器已开放80端口，访问者无需Tailscale。
 
-部署转发配置、启动与回退见 [上海公网入口](relay/README.md)，回滚步骤见 [回滚说明](ROLLBACK.md)。APP_VERSION=0.3.6，PUBLIC_ORIGIN=http://110.42.225.196。分支codex/release-v0.3.6和标签v0.3.6对应此发布。
+部署转发配置、启动与回退见 [上海公网入口](relay/README.md)，回滚步骤见 [回滚说明](ROLLBACK.md)。当前测试环境 APP_VERSION=0.3.9，PUBLIC_ORIGIN=http://110.42.225.196。分支 `codex/release-v0.3.9` 对应此发布；本轮实测见 [v0.3.9 测试部署记录](TEST_RELEASE_20260927_V039.md)。
 
-发布包内的RELEASE.json记录精确Git提交；密钥和数据库不进包。tigery沿用已有.env密钥和数据卷，仅修改版本和公共Origin。首次部署可使用 `python3 deploy/configure.py http://110.42.225.196 --bind 100.115.66.119`。容器启动：`docker compose --env-file deploy/.env -f deploy/compose.yml up -d --build --wait`。
+发布包内的RELEASE.json记录精确Git提交；密钥和数据库不进包。tigery沿用已有主机侧配置和数据卷，本次仅在启动命令中覆盖 `APP_VERSION=0.3.9`，不改密钥文件。首次部署可使用 `python3 deploy/configure.py http://110.42.225.196 --bind 100.115.66.119`。容器启动：`docker compose --env-file deploy/.env -f deploy/compose.yml up -d --build --wait`。
+
+## v0.3.9 变更
+
+- 从参考仓库 `upstream/main@3b8723e` 择取两张紫色机器人 WebP 与四张 V5 小岛 WebP，更新家长端配色、品牌、地图和活动卡片。四岛业务结构及 API 保持原状。
+- 兼容 DingDong Prototype 扁平 `persona/current` 响应：`character_name` 映射为我方展示名，绑定时间与匹配度从顶层读取；`"72.00"` 规范为整数 72。正式字段契约仍待对方确认。
+- 修正浏览器回归中的题库版本定位、一次性批次默认执行范围、轮询对话框断言及运营题库复制导航竞争。部署测试与联调缺口见本轮记录。
+- 无新增数据库迁移；测试环境仍用 `synthetic_fixture` 展示数据，真实供应商推送尚未闭环。
 
 ## 为什么运营后台在根路径 `/ops/` 而不是 `/dingdong/ops/`
 
