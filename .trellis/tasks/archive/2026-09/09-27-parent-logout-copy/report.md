@@ -22,4 +22,4 @@
 
 ## 发布准备
 
-本地代码提交 `4ee8f6ea28e75c0c9e079d451dfa7bf8cca794f8`。发布包 `dist/dingdong-v0.3.10.tar.gz` 按上版白名单和该提交的 Git 内容生成，共 291 个文件；SHA-256：`8d4331a6bf2029cb67b3d3a57ef6d96b81b5ca184eca965b72511823129e1c7a`。已校验摘要、`RELEASE.json` 指向该提交，包内没有 `.env`、PEM 或 `.key` 文件。远端推送、部署及公网验收尚未执行。
+本地代码提交 `4ee8f6ea28e75c0c9e079d451dfa7bf8cca794f8`。发布包 `dist/dingdong-v0.3.10.tar.gz` 按上版白名单和该提交的 Git 内容生成，共 291 个文件；SHA-256：`8d4331a6bf2029cb67b3d3a57ef6d96b81b5ca184eca965b72511823129e1c7a`。已校验摘要、`RELEASE.json` 指向该提交，包内没有 `.env`、PEM 或 `.key` 文件。后续已获放行完成测试环境部署与公网验收，见 [发布记录](../../../../../deploy/TEST_RELEASE_20260927_V0310.md)。

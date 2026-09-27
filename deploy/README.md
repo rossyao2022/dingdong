@@ -1,10 +1,15 @@
-# tigery Docker 演示部署 · v0.3.9
+# tigery Docker 演示部署 · v0.3.10
 
 当前公网入口：**http://110.42.225.196/dingdong/**（家长端），运营后台 **http://110.42.225.196/ops/**，Django 后台 http://110.42.225.196/admin/ 。使用上海服务器已开放80端口，访问者无需Tailscale。
 
-部署转发配置、启动与回退见 [上海公网入口](relay/README.md)，回滚步骤见 [回滚说明](ROLLBACK.md)。当前测试环境 APP_VERSION=0.3.9，PUBLIC_ORIGIN=http://110.42.225.196。分支 `codex/release-v0.3.9` 对应此发布；本轮实测见 [v0.3.9 测试部署记录](TEST_RELEASE_20260927_V039.md)。
+部署转发配置、启动与回退见 [上海公网入口](relay/README.md)，回滚步骤见 [回滚说明](ROLLBACK.md)。当前测试环境 APP_VERSION=0.3.10，PUBLIC_ORIGIN=http://110.42.225.196。分支 `codex/release-v0.3.10` 对应此发布；本轮实测见 [v0.3.10 测试部署记录](TEST_RELEASE_20260927_V0310.md)。
 
-发布包内的RELEASE.json记录精确Git提交；密钥和数据库不进包。tigery沿用已有主机侧配置和数据卷，本次仅在启动命令中覆盖 `APP_VERSION=0.3.9`，不改密钥文件。首次部署可使用 `python3 deploy/configure.py http://110.42.225.196 --bind 100.115.66.119`。容器启动：`docker compose --env-file deploy/.env -f deploy/compose.yml up -d --build --wait`。
+发布包内的RELEASE.json记录精确Git提交；密钥和数据库不进包。tigery沿用已有主机侧配置和数据卷，本次仅在启动命令中覆盖 `APP_VERSION=0.3.10`，不改密钥文件。首次部署可使用 `python3 deploy/configure.py http://110.42.225.196 --bind 100.115.66.119`。本次升级沿用现有主机侧 env 文件，并运行新发布目录里的 `deploy/compose.yml`。
+
+## v0.3.10 变更
+
+- 家长端提供常驻“退出登录”，删除后台发布、来源对照、同步时间戳等内部说明；演示测评明确说明使用演示图片。
+- 无数据库迁移。测试环境仍使用合成 fixture；正式供应商接口与真实推送尚未闭环。
 
 ## v0.3.9 变更
 

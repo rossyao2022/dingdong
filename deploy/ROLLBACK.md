@@ -1,8 +1,22 @@
-# 回滚说明 · 当前测试环境 v0.3.9
+# 回滚说明 · 当前测试环境 v0.3.10
 
 本文件说明如何在 tigery 演示环境回退到上一版本，以及各层需要同时还原什么。
 
-## 当前版本：v0.3.9 → v0.3.8
+## 当前版本：v0.3.10 → v0.3.9
+
+v0.3.10 无数据库迁移，升级前备份位于 `/home/tigery/services/dingdong/backups/pre-v0.3.10-20260927.dump`。回退到 v0.3.9 时沿用原数据卷及现有主机侧配置，不还原数据库、不执行 `down -v`。在 `tigery` 上执行：
+
+```sh
+base=/home/tigery/services/dingdong/releases
+APP_VERSION=0.3.9 docker compose \
+  --env-file "$base/dingdong-v0.3.8/deploy/.env" \
+  -f "$base/dingdong-v0.3.9/deploy/compose.yml" \
+  up -d --build --wait
+```
+
+随后核对公网 `/dingdong/version.txt` 为 `0.3.9`、`/api/v1/runtime` 为 `demo`、`/ops/login/` 可打开。
+
+## 上一轮：v0.3.9 → v0.3.8
 
 v0.3.9 无新增数据库迁移。测试环境升级前备份位于 `/home/tigery/services/dingdong/backups/pre-v0.3.9-20260927.dump`。若需回退，沿用 v0.3.8 发布目录及其原有主机侧配置，在 `tigery` 上执行：
 
