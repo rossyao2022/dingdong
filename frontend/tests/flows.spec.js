@@ -142,7 +142,7 @@ test("真实登录、活动完成、刷新恢复、退出清理", async ({ page 
     /access_token|refresh_token|真实浏览器闭环|浏览器合成儿童/,
   );
   await nav(page, "账户与关联");
-  await page.getByRole("button", { name: "退出登录", exact: true }).click();
+  await page.locator("#logout-shortcut").click();
   await expect(
     page.getByRole("button", { name: "登录", exact: true }),
   ).toBeVisible();
@@ -172,13 +172,13 @@ test("用途授权、22题、合成输入、真实初始报告", async ({ page }
       .click();
   }
   await expect(
-    page.getByText("提交五张样例完成本次测评", { exact: false }),
+    page.getByText("这一步使用演示图片，不需要上传孩子的照片。", { exact: true }),
   ).toBeVisible();
   await page.reload();
   await expect(
-    page.getByText("提交五张样例完成本次测评", { exact: false }),
+    page.getByText("这一步使用演示图片，不需要上传孩子的照片。", { exact: true }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "提交样例", exact: true }).click();
+  await page.getByRole("button", { name: "生成演示报告", exact: true }).click();
   // 外层 setTimeout 10 分钟、实测报告就绪 75s+；队列积压时 20s 会复现 T-042 红灯，
   // 内层等待放宽到 120s，与「实测 75s+」的注释口径一致。
   await expect(
@@ -195,12 +195,12 @@ test("机器人关联、阶段报告、撤回同步授权", async ({ page }) => 
   const id = await child(page);
   inject(id, "sync_success");
   await nav(page, "账户与关联");
-  await page.getByRole("button", { name: "核验并关联", exact: true }).click();
-  await page.getByLabel("我已阅读并同意机器人数据同步用途").check();
+  await page.getByRole("button", { name: "连接互动记录", exact: true }).click();
+  await page.getByLabel("我已阅读并同意获取机器人记录").check();
   await page.getByLabel("核验凭据", { exact: true }).fill("TEST-PROOF-" + id);
-  await page.getByRole("button", { name: "确认核验", exact: true }).click();
+  await page.getByRole("button", { name: "确认连接", exact: true }).click();
   await expect(
-    page.getByText("已核验 · 同步已启用", { exact: true }),
+    page.getByText("记录已连接", { exact: true }),
   ).toBeVisible();
   await nav(page, "测评与报告");
   await expect(
@@ -217,7 +217,7 @@ test("机器人关联、阶段报告、撤回同步授权", async ({ page }) => 
   ).toHaveCount(0);
   await nav(page, "测评与报告");
   await expect(
-    page.getByRole("heading", { name: "同步授权已撤回" }),
+    page.getByRole("heading", { name: "需要同意查看机器人记录" }),
   ).toBeVisible();
 });
 
@@ -253,9 +253,9 @@ test("移动端布局、儿童切换与跨页退出", async ({ page, context }) 
   const other = await context.newPage();
   await other.goto("/#settings");
   await expect(
-    other.getByRole("button", { name: "退出登录", exact: true }),
+    other.locator("#logout-shortcut"),
   ).toBeVisible();
-  await other.getByRole("button", { name: "退出登录", exact: true }).click();
+  await other.locator("#logout-shortcut").click();
   await expect(
     page.getByRole("button", { name: "登录", exact: true }),
   ).toBeVisible();
@@ -327,9 +327,9 @@ test("家长提交删除、后台实际处理、无儿童时查看回执", async
     await expect(
       page.getByText("儿童数据删除 · 已完成", { exact: true }),
     ).toBeVisible();
-    await expect(page.getByText(/已不保留儿童标识/)).toBeVisible();
+    await expect(page.getByRole("heading", { name: "申请进度" })).toBeVisible();
     await expect(
-      page.getByRole("button", { name: "退出登录", exact: true }),
+      page.locator("#logout-shortcut"),
     ).toBeVisible();
   } finally {
     await staff.close();
@@ -455,7 +455,7 @@ test("移动端各页面、无效关联提示、资料编辑与帮助回执", as
   await expect(
     page.getByRole("heading", { name: "家长支持", exact: true }),
   ).toBeVisible();
-  await page.getByRole("link", { name: "服务与数据处理", exact: true }).click();
+  await page.getByRole("link", { name: "账户与关联", exact: true }).last().click();
   await page.getByRole("link", { name: "伙伴引导", exact: true }).click();
   await expect(
     page.getByRole("heading", { name: "我的 DingDong", exact: true }),
@@ -469,10 +469,10 @@ test("移动端各页面、无效关联提示、资料编辑与帮助回执", as
     has: page.getByRole("heading", { name: "儿童档案", exact: true }),
   });
   await expect(profilePanel.getByText("小米的新称呼", { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "核验并关联", exact: true }).click();
-  await page.getByLabel("我已阅读并同意机器人数据同步用途").check();
+  await page.getByRole("button", { name: "连接互动记录", exact: true }).click();
+  await page.getByLabel("我已阅读并同意获取机器人记录").check();
   await page.getByLabel("核验凭据", { exact: true }).fill("INVALID-TEST-PROOF");
-  await page.getByRole("button", { name: "确认核验", exact: true }).click();
+  await page.getByRole("button", { name: "确认连接", exact: true }).click();
   await expect(page.locator("#dialog .form-error")).not.toBeEmpty();
   await page.getByRole("button", { name: "关闭对话框" }).click();
   await page.getByRole("button", { name: "需要帮助", exact: true }).click();

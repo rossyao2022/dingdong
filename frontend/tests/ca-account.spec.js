@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 /**
- * 家长端「机器人账户（CA 账户）」的真实浏览器闭环。
+ * 家长端「我的机器人（CA 账户）」的真实浏览器闭环。
  *
  * 覆盖三件容易做假的事：
  *  1. NFC 凭据从地址栏摘掉（不留历史记录、不随截图带出去）
@@ -83,8 +83,8 @@ test("NFC 承接：凭据不在地址栏留下，新号如实显示待接通", a
   await expect(row).toContainText("使用中");
   await expect(row).toContainText("待接通");
   await expect(row).not.toContainText("已绑定");
-  await expect(page.locator(".panel", { hasText: "机器人账户" })).toContainText(
-    "机器人还没有确认接通",
+  await expect(page.locator(".panel", { hasText: "我的机器人" })).toContainText(
+    "正在等待连接",
   );
 });
 
@@ -119,14 +119,14 @@ test("换机：确认弹窗讲清代价，旧号归档可查，新号重新开�
   await expect(
     dialog.getByRole("heading", { name: "换一台机器人" }),
   ).toBeVisible();
-  await expect(dialog).toContainText("成长周期和阶段对比不会延续到新号");
-  await expect(dialog).toContainText(old.ca_account_id);
+  await expect(dialog).toContainText("新机器人的成长记录会重新积累");
+  await expect(dialog).not.toContainText(old.ca_account_id);
 
   const retired = page.waitForResponse(
     (r) => r.url().endsWith("/retire") && r.request().method() === "POST",
   );
   const pending = issues(page);
-  await dialog.getByRole("button", { name: "确认换机并归档旧号" }).click();
+  await dialog.getByRole("button", { name: "确认换机" }).click();
   expect((await retired).status()).toBe(200);
   const now = await (await pending).json();
 
@@ -134,7 +134,7 @@ test("换机：确认弹窗讲清代价，旧号归档可查，新号重新开�
   expect(now.ca_account_id).not.toBe(old.ca_account_id);
   await expect(page.locator(".account-row")).toHaveCount(2);
   await expect(
-    page.getByRole("heading", { name: "上一台机器的账户" }),
+    page.getByRole("heading", { name: "以前的机器人" }),
   ).toBeVisible();
   const archived = page.locator(".account-row").nth(1);
   await expect(archived.locator(".inline-code")).toHaveText(old.ca_account_id);
@@ -162,22 +162,22 @@ test("绑定成功后停在账户页并高亮新号，标签不带路由也不�
 
   // 绑定成功必须落在「账户与关联」，家长不用自己找回去。
   expect(new URL(page.url()).hash).toBe("#settings");
-  await expect(page.getByRole("heading", { name: "机器人账户" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "我的机器人" })).toBeVisible();
 
-  // 新号高亮，并且高亮的正是刚生成的那个号。
+  // 新号高亮，并且高亮的正是刚添加的那个号。
   const fresh = page.locator(".account-row.is-new");
   await expect(fresh).toHaveCount(1);
   await expect(fresh.locator(".inline-code")).toHaveText(created.ca_account_id);
-  await expect(fresh).toContainText("刚生成");
+  await expect(fresh).toContainText("刚添加");
   await expect(page.locator(".account-row")).toHaveCount(1);
 
   // 成功提示：号已生成 + 接通后才开始同步，两件事都要说清。
-  await expect(page.locator("#toast")).toContainText("账户号已建立");
-  const panel = page.locator(".panel", { hasText: "机器人账户" });
-  await expect(panel).toContainText("账户号已经生成");
-  await expect(panel).toContainText("数据不会开始同步");
+  await expect(page.locator("#toast")).toContainText("机器人已添加");
+  const panel = page.locator(".panel", { hasText: "我的机器人" });
+  await expect(panel).toContainText("已记录这台机器人");
+  await expect(panel).toContainText("正在等待连接");
 
-  // 高亮是"刚生成"的一次性提示：重渲染之后不再冒充新号。
+  // 高亮是"刚添加"的一次性提示：重渲染之后不再冒充新号。
   await page.reload();
   await expect(page.locator(".account-row")).toHaveCount(1);
   await expect(page.locator(".account-row.is-new")).toHaveCount(0);
@@ -216,18 +216,18 @@ test("手填绑定：空凭据就地提示，对话框不关", async ({ page }) 
     page.getByRole("heading", { name: "好奇心，准备出发！" }),
   ).toBeVisible();
   await page.locator("nav").getByRole("link", { name: "账户与关联" }).click();
-  await expect(page.getByRole("heading", { name: "机器人账户" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "我的机器人" })).toBeVisible();
 
-  const panel = page.locator(".panel", { hasText: "机器人账户" });
+  const panel = page.locator(".panel", { hasText: "我的机器人" });
   await panel.getByRole("button", { name: "绑定机器人" }).click();
 
   const dialog = page.locator("#dialog");
   await expect(
     dialog.getByRole("heading", { name: "绑定机器人" }),
   ).toBeVisible();
-  // 操作指引与格式/长度提示都在弹窗里。
+  // 只给操作指引，长度限制由输入框执行。
   await expect(dialog).toContainText("碰一下机器人上的标签");
-  await expect(dialog).toContainText("2048");
+  await expect(dialog.locator('input[name="nfc_token"]')).toHaveAttribute("maxlength", "2048");
 
   await dialog.getByRole("button", { name: "确认绑定" }).click();
 

@@ -14,21 +14,21 @@ const USABLE = new Set(["ready", "stale"]);
 export const SUGGEST_TEXT = "最近一段时间互动偏少，要不要重新测一次？";
 export const DECLINED_TEXT = "已选择暂不重新测评";
 export const ACCEPTED_TEXT = "已确认重新测评";
-export const ACCEPTED_NOTE = "开始一次新的测评，完成后我们会把结果回写。";
+export const ACCEPTED_NOTE = "开始一次新的测评，完成后可以查看新的建议。";
 export const DECLINED_EXPANDED_NOTE =
   "这条建议已经处理过，不会重复提示。要再测一次，可以从「初始测评」重新开始。";
-export const DONE_TEXT = "这次复测的结果已经回写。";
+export const DONE_TEXT = "这次复测已完成。";
 export const DONE_NOTE = "换不换陪学伙伴由你决定，我们不会自动更换。";
 export const SWITCH_TEXT = "新角色推荐";
 export const SWITCH_NOTE =
-  "换人设需要你确认，我们不会自动更换；确认入口尚未开放，现在只展示建议。";
+  "这里只提供建议，不会自动更换陪学伙伴。";
 export const KEEP_CURRENT_TEXT = "保留当前角色";
 export const KEEP_CURRENT_NOTE =
   "新角色与当前角色的匹配度差别不大，继续用现在的陪学伙伴。";
 export const SYNC_PENDING_NOTE =
-  "机器人服务还没有确认这次选择，我们会在后台重试。";
+  "暂时无法更新这次选择，请稍后重试。";
 /** 回写没成功时的落点：就落在复测区块自身，不借道页面级的错误位置。 */
-export const WRITE_FAILED_TEXT = "这次没写成功，请重试。";
+export const WRITE_FAILED_TEXT = "暂时无法保存，请重试。";
 
 const HIDDEN = {
   show: false,

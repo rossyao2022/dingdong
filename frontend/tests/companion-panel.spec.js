@@ -85,18 +85,18 @@ async function bindRobot(page) {
 /** 走真实 UI 同意「机器人数据同步」用途（展示面的 `_resolve` 要这张授权）。 */
 async function grantSync(page, id) {
   await nav(page, "账户与关联");
-  await page.getByRole("button", { name: "核验并关联", exact: true }).click();
-  await page.getByLabel("我已阅读并同意机器人数据同步用途").check();
+  await page.getByRole("button", { name: "连接互动记录", exact: true }).click();
+  await page.getByLabel("我已阅读并同意获取机器人记录").check();
   await page.getByLabel("核验凭据", { exact: true }).fill("TEST-PROOF-" + id);
   const pending = page.waitForResponse((r) =>
     r.url().endsWith("/associations/verify"),
   );
-  await page.getByRole("button", { name: "确认核验", exact: true }).click();
+  await page.getByRole("button", { name: "确认连接", exact: true }).click();
   await pending;
   // 核验成功后重新取一遍页面：同一个 hash 再点导航不会触发重渲染。
   await page.reload();
   await expect(
-    page.locator(".key-value", { hasText: "机器人数据同步" }),
+    page.locator(".key-value", { hasText: "机器人记录" }),
   ).toContainText("已同意");
 }
 
@@ -171,7 +171,7 @@ async function assertCase(page, item) {
   await expect(persona).toContainText(item.persona.description);
   await expect(persona.locator(".metric-list")).toContainText("匹配度");
   await expect(persona.locator(".metric-list")).toContainText(item.persona.match);
-  await expect(persona).toContainText("不是能力评价");
+  await expect(persona).toContainText("不是对孩子能力的评价");
   await expect(persona).toContainText("学习风格：");
 
   // 面三：四态分支
@@ -202,7 +202,7 @@ test("6 个合成场景逐个走查：人设卡与健康度四态（真实 Chrom
   await login(page);
   const id = await child(page, "展示面走查儿童");
 
-  // 还没有机器人账户：这一面要说"没绑定"，且不显示任何数值。
+  // 还没有我的机器人：这一面要说"没绑定"，且不显示任何数值。
   await openReports(page);
   await expect(page.locator(".companion-persona")).toContainText(
     "还没有绑定机器人",
@@ -264,10 +264,10 @@ test("陪学伙伴面板：390×844 不横向溢出，账户页有只读人设�
   // 账户页：只读的当前人设名（与 T-015 给儿童详情加只读行同一手法）。
   await page.goto("/#settings");
   await page.reload();
-  const robot = page.locator(".panel", { hasText: "机器人账户" });
+  const robot = page.locator(".panel", { hasText: "我的机器人" });
   await expect(robot).toContainText("当前陪学伙伴");
   await expect(robot).toContainText("Newton");
-  await expect(robot).toContainText("只读，由机器人服务下发");
+  await expect(robot).not.toContainText("由机器人服务下发");
 
   await page.setViewportSize({ width: 390, height: 844 });
   await openReports(page);

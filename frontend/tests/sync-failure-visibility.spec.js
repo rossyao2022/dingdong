@@ -68,8 +68,8 @@ async function nav(page, name) {
     .click();
 }
 
-const failureNotice = "同步未取得最新结果，已有数据不会当作最新数据展示。";
-const staleHeading = "显示上次成功同步的观察";
+const failureNotice = "暂时没有新记录，以下是上次的内容。";
+const staleHeading = "上次的机器人记录";
 
 test("数据同步失败在家长端可见（真实 Worker 跑出 checkpoint 错误）", async ({
   page,
@@ -83,12 +83,12 @@ test("数据同步失败在家长端可见（真实 Worker 跑出 checkpoint 错
 
   // 核验关联，触发第一轮同步（成功），并等到阶段报告生成。
   await nav(page, "账户与关联");
-  await page.getByRole("button", { name: "核验并关联", exact: true }).click();
-  await page.getByLabel("我已阅读并同意机器人数据同步用途").check();
+  await page.getByRole("button", { name: "连接互动记录", exact: true }).click();
+  await page.getByLabel("我已阅读并同意获取机器人记录").check();
   await page.getByLabel("核验凭据", { exact: true }).fill("TEST-PROOF-" + id);
-  await page.getByRole("button", { name: "确认核验", exact: true }).click();
+  await page.getByRole("button", { name: "确认连接", exact: true }).click();
   await expect(
-    page.getByText("已核验 · 同步已启用", { exact: true }),
+    page.getByText("记录已连接", { exact: true }),
   ).toBeVisible();
   await nav(page, "测评与报告");
   await expect(

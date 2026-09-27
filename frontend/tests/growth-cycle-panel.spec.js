@@ -13,19 +13,19 @@ import { root, shell, uvBin } from "./support.js";
  */
 
 const SHOTS = path.join(root, ".trellis", "tasks", "T-034", "shots");
-const PROXY_NOTE = "成长代理由机器人服务算法产出，不是能力评分。";
-const STALE_NOTICE = "最近一次同步没有成功，下面是上次成功同步的内容。";
+const PROXY_NOTE = "这些变化仅供参考，不代表孩子的能力高低。";
+const STALE_NOTICE = "这里显示的是上次的记录。";
 const PERIOD_INCOMPLETE = "成长周期还没走完，满 15 天后会生成第一份周期报告。";
 const NO_PERIOD_DATA = "这个周期还没有报告。";
 const DIMS = [
-  ["语言成长代理", "64"],
-  ["逻辑成长代理", "48"],
-  ["音乐成长代理", "66"],
-  ["空间成长代理", "62"],
-  ["实践成长代理", "44"],
-  ["自我认知成长代理", "57"],
-  ["人际成长代理", "51"],
-  ["自然成长代理", "42"],
+  ["语言", "64"],
+  ["逻辑", "48"],
+  ["音乐", "66"],
+  ["空间", "62"],
+  ["实践", "44"],
+  ["自我认知", "57"],
+  ["人际", "51"],
+  ["自然", "42"],
 ];
 
 const phone = () =>
@@ -96,29 +96,31 @@ async function bindRobot(page) {
   );
   await dialog.getByRole("button", { name: "确认绑定" }).click();
   await pending;
+  await expect(page.locator(".account-row")).toHaveCount(1);
 }
 
 /** 走真实 UI 同意「机器人数据同步」用途（展示面的 `_resolve` 要这张授权）。 */
 async function grantSync(page, id) {
   await nav(page, "账户与关联");
-  await page.getByRole("button", { name: "核验并关联", exact: true }).click();
-  await page.getByLabel("我已阅读并同意机器人数据同步用途").check();
+  await page.getByRole("button", { name: "连接互动记录", exact: true }).click();
+  await page.getByLabel("我已阅读并同意获取机器人记录").check();
   await page.getByLabel("核验凭据", { exact: true }).fill("TEST-PROOF-" + id);
   const pending = page.waitForResponse((r) =>
     r.url().endsWith("/associations/verify"),
   );
-  await page.getByRole("button", { name: "确认核验", exact: true }).click();
+  await page.getByRole("button", { name: "确认连接", exact: true }).click();
   await pending;
   // 核验成功后重新取一遍页面：同一个 hash 再点导航不会触发重渲染。
   await page.reload();
   await expect(
-    page.locator(".key-value", { hasText: "机器人数据同步" }),
+    page.locator(".key-value", { hasText: "机器人记录" }),
   ).toContainText("已同意");
 }
 
 async function nav(page, name) {
+  const navSelector = (page.viewportSize()?.width ?? 1280) <= 760 ? "#mobile-nav" : "#main-nav";
   await page
-    .locator("#main-nav")
+    .locator(navSelector)
     .getByRole("link", { name, exact: true })
     .click();
 }
@@ -142,8 +144,9 @@ async function selectTab(page, label) {
 }
 
 async function openReports(page) {
-  // 同一个 hash 的 goto 不会重新取数，每轮都必须真正重载一次才能看到新注入的场景。
-  await page.goto("/#reports");
+  // 点击导航后重载，确保读到本轮新注入的场景。
+  await nav(page, "测评与报告");
+  await expect(page).toHaveURL(/#reports$/);
   await page.reload();
   await expect(
     page.getByRole("heading", { name: "成长周期报告", exact: true }),
@@ -179,11 +182,11 @@ test("成长周期报告：15/30 天 Tab、周期空态与八维条形（真实 
 
   const panel = page.locator(".growth-panel");
 
-  // 0a) 还没有机器人账户：说没绑定，给去「账户与关联」的入口，不出任何数值。
+  // 0a) 还没有我的机器人：说没绑定，给去「账户与关联」的入口，不出任何数值。
   await openReports(page);
   await expect(panel).toContainText("还没有绑定机器人");
   await expect(panel).toContainText("绑定后这里会显示陪伴数据。");
-  await expect(panel.locator("a", { hasText: "管理关联与授权" })).toHaveCount(1);
+  await expect(panel.locator("a", { hasText: "管理机器人" })).toHaveCount(1);
   await expectNoNumbers(page);
   await shot(page, "unbound-desktop.png");
 
@@ -192,7 +195,7 @@ test("成长周期报告：15/30 天 Tab、周期空态与八维条形（真实 
 
   // 0b) 绑上了但还没同意「机器人数据同步」用途：说的是没授权，不是没数据。
   await openReports(page);
-  await expect(panel).toContainText("尚未同意机器人数据同步用途");
+  await expect(panel).toContainText("需要同意查看机器人记录");
   await expect(panel).not.toContainText("暂无");
   await expectNoNumbers(page);
   await shot(page, "no-consent-desktop.png");
@@ -211,11 +214,11 @@ test("成长周期报告：15/30 天 Tab、周期空态与八维条形（真实 
   // 2) 正常 15 天：陪伴值增长、阶段中文名与进度、八维条形。
   const account = inject(id, "ca_display_normal_art");
   await openReports(page);
-  await expect(panel).toContainText("本周期 2026/09/01 — 2026/09/15");
-  await expect(panel).toContainText("当前陪学伙伴 Mia");
+  await expect(panel).toContainText("2026/09/01 — 2026/09/15");
+  await expect(panel).toContainText("陪学伙伴 Mia");
   await expect(panel.locator(".metric-list")).toContainText("陪伴值增长");
   await expect(panel.locator(".metric-list")).toContainText("35");
-  await expect(panel).toContainText("周期初 12 → 周期末 47");
+  await expect(panel).toContainText("陪伴值 12 → 47");
   await expect(panel.locator(".growth-stage")).toContainText("成长");
   await expect(panel.locator(".growth-stage")).toContainText("阶段进度 55%");
   await expect(panel).toContainText(PROXY_NOTE);
@@ -249,13 +252,13 @@ test("成长周期报告：15/30 天 Tab、周期空态与八维条形（真实 
   inject(id, "ca_display_normal_science");
   await openReports(page);
   await selectTab(page, "30 天");
-  await expect(panel).toContainText("本周期 2026/09/01 — 2026/09/30");
-  await expect(panel).toContainText("当前陪学伙伴 Newton");
+  await expect(panel).toContainText("2026/09/01 — 2026/09/30");
+  await expect(panel).toContainText("陪学伙伴 Newton");
   await expect(panel.locator(".metric-list")).toContainText("64");
   await expect(panel.locator(".growth-stage")).toContainText("深入");
   await expect(panel.locator(".growth-stage")).toContainText("阶段进度 62%");
   await expect(
-    panel.locator(".growth-dimensions li", { hasText: "逻辑成长代理" }).locator("strong"),
+    panel.locator(".growth-dimensions li", { hasText: "逻辑" }).locator("strong"),
   ).toHaveText("79");
   await shot(page, "normal-30d-desktop.png");
 
@@ -265,23 +268,23 @@ test("成长周期报告：15/30 天 Tab、周期空态与八维条形（真实 
   await expect(panel).not.toContainText(PERIOD_INCOMPLETE);
   await expectNoNumbers(page);
 
-  // 7) 缺失维度：本周期无该维度数据，不补 0、不插值。
+  // 7) 缺失维度：这段时间没有记录，不补 0、不插值。
   inject(id, "ca_display_normal_art");
   shell(
     `from dingdong_ca.core.services.ca_display import FIXTURE_DATASET, GROWTH_KIND; from dingdong_ca.testsupport.models import TestFixture; row = TestFixture.objects.filter(dataset=FIXTURE_DATASET, kind=GROWTH_KIND, subject_key="${account}").order_by("sequence").first(); payload = row.payload; payload["growth_dimensions"]["logical"] = None; payload["growth_dimensions"]["spatial"] = None; row.payload = payload; row.save(update_fields=["payload"]); print(row.payload["growth_dimensions"])`,
   );
   await openReports(page);
   await expect(panel.locator(".growth-dimensions li.missing")).toHaveCount(2);
-  for (const label of ["逻辑成长代理", "空间成长代理"]) {
+  for (const label of ["逻辑", "空间"]) {
     const row = panel.locator(".growth-dimensions li.missing", { hasText: label });
-    await expect(row).toContainText("本周期无该维度数据");
+    await expect(row).toContainText("这段时间没有记录");
     await expect(row.locator("progress")).toHaveCount(0);
     await expect(row.locator("strong")).toHaveCount(0);
   }
   // 其余六维原样显示，没有被 0 顶替。
   await expect(panel.locator(".growth-dimensions li:not(.missing)")).toHaveCount(6);
   await expect(
-    panel.locator(".growth-dimensions li", { hasText: "语言成长代理" }).locator("strong"),
+    panel.locator(".growth-dimensions li", { hasText: "语言" }).locator("strong"),
   ).toHaveText("64");
   await shot(page, "partial-dims-desktop.png");
 

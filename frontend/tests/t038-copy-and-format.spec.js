@@ -92,11 +92,11 @@ async function bindRobot(page) {
 /** 走真实 UI 同意同步用途并核验凭据，触发第一轮同步（阶段报告由真实 Worker 生成）。 */
 async function grantSync(page, id) {
   await nav(page, "账户与关联");
-  await page.getByRole("button", { name: "核验并关联", exact: true }).click();
-  await page.getByLabel("我已阅读并同意机器人数据同步用途").check();
+  await page.getByRole("button", { name: "连接互动记录", exact: true }).click();
+  await page.getByLabel("我已阅读并同意获取机器人记录").check();
   await page.getByLabel("核验凭据", { exact: true }).fill("TEST-PROOF-" + id);
-  await page.getByRole("button", { name: "确认核验", exact: true }).click();
-  await expect(page.getByText("已核验 · 同步已启用", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "确认连接", exact: true }).click();
+  await expect(page.getByText("记录已连接", { exact: true })).toBeVisible();
 }
 
 async function openReports(page) {
@@ -139,11 +139,10 @@ test("家长端五条：P-11 原因标签、P-12 学习风格、P-13 单位、P-
   const health = page.locator(".companion-health");
   const cta = page.locator(".companion-health .reassessment");
 
-  // P-11：健康度那句仍是「机器人服务给出的原因」，复测区块改成「这次建议的原因」；
-  // 同一个页面里「机器人服务给出的原因」只出现一次（原来出现两次、两个值）。
-  await expect(health).toContainText("机器人服务给出的原因：连续多期互动偏少");
+  // 用户直接看到原因，不显示提供方等内部来源说明。
+  await expect(health).toContainText("连续多期互动偏少");
   await expect(cta).toContainText("这次建议的原因：近期互动偏少");
-  expect(await page.getByText("机器人服务给出的原因", { exact: false }).count()).toBe(1);
+  expect(await page.getByText("机器人服务给出的原因", { exact: false }).count()).toBe(0);
   await cta.screenshot({
     path: path.join(SHOTS, "p11-reassessment-reason.png"),
     animations: "disabled",
@@ -164,7 +163,7 @@ test("家长端五条：P-11 原因标签、P-12 学习风格、P-13 单位、P-
 
   // P-13：观察单位是中文，界面不再出现 "count"。
   const observation = page.locator("section.panel", {
-    hasText: "机器人行为观察",
+    hasText: "机器人互动记录",
   });
   await expect(observation).toContainText("观察次数");
   await expect(observation).toContainText("次");
@@ -174,9 +173,9 @@ test("家长端五条：P-11 原因标签、P-12 学习风格、P-13 单位、P-
     animations: "disabled",
   });
 
-  // P-15：成长观察区块有来源说明。
-  await expect(observation).toContainText("此处为机器人行为观察");
-  await observation.locator("p.note").last().screenshot({
+  // 家长看到记录即可，不展示内部来源说明。
+  await expect(observation).not.toContainText("数据来源");
+  await observation.screenshot({
     path: path.join(SHOTS, "p15-observation-source.png"),
     animations: "disabled",
   });
@@ -211,7 +210,7 @@ test("家长端五条：P-11 原因标签、P-12 学习风格、P-13 单位、P-
   // 窄屏同页：五条都在，且不横向溢出。
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(persona).toContainText("学习风格：认知");
-  await expect(observation).toContainText("此处为机器人行为观察");
+  await expect(observation).not.toContainText("数据来源");
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth - window.innerWidth,
@@ -238,11 +237,10 @@ test("家长端空态：成长观察还没关联也有来源说明（P-15 边界
   await child(page, "T038 空态儿童");
   await openReports(page);
 
-  const observation = page.locator("section.panel", { hasText: "尚未关联机器人数据" });
-  await expect(observation).toContainText("此处为机器人行为观察");
-  // 「不能混成一个分数」的来源纪律说明在「家长支持」页（P-15 边界：空态只保留一句来源说明）。
+  const observation = page.locator("section.panel", { hasText: "还没有连接机器人记录" });
+  await expect(observation).not.toContainText("数据来源");
   await nav(page, "家长支持");
-  await expect(page.locator("body")).toContainText("不能直接混成一个分数");
+  await expect(page.locator("body")).toContainText("不必用一个分数概括孩子");
   await page.screenshot({
     path: path.join(SHOTS, "p15-reports-unbound.png"),
     fullPage: true,

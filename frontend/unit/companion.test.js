@@ -96,7 +96,7 @@ test("面一：not_synced 说的是服务没接通，不说「暂无数据」", 
     }),
   );
   assert.equal(view.showData, false);
-  assert.equal(view.title, "机器人数据服务尚未接通");
+  assert.equal(view.title, "正在等待机器人记录");
   assert.equal(view.settings, false);
 });
 

@@ -43,11 +43,11 @@ test("测评同意框补齐四要素并保留合成测试标注与撤回说明",
     dialog.getByRole("heading", { name: "本次测评用途" }),
   ).toBeVisible();
 
-  // 四要素：处理目的 / 数据范围 / 数据去向（含 DingDong 侧）/ 保留与撤回
+  // 四要素：处理目的 / 数据范围 / 数据去向（含 机器人）/ 保留与撤回
   for (const label of ["处理目的", "数据范围", "数据去向", "保留与撤回"]) {
     await expect(dialog.getByText(label, { exact: true })).toBeVisible();
   }
-  await expect(dialog).toContainText("DingDong 侧");
+  await expect(dialog).toContainText("不会发送给机器人");
 
   // 2026-09-20 拍板：家长端不再显示测试标注。
   await expect(dialog).not.toContainText("合成测试");

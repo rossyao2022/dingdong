@@ -20,21 +20,21 @@ export const AVAILABILITY_TEXT = {
     settings: true,
   },
   no_consent: {
-    title: "尚未同意机器人数据同步用途",
+    title: "需要同意查看机器人记录",
     note: "",
     settings: true,
   },
   not_synced: {
-    title: "机器人数据服务尚未接通",
-    note: "稍后自动重试。",
+    title: "正在等待机器人记录",
+    note: "请稍后再看。",
   },
   error: {
-    title: "暂时取不到机器人数据",
-    note: "我们会在后台重试。",
+    title: "暂时无法查看机器人记录",
+    note: "请稍后再看。",
   },
 };
 
-export const STALE_NOTICE = "最近一次同步没有成功，下面是上次成功同步的内容。";
+export const STALE_NOTICE = "这里显示的是上次的记录。";
 
 /** 面一空态（设计 §3.2）：不显示空白卡片。 */
 export const PERSONA_EMPTY =

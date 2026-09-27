@@ -112,17 +112,17 @@ async function bindRobot(page) {
 async function grantSync(page, id) {
   await page.goto("/#settings");
   await page.reload();
-  await page.getByRole("button", { name: "核验并关联", exact: true }).click();
-  await page.getByLabel("我已阅读并同意机器人数据同步用途").check();
+  await page.getByRole("button", { name: "连接互动记录", exact: true }).click();
+  await page.getByLabel("我已阅读并同意获取机器人记录").check();
   await page.getByLabel("核验凭据", { exact: true }).fill("TEST-PROOF-" + id);
   const pending = page.waitForResponse((r) =>
     r.url().endsWith("/associations/verify"),
   );
-  await page.getByRole("button", { name: "确认核验", exact: true }).click();
+  await page.getByRole("button", { name: "确认连接", exact: true }).click();
   await pending;
   await page.reload();
   await expect(
-    page.locator(".key-value", { hasText: "机器人数据同步" }),
+    page.locator(".key-value", { hasText: "机器人记录" }),
   ).toContainText("已同意");
 }
 
@@ -163,9 +163,9 @@ async function completeAssessment(page) {
       .click();
   }
   await expect(
-    page.getByText("提交五张样例完成本次测评", { exact: false }),
+    page.getByText("这一步使用演示图片，不需要上传孩子的照片。", { exact: true }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "提交样例", exact: true }).click();
+  await page.getByRole("button", { name: "生成演示报告", exact: true }).click();
   await expect(
     page.getByText("本次测评已处理完成", { exact: true }),
   ).toBeVisible({ timeout: 60000 });
@@ -255,7 +255,7 @@ test("复测四步闭环：建议 → 回写 → 承接测评 → 结果（switc
   expect(result.match_delta).toBe(17);
   expect(result.auto_switch).toBe(false);
   await expect(
-    page.getByText("本次复测的结果已经回写。", { exact: true }),
+    page.getByText("本次复测已完成。", { exact: true }),
   ).toBeVisible();
   await page.screenshot({
     path: path.join(SHOTS, "writeback-desktop.png"),
@@ -273,7 +273,7 @@ test("复测四步闭环：建议 → 回写 → 承接测评 → 结果（switc
   await expect(card).toContainText("69");
   await expect(card).toContainText("匹配度变化");
   await expect(card).toContainText("17");
-  await expect(card).toContainText("确认入口尚未开放");
+  await expect(card).toContainText("不会自动更换陪学伙伴");
   // 没有任何自动切换：人设卡仍是原角色 Mia，结果卡上也没有切换按钮。
   const persona = page.locator(".companion-persona");
   await expect(persona).toContainText("Mia");
@@ -287,14 +287,14 @@ test("复测四步闭环：建议 → 回写 → 承接测评 → 结果（switc
 
   // 刷新后拿不到 `complete` 响应（事件字段里没有分数），只说已回写，仍不自动切换。
   await openReports(page);
-  await expect(card).toContainText("这次复测的结果已经回写。");
+  await expect(card).toContainText("这次复测已完成。");
   await expect(card).toContainText("换不换陪学伙伴由你决定，我们不会自动更换。");
   await expect(card).not.toContainText("Socrates");
   await expect(persona).toContainText("Mia");
   await expect(persona).not.toContainText("Socrates");
 
   await page.setViewportSize({ width: 390, height: 844 });
-  await expect(card).toContainText("这次复测的结果已经回写。");
+  await expect(card).toContainText("这次复测已完成。");
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth - window.innerWidth,
@@ -359,7 +359,7 @@ test("复测四步闭环：switch_recommended 假分支只保留当前角色", a
 
   // 刷新后同样只说已回写，且仍然没有出现新角色名。
   await openReports(page);
-  await expect(card).toContainText("这次复测的结果已经回写。");
+  await expect(card).toContainText("这次复测已完成。");
   await expect(page.locator(".companion-panel")).not.toContainText("Ada");
   await expect(page.locator(".companion-persona")).toContainText("Newton");
 

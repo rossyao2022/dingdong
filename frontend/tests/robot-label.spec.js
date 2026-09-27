@@ -31,7 +31,7 @@ async function child(page, name) {
   return (await (await response).json()).id;
 }
 
-test("账户页把机器人摘要叫「机器人标识（前 8 位）」，不说「指纹」", async ({
+test("账户页默认收起设备编号，需要时可展开查看", async ({
   page,
 }) => {
   await login(page);
@@ -52,11 +52,13 @@ test("账户页把机器人摘要叫「机器人标识（前 8 位）」，不�
   expect(summary).toMatch(/^[0-9a-f]{8}$/);
 
   const row = page.locator(".account-row").first();
-  await expect(row).toContainText("机器人标识（前 8 位）");
-  // 摘要值没变：仍是服务端回的那 8 位。
+  await expect(row.getByText("查看设备信息")).toBeVisible();
+  await expect(row.locator(".inline-code")).toBeHidden();
+  await row.getByText("查看设备信息").click();
+  await expect(row.locator(".inline-code")).toBeVisible();
   await expect(row).toContainText(summary);
 
-  const panel = page.locator(".panel", { hasText: "机器人账户" });
+  const panel = page.locator(".panel", { hasText: "我的机器人" });
   await expect(panel).not.toContainText("指纹");
 
   await row.scrollIntoViewIfNeeded();
@@ -81,7 +83,7 @@ test("账户页把机器人摘要叫「机器人标识（前 8 位）」，不�
   ).toBeLessThanOrEqual(1);
   await page.setViewportSize({ width: 1280, height: 720 });
 
-  // 换机弹窗在同一页，同样不该说「指纹」，且要照旧显示同一个摘要。
+  // 换机弹窗只说操作后果，不再展示识别码。
   await page.goto(`/?nfc_token=${token("label-new")}#settings`);
   await expect(
     dialog.getByRole("heading", { name: "绑定机器人" }),
@@ -90,7 +92,7 @@ test("账户页把机器人摘要叫「机器人标识（前 8 位）」，不�
   await expect(
     dialog.getByRole("heading", { name: "换一台机器人" }),
   ).toBeVisible();
-  await expect(dialog).toContainText(summary);
+  await expect(dialog).not.toContainText(summary);
   await expect(dialog).not.toContainText("指纹");
   await page.screenshot({
     path: "../.trellis/tasks/T-012/shots/replace-dialog-desktop.png",

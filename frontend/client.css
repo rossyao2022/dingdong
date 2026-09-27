@@ -86,6 +86,13 @@ p {
 .top-actions {
   gap: 16px;
 }
+.top-actions #logout-shortcut {
+  font-size: 14px;
+  white-space: nowrap;
+}
+.top-actions #logout-shortcut[hidden] {
+  display: none;
+}
 .demo-pill {
   font-size: 13px;
   color: #786225;
@@ -768,6 +775,20 @@ dialog::backdrop {
   flex-basis: 100%;
   margin: 0;
   overflow-wrap: anywhere;
+}
+.account-body details {
+  flex-basis: 100%;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+.account-body summary {
+  cursor: pointer;
+  width: fit-content;
+}
+.account-body details .inline-code {
+  display: block;
+  margin-top: 8px;
 }
 .tag.warn {
   background: #fdeee2;

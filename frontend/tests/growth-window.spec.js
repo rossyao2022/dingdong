@@ -69,7 +69,7 @@ test("起 ≥ 止：就地提示 + 两个输入框标红，且不发请求", asy
 
   await field(page, "from").fill("2026-09-17T10:00");
   await field(page, "to").fill("2026-09-17T09:00");
-  await page.getByRole("button", { name: "查看这个窗口" }).click();
+  await page.getByRole("button", { name: "查看记录" }).click();
 
   await expect(hint(page)).toBeVisible();
   await expect(hint(page)).toHaveText("结束时间要晚于开始时间");
@@ -92,7 +92,7 @@ test("起 ≥ 止：就地提示 + 两个输入框标红，且不发请求", asy
   await page.setViewportSize({ width: 390, height: 844 });
   await field(page, "from").fill("2026-09-17T10:00");
   await field(page, "to").fill("2026-09-17T09:00");
-  await page.getByRole("button", { name: "查看这个窗口" }).click();
+  await page.getByRole("button", { name: "查看记录" }).click();
   await expect(hint(page)).toBeVisible();
   await expect(hint(page)).toHaveText("结束时间要晚于开始时间");
   await page.locator("#window-form").scrollIntoViewIfNeeded();
@@ -108,13 +108,13 @@ test("合法区间照常查询（回归）", async ({ page }) => {
   const queried = page.waitForResponse((r) =>
     r.url().includes("/growth-overview"),
   );
-  await page.getByRole("button", { name: "查看这个窗口" }).click();
+  await page.getByRole("button", { name: "查看记录" }).click();
   const url = (await queried).url();
   expect(url).toContain("growth-overview?from=");
   expect(url).toContain("to=");
   await expect(hint(page)).toBeHidden();
   await expect(field(page, "from")).not.toHaveAttribute("aria-invalid", "true");
   await expect(
-    page.getByRole("heading", { name: "阶段画像与变化" }),
+    page.getByRole("heading", { name: "阶段观察" }),
   ).toBeVisible();
 });

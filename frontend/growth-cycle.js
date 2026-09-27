@@ -39,20 +39,20 @@ export const PERIODS = [
 ];
 
 /** 某一维本周期为空时的说法（设计 §1.2：不补 0、不插值）。 */
-export const DIMENSION_MISSING = "本周期无该维度数据";
+export const DIMENSION_MISSING = "这段时间没有记录";
 
 /** 后端没给该维中文名时的兜底；不把英文 code 当维度名显示。 */
 export const DIMENSION_UNKNOWN = "未识别维度";
 
 /** 八维的性质标注（设计 §1.2），与「网页活动是家庭自报记录」同一纪律。 */
-export const PROXY_NOTE = "成长代理由机器人服务算法产出，不是能力评分。";
+export const PROXY_NOTE = "这些变化仅供参考，不代表孩子的能力高低。";
 
 /** 空态两句分开写（设计 §3.2）：周期没走完 ≠ 对方没有这个周期。 */
 export const PERIOD_INCOMPLETE = "成长周期还没走完，满 15 天后会生成第一份周期报告。";
 export const NO_PERIOD_DATA = "这个周期还没有报告。";
 
 /** 对方下发的阶段码不在我方映射表里时的说法；不把英文 code 当阶段名显示。 */
-export const STAGE_UNKNOWN = "机器人服务下发的阶段名暂不可识别。";
+export const STAGE_UNKNOWN = "暂时无法显示成长阶段。";
 
 const finite = (v) => (Number.isFinite(v) ? v : null);
 

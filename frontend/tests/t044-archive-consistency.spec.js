@@ -1,7 +1,7 @@
 /**
  * T-044 的真实 Chrome 验收（P-19）：归档旧号之后，同一页不许再有两种状态口径。
  *
- * 真实流程：登录 → 建档 → 绑定机器人 → 同意同步用途并核验关联 → 归档这个号 →
+ * 真实流程：登录 → 建档 → 绑定机器人 → 同意同步用途并核验关联 → 停用这台机器人 →
  * 看「账户与关联」与「测评与报告」。不拦截、不伪造任何接口响应。
  *
  * 前置：后端 8017 + PostgreSQL/Redis 在跑（同其它 spec）。
@@ -86,20 +86,20 @@ async function nav(page, name) {
     .click();
 }
 
-/** 同意同步用途并核验凭据（未同意时展示面只说「尚未同意机器人数据同步用途」）。 */
+/** 同意同步用途并核验凭据（未同意时展示面只说「需要同意查看机器人记录」）。 */
 async function grantSync(page, id) {
   await nav(page, "账户与关联");
-  await page.getByRole("button", { name: "核验并关联", exact: true }).click();
-  await page.getByLabel("我已阅读并同意机器人数据同步用途").check();
+  await page.getByRole("button", { name: "连接互动记录", exact: true }).click();
+  await page.getByLabel("我已阅读并同意获取机器人记录").check();
   await page.getByLabel("核验凭据", { exact: true }).fill("TEST-PROOF-" + id);
   const verified = page.waitForResponse(
     (r) =>
       r.url().endsWith("/associations/verify") && r.request().method() === "POST",
   );
-  await page.getByRole("button", { name: "确认核验", exact: true }).click();
-  expect((await verified).ok(), "核验并关联要成功").toBe(true);
+  await page.getByRole("button", { name: "确认连接", exact: true }).click();
+  expect((await verified).ok(), "连接互动记录要成功").toBe(true);
   await page.reload();
-  await expect(page.getByText(/已核验 · /).first()).toBeVisible({
+  await expect(page.getByText(/记录已(连接|暂停|停止)/).first()).toBeVisible({
     timeout: 20000,
   });
 }
@@ -122,42 +122,41 @@ test("归档旧号后账户页、成长观察与三个展示面口径一致（P-
   // 归档前：关联区块说「已核验 · …」，成长观察不是未关联态，展示面有数据。
   await page.goto("/#settings");
   await page.reload();
-  await expect(page.getByText(/已核验 · /).first()).toBeVisible({
+  await expect(page.getByText(/记录已(连接|暂停|停止)/).first()).toBeVisible({
     timeout: 20000,
   });
   await page.goto("/#reports");
   await page.reload();
   await expect(page.locator("#window-form")).toBeVisible({ timeout: 20000 });
-  const observation = page.locator(".panel", { hasText: "最近成功同步" }).first();
-  await expect(observation).not.toContainText("尚未关联机器人数据");
+  await expect(page.getByRole("heading", { name: "还没有连接机器人记录" })).toHaveCount(0);
   await expect(page.locator(".companion-persona")).not.toContainText(
     "还没有绑定机器人",
   );
 
-  // 归档这个号（真实两步对话框，归档成功后停在账户页）。
+  // 停用这台机器人（真实两步对话框，归档成功后停在账户页）。
   await page.goto("/#settings");
   await page.reload();
   await expect(page.locator(".account-row")).toHaveCount(1, { timeout: 20000 });
-  await page.getByRole("button", { name: "归档这个号", exact: true }).click();
+  await page.getByRole("button", { name: "停用这台机器人", exact: true }).click();
   const dialog = page.locator("#dialog");
   await expect(
-    dialog.getByRole("heading", { name: "归档这个账户号" }),
+    dialog.getByRole("heading", { name: "停用这台机器人" }),
   ).toBeVisible({ timeout: 20000 });
-  await expect(dialog).toContainText("归档后它上面的数据不会再同步进来");
+  await expect(dialog).toContainText("这台机器人的新记录不会再显示");
   const retired = page.waitForResponse(
     (r) => r.url().endsWith("/retire") && r.request().method() === "POST",
   );
-  await dialog.getByRole("button", { name: "确认归档这个号" }).click();
+  await dialog.getByRole("button", { name: "确认停用" }).click();
   expect((await retired).status()).toBe(200);
 
-  // ① 账户页：关联区块不再是「已核验 · 同步已启用」，回到「核验并关联」；
-  //    旧号仍在「上一台机器的账户」里可查，并带报告仍可见的说明。
-  await expect(page.getByText(/已核验 · /)).toHaveCount(0, { timeout: 20000 });
+  // ① 账户页：关联区块不再是「记录已连接」，回到「连接互动记录」；
+  //    旧号仍在「以前的机器人」里可查，并带报告仍可见的说明。
+  await expect(page.getByText(/记录已(连接|暂停|停止)/)).toHaveCount(0, { timeout: 20000 });
   await expect(
-    page.getByRole("button", { name: "核验并关联", exact: true }),
+    page.getByRole("button", { name: "连接互动记录", exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "上一台机器的账户" }),
+    page.getByRole("heading", { name: "以前的机器人" }),
   ).toBeVisible();
   // 只剩归档后的这一行（活跃区回到空态），且仍可查
   await expect(page.locator(".account-row")).toHaveCount(1);
@@ -169,13 +168,12 @@ test("归档旧号后账户页、成长观察与三个展示面口径一致（P-
   });
 
   // ② 测评与报告：成长观察与三个展示面都说「未关联」，不再一边「还没有绑定机器人」
-  //    一边「正在等待首次同步」。
+  //    一边「正在等待机器人记录」。
   await page.goto("/#reports");
   await page.reload();
   await expect(page.locator("#window-form")).toBeVisible({ timeout: 20000 });
-  const after = page.locator(".panel", { hasText: "最近成功同步" }).first();
-  await expect(after).toContainText("尚未关联机器人数据", { timeout: 20000 });
-  await expect(page.getByText("正在等待首次同步")).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "还没有连接机器人记录" })).toBeVisible({ timeout: 20000 });
+  await expect(page.getByText("正在等待机器人记录")).toHaveCount(0);
   await expect(page.locator(".companion-persona")).toContainText(
     "还没有绑定机器人",
   );
@@ -187,8 +185,8 @@ test("归档旧号后账户页、成长观察与三个展示面口径一致（P-
 
   // 窄屏：同一屏不再两种口径，也不横向溢出。
   await page.setViewportSize({ width: 390, height: 844 });
-  await expect(after).toContainText("尚未关联机器人数据");
-  await expect(page.getByText("正在等待首次同步")).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "还没有连接机器人记录" })).toBeVisible();
+  await expect(page.getByText("正在等待机器人记录")).toHaveCount(0);
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth - window.innerWidth,

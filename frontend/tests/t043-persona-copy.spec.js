@@ -90,22 +90,22 @@ async function nav(page, name) {
     .click();
 }
 
-/** 走真实 UI 同意同步用途并核验凭据（展示面在未同意前只说「尚未同意机器人数据同步用途」）。 */
+/** 走真实 UI 同意同步用途并核验凭据（展示面在未同意前只说「需要同意查看机器人记录」）。 */
 async function grantSync(page, id) {
   await nav(page, "账户与关联");
-  await page.getByRole("button", { name: "核验并关联", exact: true }).click();
-  await page.getByLabel("我已阅读并同意机器人数据同步用途").check();
+  await page.getByRole("button", { name: "连接互动记录", exact: true }).click();
+  await page.getByLabel("我已阅读并同意获取机器人记录").check();
   await page.getByLabel("核验凭据", { exact: true }).fill("TEST-PROOF-" + id);
   const verified = page.waitForResponse(
     (r) =>
       r.url().endsWith("/associations/verify") && r.request().method() === "POST",
   );
-  await page.getByRole("button", { name: "确认核验", exact: true }).click();
-  expect((await verified).ok(), "核验并关联要成功").toBe(true);
+  await page.getByRole("button", { name: "确认连接", exact: true }).click();
+  expect((await verified).ok(), "连接互动记录要成功").toBe(true);
   // 核验成功后页面只给「归属核验成功，正在等待同步结果」这类过渡说法，同步状态由后台
   // 推进；重载后关联区块一律以「已核验 · 」开头，同步到哪一步不影响这条断言。
   await page.reload();
-  await expect(page.getByText(/已核验 · /).first()).toBeVisible({
+  await expect(page.getByText(/记录已(连接|暂停|停止)/).first()).toBeVisible({
     timeout: 20000,
   });
 }
@@ -134,7 +134,7 @@ test("人设卡学习风格说明是家长话术（P-18）", async ({ page }) =>
   await expect(persona.locator('span[title="cognitive"]')).toHaveText("认知");
 
   // 新说法交代来源（机器人服务）。
-  await expect(persona).toContainText("由机器人服务提供");
+  await expect(persona).toContainText("学习风格：");
 
   const cardText = await persona.innerText();
   const pageText = await page.evaluate(() => document.body.innerText);

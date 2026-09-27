@@ -95,7 +95,7 @@ test("面二：整块没给中文名时不崩，八维仍按固定顺序给出",
   assert.equal(view.dimensions[0].value, 64);
 });
 
-test("面二：缺失维度给 null 并标「本周期无该维度数据」，不补 0、不插值", () => {
+test("面二：缺失维度给 null 并标「这段时间没有记录」，不补 0、不插值", () => {
   const view = growthCycleSection(
     growthData({ growth_dimensions: { ...DIMS, logical: null, spatial: null } }),
   );
@@ -103,7 +103,7 @@ test("面二：缺失维度给 null 并标「本周期无该维度数据」，�
   const spatial = view.dimensions.find((d) => d.key === "spatial");
   assert.equal(logical.value, null);
   assert.equal(spatial.value, null);
-  assert.equal(DIMENSION_MISSING, "本周期无该维度数据");
+  assert.equal(DIMENSION_MISSING, "这段时间没有记录");
   // 其余维度原样保留，没有被插值或被 0 顶替。
   assert.deepEqual(
     view.dimensions.filter((d) => d.value !== null).map((d) => d.value),
@@ -169,7 +169,7 @@ test("面二：not_synced 说的是服务没接通，不说「暂无数据」", 
   const view = growthCycleSection(
     growthData({ availability: "not_synced", period: null, reason: "upstream_not_configured" }),
   );
-  assert.equal(view.title, "机器人数据服务尚未接通");
+  assert.equal(view.title, "正在等待机器人记录");
   assert.equal(view.title.includes("暂无"), false);
 });
 
@@ -207,7 +207,7 @@ test("面二：未知阶段码不把英文 code 当阶段名显示", () => {
   assert.equal(view.showData, true);
   assert.equal(view.stageLabel, null);
   assert.equal(view.stageProgress, 10);
-  assert.equal(view.stageNote, "机器人服务下发的阶段名暂不可识别。");
+  assert.equal(view.stageNote, "暂时无法显示成长阶段。");
 });
 
 test("面二：companion / engagement 非数字时不显数值", () => {
@@ -236,6 +236,6 @@ test("来源标记：非合成数据不挂合成徽标", () => {
   assert.equal(growthCycleSection(growthData({ data_origin: "live" })).synthetic, false);
 });
 
-test("面二：八维标注写明是成长代理，不是能力评分", () => {
-  assert.equal(PROXY_NOTE, "成长代理由机器人服务算法产出，不是能力评分。");
+test("面二：成长变化不被表述成能力评分", () => {
+  assert.equal(PROXY_NOTE, "这些变化仅供参考，不代表孩子的能力高低。");
 });

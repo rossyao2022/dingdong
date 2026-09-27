@@ -21,7 +21,7 @@ import { root, uvBin } from "./support.js";
 const SHOTS = path.join(root, ".trellis", "tasks", "T-037", "shots");
 const SUGGEST = "最近一段时间互动偏少，要不要重新测一次？";
 const DECLINED = "已选择暂不重新测评";
-const FAILED = "这次没写成功，请重试。";
+const FAILED = "暂时无法保存，请重试。";
 const SERVER_ERROR = "服务暂时不可用，请稍后再试。";
 
 const phone = () =>
@@ -92,17 +92,17 @@ async function bindRobot(page) {
 async function grantSync(page, id) {
   await page.goto("/#settings");
   await page.reload();
-  await page.getByRole("button", { name: "核验并关联", exact: true }).click();
-  await page.getByLabel("我已阅读并同意机器人数据同步用途").check();
+  await page.getByRole("button", { name: "连接互动记录", exact: true }).click();
+  await page.getByLabel("我已阅读并同意获取机器人记录").check();
   await page.getByLabel("核验凭据", { exact: true }).fill("TEST-PROOF-" + id);
   const pending = page.waitForResponse((r) =>
     r.url().endsWith("/associations/verify"),
   );
-  await page.getByRole("button", { name: "确认核验", exact: true }).click();
+  await page.getByRole("button", { name: "确认连接", exact: true }).click();
   await pending;
   await page.reload();
   await expect(
-    page.locator(".key-value", { hasText: "机器人数据同步" }),
+    page.locator(".key-value", { hasText: "机器人记录" }),
   ).toContainText("已同意");
 }
 

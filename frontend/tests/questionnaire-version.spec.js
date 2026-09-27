@@ -1,9 +1,8 @@
 /**
- * 内部版本 code 不给家长看（P-04）。
+ * 题库版本由运营端管理，不占用家长答题页面（P-04 后续文案清理）。
  *
  * 改前实测：家长端答题页写「必填 · 单选 · 题库版本 readable-v2」，运营端儿童详情的答卷区
- * 写「· 版本 readable-v2」。家长看不懂这串内部标识。改后两处都显示题库中文名 + 版本号
- * （「四个小情境：探索偏好体验（v2）」），原始 code 收进 `title` 属性，悬停才出现。
+ * 写「· 版本 readable-v2」。家长现在只看题目、选项和作答要求；运营端仍可见题库版本。
  *
  * 前置：后端 127.0.0.1:8017（本地合成库）、家长端 127.0.0.1:4173。
  */
@@ -85,7 +84,7 @@ print(f"{row.child_id}|{row.questionnaire_version.title}" if row else "|")`,
     .trim();
 }
 
-test("家长端答题页显示题库中文名与版本号，不把内部 code 写进正文", async ({
+test("家长端答题页不显示题库版本或内部 code", async ({
   page,
 }) => {
   seedExtraBank();
@@ -109,11 +108,12 @@ test("家长端答题页显示题库中文名与版本号，不把内部 code �
       .getByRole("link", { name: "测评与报告" })
       .click();
 
-    // 题库卡片：卡片标题已经是中文名，这里只给版本号。
+    // 家长只看题库名称和题量；内部版本不占据卡片。
     const card = page.locator(".panel", { hasText: "合成额外题库" });
-    await expect(card.locator("p.note")).toContainText("版本 v7");
+    await expect(card.locator("p.note")).toContainText("题");
+    await expect(card.locator("p.note")).not.toContainText("版本");
     expect(await card.textContent()).not.toContain(EXTRA_VERSION);
-    await expect(card.locator(`[title="${EXTRA_VERSION}"]`)).toHaveCount(1);
+    await expect(card.locator(`[title="${EXTRA_VERSION}"]`)).toHaveCount(0);
     await card.scrollIntoViewIfNeeded();
     await page.screenshot({
       path: join(shots, "parent-bank-card-desktop.png"),
@@ -124,11 +124,11 @@ test("家长端答题页显示题库中文名与版本号，不把内部 code �
     await page.getByRole("button", { name: "同意并开始", exact: true }).click();
 
     const note = page.locator(".question p.note").nth(1);
-    await expect(note).toContainText("题库「四个小情境：探索偏好体验」（v2）");
-    // 正文（textContent 不含属性）里不该再有内部 code；它只活在 title 里。
+    await expect(note).not.toContainText("题库");
+    // 答题页不展示题库版本或内部代号。
     expect(await page.locator("body").textContent()).not.toContain(RAW_VERSION);
     await expect(page.locator(`.question [title="${RAW_VERSION}"]`)).toHaveCount(
-      1,
+      0,
     );
 
     await page.evaluate(() => window.scrollTo(0, 0));

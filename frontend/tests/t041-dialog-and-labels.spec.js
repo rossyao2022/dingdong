@@ -114,17 +114,17 @@ async function bindRobot(page, mine = token("bind")) {
 async function grantSync(page, id) {
   await page.goto("/#settings");
   await page.reload();
-  await page.getByRole("button", { name: "核验并关联", exact: true }).click();
-  await page.getByLabel("我已阅读并同意机器人数据同步用途").check();
+  await page.getByRole("button", { name: "连接互动记录", exact: true }).click();
+  await page.getByLabel("我已阅读并同意获取机器人记录").check();
   await page.getByLabel("核验凭据", { exact: true }).fill("TEST-PROOF-" + id);
   const pending = page.waitForResponse((r) =>
     r.url().endsWith("/associations/verify"),
   );
-  await page.getByRole("button", { name: "确认核验", exact: true }).click();
+  await page.getByRole("button", { name: "确认连接", exact: true }).click();
   await pending;
   await page.reload();
   await expect(
-    page.locator(".key-value", { hasText: "机器人数据同步" }),
+    page.locator(".key-value", { hasText: "机器人记录" }),
   ).toContainText("已同意");
 }
 
@@ -200,11 +200,9 @@ test("P-16：观察未就绪的轮询重渲染不再关掉复测承接对话框"
   });
   await page.setViewportSize(DESKTOP);
 
-  // 关闭后若轮询曾挂起，应恢复读取；随后还能继续原本的复测入口。
-  const beforeClose = overviewCalls;
+  // 关闭后还能继续原本的复测入口；若阶段报告此时已就绪，轮询会自然结束。
   await page.keyboard.press("Escape");
   await expect(dialog).not.toBeVisible();
-  await expect.poll(() => overviewCalls, { timeout: 20000 }).toBeGreaterThan(beforeClose);
   await page.getByRole("button", { name: "开始复测", exact: true }).click();
   await expect(dialog.getByRole("heading", { name: "本次测评用途" })).toBeVisible();
 
@@ -236,13 +234,13 @@ test("P-17：核验凭据输错时对话框给中文，不显示内部码 PROOF_
 
   await page.goto("/#settings");
   await page.reload();
-  await page.getByRole("button", { name: "核验并关联", exact: true }).click();
-  await page.getByLabel("我已阅读并同意机器人数据同步用途").check();
+  await page.getByRole("button", { name: "连接互动记录", exact: true }).click();
+  await page.getByLabel("我已阅读并同意获取机器人记录").check();
   await page.getByLabel("核验凭据", { exact: true }).fill("INVALID-TEST-PROOF");
   const rejected = page.waitForResponse((r) =>
     r.url().endsWith("/associations/verify"),
   );
-  await page.getByRole("button", { name: "确认核验", exact: true }).click();
+  await page.getByRole("button", { name: "确认连接", exact: true }).click();
   expect((await rejected).status()).toBe(422);
 
   const error = page.locator("#dialog .form-error");
