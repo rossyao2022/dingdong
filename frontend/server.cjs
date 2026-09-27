@@ -9,6 +9,7 @@ const types = {
   ".js": "text/javascript; charset=utf-8",
   ".svg": "image/svg+xml",
   ".png": "image/png",
+  ".webp": "image/webp",
 };
 const files = new Set([
   "index.html",
@@ -39,6 +40,8 @@ http
         {
           hostname: "127.0.0.1",
           port: 8017,
+          // 本地浏览器回归可选用另一个本机网卡地址，隔离共享开发库的短信 IP 限流。
+          localAddress: process.env.E2E_PROXY_SOURCE_IP || undefined,
           path: req.url,
           method: req.method,
           headers: { ...req.headers, host: "127.0.0.1:8017" },
@@ -69,7 +72,7 @@ http
     const name = pathname === "/" ? "index.html" : pathname.slice(1);
     if (
       !files.has(name) &&
-      !/^assets\/(?:islands\/)?[a-z0-9_-]+\.(svg|png)$/.test(name)
+      !/^assets\/(?:(?:islands|dingdong)\/)?[a-z0-9_-]+\.(svg|png|webp)$/.test(name)
     ) {
       res.writeHead(404).end();
       return;

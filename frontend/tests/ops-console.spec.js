@@ -235,14 +235,18 @@ test.describe("运营后台", () => {
 
       // 复制为新版本，可继续编辑。
       // 编辑页的版本号由系统自动递增，所以这里只需要确认，不再手工填写版本号。
+      const publishedEditorUrl = page.url();
       await page.getByRole("button", { name: "复制为新版本", exact: true }).click();
       await confirmDialog(page, "复制");
       await expect(page.getByText("已创建草稿")).toBeVisible();
+      // 旧版编辑页 URL 也符合下方正则，必须先等真正跳到新草稿。
+      await expect(page).not.toHaveURL(publishedEditorUrl);
       await expect(page).toHaveURL(/\/ops\/questionnaires\/[0-9a-f-]{36}\/$/);
       await expect(page.locator("#q-title")).toHaveValue(title);
       await expect(page.locator("#questions .question-card").first()).toBeVisible();
 
       // 列表页的“复制为新版本”仍允许指定版本号，走带输入框的对话框
+      await page.waitForLoadState("load");
       await page.goto(`${BACKEND}/ops/questionnaires/`);
       const copyRow = page.locator("table.ops-table tbody tr").filter({ hasText: title }).first();
       await copyRow.getByRole("button", { name: "复制为新版本" }).click();

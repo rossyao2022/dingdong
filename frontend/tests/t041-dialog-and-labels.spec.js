@@ -163,17 +163,14 @@ test("P-16：观察未就绪的轮询重渲染不再关掉复测承接对话框"
   expect((await answered).status()).toBe(200);
   await expect(cta).toContainText("已确认重新测评");
 
-  const before = overviewCalls;
   await page.getByRole("button", { name: "开始复测", exact: true }).click();
   const dialog = page.locator("#dialog");
   await expect(
     dialog.getByRole("heading", { name: "本次测评用途" }),
   ).toBeVisible();
 
-  // 关键断言：对话框打开期间至少跨过一次轮询周期，而且它还开着。
-  await expect
-    .poll(() => overviewCalls, { timeout: 20000 })
-    .toBeGreaterThan(before);
+  // 关键断言：跨过一次轮询间隔，对话框仍在。轮询可能被挂起，不能要求请求数增长。
+  await page.waitForTimeout(3500);
   expect(
     await page.evaluate(() => document.querySelector("#dialog").open),
   ).toBe(true);
@@ -202,6 +199,14 @@ test("P-16：观察未就绪的轮询重渲染不再关掉复测承接对话框"
     animations: "disabled",
   });
   await page.setViewportSize(DESKTOP);
+
+  // 关闭后若轮询曾挂起，应恢复读取；随后还能继续原本的复测入口。
+  const beforeClose = overviewCalls;
+  await page.keyboard.press("Escape");
+  await expect(dialog).not.toBeVisible();
+  await expect.poll(() => overviewCalls, { timeout: 20000 }).toBeGreaterThan(beforeClose);
+  await page.getByRole("button", { name: "开始复测", exact: true }).click();
+  await expect(dialog.getByRole("heading", { name: "本次测评用途" })).toBeVisible();
 
   // 承接到既有测评流程（不新建第二套入口）。
   await page.getByLabel("我已阅读并同意本次测评用途").check();

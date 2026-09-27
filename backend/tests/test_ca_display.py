@@ -672,7 +672,38 @@ def test_persona_view_maps_type_to_chinese(client):
     # 学习风格取值也给中文对照：与 tags 同序，原 code 留给界面放进 title。
     assert body["persona"]["learning_style_labels"] == ["模仿", "开放"]
     assert body["binding"]["match_score"] == 82
+    assert type(body["binding"]["match_score"]) is int
     assert set(body["binding"]) == {"binding_id", "bind_time", "match_score", "status"}
+
+
+@override_settings(**UPSTREAM)
+def test_persona_view_accepts_prototype_flat_contract(client, transport):
+    """Prototype 实测为顶层 persona 字段；不能把已有人设读成空态。"""
+    child, account_id = ready_child(client)
+    transport["payload"] = {
+        "code": 0,
+        "message": "ok",
+        "data": {
+            "persona_id": "persona_art_01",
+            "character_name": "小小艺术家",
+            "persona_type": "art",
+            "variant_id": "variant_01",
+            "public_description": "喜欢用画笔表达",
+            "match_score": "72.00",
+            "bind_time": "2026-09-22T10:00:00+08:00",
+        },
+    }
+    body = read(client, PERSONA, child).json()
+    assert body["availability"] == "ready"
+    assert body["persona"]["persona_id"] == "persona_art_01"
+    assert body["persona"]["persona_name"] == "小小艺术家"
+    assert body["persona"]["type_label"] == "艺术"
+    assert body["persona"]["learning_style_labels"] == []
+    assert body["binding"]["match_score"] == 72
+    assert type(body["binding"]["match_score"]) is int
+    assert body["binding"]["bind_time"] == "2026-09-22T10:00:00+08:00"
+    assert body["binding"]["status"] is None
+    assert account_id not in json.dumps(body, ensure_ascii=False)
 
 
 def test_persona_view_leaves_unknown_learning_style_label_null(client):

@@ -167,7 +167,7 @@ test("运营端儿童详情的答卷区显示版本号，不把内部 code 写�
     await expect(page).toHaveURL(new RegExp(`${BACKEND}/ops/$`));
 
     await page.goto(`${BACKEND}/ops/children/${childId}/`);
-    const summary = page.locator(".question-card summary").first();
+    const summary = page.locator(".question-card summary").filter({ hasText: title }).first();
     await expect(summary).toContainText(title);
     await expect(summary).toContainText("版本 v2");
     expect(await page.locator("body").textContent()).not.toContain(RAW_VERSION);

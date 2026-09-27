@@ -178,7 +178,7 @@ function head(title, desc = "", action = "") {
   return `<div class="page-head"><div><span class="eyebrow">${esc(state.child?.name || "DINGDONG")} · 成长空间</span><h1>${esc(title)}</h1><p>${esc(desc)}</p></div>${action}</div>`;
 }
 function empty(title, text, action = "") {
-  return `<div class="empty"><img src="assets/mark.svg" alt=""><h2>${esc(title)}</h2><p>${esc(text)}</p>${action}</div>`;
+  return `<div class="empty"><img src="assets/dingdong/robot-front.webp" alt=""><h2>${esc(title)}</h2><p>${esc(text)}</p>${action}</div>`;
 }
 function button(action, label, data = "", secondary = false) {
   return `<button type="button" class="button ${secondary ? "secondary" : ""}" data-action="${action}" ${data}>${label}</button>`;
@@ -300,7 +300,7 @@ function page(html) {
 }
 function loginPage() {
   page(
-    `<div class="login-layout"><section class="login-scene"><span class="eyebrow">CA × DINGDONG</span><h1>陪孩子探索，<br>把每个发现留下来。</h1><p>从今天的小行动开始，慢慢看见成长。</p><img src="assets/dingdong.svg" alt="DingDong 成长伙伴"></section><form id="login-form" class="login-form"><span class="eyebrow">欢迎回到成长空间</span><h2>家长登录</h2><p class="muted">登录后，查看孩子的档案与陪伴记录。</p><label class="field">手机号<input name="phone" type="tel" autocomplete="tel" required placeholder="请输入手机号"></label><div class="inline"><label class="field">验证码<input name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="5" required placeholder="5 位验证码"></label><button type="button" class="button secondary" id="send-code">获取验证码</button></div><div class="form-error" role="alert"></div><button class="button primary" type="submit" disabled>登录</button></form></div>`,
+    `<div class="login-layout"><section class="login-scene"><span class="eyebrow">CA × DINGDONG</span><h1>陪孩子探索，<br>把每个发现留下来。</h1><p>从今天的小行动开始，慢慢看见成长。</p><img src="assets/dingdong/robot-front.webp" alt="DingDong 成长伙伴"></section><form id="login-form" class="login-form"><span class="eyebrow">欢迎回到成长空间</span><h2>家长登录</h2><p class="muted">登录后，查看孩子的档案与陪伴记录。</p><label class="field">手机号<input name="phone" type="tel" autocomplete="tel" required placeholder="请输入手机号"></label><div class="inline"><label class="field">验证码<input name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="5" required placeholder="5 位验证码"></label><button type="button" class="button secondary" id="send-code">获取验证码</button></div><div class="form-error" role="alert"></div><button class="button primary" type="submit" disabled>登录</button></form></div>`,
   );
   $("#login-form").phone.oninput = () => {
     state.challenge = null;
@@ -432,14 +432,14 @@ function filters() {
 }
 function activityCards(rows) {
   return rows.length
-    ? `<div class="grid">${rows.map((a) => `<article class="card activity-card"><img src="assets/islands/${Object.hasOwn(islands, a.island) ? a.island : "science"}.svg" alt=""><span class="note">${esc(islands[a.island] || a.island)} · ${a.duration_minutes} 分钟</span><h3>${esc(a.title)}</h3><p>${esc(a.goal)}</p><div class="actions">${button("activity", "查看活动", `data-id="${a.id}"`)}${testTag()}</div></article>`).join("")}</div>`
+    ? `<div class="grid">${rows.map((a) => `<article class="card activity-card"><img src="assets/islands/${Object.hasOwn(islands, a.island) ? a.island : "science"}.webp" alt=""><span class="note">${esc(islands[a.island] || a.island)} · ${a.duration_minutes} 分钟</span><h3>${esc(a.title)}</h3><p>${esc(a.goal)}</p><div class="actions">${button("activity", "查看活动", `data-id="${a.id}"`)}${testTag()}</div></article>`).join("")}</div>`
     : empty("这一类活动还没发布", "可以换个心情或去其他小岛看看。");
 }
 function stepView(record) {
   const step = record.activity.steps[record.step_index];
   return (
     head(record.activity.title, "网页陪伴活动，记录不会用于专业评分。") +
-    `<div class="grid"><section class="panel"><span class="tag">第 ${record.step_index + 1} / ${record.activity.steps.length} 步</span><h2 class="step-title">${esc(step.instruction)}</h2><p>${esc(step.guide_text)}</p>${button("speak", "朗读引导", "", true)}<div class="form-error" role="alert"></div>${record.step_index === record.activity.steps.length - 1 ? `<label class="field">活动感受<select id="feedback"><option value="">暂不填写</option><option value="interesting">很有意思</option><option value="try_again">还想再试试</option><option value="challenging">有一点挑战</option></select></label><label class="field">一句话记录<textarea id="activity-note" maxlength="160" placeholder="记录一个小发现（选填）"></textarea></label>` : ""}<div class="actions">${button(record.step_index === record.activity.steps.length - 1 ? "finish" : "next-step", record.step_index === record.activity.steps.length - 1 ? "完成活动" : "下一步")}${button("skip", "跳过这次活动", "", true)}</div></section><aside class="panel"><img class="figure-robot" src="assets/dingdong.svg" alt="DingDong 陪你探索"><h2>慢慢来，也很好。</h2><p>不必追求标准答案，和孩子一起观察、尝试就好。</p><p class="note">进度已保存，可以稍后继续。</p></aside></div>`
+    `<div class="grid"><section class="panel"><span class="tag">第 ${record.step_index + 1} / ${record.activity.steps.length} 步</span><h2 class="step-title">${esc(step.instruction)}</h2><p>${esc(step.guide_text)}</p>${button("speak", "朗读引导", "", true)}<div class="form-error" role="alert"></div>${record.step_index === record.activity.steps.length - 1 ? `<label class="field">活动感受<select id="feedback"><option value="">暂不填写</option><option value="interesting">很有意思</option><option value="try_again">还想再试试</option><option value="challenging">有一点挑战</option></select></label><label class="field">一句话记录<textarea id="activity-note" maxlength="160" placeholder="记录一个小发现（选填）"></textarea></label>` : ""}<div class="actions">${button(record.step_index === record.activity.steps.length - 1 ? "finish" : "next-step", record.step_index === record.activity.steps.length - 1 ? "完成活动" : "下一步")}${button("skip", "跳过这次活动", "", true)}</div></section><aside class="panel"><img class="figure-robot" src="assets/dingdong/robot-wave.webp" alt="DingDong 陪你探索"><h2>慢慢来，也很好。</h2><p>不必追求标准答案，和孩子一起观察、尝试就好。</p><p class="note">进度已保存，可以稍后继续。</p></aside></div>`
   );
 }
 function sessionView(s) {
@@ -505,7 +505,7 @@ function personaBlock(view) {
       return `<span title="${esc(code)}">${esc(label)}</span>`;
     })
     .join("、");
-  return `<div class="companion-persona"><div class="companion-head"><h3>${esc(p.persona_name)}</h3>${p.type_label ? `<span class="tag">${esc(p.type_label)}</span>` : ""}</div>${p.public_description ? `<p>${esc(p.public_description)}</p>` : ""}${view.matchScore === null ? "" : metrics([{ label: "匹配度", value: view.matchScore, unit: "/ 100" }])}<p class="note">匹配度由机器人服务按互动给出（0–100），不是能力评价。</p>${tags ? `<p class="note">学习风格：${tags}（由机器人服务提供）。</p>` : ""}<p class="note" title="权重版本 ${esc(p.talent_weight_version)}">绑定于 ${date(view.binding?.bind_time)}</p>${staleNotice(view)}</div>`;
+  return `<div class="companion-persona"><div class="companion-head"><h3>${esc(p.persona_name)}</h3>${p.type_label ? `<span class="tag">${esc(p.type_label)}</span>` : ""}</div>${p.public_description ? `<p>${esc(p.public_description)}</p>` : ""}${view.matchScore === null ? "" : metrics([{ label: "匹配度", value: view.matchScore, unit: "/ 100" }])}<p class="note">匹配度由机器人服务按互动给出（0–100），不是能力评价。</p>${tags ? `<p class="note">学习风格：${tags}（由机器人服务提供）。</p>` : ""}<p class="note"${p.talent_weight_version ? ` title="权重版本 ${esc(p.talent_weight_version)}"` : ""}>绑定于 ${date(view.binding?.bind_time)}</p>${staleNotice(view)}</div>`;
 }
 /** 面三：互动健康度四态。分数只在 `normal` 出现，且必须与观察天数一起给。 */
 function healthBlock(view, reassessment = { show: false }) {
@@ -699,7 +699,7 @@ async function render() {
       hints.activities = activities;
       html =
         head("今日陪伴", "跟着此刻的心情，开始一个小小的行动。") +
-        `<div class="hero-panel"><div><span class="eyebrow">HELLO, LITTLE EXPLORER</span><h2>${esc(state.child.name)}，<br>今天想发现什么？</h2><p>一点好奇，一点尝试。每一步，都有自己的意义。</p></div><img src="assets/dingdong.svg" alt="DingDong 成长伙伴"></div>` +
+        `<div class="hero-panel"><div><span class="eyebrow">HELLO, LITTLE EXPLORER</span><h2>${esc(state.child.name)}，<br>今天想发现什么？</h2><p>一点好奇，一点尝试。每一步，都有自己的意义。</p></div><img src="assets/dingdong/robot-wave.webp" alt="DingDong 成长伙伴"></div>` +
         (active
           ? `<div class="notice"><b>有一个活动等你继续：${esc(active.activity.title)}</b><div class="actions">${button("resume-activity", "继续活动", `data-id="${active.id}"`)}</div></div>`
           : "") +
@@ -864,7 +864,7 @@ async function render() {
           "我的 DingDong",
           "这里的引导方式只影响网页陪伴，不会更改机器人配置。",
         ) +
-        `<div class="grid"><section class="panel"><img class="figure-robot" src="assets/dingdong.svg" alt="DingDong 伙伴"><h2>你好呀，我在这里。</h2><p>今天想听一句引导，还是安静地试一试？</p>${button("greeting", "听伙伴打个招呼", "", true)}</section><section class="panel"><h2>选择网页引导方式</h2><div class="stack">${Object.entries(
+        `<div class="grid"><section class="panel"><img class="figure-robot" src="assets/dingdong/robot-front.webp" alt="DingDong 伙伴"><h2>你好呀，我在这里。</h2><p>今天想听一句引导，还是安静地试一试？</p>${button("greeting", "听伙伴打个招呼", "", true)}</section><section class="panel"><h2>选择网页引导方式</h2><div class="stack">${Object.entries(
           styles,
         )
           .map(

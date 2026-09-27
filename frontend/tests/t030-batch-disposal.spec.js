@@ -2,7 +2,7 @@
  * T-030 合成测试批次清理的浏览器验收（真实 Chrome，不拦截任何接口响应）。
  *
  * 一次处置分两阶段跑同一个文件，用 T030_PHASE 选阶段：
- *   T030_PHASE=before（默认）：运营端仍把该批次显示为活跃态、家长端能看到该儿童
+ *   T030_PHASE=before：运营端仍把该批次显示为活跃态、家长端能看到该儿童
  *   T030_PHASE=after：运营端显示已关闭/已归档/已暂停/已撤回、首页失败任务归零，
  *                     家长端登录被拒（账号已停用），并顺带确认正常家长账号不受影响
  *
@@ -70,6 +70,7 @@ async function parentLogin(page, number) {
 }
 
 test.describe(`T-030 批次清理（${PHASE}）`, () => {
+  test.skip(!process.env.T030_PHASE, "一次性历史验收；需显式指定 T030_PHASE");
   // 取验证码撞限频时要等 60 秒窗口，默认 60 秒超时不够用。
   test.describe.configure({ timeout: 240000 });
 

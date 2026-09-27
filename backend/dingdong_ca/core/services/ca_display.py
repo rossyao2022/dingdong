@@ -12,6 +12,8 @@
 属后续任务，不在本任务范围内。
 """
 
+from math import isfinite
+
 from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
@@ -237,6 +239,26 @@ def _usable(availability):
 
 def _persona_out(payload):
     persona = payload.get("persona")
+    binding = payload.get("binding")
+    # Prototype 实测把人设与绑定信息放在同一层；正式嵌套契约仍须兼容。
+    if not persona and payload.get("persona_id"):
+        persona = {
+            key: payload[key]
+            for key in (
+                "persona_id",
+                "persona_name",
+                "character_name",
+                "persona_type",
+                "variant_id",
+                "public_description",
+                "learning_style_tags",
+                "talent_weight_version",
+            )
+            if key in payload
+        }
+        # 对方扁平响应叫 character_name；我方公开展示契约叫 persona_name。
+        persona["persona_name"] = persona.get("persona_name") or payload.get("character_name")
+        binding = {"bind_time": payload.get("bind_time"), "match_score": payload.get("match_score")}
     if persona:
         tags = persona.get("learning_style_tags") or []
         persona = {
@@ -245,9 +267,20 @@ def _persona_out(payload):
             # 与 tags 同序同长；未知取值给 null，界面用「未识别取值」兜住。
             "learning_style_labels": [LEARNING_STYLE_LABELS.get(tag) for tag in tags],
         }
-    binding = payload.get("binding")
     if binding:
         binding = {k: binding.get(k) for k in ("binding_id", "bind_time", "match_score", "status")}
+        score = binding["match_score"]
+        if isinstance(score, str):
+            try:
+                parsed = float(score)
+                score = int(parsed) if isfinite(parsed) and parsed.is_integer() else None
+            except ValueError:
+                score = None
+        elif isinstance(score, bool) or not isinstance(score, (int, float)):
+            score = None
+        binding["match_score"] = (
+            score if score is not None and isfinite(score) and 0 <= score <= 100 else None
+        )
     return persona, binding
 
 
