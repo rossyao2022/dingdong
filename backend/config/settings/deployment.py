@@ -31,6 +31,17 @@ for key in ("DJANGO_SECRET_KEY", "JWT_SIGNING_KEY"):
         )
 if SECRET_KEY == JWT_SIGNING_KEY:
     raise ImproperlyConfigured("Django and JWT keys must be different")
+if SMS_MODE not in {"fixed_code", "aliyun_verify"}:
+    raise ImproperlyConfigured("SMS_MODE must be fixed_code or aliyun_verify")
+if SMS_MODE == "aliyun_verify" and not all(
+    (
+        ALIYUN_VERIFY_ACCESS_KEY_ID,
+        ALIYUN_VERIFY_ACCESS_KEY_SECRET,
+        ALIYUN_VERIFY_SIGN_NAME,
+        ALIYUN_VERIFY_TEMPLATE_CODE,
+    )
+):
+    raise ImproperlyConfigured("aliyun_verify requires credentials, system sign and template")
 origins = [origin] + [
     value.strip() for value in env("ADDITIONAL_ORIGINS", default="").split(",") if value.strip()
 ]

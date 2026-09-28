@@ -21,7 +21,9 @@ Python 3.14；依赖精确版本见 uv.lock（当前 Django 6.0.8、DRF 3.17.2�
 
 当前本地默认配置与 `.env.example` 一致；可复制为 `.env` 覆盖。里面的密码/签名密钥仅供本地合成测试，禁止公网部署。此批次 production 配置直接拒绝启动，避免误用固定验证码或未完成的供应商能力。
 
-短信仍须先 GET `/api/v1/auth/csrf`，带 X-CSRFToken 创建短信挑战，再用字符串 `00000` 登录。登录会轮换 CSRF Cookie，后续浏览器请求使用最新 csrftoken。access 仅浏览器内存，refresh 在 HttpOnly Cookie；无默认工作人员密码，可按需用 Django createsuperuser 创建本地管理员。
+短信仍须先 GET `/api/v1/auth/csrf`，带 X-CSRFToken 创建短信挑战。默认 `SMS_MODE=fixed_code` 时只用于合成数据演示，输入 `00000` 登录；`SMS_MODE=aliyun_verify` 时向中国大陆手机号发送随机 5 位验证码，本地挑战表只存 HMAC 摘要，绝不回退固定码。登录会轮换 CSRF Cookie，后续浏览器请求使用最新 csrftoken。access 仅浏览器内存，refresh 在 HttpOnly Cookie；无默认工作人员密码，可按需用 Django createsuperuser 创建本地管理员。
+
+真实短信需要单独的叮咚 RAM AccessKey，设置 `ALIYUN_VERIFY_ACCESS_KEY_ID`、`ALIYUN_VERIFY_ACCESS_KEY_SECRET`、`ALIYUN_VERIFY_SIGN_NAME`、`ALIYUN_VERIFY_TEMPLATE_CODE`，可选 `ALIYUN_VERIFY_REGION`（默认 `cn-shanghai`）与 `ALIYUN_VERIFY_ENDPOINT`（默认 `dypnsapi.aliyuncs.com`）。签名和验证码模板来自**号码认证服务 → 短信认证**的系统赠送资源，不能与短信服务的签名/模板混用。密钥只放受保护的运行环境配置，不进仓库、日志或浏览器。部署配置缺任一项时拒绝启动真实模式。发送请求经阿里云 `Dypnsapi/SendSmsVerifyCode`；本项目发送自生成验证码，因此登录验证仍由本地的限频、5 分钟有效期、最多 5 次错误和一次性消费流程完成，不调用阿里云 Check 接口。此产品的计费与短信服务免费试用包分开。真实短信功能不改变测评和机器人仍为演示/联调数据的边界。
 
 ## 测试
 

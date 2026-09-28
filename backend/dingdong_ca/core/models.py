@@ -65,7 +65,9 @@ class SmsChallenge(Entity):
         constraints = [
             models.CheckConstraint(condition=Q(failed_attempts__lte=5), name="sms_attempt_limit"),
             models.CheckConstraint(
-                condition=Q(status__in=["sent", "consumed", "expired", "locked"]),
+                condition=Q(
+                    status__in=["sending", "sent", "consumed", "expired", "locked", "failed"]
+                ),
                 name="sms_status_valid",
             ),
         ]

@@ -76,7 +76,7 @@
         </div>
         <div class="ops-topbar-actions">
           {% block topbar_actions %}{% endblock %}
-          <span class="badge bg-secondary-lt" title="当前为演示环境：短信验证码固定，测评数据来自测试输入">演示环境</span>
+          <span class="badge bg-secondary-lt" title="当前为演示环境：{% if ops_real_sms %}短信由阿里云发送，{% else %}短信验证码固定，{% endif %}测评数据来自测试输入">演示环境</span>
           <span class="ops-topbar-user" title="当前登录账号">
             <span class="ops-avatar" aria-hidden="true"><i class="ti ti-user-shield"></i></span>
             <span class="ops-identity-text">

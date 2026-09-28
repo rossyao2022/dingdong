@@ -1,5 +1,6 @@
 import hashlib
 import hmac
+import secrets
 import uuid
 from datetime import timedelta
 
@@ -13,6 +14,7 @@ from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 
 from dingdong_ca.core.models import Family, FamilyMembership, LoginGrant, SmsChallenge
+from dingdong_ca.core.services.aliyun_verify_sms import SmsDeliveryError, send_verification_code
 
 from .common import ApiError, audit, endpoint, family_for, validate
 from .inputs import LoginInput, SmsInput
@@ -99,15 +101,22 @@ def csrf(request):
 @endpoint(["POST"], anonymous=True, csrf=True)
 def sms(request):
     data = validate(SmsInput, request.data)
-    if settings.SMS_MODE != "fixed_code":
-        raise ApiError("INTEGRATION_NOT_READY", 503, "短信供应商尚未接入")
+    mode = settings.SMS_MODE
+    if mode not in {"fixed_code", "aliyun_verify"}:
+        raise ApiError("SMS_UNAVAILABLE", 503, "短信服务暂不可用")
     phone = data["phone"]
+    if mode == "aliyun_verify" and not (phone.startswith("+86") and len(phone) == 14):
+        raise ApiError("VALIDATION_ERROR", 422, "目前仅支持中国大陆手机号")
     ip = request.META.get("REMOTE_ADDR", "127.0.0.1")
     now = timezone.now()
     with transaction.atomic():
         advisory("sms-phone:" + phone)
         advisory("sms-ip:" + ip)
-        latest = SmsChallenge.objects.filter(phone=phone).order_by("-created_at").first()
+        latest = (
+            SmsChallenge.objects.filter(phone=phone, status__in=["sending", "sent"])
+            .order_by("-created_at")
+            .first()
+        )
         if latest and (now - latest.created_at).total_seconds() < 60:
             seconds = max(1, 60 - int((now - latest.created_at).total_seconds()))
             raise ApiError(
@@ -119,23 +128,42 @@ def sms(request):
             or SmsChallenge.objects.filter(client_ip=ip, created_at__gt=since).count() >= 50
         ):
             raise ApiError("RATE_LIMITED", 429, "验证码请求过多", headers={"Retry-After": "3600"})
-        SmsChallenge.objects.filter(phone=phone, status="sent").update(
-            status="expired", code_digest=None
-        )
+        if mode == "fixed_code":
+            SmsChallenge.objects.filter(phone=phone, status="sent").update(
+                status="expired", code_digest=None
+            )
         ident = uuid.uuid4()
+        code = "00000" if mode == "fixed_code" else f"{1 + secrets.randbelow(99999):05d}"
         row = SmsChallenge.objects.create(
             id=ident,
             phone=phone,
             client_ip=ip,
             expires_at=now + timedelta(minutes=5),
-            code_digest=digest(ident, phone, "00000"),
+            code_digest=digest(ident, phone, code),
+            status="sent" if mode == "fixed_code" else "sending",
         )
+    if mode == "aliyun_verify":
+        try:
+            send_verification_code(phone, code, out_id=str(row.pk))
+        except SmsDeliveryError as exc:
+            SmsChallenge.objects.filter(pk=row.pk, status="sending").update(
+                status="failed", code_digest=None
+            )
+            raise ApiError("SMS_UNAVAILABLE", 503, exc.message) from None
+        with transaction.atomic():
+            advisory("sms-phone:" + phone)
+            SmsChallenge.objects.filter(phone=phone, status="sent").exclude(pk=row.pk).update(
+                status="expired", code_digest=None
+            )
+            SmsChallenge.objects.filter(pk=row.pk, status="sending").update(status="sent")
     return Response({"challenge_id": str(row.pk), "expires_in": 300, "retry_after": 60})
 
 
 @endpoint(["POST"], anonymous=True, csrf=True)
 def login(request):
     data = validate(LoginInput, request.data)
+    if settings.SMS_MODE == "aliyun_verify" and data["code"] == "00000":
+        raise ApiError("SMS_CODE_INVALID", 422, "验证码错误")
     initial = SmsChallenge.objects.filter(pk=data["challenge_id"]).first()
     if not initial:
         raise ApiError("SMS_CODE_INVALID", 422, "验证码无效")
@@ -208,7 +236,7 @@ def cookie_grant(request, lock=False):
         ):
             raise ValueError
         return grant
-    except (TokenError, ValueError, KeyError, LoginGrant.DoesNotExist):
+    except TokenError, ValueError, KeyError, LoginGrant.DoesNotExist:
         raise ApiError("LOGIN_REVOKED", 401, "请重新登录") from None
 
 

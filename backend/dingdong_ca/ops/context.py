@@ -12,6 +12,8 @@
 import os
 from pathlib import Path
 
+from django.conf import settings
+
 _FALLBACK = "dev"
 
 
@@ -32,4 +34,8 @@ ASSET_VERSION = _app_version()
 
 def ops_assets(request):
     """给所有模板提供静态资源版本号与应用版本号。"""
-    return {"ops_asset_version": ASSET_VERSION, "ops_app_version": ASSET_VERSION}
+    return {
+        "ops_asset_version": ASSET_VERSION,
+        "ops_app_version": ASSET_VERSION,
+        "ops_real_sms": settings.SMS_MODE == "aliyun_verify",
+    }

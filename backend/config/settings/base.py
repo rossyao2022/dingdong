@@ -17,6 +17,12 @@ JWT_SIGNING_KEY = env(
     "JWT_SIGNING_KEY", default="local-jwt-key-different-from-django-key-12345678901234567890"
 )
 SMS_MODE = env("SMS_MODE", default="fixed_code")
+ALIYUN_VERIFY_ACCESS_KEY_ID = env("ALIYUN_VERIFY_ACCESS_KEY_ID", default="")
+ALIYUN_VERIFY_ACCESS_KEY_SECRET = env("ALIYUN_VERIFY_ACCESS_KEY_SECRET", default="")
+ALIYUN_VERIFY_SIGN_NAME = env("ALIYUN_VERIFY_SIGN_NAME", default="")
+ALIYUN_VERIFY_TEMPLATE_CODE = env("ALIYUN_VERIFY_TEMPLATE_CODE", default="")
+ALIYUN_VERIFY_REGION = env("ALIYUN_VERIFY_REGION", default="cn-shanghai")
+ALIYUN_VERIFY_ENDPOINT = env("ALIYUN_VERIFY_ENDPOINT", default="dypnsapi.aliyuncs.com")
 INTEGRATION_DATA_SOURCE = env("INTEGRATION_DATA_SOURCE", default="database_fixture")
 
 # --- CA × DingDong 对接（见 设计/CA对接_C1_ca_account_id设计_20260916.md） ---
