@@ -1,0 +1,10 @@
+# Offline fallback for v0.3.13 when Docker Hub base metadata is unavailable.
+# The production host already has the verified v0.3.12 backend image.
+FROM dingdong-backend:0.3.12
+USER root
+WORKDIR /app
+COPY backend/pyproject.toml backend/uv.lock ./
+RUN uv sync --frozen --no-dev
+COPY backend/ ./
+RUN DJANGO_SETTINGS_MODULE=config.settings.base .venv/bin/python manage.py collectstatic --noinput
+USER app
