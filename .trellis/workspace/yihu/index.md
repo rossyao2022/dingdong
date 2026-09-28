@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 10
-- **Last Active**: 2026-09-28
+- **Total Sessions**: 11
+- **Last Active**: 2026-09-29
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~292 | Active |
+| `journal-1.md` | ~316 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 11 | 2026-09-29 | 短信频控热修并部署 v0.3.14 | `d9219ea`, `95fed7d`, `7c1eee2` | `codex/release-v0.3.14` |
 | 10 | 2026-09-28 | 阿里云短信认证实测与 v0.3.13 上线 | `413e015`, `6811c4f`, `1530fe5`, `bf7d6a7`, `11daa42`, `7e875f4`, `910ef70` | `codex/release-v0.3.13` |
 | 9 | 2026-09-28 | 生产机试用家长与运营 PDF 指南 | `5580364` | `codex/release-v0.3.12` |
 | 8 | 2026-09-28 | 生产运营登录验证码与门禁替换 | `07174ea`, `6d950c4`, `736520b` | `codex/release-v0.3.12` |

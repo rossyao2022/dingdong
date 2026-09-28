@@ -290,3 +290,27 @@ v0.3.12 已部署到 1.15.23.152，移除浏览器门禁、加入验证码和限
 ### Status
 
 [OK] **Completed**
+
+
+## Session 11: 短信频控热修并部署 v0.3.14
+<!-- trellis-session: v=2 fp=15856c0a7eea3017 -->
+
+**Date**: 2026-09-29
+**Task**: 短信频控热修并部署 v0.3.14
+**Branch**: `codex/release-v0.3.14`
+
+### Summary
+
+确认生产 biz.FREQUENCY 被误报 503，修复已消费验证码的本地限频和供应商 429 映射；26 项后端与 67 项前端测试通过，获放行后备份并部署生产试用实例，公网版本和容器健康通过，未额外发短信。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `d9219ea` | [T-sms-frequency-fix] Handle SMS frequency limits after logout |
+| `95fed7d` | [T-sms-frequency-fix] Record pending SMS frequency release |
+| `7c1eee2` | [T-sms-frequency-fix] Record production hotfix deployment |
+
+### Status
+
+[OK] **Completed**
