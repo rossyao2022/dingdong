@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 6
-- **Last Active**: 2026-09-27
+- **Total Sessions**: 7
+- **Last Active**: 2026-09-28
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~187 | Active |
+| `journal-1.md` | ~209 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 7 | 2026-09-28 | v0.3.10 生产机运营试用部署 | `0b9497e` | `codex/release-v0.3.10` |
 | 6 | 2026-09-27 | 家长端退出与文案清理 | `4ee8f6e`, `293988a` | `codex/release-v0.3.10` |
 | 5 | 2026-09-27 | T-052 紫色素材合并、全量核查与 v0.3.9 测试部署 | `c531e87`, `708e6de` | `codex/release-v0.3.9` |
 | 4 | 2026-09-24 | DingDong Prototype 微信草稿事实核验 | - | `codex/release-v0.3.8` |

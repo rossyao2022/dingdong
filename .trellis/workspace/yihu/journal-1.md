@@ -185,3 +185,25 @@ T-047 收尾：README 合成标注纪律改新口径（testTag 空实现，家�
 ### Status
 
 [OK] **Completed**
+
+
+## Session 7: v0.3.10 生产机运营试用部署
+<!-- trellis-session: v=2 fp=a2d0241f4e98feee -->
+
+**Date**: 2026-09-28
+**Task**: v0.3.10 生产机运营试用部署
+**Branch**: `codex/release-v0.3.10`
+
+### Summary
+
+在 1.15.23.152 隔离部署 v0.3.10 demo 运营试用实例，完成 HTTPS 门禁、真实 Chrome 验收、备份、回滚记录和运营手册；修复 Basic Auth 与 Bearer 冲突。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `0b9497e` | [T-production-ops-trial] docs: 部署生产机运营试用实例并交付手册 |
+
+### Status
+
+[OK] **Completed**
