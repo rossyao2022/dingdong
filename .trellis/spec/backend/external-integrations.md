@@ -55,3 +55,6 @@ CA 侧是主动调用方，8 个 `/api/v1/ca/*` 都是我方发起（`PROJECT_ME
 - 本地演示用 `config/settings/local.py`（`from .base import *`），公网演示用 `config/settings/deployment.py`。
 - `deployment.py` 会在启动时校验：`PUBLIC_ORIGIN` 必须是干净的 http(s) origin、`DJANGO_SECRET_KEY`/`JWT_SIGNING_KEY` 长度 ≥50 且互不相同、`ADDITIONAL_ORIGINS` 同协议。这些校验是**故意 fail fast**，不要为了让环境起来而放宽。
 - 演示环境的边界不变：固定验证码、fixture 集成、不接真实供应商、不采集真实指纹。改动若试图“顺手接通真实供应商”，先停下确认范围。
+- 生产机上的运营试用实例仍必须叫 **demo / 合成数据**，不能因为机器叫生产机就把 `APP_ENV` 改成 production 或把真实接入记为完成。交付记录见 `deploy/PRODUCTION_TRIAL_20260928_V0310.md`。
+- 若在 Nginx 外层加 HTTP Basic 门禁，不能覆盖所有 `/api/`：家长端登录后的请求带 `Authorization: Bearer`，与 Basic 共用同一请求头，会被 Nginx 拦成 401。当前生产机只在页面和 `/api/v1/auth/` 上启用 Basic，其余 API 由 Django JWT/会话鉴权。改动门禁后必须用真实浏览器完成“家长登录→读取儿童档案→退出”，单看登录接口 200 会漏掉此缺陷。
+- 门禁哈希文件应给实际 Nginx worker 用户读权限；生产机 worker 是 `nginx`，不是 Ubuntu 常见的 `www-data`。权限错误会导致授权请求 500，可从 Nginx error log 定位。

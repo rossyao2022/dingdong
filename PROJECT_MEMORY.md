@@ -1,8 +1,10 @@
 # 叮咚项目记忆与会话交接
 
-最后更新：2026-09-27，Asia/Shanghai。适用于本目录中的后续会话。本文记录已核对事实，不代替代码和最新用户指令。
+最后更新：2026-09-28，Asia/Shanghai。适用于本目录中的后续会话。本文记录已核对事实，不代替代码和最新用户指令。
 
 ## 当前结论与最近工作
+
+**最新：晴幂生产机上的运营试用实例（2026-09-28）。** 用户确认目标机 `1.15.23.152` 并要求运行一版。该机原无 Docker，已安装 Docker 29.1.3 / Compose 2.40.3；用已在 tigery 验收的 v0.3.10 镜像和同 SHA 发布包部署独立 Compose 项目 `dingdong-prod-trial`，独立数据库、Redis、密钥和测试账号。公网入口 `https://1.15.23.152/dingdong/`（家长）与 `https://1.15.23.152/ops/`（运营）使用现有可信 IP 证书和单独 HTTP 访问门禁；后台账号凭据与门禁密码不入库，交付时单独给用户。`/dingdong/version.txt`=0.3.10、`runtime`=`demo`/固定码/数据库 fixture，API、Web、Worker、Beat、PostgreSQL、Redis 正常。真实 Chrome 走通运营登录→五个主要页面→退出，以及家长固定码登录→合成建档→退出；页面无 JS 错误，原有 `www.happykua.com` 仍 200，可用内存约 2.4 GiB。初始备份在生产机 `/opt/dingdong/backups/baseline-v0.3.10-20260928.dump`。关键部署坑：外层 HTTP Basic 不能覆盖携带 Bearer 的全部 `/api/` 请求；现只保护页面和 `/api/v1/auth/`，其他接口由 Django JWT/会话校验，未授权登录接口与儿童接口均 401。**此实例是在生产机器上的运营试用环境，仍是 demo 模式与合成数据，绝非真实短信/机器人/供应商生产接入。** 运维与回滚见 [部署记录](deploy/PRODUCTION_TRIAL_20260928_V0310.md)，运营可转发手册见 [运营试用手册](dist/guides/生产机运营试用操作手册.md)。
 
 **最新发布：家长端退出入口与文案清理 / v0.3.10 测试环境（2026-09-27）。** `codex/release-v0.3.10` 的应用提交 `4ee8f6e` 已加页头“退出登录”（建档页、已有档案与 390px 手机视口均可用），删除题库发布、数据来源对照、同步时间戳、报告模板版本等家长不需理解的说明；内部设备编号只在主动展开后可见。测评提交阶段明确使用演示图片，不需上传孩子照片。前端语法检查、67 单测、部署配置 9 项和 `uv lock --check` 通过；真实 Chrome 本地新增退出/文案 2 项、受影响旧流程 23 项（初跑 19 过，4 项修正旧断言后定向复测全过）、成长周期桌面/390px 1 项、演示报告流程 2 项、账户与机器人标签专项 9 项通过。发布包 `dist/dingdong-v0.3.10.tar.gz` 的 SHA-256 为 `8d4331a6bf2029cb67b3d3a57ef6d96b81b5ca184eca965b72511823129e1c7a`；测试机升级前备份已完成，`dingdong-demo` API、Web、Worker、Beat、PostgreSQL 和 Redis 健康。公网版本返回 `0.3.10`、运营登录页 200、六张 WebP 均 200；真实 Chrome 从公网验证登录、建档前退出、390px 退出、建档后报告文案和无页面 JS 错误。记录见 [v0.3.10 测试部署](deploy/TEST_RELEASE_20260927_V0310.md) 与 [.trellis 任务报告](.trellis/tasks/archive/2026-09/09-27-parent-logout-copy/report.md)。测试环境仍为数据库合成 fixture，正式 DingDong 四子接口与真实推送未闭环。
 
