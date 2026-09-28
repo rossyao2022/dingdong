@@ -207,3 +207,27 @@ T-047 收尾：README 合成标注纪律改新口径（testTag 空实现，家�
 ### Status
 
 [OK] **Completed**
+
+
+## Session 8: 生产运营登录验证码与门禁替换
+<!-- trellis-session: v=2 fp=327d1f159311e022 -->
+
+**Date**: 2026-09-28
+**Task**: 生产运营登录验证码与门禁替换
+**Branch**: `codex/release-v0.3.12`
+
+### Summary
+
+v0.3.12 已部署到 1.15.23.152，移除浏览器门禁、加入验证码和限流，完成生产 Chrome、365 后端、52 定向、67 前端与 10 部署测试。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `07174ea` | [T-ops-captcha-no-basic-gate] feat: 运营登录图形验证码并移除生产浏览器门禁 |
+| `6d950c4` | [T-ops-captcha-no-basic-gate] fix: 防止空密码清除登录限流 |
+| `736520b` | [T-ops-captcha-no-basic-gate] docs: 记录生产验证码部署与热修验收 |
+
+### Status
+
+[OK] **Completed**
