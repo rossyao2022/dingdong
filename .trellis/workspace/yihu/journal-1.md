@@ -262,3 +262,31 @@ v0.3.12 已部署到 1.15.23.152，移除浏览器门禁、加入验证码和限
 ### Status
 
 [OK] **Completed**
+
+
+## Session 10: 阿里云短信认证实测与 v0.3.13 上线
+<!-- trellis-session: v=2 fp=aa3ef4a2af5ecf52 -->
+
+**Date**: 2026-09-28
+**Task**: 阿里云短信认证实测与 v0.3.13 上线
+**Branch**: `codex/release-v0.3.13`
+
+### Summary
+
+本地两次短信实发及一次性登录验证；用户放行后部署生产机试用实例真实短信模式，完成备份、迁移、健康和页面验收，并更新双版 PDF 指南。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `413e015` | [T-aliyun-sms-auth] Add Alibaba PNVS SMS login mode |
+| `6811c4f` | [T-aliyun-sms-auth] Record one accepted live SMS and expired login check |
+| `1530fe5` | [T-aliyun-sms-auth] Record successful live SMS login |
+| `bf7d6a7` | [T-aliyun-sms-auth] Prepare v0.3.13 SMS release |
+| `11daa42` | [T-aliyun-sms-auth] Document v0.3.13 release evidence |
+| `7e875f4` | [T-aliyun-sms-auth] Add safe offline release build |
+| `910ef70` | [T-aliyun-sms-auth] Record v0.3.13 production trial rollout |
+
+### Status
+
+[OK] **Completed**

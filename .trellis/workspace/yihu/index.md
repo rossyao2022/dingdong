@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 9
+- **Total Sessions**: 10
 - **Last Active**: 2026-09-28
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~264 | Active |
+| `journal-1.md` | ~292 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 10 | 2026-09-28 | 阿里云短信认证实测与 v0.3.13 上线 | `413e015`, `6811c4f`, `1530fe5`, `bf7d6a7`, `11daa42`, `7e875f4`, `910ef70` | `codex/release-v0.3.13` |
 | 9 | 2026-09-28 | 生产机试用家长与运营 PDF 指南 | `5580364` | `codex/release-v0.3.12` |
 | 8 | 2026-09-28 | 生产运营登录验证码与门禁替换 | `07174ea`, `6d950c4`, `736520b` | `codex/release-v0.3.12` |
 | 7 | 2026-09-28 | v0.3.10 生产机运营试用部署 | `0b9497e` | `codex/release-v0.3.10` |
