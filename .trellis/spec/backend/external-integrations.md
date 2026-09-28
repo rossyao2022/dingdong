@@ -12,6 +12,7 @@
 
 - `SMS_MODE=fixed_code` 只供显式演示/测试，登录码 `00000`；`SMS_MODE=aliyun_verify` 通过号码认证 `Dypnsapi/SendSmsVerifyCode` 发送随机 5 位码，真实模式明确拒绝 `00000`。两种模式都保留挑战、限频、消费、JWT 与权限流程（`core/api/accounts.py`）。
 - 真实模式由本地 HMAC 摘要校验验证码，不调用阿里云 Check 接口；发送失败不产生可登录挑战、不回退固定码。验证码只存校验摘要、消费后清除，不打印验证码或令牌（`backend/README.md`）。
+- 本地同号码重发冷却必须把已用于登录的 `consumed` 挑战也算入；消费验证码不等于供应商发送间隔已结束。阿里云的 `biz.FREQUENCY` 表示发送过频，映射为家长可理解的 `RATE_LIMITED` 429；不能把所有供应商拒绝都写成“服务不可用”。
 - 专属 RAM 用户只授予 `dypns:SendSmsVerifyCode`，签名和模板来自号码认证服务，不能把短信服务试用包当成同一额度。生产机启用真实模式不代表公网收码登录已验；本地实发与生产机配置验收必须分开记录。
 - 生产开关硬拒绝：`APP_ENV == "production"` 时 `base.py` 直接 `raise ImproperlyConfigured`，避免误用固定验证码上线。
 

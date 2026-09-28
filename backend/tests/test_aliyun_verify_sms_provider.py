@@ -69,3 +69,16 @@ def test_sdk_exception_and_rejection_do_not_leak_code_or_key(caplog):
             send_verification_code("+8613800000042", "12345")
     assert error.value.reason == "quota_exhausted"
     assert "12345" not in caplog.text
+
+
+@override_settings(**PROVIDER_SETTINGS)
+def test_provider_biz_frequency_is_a_rate_limit(caplog):
+    with patch("dingdong_ca.core.services.aliyun_verify_sms.SmsClient") as client_class:
+        client_class.return_value.send_sms_verify_code.return_value = SimpleNamespace(
+            body=SimpleNamespace(code="biz.FREQUENCY")
+        )
+        with pytest.raises(SmsDeliveryError) as error:
+            send_verification_code("+8613800000042", "12345")
+    assert error.value.reason == "rate_limited"
+    assert error.value.message == "短信发送太频繁，请稍后再试"
+    assert "12345" not in caplog.text

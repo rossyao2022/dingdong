@@ -81,8 +81,9 @@ def send_verification_code(phone: str, code: str, *, out_id: str | None = None) 
             "BUSINESS_LIMIT_CONTROL",
             "FREQUENCY_FAIL",
             "isv.BUSINESS_LIMIT_CONTROL",
+            "biz.FREQUENCY",
         }:
-            raise SmsDeliveryError("rate_limited", "短信发送过于频繁，请稍后再试")
+            raise SmsDeliveryError("rate_limited", "短信发送太频繁，请稍后再试")
         if provider_code in {"AMOUNT_NOT_ENOUGH", "isv.AMOUNT_NOT_ENOUGH"}:
             raise SmsDeliveryError("quota_exhausted")
         raise SmsDeliveryError("provider_rejected")

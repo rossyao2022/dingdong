@@ -91,6 +91,49 @@ def test_real_mode_respects_cooldown_without_second_provider_call(client):
     send.assert_called_once()
 
 
+@override_settings(SMS_MODE="aliyun_verify")
+def test_consumed_login_still_cools_down_sms_after_logout(client):
+    csrf(client)
+    with (
+        patch("dingdong_ca.core.api.accounts.secrets.randbelow", return_value=12344),
+        patch("dingdong_ca.core.api.accounts.send_verification_code") as send,
+    ):
+        first = client.post(SMS_URL, {"phone": PHONE}, format="json")
+        assert first.status_code == 200
+        login = client.post(
+            LOGIN_URL,
+            {"challenge_id": first.json()["challenge_id"], "code": "12345"},
+            format="json",
+        )
+        assert login.status_code == 200
+        csrf(client)
+        assert client.post("/api/v1/auth/logout", {}, format="json").status_code == 204
+        csrf(client)
+        second = client.post(SMS_URL, {"phone": PHONE}, format="json")
+    assert second.status_code == 429
+    assert second.json()["code"] == "RATE_LIMITED"
+    assert int(second["Retry-After"]) > 0
+    send.assert_called_once()
+
+
+@override_settings(SMS_MODE="aliyun_verify")
+def test_provider_rate_limit_has_clear_user_message_and_http_429(client):
+    from dingdong_ca.core.services.aliyun_verify_sms import SmsDeliveryError
+
+    csrf(client)
+    with patch(
+        "dingdong_ca.core.api.accounts.send_verification_code",
+        side_effect=SmsDeliveryError("rate_limited", "短信发送太频繁，请稍后再试"),
+    ):
+        response = client.post(SMS_URL, {"phone": PHONE}, format="json")
+    assert response.status_code == 429
+    assert response.json()["code"] == "RATE_LIMITED"
+    assert response.json()["message"] == "短信发送太频繁，请稍后再试"
+    challenge = apps.get_model("core", "SmsChallenge").objects.get(phone=PHONE)
+    assert challenge.status == "failed"
+    assert challenge.code_digest is None
+
+
 @override_settings(SMS_MODE="unknown")
 def test_unknown_sms_mode_fails_closed(client):
     csrf(client)

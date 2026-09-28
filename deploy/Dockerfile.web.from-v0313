@@ -1,0 +1,3 @@
+# Frontend assets are unchanged in v0.3.14; update only the visible version.
+FROM dingdong-web:0.3.13
+COPY VERSION /usr/share/nginx/html/version.txt

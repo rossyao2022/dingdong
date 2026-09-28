@@ -113,7 +113,7 @@ def sms(request):
         advisory("sms-phone:" + phone)
         advisory("sms-ip:" + ip)
         latest = (
-            SmsChallenge.objects.filter(phone=phone, status__in=["sending", "sent"])
+            SmsChallenge.objects.filter(phone=phone, status__in=["sending", "sent", "consumed"])
             .order_by("-created_at")
             .first()
         )
@@ -149,6 +149,8 @@ def sms(request):
             SmsChallenge.objects.filter(pk=row.pk, status="sending").update(
                 status="failed", code_digest=None
             )
+            if exc.reason == "rate_limited":
+                raise ApiError("RATE_LIMITED", 429, exc.message) from None
             raise ApiError("SMS_UNAVAILABLE", 503, exc.message) from None
         with transaction.atomic():
             advisory("sms-phone:" + phone)
