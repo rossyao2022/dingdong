@@ -1,6 +1,6 @@
 # 外部依赖与出站调用纪律
 
-> 短信和测评算法仍是测试模式。DingDong Prototype 已做主动调用实测，但四展示面及真实 webhook 推送尚未闭环；测试部署的展示数据仍取 `synthetic_fixture`。这一节规定缺依赖时怎么表现，以及不许用什么方式“让它看起来通了”。
+> 阿里云短信已在生产机试用实例启用；测评算法仍是测试模式。DingDong Prototype 已做主动调用实测，但四展示面及真实 webhook 推送尚未闭环；测试部署的展示数据仍取 `synthetic_fixture`。这一节规定缺依赖时怎么表现，以及不许用什么方式“让它看起来通了”。
 
 ## 三条硬纪律
 
@@ -8,10 +8,11 @@
 2. **不许伪造成功**。能力没接通就如实显示“未接通”，返回明确的错误码，不编造数据、不静默降级成 200。
 3. **不许把 fixture 流程说成真实供应商接入**（`AGENTS.md`、`PROJECT_MEMORY.md`“用户明确的约束”）。
 
-## 短信：固定验证码是测试模式
+## 短信：演示固定码与阿里云真实码分开
 
-- `config/settings/base.py` 的 `SMS_MODE = "fixed_code"`；登录码固定字符串 `00000`，但**保留真实挑战、限频、消费、JWT 与权限流程**（`core/api/accounts.py`）。
-- 验证码只存校验摘要、消费后清除，不打印验证码或令牌（`backend/README.md`“初始化数据”）。
+- `SMS_MODE=fixed_code` 只供显式演示/测试，登录码 `00000`；`SMS_MODE=aliyun_verify` 通过号码认证 `Dypnsapi/SendSmsVerifyCode` 发送随机 5 位码，真实模式明确拒绝 `00000`。两种模式都保留挑战、限频、消费、JWT 与权限流程（`core/api/accounts.py`）。
+- 真实模式由本地 HMAC 摘要校验验证码，不调用阿里云 Check 接口；发送失败不产生可登录挑战、不回退固定码。验证码只存校验摘要、消费后清除，不打印验证码或令牌（`backend/README.md`）。
+- 专属 RAM 用户只授予 `dypns:SendSmsVerifyCode`，签名和模板来自号码认证服务，不能把短信服务试用包当成同一额度。生产机启用真实模式不代表公网收码登录已验；本地实发与生产机配置验收必须分开记录。
 - 生产开关硬拒绝：`APP_ENV == "production"` 时 `base.py` 直接 `raise ImproperlyConfigured`，避免误用固定验证码上线。
 
 ## 算法/画像：数据库 fixture，不是 HTTP mock
@@ -54,7 +55,8 @@ CA 侧是主动调用方，8 个 `/api/v1/ca/*` 都是我方发起（`PROJECT_ME
 
 - 本地演示用 `config/settings/local.py`（`from .base import *`），公网演示用 `config/settings/deployment.py`。
 - `deployment.py` 会在启动时校验：`PUBLIC_ORIGIN` 必须是干净的 http(s) origin、`DJANGO_SECRET_KEY`/`JWT_SIGNING_KEY` 长度 ≥50 且互不相同、`ADDITIONAL_ORIGINS` 同协议。这些校验是**故意 fail fast**，不要为了让环境起来而放宽。
-- 演示环境的边界不变：固定验证码、fixture 集成、不接真实供应商、不采集真实指纹。改动若试图“顺手接通真实供应商”，先停下确认范围。
-- 生产机上的运营试用实例仍必须叫 **demo / 合成数据**，不能因为机器叫生产机就把 `APP_ENV` 改成 production 或把真实接入记为完成。交付记录见 `deploy/PRODUCTION_TRIAL_20260928_V0310.md`。
-- 若在 Nginx 外层加 HTTP Basic 门禁，不能覆盖所有 `/api/`：家长端登录后的请求带 `Authorization: Bearer`，与 Basic 共用同一请求头，会被 Nginx 拦成 401。当前生产机只在页面和 `/api/v1/auth/` 上启用 Basic，其余 API 由 Django JWT/会话鉴权。改动门禁后必须用真实浏览器完成“家长登录→读取儿童档案→退出”，单看登录接口 200 会漏掉此缺陷。
+- 演示环境仍用 fixture 集成、不采集真实指纹；短信模式可显式配置为真实阿里云短信，不能据此把算法、机器人或报告数据说成正式供应商接入。
+- 生产机上的运营试用实例仍必须叫 **demo / 合成数据**，不能因为机器叫生产机就把 `APP_ENV` 改成 production。当前短信是真实发送，算法和机器人接入仍未完成；交付记录见 `deploy/PRODUCTION_TRIAL_20260928_V0313.md`。
+- 当前生产机无浏览器 HTTP Basic 门禁，运营登录使用图形验证码。历史教训：若未来重加 Basic，不能覆盖所有 `/api/`；家长端登录后的 `Authorization: Bearer` 会被 Basic 拦成 401。改动门禁后必须用真实浏览器完成“家长登录→读取儿童档案→退出”，单看登录接口 200 会漏掉此缺陷。
+- Docker 构建上下文的 `.dockerignore` 必须排除 `backend/.env*` 等本地密钥文件；即使 Git 忽略了文件，`docker build` 仍可能把工作区文件送入构建上下文。发布包只收 Git 跟踪文件并检查 `.env`/`.pem`/`.key`，生产机密钥单独以 0600 文件交付。构建前后均不得打印密钥。
 - 门禁哈希文件应给实际 Nginx worker 用户读权限；生产机 worker 是 `nginx`，不是 Ubuntu 常见的 `www-data`。权限错误会导致授权请求 500，可从 Nginx error log 定位。
