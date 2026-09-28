@@ -41,6 +41,12 @@ CA 侧是主动调用方，8 个 `/api/v1/ca/*` 都是我方发起（`PROJECT_ME
 - Prototype 的 `growth/profile`（15d/30d）和 `persona/health` 返回 40401，`reassessment/current` 为 `data:null`，`prototype/insights` 才有聚合数据。不可因后者有数便把四个正式展示子接口标为已接通。
 - `ca_dingdong` 对任意 NFC token 可 bind，而我方 ULID 账号被拒并收到不准确的 NFC 报错。正式账号和 NFC 校验规则未确认。webhook 接收端自测通过，但双方尚未共享密钥并配置推送目标，真实 milestone 未到达。
 
+### 生产机一次性真源探针（2026-09-29）
+
+- 生产机的实际 v0.3.14 镜像通过标准输入接收测试配置，在单独进程中运行 `dingdong_client` 与 `ca_display`，可验证网络与代码真源路径，不把测试 Key 写入正在服务的容器或报告。临时账户和授权须在事务末回滚。
+- 固定 Prototype 号可读人设和聚合 insights、可启动会话与聊天；我方 `ca_` ULID 的 bind/launch 均为 40401，正式画像 POST 为 50001，成长和健康子接口为 40401。**不能因为固定号的 canary 成功就全局切换 `CA_DISPLAY_DATA_SOURCE`**；真实家长账号仍无法绑定。
+- 对方复测 `data:null` 时，我方真源展示当前返回 `event=null` 却标 `availability=ready`；这是待修的我方空态语义。里程碑前后 `DingDongPushEvent` 无新增，且生产 webhook 未配置密钥；不得称推送已通过。
+
 ## 生成任务被外部依赖卡住时的表现
 
 `core/tasks.py` 的 `render_report` 遇到 fixture 故障会走真实失败路径（`FixtureFailure` → `job.status="failed"` + `error_code`），运营后台按 `ops/labels.job_error()` 给出中文失败原因与建议，并可经 `/api/v1/staff/jobs/<id>/retry` 真的重试。**不要用“直接置成功”的方式让失败任务消失**（`PROJECT_MEMORY.md` v0.3.3 的验收就是靠真实失败任务重试闭环）。
