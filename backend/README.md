@@ -101,7 +101,7 @@ seed_base 创建固定角色，不创建默认管理员。seed_mock 注入两组
 - HTTP 实测：docs/http-smoke-result.json；合成种子ID见 docs/seed-manifest.local.json。
 - 全部测试计划：docs/TDD_CASES.md。没有把 M2/M3 写成 skip 再计入通过数。
 - M3 已验证范围见 docs/M3_RESULT.md；19 场景注入与动作见 docs/M3_SCENARIOS.md。
-- 尚未完成：真实算法/DingDong 适配、真实短信、线上部署验收。没有实现通用 reset 命令；使用隔离测试数据库获得干净状态。
+- 尚未完成：真实算法/DingDong 正式版适配、阿里云真实短信模式的线上部署验收。本地真实短信已向授权测试号完成实发、登录及验证码重复使用拒绝验证；公网试用实例仍运行固定码模式。没有实现通用 reset 命令；使用隔离测试数据库获得干净状态。
 - M2：53 项测试通过，覆盖率 92%；见 docs/M2_RESULT.md、docs/tdd-green-m2.txt。真实 HTTP → PostgreSQL → Redis → Celery → 报告验证见 docs/http-smoke-m2-result.json。内存上传验证限当前 Django/WSGI 开发路径，不代表已验证生产代理、ASGI 或操作系统层的留存行为。
 
 来源和裁剪说明：docs/SCAFFOLD.md。未修改参考前端代码；本批次是可运行后端与测试，不等于前端已完成接入。
