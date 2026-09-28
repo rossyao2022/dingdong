@@ -65,6 +65,9 @@ def test_password_failures_are_limited_after_valid_captcha():
         image(client)
         assert "账号或密码不正确" in post(client, user, password="wrong").content.decode()
     image(client)
+    incomplete = client.post(reverse("ops:login"), {"username": user.username, "captcha": "2345"})
+    assert incomplete.status_code == 200
+    image(client)
     blocked = post(client, user)
     assert blocked.status_code == 200
     assert "尝试过多" in blocked.content.decode()

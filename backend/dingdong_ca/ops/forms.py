@@ -73,7 +73,8 @@ class OpsLoginForm(OpsFormMixin, AuthenticationForm):
         except ValidationError:
             login_guard.record_failure(username)
             raise
-        login_guard.clear_failures(username)
+        if self.get_user() is not None:
+            login_guard.clear_failures(username)
         return cleaned
 
     def confirm_login_allowed(self, user):
