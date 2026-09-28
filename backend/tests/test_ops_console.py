@@ -8,7 +8,7 @@ import pytest
 from django.contrib.auth import get_user_model
 from django.test import Client, override_settings
 from django.urls import reverse
-from ops_helpers import PASSWORD, make_family, make_staff, ops_client
+from ops_helpers import PASSWORD, issue_ops_captcha, make_family, make_staff, ops_client
 
 from dingdong_ca.core.models import AuditEvent, Child, Family
 
@@ -28,7 +28,10 @@ def test_anonymous_is_redirected_to_ops_login():
 def test_login_form_accepts_staff_and_records_audit():
     user = make_staff("operations")
     client = Client()
-    response = client.post(reverse("ops:login"), {"username": user.username, "password": PASSWORD})
+    issue_ops_captcha(client)
+    response = client.post(
+        reverse("ops:login"), {"username": user.username, "password": PASSWORD, "captcha": "2345"}
+    )
     assert response.status_code == 302
     assert response["Location"] == reverse("ops:dashboard")
     assert AuditEvent.objects.filter(actor=user, action="account.login").exists()
@@ -40,8 +43,10 @@ def test_login_form_rejects_parent_account():
     parent = make_parent(phone="+8613900000001")
     parent.set_password(PASSWORD)
     parent.save(update_fields=["password"])
-    response = Client().post(
-        reverse("ops:login"), {"username": parent.username, "password": PASSWORD}
+    client = Client()
+    issue_ops_captcha(client)
+    response = client.post(
+        reverse("ops:login"), {"username": parent.username, "password": PASSWORD, "captcha": "2345"}
     )
     assert response.status_code == 200
     assert "不是运营后台账号" in response.content.decode()
@@ -49,7 +54,11 @@ def test_login_form_rejects_parent_account():
 
 def test_login_form_rejects_wrong_password():
     user = make_staff("operations")
-    response = Client().post(reverse("ops:login"), {"username": user.username, "password": "wrong"})
+    client = Client()
+    issue_ops_captcha(client)
+    response = client.post(
+        reverse("ops:login"), {"username": user.username, "password": "wrong", "captcha": "2345"}
+    )
     assert response.status_code == 200
     assert "账号或密码不正确" in response.content.decode()
 

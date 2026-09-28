@@ -17,6 +17,7 @@ x-app: &app
     JWT_SIGNING_KEY: ${JWT_SIGNING_KEY:?set secret}
     DATABASE_URL: postgres://dingdong:${POSTGRES_PASSWORD:?set password}@postgres:5432/dingdong
     CELERY_BROKER_URL: redis://redis:6379/0
+    OPS_LOGIN_CACHE_URL: redis://redis:6379/1
     # DingDong 联调（10.4 演示）：全部留空 = 「未接通」语义，不伪造成功。
     # ALLOW_HTTP 只为对方纯 HTTP 测试环境开豁免，默认拒绝明文。
     DINGDONG_BASE_URL: ${DINGDONG_BASE_URL:-}

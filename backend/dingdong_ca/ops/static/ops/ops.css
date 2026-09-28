@@ -868,6 +868,18 @@ dialog.ops-dialog::backdrop {
   font-size: 21px;
   font-weight: 650;
 }
+.ops-captcha-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.ops-captcha-row img {
+  display: block;
+  border: 1px solid var(--dd-border, #d5e2e5);
+  border-radius: 8px;
+  background: #f4f8fb;
+}
 .ops-login-alt {
   margin-top: 16px;
   font-size: 12px;

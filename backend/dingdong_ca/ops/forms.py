@@ -7,6 +7,7 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 
+from . import captcha, login_guard
 from .permissions import ROLE_LABELS
 
 ASSIGNABLE_ROLES = ["operations", "content", "technical", "account_admin"]
@@ -46,12 +47,34 @@ class OpsLoginForm(OpsFormMixin, AuthenticationForm):
         strip=False,
         widget=forms.PasswordInput(attrs={"autocomplete": "current-password"}),
     )
+    captcha = forms.CharField(
+        label="图形验证码",
+        required=False,
+        max_length=4,
+        widget=forms.TextInput(
+            attrs={"inputmode": "numeric", "autocomplete": "off", "placeholder": "输入图片中的数字"}
+        ),
+    )
 
     error_messages = {
         **AuthenticationForm.error_messages,
         "invalid_login": "账号或密码不正确，请重新输入。",
         "inactive": "该账号已停用，请联系管理员。",
     }
+
+    def clean(self):
+        username = self.cleaned_data.get("username", "")
+        if not captcha.consume(self.request, self.cleaned_data.get("captcha", "")):
+            raise ValidationError("验证码不正确或已失效，请换一张后重试。", code="captcha")
+        if login_guard.is_limited(username):
+            raise ValidationError("登录尝试过多，请 15 分钟后再试。", code="rate_limited")
+        try:
+            cleaned = super().clean()
+        except ValidationError:
+            login_guard.record_failure(username)
+            raise
+        login_guard.clear_failures(username)
+        return cleaned
 
     def confirm_login_allowed(self, user):
         super().confirm_login_allowed(user)

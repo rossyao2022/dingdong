@@ -6,6 +6,12 @@ from .base import *
 
 APP_ENV = "demo"
 DEBUG = False
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": env("OPS_LOGIN_CACHE_URL", default="redis://127.0.0.1:6379/1"),
+    }
+}
 origin = env("PUBLIC_ORIGIN")
 parsed = urlsplit(origin)
 if (

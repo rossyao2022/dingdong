@@ -1,12 +1,13 @@
 from django.urls import path
 
-from . import api, views
+from . import api, captcha, views
 
 app_name = "ops"
 
 urlpatterns = [
     path("", views.dashboard, name="dashboard"),
     path("login/", views.OpsLoginView.as_view(), name="login"),
+    path("captcha/", captcha.image, name="captcha"),
     path("logout/", views.logout_view, name="logout"),
     path("password/", views.password_change, name="password"),
     # 家庭与儿童

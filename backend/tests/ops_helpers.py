@@ -1,16 +1,32 @@
 """运营后台测试的公共构造器。"""
 
 import json
+import secrets
 import uuid
 from io import StringIO
+from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.management import call_command
+from django.urls import reverse
 from django.utils import timezone
 from rest_framework.test import APIClient
 
 PASSWORD = "ops-pass-123456"
+
+
+def issue_ops_captcha(client, code="2345"):
+    original = secrets.choice
+    digits = iter(code)
+
+    def choose(population):
+        return next(digits) if population == "23456789" else original(population)
+
+    with patch("dingdong_ca.ops.captcha.secrets.choice", side_effect=choose):
+        response = client.get(reverse("ops:captcha"))
+    assert response.status_code == 200
+    return response
 
 
 def roles_ready():

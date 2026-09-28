@@ -73,9 +73,26 @@
                   <input class="form-control" type="password" name="password" id="id_password"
                          autocomplete="current-password" required />
                 </div>
+                <div class="mb-3">
+                  <label class="form-label" for="id_captcha">图形验证码</label>
+                  <div class="ops-captcha-row">
+                    <img id="ops-captcha-image" src="{% url 'ops:captcha' %}" width="174" height="52"
+                         alt="四位数字验证码" />
+                    <button id="ops-captcha-refresh" type="button" class="btn btn-outline-secondary">换一张</button>
+                  </div>
+                  <input class="form-control mt-2" type="text" name="captcha" id="id_captcha"
+                         inputmode="numeric" autocomplete="off" maxlength="4" placeholder="输入图片中的数字" required />
+                </div>
                 <input type="hidden" name="next" value="{{ next }}" />
                 <button type="submit" class="btn btn-primary w-100">登录</button>
               </form>
+              <script>
+                document.getElementById("ops-captcha-refresh").addEventListener("click", function () {
+                  document.getElementById("ops-captcha-image").src = "{% url 'ops:captcha' %}?v=" + Date.now();
+                  document.getElementById("id_captcha").value = "";
+                  document.getElementById("id_captcha").focus();
+                });
+              </script>
 
               <p class="text-secondary mt-3 mb-0" style="font-size:12px">
                 登录失败多次会被限制。忘记密码请联系管理员重置。
