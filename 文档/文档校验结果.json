@@ -1,8 +1,8 @@
 {
   "date": "2026-09-28",
   "scope": "本地文档链接、原始归档哈希/ZIP、提取产物、OpenAPI 引用与 operationId/路径参数；不验证远端链接、Office 版式或真实供应商协议。",
-  "markdown_files": 88,
-  "local_links_checked": 534,
+  "markdown_files": 90,
+  "local_links_checked": 540,
   "archived_files_checked": 85,
   "attachments": [
     {
@@ -142,6 +142,7 @@
     "文档/文档处理记录_20260912.md",
     "deploy/OPS_INDEPENDENT_REVIEW_20260912.md",
     "deploy/OPS_INDEPENDENT_REVIEW_20260914_V035.md",
+    "deploy/PRODUCTION_TRIAL_20260928_V0312.md",
     "deploy/OPS_CONSOLE_DEPLOYMENT_20260913_V034.md",
     "deploy/OPS_INDEPENDENT_REVIEW_20260913.md",
     "deploy/DEPLOYMENT_20260912.md",
@@ -157,6 +158,7 @@
     "deploy/ROLLBACK.md",
     "deploy/OPS_CONSOLE_DEPLOYMENT_20260913.md",
     "deploy/OPS_INDEPENDENT_REVIEW_20260914.md",
+    "deploy/PRODUCTION_TRIAL_20260928_V0311.md",
     "deploy/ADMIN_CSRF_FIX_20260912.md",
     "deploy/OPS_CONSOLE_DEPLOYMENT_20260912.md",
     "deploy/PRODUCTION_TRIAL_20260928_V0310.md",

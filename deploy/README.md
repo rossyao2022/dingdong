@@ -1,5 +1,7 @@
 # tigery Docker 演示部署 · v0.3.10
 
+晴幂生产机的独立**运营试用实例**已升级为 v0.3.12，登录页使用图形验证码且无浏览器访问弹窗；操作与回滚见 [v0.3.12 生产机部署记录](PRODUCTION_TRIAL_20260928_V0312.md)。以下内容仍描述 tigery 测试环境 v0.3.10。
+
 当前公网入口：**http://110.42.225.196/dingdong/**（家长端），运营后台 **http://110.42.225.196/ops/**，Django 后台 http://110.42.225.196/admin/ 。使用上海服务器已开放80端口，访问者无需Tailscale。
 
 部署转发配置、启动与回退见 [上海公网入口](relay/README.md)，回滚步骤见 [回滚说明](ROLLBACK.md)。当前测试环境 APP_VERSION=0.3.10，PUBLIC_ORIGIN=http://110.42.225.196。分支 `codex/release-v0.3.10` 对应此发布；本轮实测见 [v0.3.10 测试部署记录](TEST_RELEASE_20260927_V0310.md)。
