@@ -314,3 +314,25 @@ v0.3.12 已部署到 1.15.23.152，移除浏览器门禁、加入验证码和限
 ### Status
 
 [OK] **Completed**
+
+
+## Session 12: 生产机直连叮咚 Prototype 联调
+<!-- trellis-session: v=2 fp=6ce11c553a343d21 -->
+
+**Date**: 2026-09-29
+**Task**: 生产机直连叮咚 Prototype 联调
+**Branch**: `codex/release-v0.3.14`
+
+### Summary
+
+在生产机运行中的 v0.3.14 API 容器内用一次性配置真实调用 DingDong Prototype；固定号画像、人设、会话、配置、聊天可用，ULID bind/launch 均 40401，画像 POST 50001，成长和健康 40401，复测空态与真实推送未闭环。临时 CA 账户事务回滚，公众服务未切真源，记录三方剩余事项。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `b0d6655` | [T-prod-prototype-integration] Record production-host DingDong canary |
+
+### Status
+
+[OK] **Completed**
