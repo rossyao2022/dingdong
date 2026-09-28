@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 8
+- **Total Sessions**: 9
 - **Last Active**: 2026-09-28
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~233 | Active |
+| `journal-1.md` | ~264 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 9 | 2026-09-28 | 生产机试用家长与运营 PDF 指南 | `5580364` | `codex/release-v0.3.12` |
 | 8 | 2026-09-28 | 生产运营登录验证码与门禁替换 | `07174ea`, `6d950c4`, `736520b` | `codex/release-v0.3.12` |
 | 7 | 2026-09-28 | v0.3.10 生产机运营试用部署 | `0b9497e` | `codex/release-v0.3.10` |
 | 6 | 2026-09-27 | 家长端退出与文案清理 | `4ee8f6e`, `293988a` | `codex/release-v0.3.10` |

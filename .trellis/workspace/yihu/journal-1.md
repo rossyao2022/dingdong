@@ -231,3 +231,34 @@ v0.3.12 已部署到 1.15.23.152，移除浏览器门禁、加入验证码和限
 ### Status
 
 [OK] **Completed**
+
+
+## Session 9: 生产机试用家长与运营 PDF 指南
+<!-- trellis-session: v=2 fp=3253afdc76cc7660 -->
+
+**Date**: 2026-09-28
+**Task**: 生产机试用家长与运营 PDF 指南
+**Branch**: `codex/release-v0.3.12`
+
+### Summary
+
+制作并核验两份当前 v0.3.12 生产机试用操作指南；运营版含内部凭据，仅本机私密交付。
+
+### Main Changes
+
+- 基于当前浏览器界面制作家长与运营各 9 页 PDF
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `5580364` | [T-production-pdf-guides] docs: 归档生产机试用 PDF 指南核验 |
+
+### Testing
+
+- [OK] Poppler 渲染 18 页逐页检查；pypdf 文本及凭据隔离校验通过
+- [OK] 运营 PDF 权限 0600 且由本机 Git ignore 排除
+
+### Status
+
+[OK] **Completed**
