@@ -21,6 +21,7 @@
 - 760px 以下进入移动形态：侧栏 `display:none`，改用 `#mobile-nav` 底部导航（`index.html` 里是独立 `<nav>`，`header()` 只给它渲染 5 个入口：explore / home / journey / reports / settings）。
 - 验收视口约定：桌面（Playwright `devices["Desktop Chrome"]`）加 **390×844** 窄屏。`playwright.public.config.js` 就是 `desktop` + `mobile`（390×844）两个 project；`tests/ca-account.spec.js`、`tests/flows.spec.js` 用 `page.setViewportSize({ width: 390, height: 844 })`。
 - v0.3.16 的 `tests/mobile-layout.spec.js` 另覆盖 320×700、390×844、430×932，以及 768/1280 抽查。320px 要检查底部五项导航不折行、顶栏不被挤成两行、验证码与日期表单单列、相邻卡片至少留 16px。
+- 登录验证码行还要测 760/761 边界以及 800/900/1024px：761px 的双栏布局曾将验证码输入框压到约 100px。表单内字段和按钮不要依赖各自外边距抵消来对齐；由行容器控制对齐和间距。
 - 注意：390×844 是**视口模拟**，不等于真机验收（`PROJECT_MEMORY.md` 反复注明“未做真实手机硬件验收”）。不要把它写成手机实测。
 
 ## 横向溢出：有硬指标
