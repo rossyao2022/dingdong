@@ -4,6 +4,8 @@
 
 ## 当前结论与最近工作
 
+**最新：10.4 固定账号 NFC 会展演示 v0.3.15 已部署生产机试用实例（2026-09-29）。** `1.15.23.152` 的 `dingdong-prod-trial` 已切到 v0.3.15，六容器健康，短信仍为 `aliyun_verify`，家长其他展示源仍是合成 fixture。随机测试 token 仅在受限 env 中，只有这个 token 会在 demo 模式下绑定对方 Prototype 的 `ca_dingdong`；普通 token 仍发我方 ULID。本地真实 Chrome 已从带参 URL 走通登录、建档、绑定、授权、对方选人设与聊天、CA 回读陪伴值 9→10；后端全量 381 项、前端 67 项通过。公网 Chrome 验证带参 URL 返回 200 并摘除 token，生产后端真实读到对方聚合，生产库固定账号数量为 0。**生产手机收码和首次绑定、NFC 实物碰触待用户真机验收**；对方真实 milestone 推送与正式账户接入仍未完成。详情见 [v0.3.15 部署记录](deploy/PRODUCTION_TRIAL_20260929_V0315.md)。
+
 **最新：生产机 Prototype 推送回调已准备好（2026-09-29）。** 已在 `1.15.23.152` 的独立试用实例配置专用签名密钥，仅重建 API 容器。公网签名合成事件首次 201、重复投递 200，验收事件已清理；六个容器健康，版本仍 v0.3.14，短信仍 `aliyun_verify`、展示源仍 `synthetic_fixture`。密钥只在本机 Git 忽略的 0600 overlay 与生产机受限 overlay，未写入记忆或版本库。**DingDong 尚未配置目标并实发真实 milestone**，因此不能称推送联调完成。对方 Prototype 当前 HTTP 能跑业务，本轮不把 HTTPS 切换列为其前置阻塞；正式跨公网传正式 Key 前须按对方文档切换。记录见 Trellis 任务 `09-29-prod-push-callback` 的回调验收报告。
 
 **最新：生产机直连 DingDong Prototype 联调（2026-09-29）。** 在 `1.15.23.152` 正在运行的 v0.3.14 API 镜像内，用一次性进程注入测试 Key，真实出站访问对方 Prototype，并用事务回滚的固定 mock 账户走我方 `ca_display` 真源路径。固定 `ca_dingdong` 的画像、人设、insights、会话/配置/聊天可用，3 次聊天让有效互动 6→9；我方新 ULID 的 bind/launch 均被 `40401` 拒绝，正式画像 POST 为 `50001`，成长 15d/30d 与健康度均 `40401`，复测 `data:null`。我方复测空态目前 `event=null` 但 availability=`ready`，需修。生产 webhook 未配置推送密钥，第 9 次互动后事件表仍为 0。**因此没有把家长服务全局切真源**：生产实例仍是 demo/合成展示，DingDong 持久配置仍空，v0.3.14 六容器健康；没有额外发短信。详见[生产机联调报告](.trellis/tasks/archive/2026-09/09-29-prod-prototype-integration/report.md)。
