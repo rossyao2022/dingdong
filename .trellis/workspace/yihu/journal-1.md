@@ -383,3 +383,26 @@ v0.3.12 已部署到 1.15.23.152，移除浏览器门禁、加入验证码和限
 ### Status
 
 [OK] **Completed**
+
+
+## Session 15: 家长端移动布局与 Storybook v0.3.16
+<!-- trellis-session: v=2 fp=18a7a8bcbbdef47a -->
+
+**Date**: 2026-09-29
+**Task**: 家长端移动布局与 Storybook v0.3.16
+**Branch**: `codex/release-v0.3.16`
+
+### Summary
+
+真实 Chrome 320/390/430 移动视口与弹窗验收，统一卡片、按钮、日期表单和导航；新增共用原生组件及 Storybook，部署生产机试用实例并完成公网窄屏验收。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `de8ad78` | [T-mobile-ui-system] Unify mobile layout and add Storybook |
+| `4a8d1b2` | [T-mobile-ui-system] Record v0.3.16 production acceptance |
+
+### Status
+
+[OK] **Completed**
