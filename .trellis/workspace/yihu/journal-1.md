@@ -406,3 +406,26 @@ v0.3.12 已部署到 1.15.23.152，移除浏览器门禁、加入验证码和限
 ### Status
 
 [OK] **Completed**
+
+
+## Session 16: 家长登录验证码跨屏宽对齐与 v0.3.17 发布
+<!-- trellis-session: v=2 fp=560c47578ccc1be3 -->
+
+**Date**: 2026-09-29
+**Task**: 家长登录验证码跨屏宽对齐与 v0.3.17 发布
+**Branch**: `codex/release-v0.3.17`
+
+### Summary
+
+修复验证码行在平板宽度被挤窄及外边距抵消对齐；九档真实 Chrome、本地相关回归和公网验证通过，v0.3.17 已部署生产机试用实例。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `848775c` | [T-login-otp-alignment] Align verification controls across viewports |
+| `69a01c8` | [T-login-otp-alignment] Record v0.3.17 trial deployment |
+
+### Status
+
+[OK] **Completed**

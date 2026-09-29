@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 15
+- **Total Sessions**: 16
 - **Last Active**: 2026-09-29
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~408 | Active |
+| `journal-1.md` | ~431 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 16 | 2026-09-29 | 家长登录验证码跨屏宽对齐与 v0.3.17 发布 | `848775c`, `69a01c8` | `codex/release-v0.3.17` |
 | 15 | 2026-09-29 | 家长端移动布局与 Storybook v0.3.16 | `de8ad78`, `4a8d1b2` | `codex/release-v0.3.16` |
 | 14 | 2026-09-29 | 10.4 固定账号 NFC 演示发布 | `4390153`, `05413ab`, `60f74b6`, `a6c1039` | `codex/release-v0.3.15` |
 | 13 | 2026-09-29 | 生产机 Prototype 推送回调验收 | `a6d6cf2` | `codex/release-v0.3.14` |
