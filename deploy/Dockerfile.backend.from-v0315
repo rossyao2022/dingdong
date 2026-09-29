@@ -1,0 +1,7 @@
+# Offline v0.3.16 build from the verified v0.3.15 image.
+# Python dependencies are unchanged; the source version is updated.
+FROM dingdong-backend:0.3.15
+USER root
+COPY --chown=app:app backend/ /app/
+RUN DJANGO_SETTINGS_MODULE=config.settings.base .venv/bin/python manage.py collectstatic --noinput
+USER app

@@ -2,6 +2,24 @@
 
 沿用参考仓库 `d754a5bf9ea8e71ca64a850d2e26aa321fe8ab38` 的兴趣岛、伙伴插画和视觉布局，业务逻辑重新接到 CA 后端。参考仓库未修改。使用原生 JavaScript 模块，无前端框架或业务 API mock。
 
+## 移动布局与组件预览（v0.3.16）
+
+家长端仍直接运行原生 JavaScript。按钮、操作组、面板、页头和空态的 HTML 片段集中在 `ui-components.js`；实际页面与 `stories/parent-ui.stories.js` 共用它们。Storybook 是开发期预览工具，不进入 Web 镜像，依次加载 `styles.css`、`playful.css`、`client.css`。
+
+```sh
+npm ci
+npm run storybook         # 本机 http://127.0.0.1:6006
+npm run storybook:build   # 静态产物在 ../dist/storybook-ui，已忽略
+```
+
+移动端真实 Chrome 布局用例覆盖 320×700、390×844、430×932 的登录、建档、七个家长页面及关键弹窗，并抽查 768/1280 宽度。它走真实本地后端，使用固定码模式创建合成测试家长/儿童；不会拦截 API。已运行隔离服务时可设置 `E2E_BASE_URL`，Playwright 不再自动启动默认 4173 服务：
+
+```sh
+E2E_BASE_URL=http://127.0.0.1:4174 npx playwright test tests/mobile-layout.spec.js --reporter=list
+```
+
+手机端采用统一页面间距；验证码与成长观察日期区纵向排布；320px 底部导航保持单行。修复时先改 `client.css`，参考视觉文件 `styles.css`、`playful.css` 保持原样。
+
 ## 本地启动
 
 先按 `../backend/README.md` 启动 PostgreSQL、Redis、Django（8017）、Celery Worker 和 Beat，并执行 base/mock 初始化。然后在本目录执行：

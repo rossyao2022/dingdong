@@ -20,6 +20,7 @@
 - 本仓库新增样式用的断点只有两个：`@media (max-width: 1100px)` 与 `@media (max-width: 760px)`（`client.css`）。**新增的覆盖规则优先沿用这两个**，避免出现第四套断点。
 - 760px 以下进入移动形态：侧栏 `display:none`，改用 `#mobile-nav` 底部导航（`index.html` 里是独立 `<nav>`，`header()` 只给它渲染 5 个入口：explore / home / journey / reports / settings）。
 - 验收视口约定：桌面（Playwright `devices["Desktop Chrome"]`）加 **390×844** 窄屏。`playwright.public.config.js` 就是 `desktop` + `mobile`（390×844）两个 project；`tests/ca-account.spec.js`、`tests/flows.spec.js` 用 `page.setViewportSize({ width: 390, height: 844 })`。
+- v0.3.16 的 `tests/mobile-layout.spec.js` 另覆盖 320×700、390×844、430×932，以及 768/1280 抽查。320px 要检查底部五项导航不折行、顶栏不被挤成两行、验证码与日期表单单列、相邻卡片至少留 16px。
 - 注意：390×844 是**视口模拟**，不等于真机验收（`PROJECT_MEMORY.md` 反复注明“未做真实手机硬件验收”）。不要把它写成手机实测。
 
 ## 横向溢出：有硬指标
@@ -42,5 +43,6 @@
 
 - 图片全部本地：`assets/mark.svg`、`assets/dingdong.svg`、`assets/islands/<island>.svg`、`assets/sample-1..5.png`。**不引 CDN、不引外部字体**（生产环境同样由后端容器托管这几份文件）。
 - 新增图片/图标要符合 `server.cjs` 的静态白名单正则（小写字母、数字、`_`、`-`，扩展名 `svg`/`png`），见 `directory-structure.md`。
+- Storybook 开发预览直接引入这三层 CSS 和 `ui-components.js`；`stories/` 不进入生产镜像。样式修正只改 `client.css`，故事要展示生产正在使用的 HTML 函数。
 - 图片一律写 `alt`：装饰性图片用 `alt=""`，语义图片写清楚（如 `alt="DingDong 成长伙伴"`、`alt="科学发现岛的浮空小世界"`）。
 - 内联 SVG 用 `aria-hidden="true"`（`playworld.js` 里的 `arrow` / `spark` / `fp`）或 `role="img"` + 标题，不要留无标签的图形。

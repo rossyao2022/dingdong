@@ -22,15 +22,15 @@ import {
   growthCycleSection,
 } from "./growth-cycle.js";
 import { WRITE_FAILED_TEXT, reassessmentSection } from "./reassessment.js";
+import {
+  actions,
+  button,
+  emptyState,
+  esc,
+  pageHead,
+  panel,
+} from "./ui-components.js";
 const $ = (s) => document.querySelector(s);
-const esc = (v) =>
-  String(v ?? "").replace(
-    /[&<>"']/g,
-    (c) =>
-      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
-        c
-      ],
-  );
 const state = {
   user: null,
   children: [],
@@ -169,13 +169,10 @@ function dateOnly(v) {
   });
 }
 function head(title, desc = "", action = "") {
-  return `<div class="page-head"><div><span class="eyebrow">${esc(state.child?.name || "DINGDONG")} · 成长空间</span><h1>${esc(title)}</h1><p>${esc(desc)}</p></div>${action}</div>`;
+  return pageHead(title, desc, action, state.child?.name || "DINGDONG");
 }
 function empty(title, text, action = "") {
-  return `<div class="empty"><img src="assets/dingdong/robot-front.webp" alt=""><h2>${esc(title)}</h2><p>${esc(text)}</p>${action}</div>`;
-}
-function button(action, label, data = "", secondary = false) {
-  return `<button type="button" class="button ${secondary ? "secondary" : ""}" data-action="${action}" ${data}>${label}</button>`;
+  return emptyState(title, text, action);
 }
 function testTag() {
   // 家长端不再显示测试标注（2026-09-20 拍板）：保留空实现，调用点与 CSS 纪律见 README。
@@ -784,7 +781,10 @@ async function render() {
             s.questionnaire_code === "exploration" &&
             !["completed", "cancelled", "expired"].includes(s.status),
         );
-      const explorationCard = `<section class="panel"><h2>探索偏好体验</h2><p>从几个日常小情境开始，听听孩子此刻的想法。非正式测评，不做天赋或能力评分。</p>${exploration ? button("continue-assessment", "继续探索体验", `data-id="${exploration.id}"`) : button("begin-exploration", "开始探索体验")}</section>`;
+      const explorationCard = panel(
+        "探索偏好体验",
+        `<p>从几个日常小情境开始，听听孩子此刻的想法。非正式测评，不做天赋或能力评分。</p>${exploration ? button("continue-assessment", "继续探索体验", `data-id="${exploration.id}"`) : button("begin-exploration", "开始探索体验")}`,
+      );
       const otherBanks = catalog.questionnaires.filter(
         (q) => !["exploration", "initial-assessment"].includes(q.code),
       );
@@ -797,7 +797,10 @@ async function render() {
                 s.questionnaire_code === q.code &&
                 !["completed", "cancelled", "expired"].includes(s.status),
             );
-          return `<section class="panel"><h2>${esc(q.title)}</h2><p>${esc(q.description)}</p><p class="note">${q.question_count} 题</p>${resume ? button("continue-assessment", "继续这份问卷", `data-id="${resume.id}"`) : button("begin-bank", "开始这份问卷", `data-id="${q.id}" data-purpose="${q.purpose}"`)}</section>`;
+          return panel(
+            q.title,
+            `<p>${esc(q.description)}</p><p class="note">${q.question_count} 题</p>${resume ? button("continue-assessment", "继续这份问卷", `data-id="${resume.id}"`) : button("begin-bank", "开始这份问卷", `data-id="${q.id}" data-purpose="${q.purpose}"`)}`,
+          );
         })
         .join("");
       const history = sessions.filter(
@@ -814,7 +817,7 @@ async function render() {
         : [];
       html =
         head("测评与报告", "查看孩子的选择与成长记录。") +
-        `<div class="grid">${bankCards}${explorationCard}<div class="panel"><div class="card-heading"><h2>${active ? "本次测评尚未结束" : "初始测评"}</h2>${testTag()}</div><p>${active ? esc(statusNames[active.status]) : "通过日常情境题了解孩子的近期状态，完成后生成初始报告。"}</p>${active ? button("continue-assessment", "继续本次测评", `data-id="${active.id}"`) : button("begin-assessment", "开始测评")}</div></div>${companionPanel(companion, health, reassessment)}${history.length ? `<section class="panel"><h2>已完成的探索体验</h2>${history.map((s) => button("continue-assessment", esc(s.title) + " · 查看选择", `data-id="${s.id}"`, true)).join("")}</section>` : ""}<h2 style="margin:28px 0 18px">已生成报告</h2>${reportCards(reports.reverse())}${growthCyclePanel(cycle)}<h2 style="margin:30px 0 0">成长观察</h2>${windowForm()}<div class="grid">${observationBlock(overview.robot_observation)}<section class="panel"><h2>阶段观察</h2><p>${{ no_data: "还没有观察记录。", waiting_rule: "新记录还在整理中。", processing: "正在整理最新记录。", ready: "新记录已整理完成。", failed: "暂时无法更新，请稍后再看。" }[overview.stage_status]}</p>${trendRows.length ? metrics(trendRows) : ""}${button("refresh", "刷新", "", true)}</section></div>`;
+        `<div class="report-flow"><div class="grid">${bankCards}${explorationCard}<div class="panel"><div class="card-heading"><h2>${active ? "本次测评尚未结束" : "初始测评"}</h2>${testTag()}</div><p>${active ? esc(statusNames[active.status]) : "通过日常情境题了解孩子的近期状态，完成后生成初始报告。"}</p>${active ? button("continue-assessment", "继续本次测评", `data-id="${active.id}"`) : button("begin-assessment", "开始测评")}</div></div>${companionPanel(companion, health, reassessment)}${history.length ? `<section class="panel"><h2>已完成的探索体验</h2>${history.map((s) => button("continue-assessment", esc(s.title) + " · 查看选择", `data-id="${s.id}"`, true)).join("")}</section>` : ""}<h2 class="report-section-title">已生成报告</h2>${reportCards(reports.reverse())}${growthCyclePanel(cycle)}<h2 class="report-section-title">成长观察</h2>${windowForm()}<div class="grid">${observationBlock(overview.robot_observation)}<section class="panel"><h2>阶段观察</h2><p>${{ no_data: "还没有观察记录。", waiting_rule: "新记录还在整理中。", processing: "正在整理最新记录。", ready: "新记录已整理完成。", failed: "暂时无法更新，请稍后再看。" }[overview.stage_status]}</p>${trendRows.length ? metrics(trendRows) : ""}${button("refresh", "刷新", "", true)}</section></div></div>`;
     } else if (route === "settings") {
       const [consents, associations, receipts, accounts, companion] =
         await Promise.all([
@@ -981,7 +984,11 @@ function prototypeDemoPanel(result) {
     return intro + `<p>暂时读不到伙伴的最新状态，请稍后再试。</p>${button("refresh", "重新读取", "", true)}</section>`;
   const name = result.persona_name ? `<p>当前伙伴：<b>${esc(result.persona_name)}</b></p>` : `<p>还没有选择伙伴。</p>`;
   const value = result.companion_value == null ? "尚无记录" : esc(result.companion_value);
-  return intro + `<p>先完成这边的演示测评，再到 DingDong 页面选择相同方向的伙伴。</p><div class="actions"><a class="button secondary" href="#reports">查看测评</a><a class="button" href="${esc(result.prototype_url)}">去 DingDong 选伙伴和聊天</a></div>${name}<p>陪伴值：<b>${value}</b></p><p>从 DingDong 页面返回后，点“刷新伙伴变化”查看最新结果。</p>${button("refresh", "刷新伙伴变化", "", true)}<p class="note">此处展示会展演示数据。</p></section>`;
+  const links = actions(
+    '<a class="button secondary" href="#reports">查看测评</a>',
+    `<a class="button" href="${esc(result.prototype_url)}">去 DingDong 选伙伴和聊天</a>`,
+  );
+  return intro + `<p>先完成这边的演示测评，再到 DingDong 页面选择相同方向的伙伴。</p>${links}${name}<p>陪伴值：<b>${value}</b></p><p>从 DingDong 页面返回后，点“刷新伙伴变化”查看最新结果。</p>${button("refresh", "刷新伙伴变化", "", true)}<p class="note">此处展示会展演示数据。</p></section>`;
 }
 async function prototypeConsent() {
   const policy = await API.request("/policies/current?purpose=dingdong_sync", { auth: false });

@@ -1,19 +1,24 @@
 {
   "name": "dingdong-parent",
-  "version": "0.3.15",
+  "version": "0.3.16",
   "private": true,
   "type": "module",
   "description": "DingDong 家长端，连接 CA 后端",
   "scripts": {
     "dev": "node server.cjs",
     "start": "node server.cjs",
-    "check": "node --check app.js && node --check api.js && node --check ca-link.js && node --check companion.js && node --check growth-cycle.js && node --check reassessment.js && node --check playworld.js && node --check server.cjs",
+    "check": "node --check app.js && node --check api.js && node --check ca-link.js && node --check companion.js && node --check growth-cycle.js && node --check reassessment.js && node --check playworld.js && node --check ui-components.js && node --check server.cjs",
     "test": "playwright test",
     "test:unit": "node --test unit/*.test.js",
+    "storybook": "storybook dev -p 6006 --no-open",
+    "storybook:build": "storybook build -o ../dist/storybook-ui",
     "test:public": "playwright test --config=playwright.public.config.js"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",
-    "prettier": "3.9.6"
+    "@storybook/addon-docs": "10.6.0",
+    "@storybook/html-vite": "10.6.0",
+    "prettier": "3.9.6",
+    "storybook": "10.6.0"
   }
 }

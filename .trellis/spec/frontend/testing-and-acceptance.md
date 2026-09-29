@@ -21,6 +21,7 @@
 - 后端全家桶：`docker-compose -f backend/compose.yml up -d --wait`、`runserver 127.0.0.1:8017`、Celery Worker / Beat；数据库 55439、Redis 56379。
 - 页面服务：`npm --prefix frontend run dev`（4173）。Playwright 的 `webServer` 会自动起它，且 `reuseExistingServer: true`（`playwright.config.js`），所以手动起着也不会冲突。
 - 真实 Chrome：`playwright.config.js` 用 `channel: "chrome"`、`workers: 1`、`timeout: 60000`、`screenshot: "only-on-failure"`。
+- `tests/mobile-layout.spec.js` 用真实固定码登录和建档，巡检 320/390/430 的七个路由、登录表单及活动/测评/绑定/编辑弹窗，断言横向溢出、卡片边距、按钮间距和导航尺寸；另看 768/1280。`E2E_BASE_URL` 可指定已经启动的隔离家长端，此时 Playwright 不启动默认 4173。截图与失败产物放 `frontend/docs/`（已忽略）。
 
 约定与坑：
 

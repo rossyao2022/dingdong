@@ -22,6 +22,7 @@ const files = new Set([
   "companion.js",
   "growth-cycle.js",
   "reassessment.js",
+  "ui-components.js",
   "playworld.js",
 ]);
 http

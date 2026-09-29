@@ -1,16 +1,17 @@
 # 界面与“组件”约定
 
-本仓库没有组件文件。“组件”就是 `app.js` 里返回 HTML 字符串的函数，靠调用方拼进页面。
+家长端组件仍是返回 HTML 字符串的原生函数。v0.3.16 起，按钮、操作组、基础面板、页头和空态放在 `frontend/ui-components.js`；页面和 Storybook 共用这些函数，其他业务视图仍由 `app.js` 拼装。
 
 ## 现成的构件（先找它们，不要再造）
 
 | 函数 | 作用 | 位置 |
 | --- | --- | --- |
-| `esc(v)` | 统一的 HTML 转义（`& < > " '`） | `app.js` 顶部 |
+| `esc(v)` | 统一的 HTML 转义（`& < > " '`） | `ui-components.js` |
 | `$(s)` | `document.querySelector` 简写 | `app.js` 顶部 |
-| `head(title, desc, action)` | 页头（含 eyebrow 与可选动作） | `app.js` |
-| `empty(title, text, action)` | 空态（带 `assets/mark.svg`） | `app.js` |
-| `button(action, label, data, secondary)` | `button.button[data-action]` | `app.js` |
+| `head(title, desc, action)` | 页头包装，调用 `pageHead()` | `app.js` / `ui-components.js` |
+| `empty(title, text, action)` | 空态包装，调用 `emptyState()` | `app.js` / `ui-components.js` |
+| `button(action, label, data, secondary)` | `button.button[data-action]` | `ui-components.js` |
+| `actions(...items)` / `panel(title, body)` | 操作组与基础面板 | `ui-components.js` |
 | `testTag()` | “合成测试数据”标签 | `app.js` |
 | `showDialog(title, html)` | 打开 `<dialog>` 并注入内容，自带标题、关闭按钮与 `.form-error[role=alert]` | `app.js` |
 | `toast(text)` | 5 秒轻提示（`#toast`，`role="status"`） | `app.js` |
