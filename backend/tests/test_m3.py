@@ -625,7 +625,8 @@ def test_every_openapi_operation_has_a_real_view():
     # 家长绑机器人（NFC 承接）与换机归档要走我们自己服务端的接口。
     # 55 增到 61：四个展示面的 4 读 2 写（人设 / 周期成长报告 / 健康度 / 复测）——
     # 一律以 child_id 为键，家长端不出现 ca_account_id。
-    assert operations == 61
+    # 会展固定号增加一个授权后的 Prototype 聚合结果只读接口。
+    assert operations == 62
 
 
 def test_initial_fixture_tracks_current_questionnaire_and_can_target_fixed_old_session(client):

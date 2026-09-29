@@ -39,12 +39,12 @@ http
       const upstream = http.request(
         {
           hostname: "127.0.0.1",
-          port: 8017,
+          port: Number(process.env.BACKEND_PORT || 8017),
           // 本地浏览器回归可选用另一个本机网卡地址，隔离共享开发库的短信 IP 限流。
           localAddress: process.env.E2E_PROXY_SOURCE_IP || undefined,
           path: req.url,
           method: req.method,
-          headers: { ...req.headers, host: "127.0.0.1:8017" },
+          headers: { ...req.headers, host: `127.0.0.1:${process.env.BACKEND_PORT || 8017}` },
         },
         (response) => {
           res.writeHead(response.statusCode, response.headers);
@@ -91,6 +91,6 @@ http
       res.end(req.method === "HEAD" ? undefined : data);
     });
   })
-  .listen(4173, "127.0.0.1", () =>
-    console.log("DingDong 家长端：http://127.0.0.1:4173"),
+  .listen(Number(process.env.PORT || 4173), "127.0.0.1", () =>
+    console.log(`DingDong 家长端：http://127.0.0.1:${process.env.PORT || 4173}`),
   );

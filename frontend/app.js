@@ -826,6 +826,12 @@ async function render() {
         ]);
       state.consents = consents;
       hints.accounts = accounts;
+      const demoAccount = accounts.some(
+        (a) => a.status === "active" && a.ca_account_id === "ca_dingdong",
+      );
+      const demo = demoAccount
+        ? await API.request(`/children/${child}/prototype-demo`).catch((error) => ({ error }))
+        : null;
       html =
         head(
           "账户与关联",
@@ -842,7 +848,7 @@ async function render() {
           })
           .join(
             "",
-          )}<p class="note">撤回会阻止后续处理；如果需要清除已有数据，请提交删除事项。</p></section>${robotPanel(accounts, companion)}<section class="panel"><h2>机器人记录</h2>${
+          )}<p class="note">撤回会阻止后续处理；如果需要清除已有数据，请提交删除事项。</p></section>${robotPanel(accounts, companion)}${prototypeDemoPanel(demo)}<section class="panel"><h2>机器人记录</h2>${
           associations.some((a) => a.status === "verified")
             ? associations
                 .filter((a) => a.status === "verified")
@@ -965,6 +971,33 @@ function robotPanel(rows, companion = null) {
     ? `<h3 style="margin-top:26px">以前的机器人</h3>${retired.map(accountRow).join("")}`
     : "";
   return `<section class="panel"><div class="card-heading"><h2>我的机器人</h2>${testTag()}</div>${detected}${current}${companionLine}${history}</section>`;
+}
+function prototypeDemoPanel(result) {
+  if (!result) return "";
+  const intro = `<section class="panel" id="prototype-demo"><h2>会展体验 · 我的陪学伙伴</h2>`;
+  if (result.error?.status === 403)
+    return intro + `<p>同意查看机器人记录后，就能在这里看到选好的伙伴和陪伴值。</p>${button("prototype-consent", "同意并查看")}</section>`;
+  if (result.error)
+    return intro + `<p>暂时读不到伙伴的最新状态，请稍后再试。</p>${button("refresh", "重新读取", "", true)}</section>`;
+  const name = result.persona_name ? `<p>当前伙伴：<b>${esc(result.persona_name)}</b></p>` : `<p>还没有选择伙伴。</p>`;
+  const value = result.companion_value == null ? "尚无记录" : esc(result.companion_value);
+  return intro + `<p>先完成这边的演示测评，再到 DingDong 页面选择相同方向的伙伴。</p><div class="actions"><a class="button secondary" href="#reports">查看测评</a><a class="button" href="${esc(result.prototype_url)}">去 DingDong 选伙伴和聊天</a></div>${name}<p>陪伴值：<b>${value}</b></p><p>从 DingDong 页面返回后，点“刷新伙伴变化”查看最新结果。</p>${button("refresh", "刷新伙伴变化", "", true)}<p class="note">此处展示会展演示数据。</p></section>`;
+}
+async function prototypeConsent() {
+  const policy = await API.request("/policies/current?purpose=dingdong_sync", { auth: false });
+  showDialog(
+    "查看陪学伙伴",
+    `<p>同意后，可以查看孩子与伙伴的互动记录。</p><div class="policy-body">${esc(policy.body)}</div><form id="prototype-consent-form"><label class="checkline"><input type="checkbox" name="agree">我已阅读并同意查看机器人记录</label><button class="button" type="submit">同意并查看</button></form>`,
+  );
+  $("#prototype-consent-form").onsubmit = (e) => {
+    e.preventDefault();
+    act(async () => {
+      if (!e.target.elements.agree.checked) throw new Error("请先阅读并同意查看机器人记录。");
+      await consent("dingdong_sync", policy);
+      closeDialog();
+      await render();
+    }, e.submitter);
+  };
 }
 function bindRobotDialog(token = "") {
   showDialog(
@@ -1575,6 +1608,9 @@ async function handleAction(action, el) {
       break;
     case "refresh":
       await render();
+      break;
+    case "prototype-consent":
+      await prototypeConsent();
       break;
     case "mood":
       state.mood = el.dataset.value;

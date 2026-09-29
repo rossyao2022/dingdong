@@ -13,6 +13,7 @@ from dingdong_ca.core.api import (
     data_requests,
     dingdong_push,
     growth,
+    prototype_demo,
     reports,
     robots,
     staff,
@@ -100,6 +101,7 @@ urlpatterns = [
     path("api/v1/activity-records/<uuid:record_id>/finish", activities.finish),
     # CA 账户（NFC 承接与换机）：ca_account_id 是不透明字符串，不是 UUID
     path("api/v1/children/<uuid:child_id>/ca-accounts", ca_accounts.child_accounts),
+    path("api/v1/children/<uuid:child_id>/prototype-demo", prototype_demo.insights),
     path("api/v1/ca-accounts/<str:ca_account_id>", ca_accounts.account_detail),
     path("api/v1/ca-accounts/<str:ca_account_id>/retire", ca_accounts.account_retire),
     # 四个展示面（人设 / 周期成长报告 / 健康度 / 复测）：一律以 child_id 为键

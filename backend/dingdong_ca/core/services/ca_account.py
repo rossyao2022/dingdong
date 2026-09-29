@@ -30,6 +30,7 @@ _CROCKFORD = "0123456789ABCDEFGHJKMNPQRSTVWXYZ"
 _ULID_LENGTH = 26
 # 号码撞车（80 位随机）概率可忽略，但重试成本极低，留一道保险。
 _ISSUE_ATTEMPTS = 5
+PROTOTYPE_ACCOUNT_ID = "ca_dingdong"
 
 
 def new_ulid(moment=None):
@@ -76,6 +77,15 @@ def token_fingerprint(digest):
     return digest[:8]
 
 
+def prototype_demo_enabled():
+    return settings.APP_ENV == "demo" and settings.DINGDONG_PROTOTYPE_DEMO_ENABLED
+
+
+def is_prototype_token(token):
+    configured = settings.DINGDONG_PROTOTYPE_NFC_TOKEN
+    return bool(prototype_demo_enabled() and configured and hmac.compare_digest(token, configured))
+
+
 def issue_account(*, child, user, request_id, nfc_token, robot_ref=None):
     """建立或复用该孩子的 CA 账户，返回 ``(account, created)``。
 
@@ -85,6 +95,7 @@ def issue_account(*, child, user, request_id, nfc_token, robot_ref=None):
     在接口层就是显式两步，家长确认后才发生。
     """
     digest = nfc_token_digest(nfc_token)
+    fixed_demo = is_prototype_token(nfc_token)
     payload = {
         "child_id": str(child.pk),
         "nfc_token_digest": digest,
@@ -112,8 +123,13 @@ def issue_account(*, child, user, request_id, nfc_token, robot_ref=None):
                 # 同一台机器人重复绑定：复用现有号码，不换号。
                 account, created = current, False
             else:
+                if (
+                    fixed_demo
+                    and CaAccount.objects.filter(ca_account_id=PROTOTYPE_ACCOUNT_ID).exists()
+                ):
+                    raise ApiError("PROTOTYPE_ACCOUNT_OCCUPIED", 409, "演示账号已由另一档案使用")
                 for _ in range(_ISSUE_ATTEMPTS):
-                    identifier = new_ca_account_id()
+                    identifier = PROTOTYPE_ACCOUNT_ID if fixed_demo else new_ca_account_id()
                     try:
                         with transaction.atomic():
                             account = CaAccount.objects.create(
@@ -129,6 +145,10 @@ def issue_account(*, child, user, request_id, nfc_token, robot_ref=None):
                             )
                         break
                     except IntegrityError:
+                        if fixed_demo:
+                            raise ApiError(
+                                "PROTOTYPE_ACCOUNT_OCCUPIED", 409, "演示账号已由另一档案使用"
+                            ) from None
                         if not CaAccount.objects.filter(ca_account_id=identifier).exists():
                             # 不是号码撞车，而是并发下同一台机器人/同一个孩子已被占用。
                             raise ApiError(
