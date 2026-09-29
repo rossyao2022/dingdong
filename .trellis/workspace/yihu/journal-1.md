@@ -452,3 +452,26 @@ v0.3.12 已部署到 1.15.23.152，移除浏览器门禁、加入验证码和限
 ### Status
 
 [OK] **Completed**
+
+
+## Session 18: v0.3.18 生产机试用实例发布
+<!-- trellis-session: v=2 fp=f674aae6e50e11a6 -->
+
+**Date**: 2026-09-29
+**Task**: v0.3.18 生产机试用实例发布
+**Branch**: `codex/release-v0.3.18`
+
+### Summary
+
+备份数据库并部署 v0.3.18；六容器健康，公网版本与九档登录布局验收通过；发布记录已提交。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `c38de84` | [T-prod-trial-v0318] Record v0.3.18 trial deployment |
+| `5f0451f` | [T-prod-trial-v0318] Complete deployment checklist |
+
+### Status
+
+[OK] **Completed**
