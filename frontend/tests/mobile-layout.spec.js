@@ -32,6 +32,40 @@ async function createParentAndChild(page) {
   ).toBeVisible();
 }
 
+test("登录验证码控件在手机、平板与桌面宽度下对齐且互不遮挡", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  for (const width of [320, 390, 430, 760, 761, 800, 900, 1024, 1280]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto(base);
+    await expect(page.getByLabel("验证码", { exact: true })).toBeVisible();
+    await noHorizontalOverflow(page);
+    const code = await box(page.getByLabel("验证码", { exact: true }));
+    const send = await box(page.locator("#send-code"));
+    const login = await box(
+      page.getByRole("button", { name: "登录", exact: true }),
+    );
+    expect(code.width, `${width}px 验证码输入框太窄`).toBeGreaterThanOrEqual(
+      180,
+    );
+    if (Math.abs(send.y - code.y) < 2) {
+      expect(
+        Math.abs(send.y + send.height - code.y - code.height),
+      ).toBeLessThanOrEqual(2);
+    } else {
+      expect(
+        send.y - code.y - code.height,
+        `${width}px 验证码与发码按钮重叠`,
+      ).toBeGreaterThanOrEqual(12);
+    }
+    expect(
+      login.y - send.y - send.height,
+      `${width}px 发码与登录按钮紧贴`,
+    ).toBeGreaterThanOrEqual(12);
+  }
+});
+
 test("手机登录、主要页面、底部导航与表单的布局保持清楚", async ({ page }) => {
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
