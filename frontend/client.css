@@ -1167,6 +1167,9 @@ dialog::backdrop {
   .panel > .actions > .button {
     width: 100%;
   }
+  .receipts > .actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
   .topbar .demo-pill {
     white-space: nowrap;
   }
@@ -1187,6 +1190,18 @@ dialog::backdrop {
   }
 }
 @media (max-width: 440px) {
+  .hero-panel {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .hero-panel > div {
+    max-width: 100%;
+  }
+  .hero-panel img {
+    position: static;
+    width: 100px;
+    margin: 0 0 0 auto;
+  }
   .topbar {
     padding-inline: 12px;
     gap: 4px;

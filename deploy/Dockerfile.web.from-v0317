@@ -1,0 +1,5 @@
+# Offline v0.3.18 build from the verified v0.3.17 nginx image.
+FROM dingdong-web:0.3.17
+COPY frontend/index.html frontend/*.css frontend/app.js frontend/api.js frontend/playworld.js frontend/companion.js frontend/reassessment.js frontend/growth-cycle.js frontend/ca-link.js frontend/ui-components.js /usr/share/nginx/html/
+COPY frontend/assets /usr/share/nginx/html/assets
+COPY VERSION /usr/share/nginx/html/version.txt

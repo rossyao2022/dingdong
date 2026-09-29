@@ -1954,6 +1954,12 @@ document.addEventListener("click", (e) => {
     e.preventDefault();
     return;
   }
+  const currentNav = e.target.closest("#mobile-nav a, #main-nav a");
+  if (currentNav?.hash === location.hash) {
+    e.preventDefault();
+    window.scrollTo(0, 0);
+    return;
+  }
   const el = e.target.closest("[data-action]");
   if (!el) return;
   e.preventDefault();
@@ -1965,6 +1971,7 @@ window.addEventListener("hashchange", () => {
     childDraft = null;
   }
   leaveContext();
+  window.scrollTo(0, 0);
   render();
 });
 // 对话框关闭后补上被挂起的那次轮询。推迟一个任务：换路由引起的关闭会紧接着重渲染

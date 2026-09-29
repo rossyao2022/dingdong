@@ -1,6 +1,6 @@
 [project]
 name = "dingdong-ca-backend"
-version = "0.3.17"
+version = "0.3.18"
 description = "DingDong CA backend, based on Cookiecutter Django"
 requires-python = ">=3.14,<3.15"
 dependencies = [
