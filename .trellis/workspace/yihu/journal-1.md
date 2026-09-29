@@ -429,3 +429,26 @@ v0.3.12 已部署到 1.15.23.152，移除浏览器门禁、加入验证码和限
 ### Status
 
 [OK] **Completed**
+
+
+## Session 17: 家长端全页面布局巡检与 v0.3.18 推送
+<!-- trellis-session: v=2 fp=b11af32828ce039a -->
+
+**Date**: 2026-09-29
+**Task**: 家长端全页面布局巡检与 v0.3.18 推送
+**Branch**: `codex/release-v0.3.18`
+
+### Summary
+
+真实 Chrome 巡检 7 个家长页面跨 7 档宽度，修复导航滚动、帮助按钮和 320px 首页标题；相关浏览器、单测与构建通过，v0.3.18 已推送，未部署。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `5e22b86` | [T-parent-page-layout-audit] Fix parent navigation and responsive layout |
+| `97f2bc6` | [T-parent-page-layout-audit] Record pushed verification result |
+
+### Status
+
+[OK] **Completed**
