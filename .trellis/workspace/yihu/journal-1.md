@@ -358,3 +358,28 @@ v0.3.12 已部署到 1.15.23.152，移除浏览器门禁、加入验证码和限
 ### Status
 
 [OK] **Completed**
+
+
+## Session 14: 10.4 固定账号 NFC 演示发布
+<!-- trellis-session: v=2 fp=a8824c3aad41265d -->
+
+**Date**: 2026-09-29
+**Task**: 10.4 固定账号 NFC 演示发布
+**Branch**: `codex/release-v0.3.15`
+
+### Summary
+
+本地真实浏览器打通带参绑定、对方选人设聊天与聚合回读；v0.3.15 发布生产机试用实例，公网校验页面和后端读取，保留手机首次绑定供用户验收。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `4390153` | [T-prototype-nfc-demo] Build fixed-account exhibition flow |
+| `05413ab` | [T-prototype-nfc-demo] Add offline release build path |
+| `60f74b6` | [T-prototype-nfc-demo] Fix offline backend static build |
+| `a6c1039` | [T-prototype-nfc-demo] Record v0.3.15 production trial acceptance |
+
+### Status
+
+[OK] **Completed**
