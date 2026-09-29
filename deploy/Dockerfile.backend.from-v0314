@@ -3,5 +3,5 @@
 FROM dingdong-backend:0.3.14
 USER root
 COPY --chown=app:app backend/ /app/
-RUN .venv/bin/python manage.py collectstatic --noinput
+RUN DJANGO_SETTINGS_MODULE=config.settings.base .venv/bin/python manage.py collectstatic --noinput
 USER app
