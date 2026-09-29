@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 12
+- **Total Sessions**: 13
 - **Last Active**: 2026-09-29
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~338 | Active |
+| `journal-1.md` | ~360 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 13 | 2026-09-29 | 生产机 Prototype 推送回调验收 | `a6d6cf2` | `codex/release-v0.3.14` |
 | 12 | 2026-09-29 | 生产机直连叮咚 Prototype 联调 | `b0d6655` | `codex/release-v0.3.14` |
 | 11 | 2026-09-29 | 短信频控热修并部署 v0.3.14 | `d9219ea`, `95fed7d`, `7c1eee2` | `codex/release-v0.3.14` |
 | 10 | 2026-09-28 | 阿里云短信认证实测与 v0.3.13 上线 | `413e015`, `6811c4f`, `1530fe5`, `bf7d6a7`, `11daa42`, `7e875f4`, `910ef70` | `codex/release-v0.3.13` |

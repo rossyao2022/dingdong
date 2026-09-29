@@ -336,3 +336,25 @@ v0.3.12 已部署到 1.15.23.152，移除浏览器门禁、加入验证码和限
 ### Status
 
 [OK] **Completed**
+
+
+## Session 13: 生产机 Prototype 推送回调验收
+<!-- trellis-session: v=2 fp=bad367b869bf2d7f -->
+
+**Date**: 2026-09-29
+**Task**: 生产机 Prototype 推送回调验收
+**Branch**: `codex/release-v0.3.14`
+
+### Summary
+
+配置生产试用实例签名密钥，公网签名与幂等验收通过，合成事件清理；明确后续由对方设置推送目标，HTTPS 不作为 Prototype 当前阻塞项。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `a6d6cf2` | [T-prod-push-callback] Configure and verify production trial webhook |
+
+### Status
+
+[OK] **Completed**
