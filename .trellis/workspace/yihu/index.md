@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 19
-- **Last Active**: 2026-09-29
+- **Total Sessions**: 20
+- **Last Active**: 2026-09-30
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~500 | Active |
+| `journal-1.md` | ~522 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 20 | 2026-09-30 | Fixed Prototype demo account prepared for NFC rebind | `dd73c5a` | `codex/release-v0.3.18` |
 | 19 | 2026-09-29 | v0.3.18 家长与运营图文指南 | `9c0e5f3`, `784b5dc` | `codex/release-v0.3.18` |
 | 18 | 2026-09-29 | v0.3.18 生产机试用实例发布 | `c38de84`, `5f0451f` | `codex/release-v0.3.18` |
 | 17 | 2026-09-29 | 家长端全页面布局巡检与 v0.3.18 推送 | `5e22b86`, `97f2bc6` | `codex/release-v0.3.18` |

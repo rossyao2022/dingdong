@@ -498,3 +498,25 @@ v0.3.12 已部署到 1.15.23.152，移除浏览器门禁、加入验证码和限
 ### Status
 
 [OK] **Completed**
+
+
+## Session 20: Fixed Prototype demo account prepared for NFC rebind
+<!-- trellis-session: v=2 fp=8309aa948a868d80 -->
+
+**Date**: 2026-09-30
+**Task**: Fixed Prototype demo account prepared for NFC rebind
+**Branch**: `codex/release-v0.3.18`
+
+### Summary
+
+Backed up trial database, restored original demo account to active/unbound, verified production health and current screenshot guides; physical NFC and live SMS remain for on-site E2E.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `dd73c5a` | [T-prototype-demo-rebind-restore] Record demo account recovery and field guide |
+
+### Status
+
+[OK] **Completed**
