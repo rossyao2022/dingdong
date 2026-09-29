@@ -475,3 +475,26 @@ v0.3.12 已部署到 1.15.23.152，移除浏览器门禁、加入验证码和限
 ### Status
 
 [OK] **Completed**
+
+
+## Session 19: v0.3.18 家长与运营图文指南
+<!-- trellis-session: v=2 fp=c3fbb07afec08991 -->
+
+**Date**: 2026-09-29
+**Task**: v0.3.18 家长与运营图文指南
+**Branch**: `codex/release-v0.3.18`
+
+### Summary
+
+核验旧 PDF 截图与过期内容，制作两份各 9 页的 v0.3.18 图文 PDF；运营账号公网登录验证，NFC 演示号恢复待远端写入放行。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `9c0e5f3` | [T-v0318-pdf-guides] Document current illustrated guides and demo boundary |
+| `784b5dc` | [T-v0318-pdf-guides] Complete guide verification checklist |
+
+### Status
+
+[OK] **Completed**
