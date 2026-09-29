@@ -1,0 +1,7 @@
+# Offline build for v0.3.15 when Docker Hub metadata is unavailable.
+# Python dependencies are unchanged from the verified v0.3.14 image.
+FROM dingdong-backend:0.3.14
+USER root
+COPY --chown=app:app backend/ /app/
+RUN .venv/bin/python manage.py collectstatic --noinput
+USER app
