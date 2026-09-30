@@ -763,3 +763,27 @@ User explicitly authorized上线. Atomic push of release/main; verified producti
 
 - 依据AGENTS.md等待本次v0.3.21推送/main合并/生产备份迁移部署放行；生产仍v0.3.20。
 - 保留父任务in_progress：原手机/NFC/相机现场彩排、业务确认与关联CA资料彻底去标识策略未完成。
+
+
+## Session 31: v0.3.22 会展报告、推送投影与换家长绑定本地闭环
+<!-- trellis-session: v=2 fp=b170b21c59d01e0e -->
+
+**Date**: 2026-09-30
+**Task**: v0.3.22 会展报告、推送投影与换家长绑定本地闭环
+**Branch**: `codex/release-v0.3.22`
+
+### Summary
+
+完成新无设备CA报告、共享Mock八维报告、验签投影、两家庭主动解绑交接；447后端、101前端、13部署、12真实Chrome通过，55页私密PDF及批准凭据核验。包源码dbe5165，427文件逐字节核对，真实环境仍0.3.20。用户预存校验JSON保留；父任务因本版发布、供应商真实推送及实体手机/NFC彩排尾项继续in_progress，不虚报归档完成。无push/merge/远端写/SMS/供应商写。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `62e7721` | [T-prototype-content-integration] Complete exhibition report and account handover v0.3.22 |
+| `dbe5165` | [T-prototype-content-integration] Handle Unicode paths in release packaging |
+| `d132ede` | [T-prototype-content-integration] Record verified v0.3.22 release package |
+
+### Status
+
+[OK] **Completed**
