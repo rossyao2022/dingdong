@@ -1,0 +1,16 @@
+{
+  "parent": {
+    "pages": 19,
+    "mode": "0600",
+    "status_updated": true,
+    "ops_credentials_present": false,
+    "screenshot_sources_preserved": true
+  },
+  "ops": {
+    "pages": 12,
+    "mode": "0600",
+    "status_updated": true,
+    "ops_credentials_present": true,
+    "screenshot_sources_preserved": true
+  }
+}

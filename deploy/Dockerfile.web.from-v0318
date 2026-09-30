@@ -1,8 +1,9 @@
-FROM nginx:1.28-alpine
-COPY deploy/nginx.conf.template /etc/nginx/templates/default.conf.template
+# v0.3.19 offline build from the verified v0.3.18 nginx image.
+FROM dingdong-web:0.3.18
 COPY frontend/index.html frontend/*.css frontend/app.js frontend/api.js frontend/playworld.js frontend/companion.js frontend/reassessment.js frontend/growth-cycle.js frontend/ca-link.js frontend/ui-components.js /usr/share/nginx/html/
 COPY frontend/assets /usr/share/nginx/html/assets
 COPY VERSION /usr/share/nginx/html/version.txt
-# Public files must remain readable after extraction under a restrictive umask.
+# Archives extracted under a restricted umask can create root-only directories.
+# These are public static files; nginx must be able to traverse and read them.
 RUN find /usr/share/nginx/html -type d -exec chmod 755 {} + \
     && find /usr/share/nginx/html -type f -exec chmod 644 {} +

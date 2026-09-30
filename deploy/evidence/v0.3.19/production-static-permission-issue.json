@@ -1,0 +1,9 @@
+{
+  "detected_by": "public Chrome screenshot inspection",
+  "asset_status_before_fix": 404,
+  "cause": "restricted umask 077 creates implicit tar extraction directories as 0700; COPY preserves root-only asset subdirectory permissions",
+  "directory": "/usr/share/nginx/html/assets/dingdong",
+  "directory_mode_before": "0700",
+  "file_mode_before": "0644",
+  "resolution": "web image normalizes public static directory/file read permissions, then recreate web only"
+}

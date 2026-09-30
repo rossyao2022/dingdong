@@ -1,0 +1,54 @@
+{
+  "version": "0.3.19",
+  "urls": {
+    "/dingdong/": {
+      "status": 200,
+      "path": "/dingdong/"
+    },
+    "/ops/": {
+      "status": 200,
+      "path": "/ops/login/?next=/ops/"
+    },
+    "/dingdong/version.txt": {
+      "status": 200,
+      "path": "/dingdong/version.txt",
+      "version": "0.3.19"
+    },
+    "/api/v1/runtime": {
+      "status": 200,
+      "path": "/api/v1/runtime",
+      "runtime": {
+        "environment": "demo",
+        "sms_mode": "aliyun_verify",
+        "data_source": "database_fixture",
+        "fixture_dataset": null
+      }
+    }
+  },
+  "assets": {
+    "app.js": {
+      "matches_local": true,
+      "sha256": "944dc57bb9d898328e9991483b16affa7dbc24b213a9c1b7fb4474bbf4aca554"
+    },
+    "api.js": {
+      "matches_local": true,
+      "sha256": "d3d0fa7fc8391dea3c125d82e52d4fdc2fbdfeb65b7a2dc6ab0be0481916adf2"
+    },
+    "ca-link.js": {
+      "matches_local": true,
+      "sha256": "2246023b47608773952871c7c2e73831c3f262896172749e054ce40af76ad539"
+    },
+    "ui-components.js": {
+      "matches_local": true,
+      "sha256": "808543372ac43f4af1217b9fb693ef1023ad98150b6fcc66b7d3606a0c2f4e19"
+    },
+    "companion.js": {
+      "matches_local": true,
+      "sha256": "d5e3c052adb23f9346415d58e17c906f5368b5013230d14ba03920e783c694ee"
+    },
+    "styles.css": {
+      "matches_local": true,
+      "sha256": "1b6dbc81ec56b23c3629df2c931e91c03e2079bb97e9f5bf0b3d376e2dbb3780"
+    }
+  }
+}

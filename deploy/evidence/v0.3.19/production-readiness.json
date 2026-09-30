@@ -1,0 +1,19 @@
+{
+  "account_status": "active",
+  "bind_state": "unbound",
+  "original_nfc_matches": true,
+  "initial_result_fixture_count": 1,
+  "prepare_audit_count": 1,
+  "report_count": 0,
+  "active_dingdong_consent_count": 0,
+  "fixture_adapter_valid": true,
+  "professional_score": null,
+  "prototype_enabled": true,
+  "sms_mode": "aliyun_verify",
+  "dingdong_insights_reachable": true,
+  "backend_files": {
+    "dingdong_ca/core/services/ca_account.py": "e2ae22c6ddea473151f8019c754a0eae065dff7041d4784f5e888607dd39e3d9",
+    "dingdong_ca/core/api/prototype_demo.py": "8434a4089fe14ab19578842b7294d350ef65c9aeea35fb504711aeb929a304d6",
+    "dingdong_ca/core/management/commands/prepare_prototype_demo_report.py": "e7b4694a997b4784b43ec58ce2072355a5e74b5e22fffeabff489d9eedd7718b"
+  }
+}

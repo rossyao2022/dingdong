@@ -1,0 +1,107 @@
+{
+  "asset_count": 17,
+  "assets": [
+    {
+      "path": "assets/dingdong.svg",
+      "status": 200,
+      "matches_local": true,
+      "sha256": "036a95d10d1811f8a2774be6b8a4d3fe163952bc80286cb2b99974dba9a67b1e"
+    },
+    {
+      "path": "assets/mark.svg",
+      "status": 200,
+      "matches_local": true,
+      "sha256": "af65cba2a08bd25c76c9e170f2f792b59bd847649d73c842324ea78b7bf0a4b2"
+    },
+    {
+      "path": "assets/sample-4.png",
+      "status": 200,
+      "matches_local": true,
+      "sha256": "f2f789213bdfa2713c0be39a2dc98aadcaa84644355f00bf21f13388611d22c1"
+    },
+    {
+      "path": "assets/sample-5.png",
+      "status": 200,
+      "matches_local": true,
+      "sha256": "5668b252c5370bb65d85e219e426c385c0e4260c7a2bd6095150436639d87e7d"
+    },
+    {
+      "path": "assets/sample-1.png",
+      "status": 200,
+      "matches_local": true,
+      "sha256": "5f044f3f93a7294700361517e1d83cee367dad98e36f4ae55a5e92ca3458c3f6"
+    },
+    {
+      "path": "assets/sample-2.png",
+      "status": 200,
+      "matches_local": true,
+      "sha256": "9e828bfe745099c6c7fa5367a489b72ff61bce3b8167ef815aa5856eb7d99270"
+    },
+    {
+      "path": "assets/sample-3.png",
+      "status": 200,
+      "matches_local": true,
+      "sha256": "ae5307b096382c068887f1208d25794a455617e8c71bd3f41c614f1bd159a26e"
+    },
+    {
+      "path": "assets/islands/science.webp",
+      "status": 200,
+      "matches_local": true,
+      "sha256": "eae0b14cc6a7b7c9b187eddca943e3f99552a2305c3cfc648c65720f8818b151"
+    },
+    {
+      "path": "assets/islands/story.webp",
+      "status": 200,
+      "matches_local": true,
+      "sha256": "1b580a4a6cb0d201a02c82f59a1cf899aa82157505e64c6004e8c2d0e95443d7"
+    },
+    {
+      "path": "assets/islands/science.svg",
+      "status": 200,
+      "matches_local": true,
+      "sha256": "6a248befa52cc6b8e5471098e5ad121c391f2456e317942c1fe4d61a94ca7c25"
+    },
+    {
+      "path": "assets/islands/imagination.svg",
+      "status": 200,
+      "matches_local": true,
+      "sha256": "21a4e439194d1f786b8d4b81190ff6a1a38e20d6b709b26b79cf7fb33a26d5ef"
+    },
+    {
+      "path": "assets/islands/story.svg",
+      "status": 200,
+      "matches_local": true,
+      "sha256": "b507645806efcd188ab55fda4e870bb8dfd86c4e70114d88b49f47a85de8f02d"
+    },
+    {
+      "path": "assets/islands/nature.webp",
+      "status": 200,
+      "matches_local": true,
+      "sha256": "1421317ff7d7cdf954c5154856541387c6531bcf02b8e7865c310af25322d4d3"
+    },
+    {
+      "path": "assets/islands/nature.svg",
+      "status": 200,
+      "matches_local": true,
+      "sha256": "5ba0b1cb5eb2a6bae8546d04b66e036f23b030f3defd6d232e6fe5ee64a5b160"
+    },
+    {
+      "path": "assets/islands/imagination.webp",
+      "status": 200,
+      "matches_local": true,
+      "sha256": "7f61c83565647b916c4ed16920356dc76b685816d31f0c0c597f30f72e0cecc1"
+    },
+    {
+      "path": "assets/dingdong/robot-front.webp",
+      "status": 200,
+      "matches_local": true,
+      "sha256": "fb9848881c87b1e480b2fd74ae2edf1aafbaf80aa17a0d4813744265e2313715"
+    },
+    {
+      "path": "assets/dingdong/robot-wave.webp",
+      "status": 200,
+      "matches_local": true,
+      "sha256": "89e65a181debcef75589d50ff268fa47a6912541313f338155a8b776d5a769e2"
+    }
+  ]
+}

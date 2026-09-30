@@ -1,0 +1,13 @@
+预检通过：仅准备原演示儿童的合成输入；使用 --apply 才会写入
+报告体验输入已就绪；仍需家长同意、完成问卷并提交生成报告
+报告体验输入已就绪；仍需家长同意、完成问卷并提交生成报告
+dingdong-prod-trial-beat-1 | dingdong-backend:0.3.19 | Up 29 seconds
+dingdong-prod-trial-web-1 | dingdong-web:0.3.19 | Up 29 seconds
+dingdong-prod-trial-worker-1 | dingdong-backend:0.3.19 | Up 29 seconds
+dingdong-prod-trial-api-1 | dingdong-backend:0.3.19 | Up 41 seconds (healthy)
+dingdong-prod-trial-redis-1 | redis:7-alpine | Up 47 hours (healthy)
+dingdong-prod-trial-postgres-1 | postgres:17-alpine | Up 47 hours (healthy)
+->  celery@486b930a73a4: OK
+        pong
+
+1 node online.

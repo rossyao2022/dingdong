@@ -1,0 +1,2 @@
+aa2488bdeab89f46119e39a0862fee023150ac5ea6f6e2d0e580d5c51b1f459f  /opt/dingdong/backups/pre-v0.3.19-20260930.dump
+size=160224 mode=600

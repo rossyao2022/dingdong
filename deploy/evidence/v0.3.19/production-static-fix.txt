@@ -1,0 +1,27 @@
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  5.159MB
+
+Step 1/5 : FROM dingdong-web:0.3.18
+ ---> 41be75c0fa6a
+Step 2/5 : COPY frontend/index.html frontend/*.css frontend/app.js frontend/api.js frontend/playworld.js frontend/companion.js frontend/reassessment.js frontend/growth-cycle.js frontend/ca-link.js frontend/ui-components.js /usr/share/nginx/html/
+ ---> Using cache
+ ---> 005d410d3282
+Step 3/5 : COPY frontend/assets /usr/share/nginx/html/assets
+ ---> Using cache
+ ---> 3365e4508775
+Step 4/5 : COPY VERSION /usr/share/nginx/html/version.txt
+ ---> Using cache
+ ---> 1524576511b3
+Step 5/5 : RUN find /usr/share/nginx/html -type d -exec chmod 755 {} +     && find /usr/share/nginx/html -type f -exec chmod 644 {} +
+ ---> Running in 4ef4a5c0fdf4
+ ---> Removed intermediate container 4ef4a5c0fdf4
+ ---> 7f8315512522
+Successfully built 7f8315512522
+Successfully tagged dingdong-web:0.3.19
+ Container dingdong-prod-trial-web-1  Recreate
+ Container dingdong-prod-trial-web-1  Recreated
+ Container dingdong-prod-trial-web-1  Starting
+ Container dingdong-prod-trial-web-1  Started

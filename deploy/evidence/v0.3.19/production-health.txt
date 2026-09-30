@@ -1,0 +1,10 @@
+dingdong-prod-trial-web-1 | dingdong-web:0.3.19 | Up 4 minutes
+dingdong-prod-trial-beat-1 | dingdong-backend:0.3.19 | Up 9 minutes
+dingdong-prod-trial-worker-1 | dingdong-backend:0.3.19 | Up 9 minutes
+dingdong-prod-trial-api-1 | dingdong-backend:0.3.19 | Up 9 minutes (healthy)
+dingdong-prod-trial-redis-1 | redis:7-alpine | Up 47 hours (healthy)
+dingdong-prod-trial-postgres-1 | postgres:17-alpine | Up 47 hours (healthy)
+/dingdong-prod-trial-api-1 | true | 0 | sha256:571961b11325ec448dfc80984893d2e9e8fff41437cbcace1b980c05a01d3e5f
+/dingdong-prod-trial-web-1 | true | 0 | sha256:7f83155125224df788e473e43537bafd0c7373405d7fef4523e4cac00e79110b
+/dingdong-prod-trial-worker-1 | true | 0 | sha256:571961b11325ec448dfc80984893d2e9e8fff41437cbcace1b980c05a01d3e5f
+/dingdong-prod-trial-beat-1 | true | 0 | sha256:571961b11325ec448dfc80984893d2e9e8fff41437cbcace1b980c05a01d3e5f
