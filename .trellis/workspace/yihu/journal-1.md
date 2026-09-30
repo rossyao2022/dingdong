@@ -520,3 +520,25 @@ Backed up trial database, restored original demo account to active/unbound, veri
 ### Status
 
 [OK] **Completed**
+
+
+## Session 21: Exhibition readiness code review
+<!-- trellis-session: v=2 fp=ddc6cb4ac390c6e5 -->
+
+**Date**: 2026-09-30
+**Task**: Exhibition readiness code review
+**Branch**: `codex/release-v0.3.18`
+
+### Summary
+
+Reviewed v0.3.18 source and production read-only state. Backend 381 and frontend 67 pass; browser results recorded. Confirmed demo retirement lockout, missing report fixture, bind retry/state and NFC reload gaps. Recorded development, DingDong and CA operations actions; no source fixes or remote writes.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `ee6888b` | [T-prototype-demo-rebind-restore] Record exhibition readiness review |
+
+### Status
+
+[OK] **Completed**
