@@ -700,3 +700,29 @@ User explicitly authorized上线. Atomic push of release/main; verified producti
 ### Status
 
 [OK] **Completed**
+
+
+## Session 29: v0.3.20最终匹配审计及遗漏确认
+<!-- trellis-session: v=2 fp=6e29688dad4c214e -->
+
+**Date**: 2026-09-30
+**Task**: v0.3.20最终匹配审计及遗漏确认
+**Branch**: `codex/release-v0.3.20`
+
+### Summary
+
+核心数据及27素材对齐、生产只读健康；后端408/前端87/核心浏览器8通过。发现伙伴问卷入口与结果、引导实际效果/恢复、导出/步骤回退/筛选/家长支持/旧URL、运营说明及有CA号儿童删除500。仅审计未修复部署，父任务保持in_progress等待补齐与真机彩排。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `7237061` | [T-prototype-content-integration] Record final fidelity audit and remaining gaps |
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- 补操作遗漏并确认CA号永久保留与资料删除处理规则；修复后追加真实回归、手册与发布证据，再做原手机/NFC/相机彩排。
