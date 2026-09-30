@@ -1,4 +1,3 @@
 
 > dingdong-parent@0.3.20 check
 > node --check app.js && node --check api.js && node --check ca-link.js && node --check companion.js && node --check growth-cycle.js && node --check reassessment.js && node --check playworld.js && node --check ui-components.js && node --check server.cjs && node --check talent-data.js && node --check talent-explorer.js && node --check career-data.js && node --check career-explorer.js && node --check riasec.js && node --check island-explorer.js && node --check fingerprint-guide.js && node --check fingerprint.js && node --check exploration-session.js
-
