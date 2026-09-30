@@ -6175,7 +6175,7 @@
           "CA 对接"
         ],
         "summary": "归档 CA 账户（换机第一步）",
-        "description": "把账户置为 retired 并记录解绑时间；号码保留可查、永不重用。重复调用返回同一结果。换机流程是显式两步：先归档旧号，再为新机器人建号。",
+        "description": "把账户置为 retired 并记录解绑时间；号码保留可查、永不重用。重复调用返回同一结果。换机流程是显式两步：先归档旧号，再为新机器人建号。 已启用会展固定账号模式时，ca_dingdong 禁止停用，返回 409 PROTOTYPE_ACCOUNT_PROTECTED。",
         "security": [
           {
             "bearerAuth": []
@@ -6271,7 +6271,7 @@
             }
           },
           "409": {
-            "description": "状态/幂等冲突",
+            "description": "PROTOTYPE_ACCOUNT_PROTECTED：固定演示号不能停用",
             "content": {
               "application/json": {
                 "schema": {
@@ -10953,7 +10953,7 @@
           "CA 对接"
         ],
         "summary": "会展固定账号的当前陪学伙伴",
-        "description": "仅在显式启用的 Prototype 演示环境中开放；以 child_id 鉴权，需固定演示账户和 dingdong_sync 授权。后端读取对方聚合端点，测试 Key 不给浏览器。",
+        "description": "仅在显式启用的 Prototype 演示环境中开放；以 child_id 鉴权，需固定演示账户已接通和 dingdong_sync 授权。未接通返回 409，不读取对方聚合；测试 Key 不给浏览器。",
         "security": [
           {
             "bearerAuth": []
@@ -11049,6 +11049,16 @@
           },
           "502": {
             "description": "对方数据暂不可用",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "DINGDONG_BIND_PENDING：机器人待接通，请用原标签重试绑定",
             "content": {
               "application/json": {
                 "schema": {

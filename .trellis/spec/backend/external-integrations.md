@@ -67,3 +67,10 @@ CA 侧是主动调用方，8 个 `/api/v1/ca/*` 都是我方发起（`PROJECT_ME
 - 当前生产机无浏览器 HTTP Basic 门禁，运营登录使用图形验证码。历史教训：若未来重加 Basic，不能覆盖所有 `/api/`；家长端登录后的 `Authorization: Bearer` 会被 Basic 拦成 401。改动门禁后必须用真实浏览器完成“家长登录→读取儿童档案→退出”，单看登录接口 200 会漏掉此缺陷。
 - Docker 构建上下文的 `.dockerignore` 必须排除 `backend/.env*` 等本地密钥文件；即使 Git 忽略了文件，`docker build` 仍可能把工作区文件送入构建上下文。发布包只收 Git 跟踪文件并检查 `.env`/`.pem`/`.key`，生产机密钥单独以 0600 文件交付。构建前后均不得打印密钥。
 - 门禁哈希文件应给实际 Nginx worker 用户读权限；生产机 worker 是 `nginx`，不是 Ubuntu 常见的 `www-data`。权限错误会导致授权请求 500，可从 Nginx error log 定位。
+
+
+### 会展固定号恢复与报告输入（2026-09-30）
+
+- demo 开关启用时 `ca_dingdong` 禁止家长停用和不同标签换机，服务层返回 `PROTOTYPE_ACCOUNT_PROTECTED` 409；不能只隐藏按钮。普通账号生命周期不变。
+- 未接通的固定号，聚合 API 返回 `DINGDONG_BIND_PENDING` 409，不查询旧的对方数值；同一标签再次 POST 建号会复用原号并重试 bind。浏览器刷新不会自动完成绑定。
+- `prepare_prototype_demo_report` 默认预检，只有 `--apply` 才补原固定号儿童的合成初始输入。校验原标签摘要、儿童/家庭/归属/账号状态与当前发布合成题库和模板；已有不同输入或故障输入拒绝覆盖。不发布内容、不插成品报告。真实报告仍需用途授权、逐题回答、提交和 Worker。

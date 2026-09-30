@@ -247,6 +247,7 @@ ERROR_ACTION = {
 }
 
 AUDIT_ACTION = {
+    "prototype_demo.prepare_report": "准备会展报告体验",
     # 运营后台自己的动作
     "content.publish": "发布内容版本",
     "questionnaire.create": "新建题库草稿",

@@ -134,3 +134,116 @@ def test_fixed_account_is_disabled_outside_demo(client):
         assert account.status_code == 201
         assert account.json()["ca_account_id"] != "ca_dingdong"
         assert client.get(f"/api/v1/children/{child['id']}/prototype-demo").status_code == 404
+
+
+@override_settings(**DEMO_SETTINGS)
+def test_demo_cannot_be_retired_or_replaced(client, monkeypatch):
+    from dingdong_ca.core.ca_models import CaAccount
+    from dingdong_ca.core.services import dingdong_client
+
+    monkeypatch.setattr(dingdong_client, "call", lambda *args, **kwargs: {})
+    sign_in(client)
+    child = create_child(client)
+    assert issue(client, child, DEMO_TOKEN).status_code == 201
+    retired = client.post("/api/v1/ca-accounts/ca_dingdong/retire", {}, format="json")
+    assert retired.status_code == 409
+    assert retired.json()["code"] == "PROTOTYPE_ACCOUNT_PROTECTED"
+    replaced = issue(client, child, "different-robot-token")
+    assert replaced.status_code == 409
+    assert replaced.json()["code"] == "PROTOTYPE_ACCOUNT_PROTECTED"
+    assert CaAccount.objects.get(ca_account_id="ca_dingdong").status == "active"
+    assert issue(client, child, DEMO_TOKEN).status_code == 200
+
+
+@override_settings(**DEMO_SETTINGS)
+def test_unbound_demo_does_not_read_old_values_and_same_token_retries(client, monkeypatch):
+    from dingdong_ca.core.services import dingdong_client
+
+    calls = []
+
+    def failing_call(method, path, **kwargs):
+        calls.append(path)
+        raise dingdong_client.DingDongError("TRANSPORT", "temporary review outage")
+
+    monkeypatch.setattr(dingdong_client, "call", failing_call)
+    sign_in(client)
+    child = create_child(client)
+    first = issue(client, child, DEMO_TOKEN)
+    assert first.json()["bind_state"] == "unbound"
+    view = client.get(f"/api/v1/children/{child['id']}/prototype-demo")
+    assert view.status_code == 409
+    assert view.json()["code"] == "DINGDONG_BIND_PENDING"
+    assert "companion_value" not in view.json()
+    assert calls == ["/api/v1/ca/account/bind"]
+    monkeypatch.setattr(dingdong_client, "call", lambda *args, **kwargs: {})
+    retry = issue(client, child, DEMO_TOKEN)
+    assert retry.status_code == 200
+    assert retry.json()["ca_account_id"] == first.json()["ca_account_id"]
+    assert retry.json()["bind_state"] == "bound"
+
+
+@override_settings(**DEMO_SETTINGS)
+def test_report_prepare_is_dry_by_default_and_idempotent_for_fixed_child(client, monkeypatch):
+    from dingdong_ca.core.assessment_models import QuestionnaireVersion
+    from dingdong_ca.core.models import AuditEvent
+    from dingdong_ca.core.services import dingdong_client
+    from dingdong_ca.testsupport.adapter import initial_result
+    from dingdong_ca.testsupport.models import TestFixture
+
+    monkeypatch.setattr(dingdong_client, "call", lambda *args, **kwargs: {})
+    call_command("seed_base", stdout=StringIO())
+    call_command("seed_mock", stdout=StringIO())
+    sign_in(client)
+    child = create_child(client)
+    assert issue(client, child, DEMO_TOKEN).status_code == 201
+    before = TestFixture.objects.count()
+    call_command("prepare_prototype_demo_report", stdout=StringIO())
+    assert TestFixture.objects.count() == before
+    call_command("prepare_prototype_demo_report", apply=True, stdout=StringIO())
+    q = QuestionnaireVersion.objects.get(code="initial-assessment", status="published")
+    result = initial_result(child["id"], q.pk)
+    assert result["metrics"][0]["value"] is None
+    call_command("prepare_prototype_demo_report", apply=True, stdout=StringIO())
+    assert TestFixture.objects.count() == before + 1
+    assert AuditEvent.objects.filter(action="prototype_demo.prepare_report").count() == 1
+
+
+def test_report_prepare_refuses_outside_demo():
+    from django.core.management.base import CommandError
+
+    with pytest.raises(CommandError, match="仅限"):
+        call_command("prepare_prototype_demo_report", apply=True, stdout=StringIO())
+
+
+@override_settings(**DEMO_SETTINGS)
+@pytest.mark.parametrize("case", ["wrong_tag", "inactive_child", "different_input", "fault"])
+def test_report_prepare_refuses_to_change_conflicting_data(client, monkeypatch, case):
+    from django.core.management.base import CommandError
+
+    from dingdong_ca.core.ca_models import CaAccount
+    from dingdong_ca.core.models import Child
+    from dingdong_ca.core.services import dingdong_client
+    from dingdong_ca.testsupport.models import TestFixture
+
+    monkeypatch.setattr(dingdong_client, "call", lambda *args, **kwargs: {})
+    call_command("seed_base", stdout=StringIO())
+    call_command("seed_mock", stdout=StringIO())
+    sign_in(client)
+    child = create_child(client)
+    issue(client, child, DEMO_TOKEN)
+    if case == "wrong_tag":
+        CaAccount.objects.filter(ca_account_id="ca_dingdong").update(nfc_token_hash="0" * 64)
+    elif case == "inactive_child":
+        Child.objects.filter(pk=child["id"]).update(status="archived")
+    else:
+        TestFixture.objects.create(
+            dataset="phase1-v1",
+            kind="initial_result" if case == "different_input" else "fault",
+            subject_key=child["id"],
+            sequence=1,
+            payload={"scenario": "assessment_failure"} if case == "fault" else {"keep": "original"},
+        )
+    before = list(TestFixture.objects.order_by("id").values("id", "payload"))
+    with pytest.raises(CommandError):
+        call_command("prepare_prototype_demo_report", apply=True, stdout=StringIO())
+    assert list(TestFixture.objects.order_by("id").values("id", "payload")) == before

@@ -1,0 +1,34 @@
+
+> dingdong-parent@0.3.18 test
+> playwright test tests/exhibition-recovery.spec.js tests/ca-account.spec.js tests/mobile-layout.spec.js tests/login-validation.spec.js tests/parent-facing-copy.spec.js
+
+
+Running 23 tests using 1 worker
+
+(node:65669) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ca-account.spec.js:55:1 › NFC 承接：凭据不在地址栏留下，新号如实显示待接通 (2.0s)
+  ✓   2 tests/ca-account.spec.js:91:1 › 同一台机器人再次绑定复用同一个号，不换号 (2.5s)
+  ✓   3 tests/ca-account.spec.js:103:1 › 换机：确认弹窗讲清代价，旧号归档可查，新号重新开始 (2.8s)
+  ✓   4 tests/ca-account.spec.js:145:1 › 绑定成功后停在账户页并高亮新号，标签不带路由也不跳回探索页 (2.4s)
+  ✓   5 tests/ca-account.spec.js:189:1 › 新会话从标签进来：登录建档案后绑定，同样落在账户页 (2.3s)
+  ✓   6 tests/ca-account.spec.js:211:1 › 手填绑定：空凭据就地提示，对话框不关 (3.9s)
+  ✓   7 tests/ca-account.spec.js:251:1 › 绑定落点截图：桌面与 390×844 (3.4s)
+  ✓   8 tests/ca-account.spec.js:283:1 › 窄屏下账户号不撑破页面 (2.4s)
+  ✓   9 tests/exhibition-recovery.spec.js:5:1 › 发码后冷却，刷新与登录退出后仍保留剩余时间 (1.4s)
+  ✓  10 tests/exhibition-recovery.spec.js:25:1 › 标签进入后刷新，提示重碰且不存凭据；重新碰标签仍能继续 (2.5s)
+  ✓  11 tests/login-validation.spec.js:14:1 › 空手机号点「获取验证码」：中文提示，且不发请求 (1.2s)
+  ✓  12 tests/login-validation.spec.js:27:1 › 空手机号在 390×844 窄屏同样给中文提示 (1.2s)
+  ✓  13 tests/login-validation.spec.js:35:1 › 格式不合法的手机号：界面提示是中文，不含内部 repr (1.3s)
+  ✓  14 tests/login-validation.spec.js:45:1 › 填了合法手机号仍能拿到验证码并登录（回归） (1.3s)
+  ✓  15 tests/mobile-layout.spec.js:52:1 › 登录验证码控件在手机、平板与桌面宽度下对齐且互不遮挡 (716ms)
+  ✓  16 tests/mobile-layout.spec.js:86:1 › 首次建档和无儿童账户页跨屏宽不溢出 (713ms)
+  ✓  17 tests/mobile-layout.spec.js:115:1 › 窄屏切换页面回到页首，帮助入口按钮保持一致 (777ms)
+  ✓  18 tests/mobile-layout.spec.js:154:1 › 320px 今日陪伴页标题和机器人插画各有空间 (477ms)
+  ✓  19 tests/mobile-layout.spec.js:167:1 › 活动和测评详情在手机、平板、桌面可读可操作 (1.5s)
+  ✓  20 tests/mobile-layout.spec.js:226:1 › 报告详情在多档宽度可读（合成视觉样例） (681ms)
+  ✓  21 tests/mobile-layout.spec.js:265:1 › 手机登录、主要页面、底部导航与表单的布局保持清楚 (2.5s)
+  ✓  22 tests/parent-facing-copy.spec.js:14:1 › 家长在建档页可直接退出 (1.3s)
+  ✓  23 tests/parent-facing-copy.spec.js:24:1 › 家长页面不显示内部说明，手机上也能退出 (3.3s)
+
+  23 passed (43.7s)

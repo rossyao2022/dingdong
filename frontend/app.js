@@ -64,6 +64,7 @@ const state = {
 let viewEpoch = 0,
   busy = false,
   pollTimer,
+  smsCooldownTimer,
   // 对话框打开期间不排轮询（重渲染会打断家长正在读的内容），但这一轮该排的那次要
   // 记住：对话框关掉后由 close 事件补上，否则观察状态再也不刷新了。
   pollPending = false,
@@ -99,6 +100,7 @@ function closeDialog() {
 }
 function stopWork() {
   clearTimeout(pollTimer);
+  clearTimeout(smsCooldownTimer);
   closeDialog();
 }
 /** 观察未就绪时按固定间隔重渲染一次；对话框打开期间挂起，关闭后恢复。 */
@@ -290,10 +292,50 @@ function page(html) {
   $("#main").setAttribute("aria-busy", "false");
   header();
 }
+// 只保存截止时间和待连接标记；手机号、验证码和 NFC 凭据不落浏览器存储。
+function storedValue(key) {
+  try {
+    return sessionStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+function markNfcPending(pending) {
+  try {
+    if (pending) sessionStorage.setItem("ca.nfc-pending", "1");
+    else sessionStorage.removeItem("ca.nfc-pending");
+  } catch {}
+  hints.nfcNeedsRetap = pending && !hints.nfcToken;
+}
+function nfcRecoveryNotice() {
+  return hints.nfcNeedsRetap
+    ? '<p class="notice">请再碰一次机器人标签，继续连接。</p>'
+    : "";
+}
+function startSmsCooldown(seconds) {
+  const deadline =
+    Date.now() + Math.min(Math.max(Number(seconds) || 60, 1), 3600) * 1000;
+  try {
+    sessionStorage.setItem("ca.sms-cooldown", String(deadline));
+  } catch {}
+  hints.smsDeadline = deadline;
+}
+function updateSmsCooldown() {
+  clearTimeout(smsCooldownTimer);
+  const button = $("#send-code");
+  if (!button) return;
+  const deadline =
+    Number(storedValue("ca.sms-cooldown")) || hints.smsDeadline || 0;
+  const seconds = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+  button.disabled = seconds > 0;
+  button.textContent = seconds > 0 ? `${seconds} 秒后重试` : "获取验证码";
+  if (seconds > 0) smsCooldownTimer = setTimeout(updateSmsCooldown, 1000);
+}
 function loginPage() {
   page(
-    `<div class="login-layout"><section class="login-scene"><span class="eyebrow">CA × DINGDONG</span><h1>陪孩子探索，<br>把每个发现留下来。</h1><p>从今天的小行动开始，慢慢看见成长。</p><img src="assets/dingdong/robot-front.webp" alt="DingDong 成长伙伴"></section><form id="login-form" class="login-form"><span class="eyebrow">欢迎回到成长空间</span><h2>家长登录</h2><p class="muted">登录后，查看孩子的档案与陪伴记录。</p><label class="field">手机号<input name="phone" type="tel" autocomplete="tel" required placeholder="请输入手机号"></label><div class="inline"><label class="field">验证码<input name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="5" required placeholder="5 位验证码"></label><button type="button" class="button secondary" id="send-code">获取验证码</button></div><div class="form-error" role="alert"></div><button class="button primary" type="submit" disabled>登录</button></form></div>`,
+    `<div class="login-layout"><section class="login-scene"><span class="eyebrow">CA × DINGDONG</span><h1>陪孩子探索，<br>把每个发现留下来。</h1><p>从今天的小行动开始，慢慢看见成长。</p><img src="assets/dingdong/robot-front.webp" alt="DingDong 成长伙伴"></section><form id="login-form" class="login-form"><span class="eyebrow">欢迎回到成长空间</span><h2>家长登录</h2>${nfcRecoveryNotice()}<p class="muted">登录后，查看孩子的档案与陪伴记录。</p><label class="field">手机号<input name="phone" type="tel" autocomplete="tel" required placeholder="请输入手机号"></label><div class="inline"><label class="field">验证码<input name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="5" required placeholder="5 位验证码"></label><button type="button" class="button secondary" id="send-code">获取验证码</button></div><div class="form-error" role="alert"></div><button class="button primary" type="submit" disabled>登录</button></form></div>`,
   );
+  updateSmsCooldown();
   $("#login-form").phone.oninput = () => {
     state.challenge = null;
     $("#login-form button[type=submit]").disabled = true;
@@ -315,15 +357,18 @@ function loginPage() {
         auth: false,
         body: { phone: requestedPhone },
       });
+      startSmsCooldown(r.retry_after);
       if (form.phone.value.trim() !== requestedPhone) return;
       state.challenge = r.challenge_id;
       $("#login-form button[type=submit]").disabled = false;
       $(".form-error").textContent = "";
       toast("验证码已发送，请查看手机。");
     } catch (err) {
-      $(".form-error").textContent = errorMessage(err);
+      if (err.status === 429) startSmsCooldown(err.retryAfter || 60);
+      if (form.isConnected)
+        form.querySelector(".form-error").textContent = errorMessage(err);
     } finally {
-      b.disabled = false;
+      updateSmsCooldown();
     }
   };
   $("#login-form").onsubmit = async (e) => {
@@ -440,10 +485,7 @@ function sessionView(s) {
     const answers =
       s.answers.find((a) => a.question_code === q.code)?.option_codes || [];
     return (
-      head(
-        s.title || "测评问卷",
-        s.description || "可以按自己的节奏完成。",
-      ) +
+      head(s.title || "测评问卷", s.description || "可以按自己的节奏完成。") +
       `<section class="panel question">${testTag()}<p class="note">第 ${state.question + 1} / ${s.questions.length} 题 · ${s.missing_question_codes.length ? "还有 " + s.missing_question_codes.length + " 题未完成" : "已全部作答"}</p><progress value="${state.question + 1}" max="${s.questions.length}" aria-label="问卷进度"></progress><form id="answer-form"><fieldset><legend>${esc(q.title)}</legend><p class="note">${q.required ? "必填" : "选填，可跳过"} · ${q.type === "single_choice" ? "单选" : "最多选 " + q.max_choices + " 项"}</p>${q.options.map((o) => `<label class="answer-option"><input type="${q.type === "single_choice" ? "radio" : "checkbox"}" name="answer" value="${esc(o.code)}" ${answers.includes(o.code) ? "checked" : ""}>${esc(o.label)}</label>`).join("")}</fieldset><div class="form-error" role="alert"></div><div class="actions">${state.question ? button("previous-question", "上一题", "", true) : ""}<button type="submit" class="button">${state.question === s.questions.length - 1 ? "保存并完成" : "保存并下一题"}</button>${button("cancel-assessment", "取消本次测评", "", true)}</div></form></section>`
     );
   }
@@ -566,7 +608,11 @@ function completionBlock(card) {
     : "";
   const rows = [];
   if (card.currentScore !== null)
-    rows.push({ label: "当前角色匹配度", value: card.currentScore, unit: "/ 100" });
+    rows.push({
+      label: "当前角色匹配度",
+      value: card.currentScore,
+      unit: "/ 100",
+    });
   if (card.delta !== null)
     rows.push({ label: "匹配度变化", value: card.delta, unit: "" });
   return `<p class="companion-state"><b>${esc(card.title)}</b></p>${name}${rows.length ? metrics(rows) : ""}<p class="note">${esc(card.note)}</p>`;
@@ -634,6 +680,7 @@ function reportCards(rows) {
     : empty("还没有报告", "有新报告时，会显示在这里。");
 }
 async function render() {
+  clearTimeout(smsCooldownTimer);
   const tick = ++viewEpoch;
   // 重渲染只取消待执行的轮询与还在读的语音，不关对话框、不动编辑会话
   // （T-041 的 P-16）。朗读不跟着重渲染停会盖住新一题/下一步的内容。
@@ -745,19 +792,27 @@ async function render() {
         ) +
         `<article class="panel">${testTag()}<p class="note">生成于 ${date(r.generated_at)}</p>${r.window ? `<p>记录时间：${date(r.window.start)} — ${date(r.window.end)}</p>` : ""}${r.sections.map((s) => `<section class="report-section"><h2>${esc(s.title)}</h2>${s.paragraphs.map((p) => `<p>${esc(p)}</p>`).join("")}</section>`).join("")}</article>`;
     } else if (route === "reports") {
-      const [reports, sessions, overview, catalog, companion, health, cycle, reassessment] =
-        await Promise.all([
-          API.all(`/children/${child}/reports`),
-          API.all(`/children/${child}/assessments`),
-          API.request(`/children/${child}/growth-overview` + queryWindow()),
-          API.request("/assessment-config"),
-          API.request(`/children/${child}/companion-persona`),
-          API.request(`/children/${child}/companion-health`),
-          API.request(
-            `/children/${child}/growth-cycle?period=${state.growthPeriod}`,
-          ),
-          API.request(`/children/${child}/reassessment`),
-        ]);
+      const [
+        reports,
+        sessions,
+        overview,
+        catalog,
+        companion,
+        health,
+        cycle,
+        reassessment,
+      ] = await Promise.all([
+        API.all(`/children/${child}/reports`),
+        API.all(`/children/${child}/assessments`),
+        API.request(`/children/${child}/growth-overview` + queryWindow()),
+        API.request("/assessment-config"),
+        API.request(`/children/${child}/companion-persona`),
+        API.request(`/children/${child}/companion-health`),
+        API.request(
+          `/children/${child}/growth-cycle?period=${state.growthPeriod}`,
+        ),
+        API.request(`/children/${child}/reassessment`),
+      ]);
       state.reassessment = reassessment;
       if (
         overview.robot_observation.availability === "not_synced" ||
@@ -807,7 +862,10 @@ async function render() {
         (s) => s.purpose === "exploration" && s.status === "completed",
       );
       const observationLabels = new Map(
-        (overview.robot_observation.metrics || []).map((m) => [m.code, m.label]),
+        (overview.robot_observation.metrics || []).map((m) => [
+          m.code,
+          m.label,
+        ]),
       );
       const trendRows = overview.trend.available
         ? overview.trend.changes.flatMap((m) => {
@@ -833,7 +891,9 @@ async function render() {
         (a) => a.status === "active" && a.ca_account_id === "ca_dingdong",
       );
       const demo = demoAccount
-        ? await API.request(`/children/${child}/prototype-demo`).catch((error) => ({ error }))
+        ? await API.request(`/children/${child}/prototype-demo`).catch(
+            (error) => ({ error }),
+          )
         : null;
       html =
         head(
@@ -937,7 +997,7 @@ function receiptList(rows) {
  * 为了让界面好看而提前改成「已绑定」。
  */
 const ROBOT_JOIN_NOTE =
-  "已记录这台机器人，正在等待连接。你无需重复操作。";
+  "已记录这台机器人，正在等待连接。请重新连接；刷新页面后，请再碰一次原标签。";
 const ROBOT_REPLACEMENT_IMPACT =
   "换机后，新机器人的成长记录会重新积累；以前的报告仍可查看。";
 
@@ -963,35 +1023,59 @@ function robotPanel(rows, companion = null) {
   const detected = hints.nfcToken
     ? `<div class="notice"><b>发现一台待绑定的机器人</b><div class="actions">${button("bind-robot", "绑定这台机器人")}${button("drop-nfc", "这次不绑", "", true)}</div></div>`
     : "";
+  const protectedDemo = active?.ca_account_id === "ca_dingdong";
+  const reconnect =
+    active?.bind_state === "unbound" && hints.nfcToken
+      ? button("bind-robot", "重新连接")
+      : "";
   const current = active
     ? accountRow(active) +
       (active.bind_state === "bound"
         ? ""
         : `<p class="notice">${esc(ROBOT_JOIN_NOTE)}</p>`) +
-      `<div class="actions">${button("replace-robot", "换一台机器人", `data-id="${esc(active.ca_account_id)}"`)}${button("retire-account", "停用这台机器人", `data-id="${esc(active.ca_account_id)}"`, true)}</div>`
+      `<div class="actions">${reconnect}${protectedDemo ? "" : button("replace-robot", "换一台机器人", `data-id="${esc(active.ca_account_id)}"`)}${protectedDemo ? "" : button("retire-account", "停用这台机器人", `data-id="${esc(active.ca_account_id)}"`, true)}</div>`
     : `<p>还没有为 <b>${esc(state.child.name)}</b> 绑定机器人。</p>${button("bind-robot", "绑定机器人")}`;
   const history = retired.length
     ? `<h3 style="margin-top:26px">以前的机器人</h3>${retired.map(accountRow).join("")}`
     : "";
-  return `<section class="panel"><div class="card-heading"><h2>我的机器人</h2>${testTag()}</div>${detected}${current}${companionLine}${history}</section>`;
+  return `<section class="panel"><div class="card-heading"><h2>我的机器人</h2>${testTag()}</div>${nfcRecoveryNotice()}${detected}${current}${companionLine}${history}</section>`;
 }
 function prototypeDemoPanel(result) {
   if (!result) return "";
   const intro = `<section class="panel" id="prototype-demo"><h2>会展体验 · 我的陪学伙伴</h2>`;
+  if (result.error?.code === "DINGDONG_BIND_PENDING")
+    return (
+      intro +
+      `<p>机器人还未连接。请在“我的机器人”中重新连接；刷新后请再碰一次原标签。</p></section>`
+    );
   if (result.error?.status === 403)
-    return intro + `<p>同意查看机器人记录后，就能在这里看到选好的伙伴和陪伴值。</p>${button("prototype-consent", "同意并查看")}</section>`;
+    return (
+      intro +
+      `<p>同意查看机器人记录后，就能在这里看到选好的伙伴和陪伴值。</p>${button("prototype-consent", "同意并查看")}</section>`
+    );
   if (result.error)
-    return intro + `<p>暂时读不到伙伴的最新状态，请稍后再试。</p>${button("refresh", "重新读取", "", true)}</section>`;
-  const name = result.persona_name ? `<p>当前伙伴：<b>${esc(result.persona_name)}</b></p>` : `<p>还没有选择伙伴。</p>`;
-  const value = result.companion_value == null ? "尚无记录" : esc(result.companion_value);
+    return (
+      intro +
+      `<p>暂时读不到伙伴的最新状态，请稍后再试。</p>${button("refresh", "重新读取", "", true)}</section>`
+    );
+  const name = result.persona_name
+    ? `<p>当前伙伴：<b>${esc(result.persona_name)}</b></p>`
+    : `<p>还没有选择伙伴。</p>`;
+  const value =
+    result.companion_value == null ? "尚无记录" : esc(result.companion_value);
   const links = actions(
     '<a class="button secondary" href="#reports">查看测评</a>',
     `<a class="button" href="${esc(result.prototype_url)}">去 DingDong 选伙伴和聊天</a>`,
   );
-  return intro + `<p>先完成这边的演示测评，再到 DingDong 页面选择相同方向的伙伴。</p>${links}${name}<p>陪伴值：<b>${value}</b></p><p>从 DingDong 页面返回后，点“刷新伙伴变化”查看最新结果。</p>${button("refresh", "刷新伙伴变化", "", true)}<p class="note">此处展示会展演示数据。</p></section>`;
+  return (
+    intro +
+    `<p>先完成这边的演示测评，再到 DingDong 页面选择相同方向的伙伴。</p>${links}${name}<p>陪伴值：<b>${value}</b></p><p>从 DingDong 页面返回后，点“刷新伙伴变化”查看最新结果。</p>${button("refresh", "刷新伙伴变化", "", true)}<p class="note">此处展示会展演示数据。</p></section>`
+  );
 }
 async function prototypeConsent() {
-  const policy = await API.request("/policies/current?purpose=dingdong_sync", { auth: false });
+  const policy = await API.request("/policies/current?purpose=dingdong_sync", {
+    auth: false,
+  });
   showDialog(
     "查看陪学伙伴",
     `<p>同意后，可以查看孩子与伙伴的互动记录。</p><div class="policy-body">${esc(policy.body)}</div><form id="prototype-consent-form"><label class="checkline"><input type="checkbox" name="agree">我已阅读并同意查看机器人记录</label><button class="button" type="submit">同意并查看</button></form>`,
@@ -999,7 +1083,8 @@ async function prototypeConsent() {
   $("#prototype-consent-form").onsubmit = (e) => {
     e.preventDefault();
     act(async () => {
-      if (!e.target.elements.agree.checked) throw new Error("请先阅读并同意查看机器人记录。");
+      if (!e.target.elements.agree.checked)
+        throw new Error("请先阅读并同意查看机器人记录。");
       await consent("dingdong_sync", policy);
       closeDialog();
       await render();
@@ -1035,8 +1120,9 @@ async function submitRobotBinding(form) {
       },
     });
     keys.delete("ca-issue:" + child + ":" + token);
-    hints.nfcToken = "";
+    hints.nfcToken = account.bind_state === "bound" ? "" : token;
     hints.nfcPrompted = true;
+    markNfcPending(account.bind_state !== "bound");
     // 标签是裸链接时地址里没有任何路由，停在默认的探索页等于把刚生成的号藏起来：
     // 绑定成功一律落到「账户与关联」，并把这个号高亮一次。
     hints.newAccountId = account.ca_account_id;
@@ -1060,7 +1146,9 @@ async function openReplacement(child, token) {
       : await API.all(`/children/${child}/ca-accounts`);
   const account = activeAccount(rows);
   if (!account)
-    throw new Error("这个孩子已经绑定机器人，但页面暂时没能读到信息。请刷新后重试。");
+    throw new Error(
+      "这个孩子已经绑定机器人，但页面暂时没能读到信息。请刷新后重试。",
+    );
   hints.replaceChild = child;
   replaceRobotDialog(account, token);
 }
@@ -1192,7 +1280,9 @@ async function respondReassessment(accepted) {
       {
         method: "POST",
         body: {
-          request_id: requestKey(`reassessment-response:${view.eventId}:${accepted}`),
+          request_id: requestKey(
+            `reassessment-response:${view.eventId}:${accepted}`,
+          ),
           accepted,
         },
       },
@@ -1858,6 +1948,7 @@ async function handleAction(action, el) {
       break;
     case "drop-nfc":
       hints.nfcToken = "";
+      markNfcPending(false);
       hints.nfcPrompted = true;
       toast("已取消绑定。");
       await render();
@@ -1927,6 +2018,7 @@ async function handleAction(action, el) {
       await API.logout();
       channel?.postMessage({ logout: true });
       forget();
+      markNfcPending(false);
       try {
         sessionStorage.removeItem("ca.navigation");
       } catch {}
@@ -2015,7 +2107,10 @@ async function boot() {
     hints.nfcToken = nfcToken;
     hints.nfcRobotRef = readParam(location.href, "robot_ref");
     hints.nfcPrompted = false;
+    markNfcPending(true);
     history.replaceState(null, "", stripBindingParams(location.href));
+  } else {
+    hints.nfcNeedsRetap = storedValue("ca.nfc-pending") === "1";
   }
   try {
     state.runtime = await API.request("/runtime", { auth: false });

@@ -40,3 +40,33 @@ test("5xx 且响应体解析不出内容时也给同一句", () => {
   assert.equal(errorBody(500, undefined).message, SERVER_ERROR);
   assert.equal(errorBody(500, null).message, SERVER_ERROR);
 });
+
+test("429 保留 Retry-After，供发码倒计时使用", async () => {
+  const { request } = await import("../api.js");
+  const oldFetch = globalThis.fetch;
+  const oldDocument = globalThis.document;
+  globalThis.document = { cookie: "" };
+  globalThis.fetch = async () =>
+    new Response(
+      JSON.stringify({
+        code: "RATE_LIMITED",
+        message: "发送短信验证码太频繁，稍后再重试。",
+      }),
+      {
+        status: 429,
+        headers: { "Content-Type": "application/json", "Retry-After": "93" },
+      },
+    );
+  try {
+    await assert.rejects(request("/auth/sms", { auth: false }), (error) => {
+      assert.equal(error.status, 429);
+      assert.equal(error.code, "RATE_LIMITED");
+      assert.equal(error.retryAfter, 93);
+      return true;
+    });
+  } finally {
+    globalThis.fetch = oldFetch;
+    if (oldDocument === undefined) delete globalThis.document;
+    else globalThis.document = oldDocument;
+  }
+});

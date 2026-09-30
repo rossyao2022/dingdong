@@ -148,3 +148,15 @@ uv run --directory backend python manage.py runserver 127.0.0.1:8017
 - 验收结果与发现缺陷：[M6 验收记录](docs/M6_OPS_RESULT.md)
 
 测试：`backend/tests/test_ops_{console,content,reports,services}.py` 共 62 项；真实 Chrome 场景见 `frontend/tests/ops-console.spec.js`。M6 后为 160 项后端测试通过、覆盖率 90%。
+
+
+## 会展原儿童的报告输入准备
+
+在已开启固定号的 demo/database_fixture 环境执行：
+
+```bash
+uv run python manage.py prepare_prototype_demo_report
+uv run python manage.py prepare_prototype_demo_report --apply
+```
+
+第一条仅预检，第二条仅给 `ca_dingdong` 当前原儿童补合成输入，并记录审计。原标签不匹配、账号或儿童失效、缺少发布内容、已有不同输入时拒绝写入，不覆盖或发布题库。准备完成后仍须通过家长端同意用途、完成问卷、提交，让 Worker 生成报告。生产机执行前遵守远端写入放行门禁。

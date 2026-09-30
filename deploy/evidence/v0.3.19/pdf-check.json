@@ -1,0 +1,16 @@
+[
+  {
+    "kind": "家长",
+    "pages": 19,
+    "permissions": "0o600",
+    "credentials_checked": false,
+    "visual_review": "all pages contact sheet plus full-size consent page"
+  },
+  {
+    "kind": "运营",
+    "pages": 12,
+    "permissions": "0o600",
+    "credentials_checked": true,
+    "visual_review": "all pages contact sheet plus full-size consent page"
+  }
+]

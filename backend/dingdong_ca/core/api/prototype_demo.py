@@ -36,6 +36,8 @@ def insights(request, child_id):
     ).first()
     if account is None:
         raise ApiError("NOT_FOUND", 404, "当前档案未连接演示伙伴")
+    if account.bind_state != "bound":
+        raise ApiError("DINGDONG_BIND_PENDING", 409, "机器人尚未连接，请用原标签重试")
     if not ConsentGrant.objects.filter(
         child=child, purpose="dingdong_sync", revoked_at__isnull=True
     ).exists():
@@ -50,7 +52,7 @@ def insights(request, child_id):
         )
     except DingDongError:
         raise ApiError("DINGDONG_UNAVAILABLE", 502, "伙伴数据暂不可用") from None
-    if data.get("ca_account_id") != ca_account.PROTOTYPE_ACCOUNT_ID:
+    if not isinstance(data, dict) or data.get("ca_account_id") != ca_account.PROTOTYPE_ACCOUNT_ID:
         raise ApiError("DINGDONG_RESPONSE_INVALID", 502, "伙伴数据暂不可用")
     persona = data.get("persona") or {}
     companion = data.get("companion") or {}

@@ -1,0 +1,14 @@
+{
+  "viewport": "390x844",
+  "fixed_account_protection": true,
+  "pending_no_values": true,
+  "retry_same_account": true,
+  "real_supplier_bind_and_insights": true,
+  "question_count": 22,
+  "separate_worker_report": true,
+  "raw_nfc_storage": false,
+  "overflow": false,
+  "page_errors": [],
+  "sms": "local fixed_code only; no production SMS",
+  "screenshots": "output/pdf/work-v0319/shots"
+}

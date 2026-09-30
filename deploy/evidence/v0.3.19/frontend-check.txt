@@ -1,0 +1,4 @@
+
+> dingdong-parent@0.3.19 check
+> node --check app.js && node --check api.js && node --check ca-link.js && node --check companion.js && node --check growth-cycle.js && node --check reassessment.js && node --check playworld.js && node --check ui-components.js && node --check server.cjs
+

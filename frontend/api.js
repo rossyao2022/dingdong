@@ -4,7 +4,9 @@ export function createRequestId(source = globalThis.crypto) {
   const bytes = source.getRandomValues(new Uint8Array(16));
   bytes[6] = (bytes[6] & 0x0f) | 0x40;
   bytes[8] = (bytes[8] & 0x3f) | 0x80;
-  const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+  const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join(
+    "",
+  );
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
 }
 
@@ -19,16 +21,16 @@ const SERVER_ERROR_MESSAGE = "服务暂时不可用，请稍后再试。";
  * 「无法识别的响应」）；4xx 仍用后端给的业务文案与 code。
  */
 export function errorBody(status, data) {
-  if (status >= 500)
-    return { code: data?.code, message: SERVER_ERROR_MESSAGE };
+  if (status >= 500) return { code: data?.code, message: SERVER_ERROR_MESSAGE };
   return data;
 }
 export class APIError extends Error {
-  constructor(status, body) {
+  constructor(status, body, retryAfter = 0) {
     super(body.message || "请求失败，请稍后重试。");
     this.status = status;
     this.code = body.code;
     this.fields = body.field_errors || [];
+    this.retryAfter = retryAfter;
   }
 }
 export function clearAuth() {
@@ -86,7 +88,12 @@ export async function request(
   }
   if (response.status >= 500)
     throw new APIError(response.status, errorBody(response.status, data));
-  if (!response.ok) throw new APIError(response.status, data);
+  if (!response.ok)
+    throw new APIError(
+      response.status,
+      data,
+      Number(response.headers.get("Retry-After")) || 0,
+    );
   return data;
 }
 export async function refresh() {

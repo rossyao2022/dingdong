@@ -3,8 +3,8 @@
 号码形态与三项决定见 `设计/CA对接_C1_ca_account_id设计_20260916.md`：
 账户级、一台机器人一个号、一台机器人服务一个孩子、换机发新号。
 
-这里只做**我方本地**能闭环的部分。真正的绑定要调对方端点，需要 base URL 与
-`X-API-Key`（D10/D12 尚未回复），所以新账户的 ``bind_state`` 停在 ``unbound``。
+建号后在事务外调用已配置的对方绑定端点。仅收到成功确认后标记 ``bound``；
+缺少配置或绑定失败时保留 ``unbound``，允许同一标签重试复用原号。
 """
 
 import hashlib
@@ -81,6 +81,10 @@ def prototype_demo_enabled():
     return settings.APP_ENV == "demo" and settings.DINGDONG_PROTOTYPE_DEMO_ENABLED
 
 
+def is_protected_prototype_account(account):
+    return prototype_demo_enabled() and account.ca_account_id == PROTOTYPE_ACCOUNT_ID
+
+
 def is_prototype_token(token):
     configured = settings.DINGDONG_PROTOTYPE_NFC_TOKEN
     return bool(prototype_demo_enabled() and configured and hmac.compare_digest(token, configured))
@@ -115,6 +119,12 @@ def issue_account(*, child, user, request_id, nfc_token, robot_ref=None):
             current = CaAccount.objects.filter(child=child, status="active").first()
             if current is not None:
                 if current.nfc_token_hash != digest:
+                    if is_protected_prototype_account(current):
+                        raise ApiError(
+                            "PROTOTYPE_ACCOUNT_PROTECTED",
+                            409,
+                            "会展演示账号不能换机或停用，请使用原标签连接",
+                        )
                     raise ApiError(
                         "ACCOUNT_REPLACEMENT_REQUIRED",
                         409,
@@ -216,6 +226,10 @@ def retire_account(account, user):
     账户页的关联区块、成长观察、三个展示面都按关联/活跃账户取数，只改账户状态
     会让同一页出现「还没有机器人账户号」与「已核验 · 同步已启用」并存。
     """
+    if is_protected_prototype_account(account):
+        raise ApiError(
+            "PROTOTYPE_ACCOUNT_PROTECTED", 409, "会展演示账号不能换机或停用，请使用原标签连接"
+        )
     if account.status == "retired":
         return account
     with transaction.atomic():

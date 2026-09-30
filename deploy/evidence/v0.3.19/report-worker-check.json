@@ -1,0 +1,13 @@
+{
+  "account_status": "active",
+  "bind_state": "bound",
+  "reports_generated": 1,
+  "job_statuses": [
+    "succeeded"
+  ],
+  "fixture_rows": 1,
+  "consents": [
+    "assessment_processing",
+    "dingdong_sync"
+  ]
+}
