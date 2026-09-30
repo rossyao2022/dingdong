@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 24
+- **Total Sessions**: 25
 - **Last Active**: 2026-09-30
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~613 | Active |
+| `journal-1.md` | ~635 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 25 | 2026-09-30 | v0.3.19 生产机部署与会展输入准备 | `5096976` | `codex/release-v0.3.19` |
 | 24 | 2026-09-30 | Publish v0.3.19 and establish CA main | `d7608a3`, `5763820` | `codex/release-v0.3.19` |
 | 23 | 2026-09-30 | CA local-first technical ownership decision | `e5c83bb` | `codex/release-v0.3.19` |
 | 22 | 2026-09-30 | v0.3.19 exhibition hardening and illustrated guides | `4268ebb`, `45f4ea7`, `5beb5bd` | `codex/release-v0.3.19` |

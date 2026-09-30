@@ -611,3 +611,25 @@ User explicitly authorized push and main integration, then chose CA origin main 
 ### Status
 
 [OK] **Completed**
+
+
+## Session 25: v0.3.19 生产机部署与会展输入准备
+<!-- trellis-session: v=2 fp=185505ea370c1147 -->
+
+**Date**: 2026-09-30
+**Task**: v0.3.19 生产机部署与会展输入准备
+**Branch**: `codex/release-v0.3.19`
+
+### Summary
+
+用户放行后备份并部署 dingdong-prod-trial；发现图片目录权限故障并修复。四应用 v0.3.19、六容器、Worker ping、九档登录布局正常，17 个资源与本地一致。原号报告输入已准备且幂等，账号仍待接通；未发短信，真机彩排待工作人员。PDF 同步上线状态，用户原有文档校验 JSON 保持不动。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `5096976` | [T-deploy-v0319] Deploy exhibition fixes and verify production trial |
+
+### Status
+
+[OK] **Completed**
