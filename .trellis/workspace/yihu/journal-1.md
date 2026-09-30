@@ -655,3 +655,26 @@ User explicitly authorized push and main integration, then chose CA origin main 
 ### Status
 
 [OK] **Completed**
+
+
+## Session 27: v0.3.20 full prototype integration local verified
+<!-- trellis-session: v=2 fp=4f39c5804aa95015 -->
+
+**Date**: 2026-09-30
+**Task**: v0.3.20 full prototype integration local verified
+**Branch**: `codex/release-v0.3.20`
+
+### Summary
+
+Completed full reference modules and21assets, child-scoped API/results and ops with explicit2questionnaire/10activity import; backend404, frontend87,39distinct Chrome tests, deployment10, Storybook/static36/document audit passed. Two private screenshot PDFs26/15pages include approved ops credentials. Local childtasks archived; parent remains in_progress awaiting explicit push/main merge/production backup+migration+content-publication deployment gate and real phone/NFC rehearsal. User preexisting document JSON excluded; no remote write, real SMS, supplier request, credential rotation or R2/CDN change.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `17fb016` | [T-prototype-content-integration] Integrate full prototype content with CA sessions |
+| `9db1fa6` | [T-prototype-content-integration] Normalize validation log formatting |
+
+### Status
+
+[OK] **Completed**
