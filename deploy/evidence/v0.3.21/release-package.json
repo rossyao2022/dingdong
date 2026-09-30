@@ -1,0 +1,13 @@
+{
+  "release": {
+    "version": "0.3.21",
+    "branch": "codex/release-v0.3.21",
+    "commit": "68ce418d318f3a6cb5c47487626c759d0e4e6bbc"
+  },
+  "archive": "dingdong-v0.3.21.tar.gz",
+  "sha256": "f30275ac476cada39d23502d343b51d95d67d9bf9009b7ccf2738b543673f0f2",
+  "required_runtime_files_exact": 12,
+  "archive_members": 413,
+  "private_artifacts_excluded": true,
+  "status": "prepared locally; not pushed/merged/deployed"
+}

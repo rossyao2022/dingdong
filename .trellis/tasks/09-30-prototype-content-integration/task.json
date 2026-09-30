@@ -15,7 +15,7 @@
   "branch": "codex/release-v0.3.21",
   "base_branch": "main",
   "worktree_path": null,
-  "commit": "b08dc43",
+  "commit": "68ce418d318f3a6cb5c47487626c759d0e4e6bbc",
   "pr_url": null,
   "subtasks": [],
   "children": [
@@ -25,6 +25,6 @@
   ],
   "parent": null,
   "relatedFiles": [],
-  "notes": "用户2026-09-30批准按最终审计建议修复；正在本地实施v0.3.21。生产仍v0.3.20；完成后记录修复核销/回归/手册与发布包，远端推送合并部署另行放行。原手机NFC/相机彩排及普通CA关联资料彻底去标识设计仍保留边界。",
+  "notes": "本地v0.3.21修复/后端421/前端94/部署12/业务Chrome16+旧URL1/两份33及17页PDF完成，功能提交68ce418及发布包就绪。生产仍v0.3.20；推送合并部署等待本次放行。原手机NFC/相机彩排及有关联CA资料彻底去标识规则保留尾项。",
   "meta": {}
 }
