@@ -1,0 +1,105 @@
+{
+  "version": "0.3.20",
+  "migration_0014_applied": true,
+  "published_content": [
+    {
+      "code": "prototype-interest",
+      "version": "v1",
+      "status": "published",
+      "kind": "questionnaire",
+      "question_count": 18
+    },
+    {
+      "code": "prototype-talent",
+      "version": "v1",
+      "status": "published",
+      "kind": "questionnaire",
+      "question_count": 24
+    },
+    {
+      "code": "paper-bridge",
+      "version": "prototype-v1",
+      "status": "published",
+      "kind": "activity",
+      "question_count": null
+    },
+    {
+      "code": "leaf-look",
+      "version": "prototype-v1",
+      "status": "published",
+      "kind": "activity",
+      "question_count": null
+    },
+    {
+      "code": "cloud-story",
+      "version": "prototype-v1",
+      "status": "published",
+      "kind": "activity",
+      "question_count": null
+    },
+    {
+      "code": "team-help",
+      "version": "prototype-v1",
+      "status": "published",
+      "kind": "activity",
+      "question_count": null
+    },
+    {
+      "code": "family-show",
+      "version": "prototype-v1",
+      "status": "published",
+      "kind": "activity",
+      "question_count": null
+    },
+    {
+      "code": "sort-desk",
+      "version": "prototype-v1",
+      "status": "published",
+      "kind": "activity",
+      "question_count": null
+    },
+    {
+      "code": "prototype-paper-bridge",
+      "version": "prototype-v1",
+      "status": "published",
+      "kind": "activity",
+      "question_count": null
+    },
+    {
+      "code": "prototype-building",
+      "version": "prototype-v1",
+      "status": "published",
+      "kind": "activity",
+      "question_count": null
+    },
+    {
+      "code": "prototype-story-route",
+      "version": "prototype-v1",
+      "status": "published",
+      "kind": "activity",
+      "question_count": null
+    },
+    {
+      "code": "prototype-two-plays",
+      "version": "prototype-v1",
+      "status": "published",
+      "kind": "activity",
+      "question_count": null
+    }
+  ],
+  "content_matches_pinned_source": true,
+  "import_audit_count": 12,
+  "publish_audit_count": 12,
+  "fixed_account_status": "active",
+  "fixed_account_bind_state": "unbound",
+  "original_nfc_matches": true,
+  "prototype_enabled": true,
+  "sms_mode": "aliyun_verify",
+  "dingdong_configured": true,
+  "no_supplier_request": true,
+  "backend_files": {
+    "dingdong_ca/core/services/exploration.py": "39ba90e4ef7b91cec88154df06d1a2afb9a76ef0c06908ea783bdc396533fbbe",
+    "dingdong_ca/core/services/prototype_content.py": "d918ae7cf57921464b59a90830961ec33ca4eee4b8a557950246ae58a702901c",
+    "dingdong_ca/core/services/ca_account.py": "e2ae22c6ddea473151f8019c754a0eae065dff7041d4784f5e888607dd39e3d9"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "pages": {
+    "parent": 26,
+    "ops": 15
+  },
+  "ops_credentials_present": true,
+  "credentials_printed": false,
+  "release_status": "v0.3.20 deployed",
+  "production_login_screenshots_replaced": true,
+  "visual_review": "all41pages rendered and inspected; no clipping or overlap",
+  "source": "new public login screenshots; remaining correctly labeled local/previous E2E screenshots",
+  "permissions": "0600"
+}

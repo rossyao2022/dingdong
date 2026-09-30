@@ -1,0 +1,252 @@
+{
+  "date": "2026-09-30T05:24:42.794Z",
+  "release": "0.3.20",
+  "verification": "Public app.js SHA256 matches current verified local release",
+  "entry": "https://1.15.23.152/dingdong/",
+  "browser": "real Chrome headless, new unauthenticated context",
+  "https_certificate_handling": "ignoreHTTPSErrors enabled for IP test entry; certificate validity is not asserted",
+  "readiness_attempts": 1,
+  "app_sha256": "6bbac5248045962eb1d93b09a50cff5762b26b819b0cd254f73fa280f0ccb5ed",
+  "runtime": {
+    "environment": "demo",
+    "sms_mode": "aliyun_verify",
+    "data_source": "database_fixture",
+    "fixture_dataset": null
+  },
+  "sms_requests": 0,
+  "authenticated_production_logins": 0,
+  "static_modules": [
+    {
+      "path": "styles.css",
+      "type": "style",
+      "status": 200
+    },
+    {
+      "path": "playful.css",
+      "type": "style",
+      "status": 200
+    },
+    {
+      "path": "fingerprint.css",
+      "type": "style",
+      "status": 200
+    },
+    {
+      "path": "exploration-v4.css",
+      "type": "style",
+      "status": 200
+    },
+    {
+      "path": "talents.css",
+      "type": "style",
+      "status": 200
+    },
+    {
+      "path": "readability.css",
+      "type": "style",
+      "status": 200
+    },
+    {
+      "path": "client.css",
+      "type": "style",
+      "status": 200
+    },
+    {
+      "path": "talent-data.js",
+      "type": "script",
+      "status": 200
+    },
+    {
+      "path": "talent-explorer.js",
+      "type": "script",
+      "status": 200
+    },
+    {
+      "path": "career-data.js",
+      "type": "script",
+      "status": 200
+    },
+    {
+      "path": "career-explorer.js",
+      "type": "script",
+      "status": 200
+    },
+    {
+      "path": "riasec.js",
+      "type": "script",
+      "status": 200
+    },
+    {
+      "path": "island-explorer.js",
+      "type": "script",
+      "status": 200
+    },
+    {
+      "path": "fingerprint-guide.js",
+      "type": "script",
+      "status": 200
+    },
+    {
+      "path": "fingerprint.js",
+      "type": "script",
+      "status": 200
+    },
+    {
+      "path": "playworld.js",
+      "type": "script",
+      "status": 200
+    },
+    {
+      "path": "app.js",
+      "type": "script",
+      "status": 200
+    }
+  ],
+  "reference_images": [
+    {
+      "path": "https://1.15.23.152/dingdong/assets/generated/island-R-v5.webp",
+      "loaded": true,
+      "width": 720
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/generated/island-I-v5.webp",
+      "loaded": true,
+      "width": 720
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/generated/island-A-v5.webp",
+      "loaded": true,
+      "width": 720
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/generated/island-S-v5.webp",
+      "loaded": true,
+      "width": 720
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/generated/island-E-v5.webp",
+      "loaded": true,
+      "width": 720
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/generated/island-C-v5.webp",
+      "loaded": true,
+      "width": 720
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/fingerprints/arch.webp",
+      "loaded": true,
+      "width": 480
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/fingerprints/loop.webp",
+      "loaded": true,
+      "width": 480
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/fingerprints/reverse.webp",
+      "loaded": true,
+      "width": 480
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/fingerprints/whorl.webp",
+      "loaded": true,
+      "width": 480
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/dingdong/robot-front.webp",
+      "loaded": true,
+      "width": 760
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/dingdong/robot-wave.webp",
+      "loaded": true,
+      "width": 760
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/dingdong/companion-world.webp",
+      "loaded": true,
+      "width": 760
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/dingdong/fingerprint-lab.webp",
+      "loaded": true,
+      "width": 760
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/dingdong/gift.webp",
+      "loaded": true,
+      "width": 760
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/dingdong/island-R.webp",
+      "loaded": true,
+      "width": 760
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/dingdong/island-I.webp",
+      "loaded": true,
+      "width": 760
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/dingdong/island-A.webp",
+      "loaded": true,
+      "width": 760
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/dingdong/island-S.webp",
+      "loaded": true,
+      "width": 760
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/dingdong/island-E.webp",
+      "loaded": true,
+      "width": 760
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/dingdong/island-C.webp",
+      "loaded": true,
+      "width": 760
+    }
+  ],
+  "login_layouts": [
+    {
+      "width": 320,
+      "overflow": 0,
+      "code_button_overlap": false
+    },
+    {
+      "width": 390,
+      "overflow": 0,
+      "code_button_overlap": false
+    },
+    {
+      "width": 430,
+      "overflow": 0,
+      "code_button_overlap": false
+    },
+    {
+      "width": 768,
+      "overflow": 0,
+      "code_button_overlap": false
+    },
+    {
+      "width": 1024,
+      "overflow": 0,
+      "code_button_overlap": false
+    },
+    {
+      "width": 1280,
+      "overflow": 0,
+      "code_button_overlap": false
+    }
+  ],
+  "ops_login": {
+    "viewport": "390x844",
+    "captcha_present": true,
+    "captcha_submission": false
+  },
+  "page_errors": [],
+  "failed_static": [],
+  "scope_limit": "No production signed-in exploration/NFC/result write, SMS send, supplier or physical device interaction"
+}

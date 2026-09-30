@@ -15,7 +15,7 @@
   "branch": "codex/release-v0.3.20",
   "base_branch": "main",
   "worktree_path": null,
-  "commit": null,
+  "commit": "b08dc43",
   "pr_url": null,
   "subtasks": [],
   "children": [
@@ -25,6 +25,6 @@
   ],
   "parent": null,
   "relatedFiles": [],
-  "notes": "",
+  "notes": "用户已明确放行，v0.3.20推送/main合并与生产备份迁移、2题库10活动显式发布、部署/公网验收和PDF上线同步均完成。父任务仅保留CA业务原手机/原NFC及相机现场彩排尾项，不冒称已完成真机E2E。",
   "meta": {}
 }

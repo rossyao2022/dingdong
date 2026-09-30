@@ -1,0 +1,106 @@
+5052c63c74ef2fb683e56f5c296cc6c3c6f97d779fe076c835495099ba1dc738  /opt/dingdong/backups/pre-v0.3.20-20260930.dump
+BACKUP_BYTES=161289 MODE=600
+BACKUP_LIST_VERIFIED
+dingdong-v0.3.20.tar.gz: OK
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  7.137MB
+
+Step 1/5 : FROM dingdong-backend:0.3.19
+ ---> 571961b11325
+Step 2/5 : USER root
+ ---> Running in c87b3353dba2
+ ---> Removed intermediate container c87b3353dba2
+ ---> c25751a19ada
+Step 3/5 : COPY --chown=app:app backend/ /app/
+ ---> ecd7e9b3a7ad
+Step 4/5 : RUN DJANGO_SETTINGS_MODULE=config.settings.base .venv/bin/python manage.py collectstatic --noinput
+ ---> Running in 31b527eab04a
+
+1 static file copied to '/app/staticfiles', 171 unmodified.
+ ---> Removed intermediate container 31b527eab04a
+ ---> 81b2573dc7d7
+Step 5/5 : USER app
+ ---> Running in 50b360225650
+ ---> Removed intermediate container 50b360225650
+ ---> 3410b564a9db
+Successfully built 3410b564a9db
+Successfully tagged dingdong-backend:0.3.20
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  7.137MB
+
+Step 1/6 : FROM dingdong-web:0.3.19
+ ---> 7f8315512522
+Step 2/6 : COPY deploy/nginx.conf.template /etc/nginx/templates/default.conf.template
+ ---> 1546149c497c
+Step 3/6 : COPY frontend/index.html frontend/*.css frontend/app.js frontend/api.js frontend/playworld.js frontend/companion.js frontend/reassessment.js frontend/growth-cycle.js frontend/ca-link.js frontend/ui-components.js frontend/talent-data.js frontend/talent-explorer.js frontend/career-data.js frontend/career-explorer.js frontend/riasec.js frontend/island-explorer.js frontend/fingerprint-guide.js frontend/fingerprint.js frontend/exploration-session.js /usr/share/nginx/html/
+ ---> 374c9115a2af
+Step 4/6 : COPY frontend/assets /usr/share/nginx/html/assets
+ ---> ba3d615b1bc5
+Step 5/6 : COPY VERSION /usr/share/nginx/html/version.txt
+ ---> 8226ecefe22e
+Step 6/6 : RUN find /usr/share/nginx/html -type d -exec chmod 755 {} +     && find /usr/share/nginx/html -type f -exec chmod 644 {} +
+ ---> Running in bb1d3abe06a8
+ ---> Removed intermediate container bb1d3abe06a8
+ ---> a66800a4c917
+Successfully built a66800a4c917
+Successfully tagged dingdong-web:0.3.20
+System check identified no issues (0 silenced).
+Operations to perform:
+  Apply all migrations: admin, auth, contenttypes, core, sessions, testsupport, users
+Running migrations:
+  Applying core.0014_remove_activitycontentversion_activity_origin_and_more... OK
+六岛兴趣探索 · v1
+八维日常观察 · v1
+纸桥挑战 · prototype-v1
+叶子小侦探 · prototype-v1
+云朵新故事 · prototype-v1
+一起帮个忙 · prototype-v1
+家庭小舞台 · prototype-v1
+桌面整理师 · prototype-v1
+一张纸的两种桥 · prototype-v1
+叮咚的小小建筑师 · prototype-v1
+给故事换一条路 · prototype-v1
+两种玩法的小发现 · prototype-v1
+仅预览，未写入
+六岛兴趣探索 · v1
+八维日常观察 · v1
+纸桥挑战 · prototype-v1
+叶子小侦探 · prototype-v1
+云朵新故事 · prototype-v1
+一起帮个忙 · prototype-v1
+家庭小舞台 · prototype-v1
+桌面整理师 · prototype-v1
+一张纸的两种桥 · prototype-v1
+叮咚的小小建筑师 · prototype-v1
+给故事换一条路 · prototype-v1
+两种玩法的小发现 · prototype-v1
+导入完成
+ Container dingdong-prod-trial-api-1  Recreate
+ Container dingdong-prod-trial-api-1  Recreated
+ Container dingdong-prod-trial-web-1  Recreate
+ Container dingdong-prod-trial-worker-1  Recreate
+ Container dingdong-prod-trial-beat-1  Recreate
+ Container dingdong-prod-trial-web-1  Recreated
+ Container dingdong-prod-trial-beat-1  Recreated
+ Container dingdong-prod-trial-worker-1  Recreated
+ Container dingdong-prod-trial-api-1  Starting
+ Container dingdong-prod-trial-api-1  Started
+ Container dingdong-prod-trial-api-1  Waiting
+ Container dingdong-prod-trial-api-1  Waiting
+ Container dingdong-prod-trial-api-1  Waiting
+ Container dingdong-prod-trial-api-1  Healthy
+ Container dingdong-prod-trial-web-1  Starting
+ Container dingdong-prod-trial-api-1  Healthy
+ Container dingdong-prod-trial-api-1  Healthy
+ Container dingdong-prod-trial-worker-1  Starting
+ Container dingdong-prod-trial-beat-1  Starting
+ Container dingdong-prod-trial-worker-1  Started
+ Container dingdong-prod-trial-beat-1  Started
+ Container dingdong-prod-trial-web-1  Started
+DEPLOY_V0320_FINISHED
