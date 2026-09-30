@@ -22,7 +22,8 @@ out = root / 'dist'
 out.mkdir(exist_ok=True)
 archive = out / f'dingdong-v{version}.tar.gz'
 with tarfile.open(archive, 'w:gz') as tar:
-    names = git('ls-files', '--', *paths).splitlines()
+    # NUL-delimited paths avoid Git quoting Chinese names or splitting embedded newlines.
+    names = [name for name in git('ls-files', '-z', '--', *paths).split('\0') if name]
     for name in names:
         if '/docs/' in name or name.startswith('deploy/evidence/'):
             continue

@@ -60,3 +60,6 @@ Correct：记录本地接收→校验→投影→页面闭环；真实供应商�
 Wrong：测试在每个新儿童上先注入initial_result，再宣称新用户正常。
 
 Correct：新儿童输入为空时开始实际流程，测评报告由真实submit和Worker生成；专业结果未接入就保留缺值。
+
+
+发布脚本枚举Git路径必须用`git ls-files -z`与NUL分隔；不要解析默认带引号/八进制转义的中文文件名。先排除deploy/evidence及私密docs，再核对所有包内运行文件字节及RELEASE.json实际源码commit。
