@@ -726,3 +726,40 @@ User explicitly authorized上线. Atomic push of release/main; verified producti
 ### Next Steps
 
 - 补操作遗漏并确认CA号永久保留与资料删除处理规则；修复后追加真实回归、手册与发布证据，再做原手机/NFC/相机彩排。
+
+
+## Session 30: v0.3.21原型审计修复与本地发布准备
+<!-- trellis-session: v=2 fp=25712d10147ac843 -->
+
+**Date**: 2026-09-30
+**Task**: v0.3.21原型审计修复与本地发布准备
+**Branch**: `codex/release-v0.3.21`
+
+### Summary
+
+修复四情境/引导、导出、回退筛选、支持和旧入口；CA删除明确409保护；本地回归、33/17页私密PDF和发布包完成。
+
+### Main Changes
+
+- 独立儿童偏好和活动guide_mode、真实当前儿童导出、迁移0015/OpenAPI65操作；保留CA永久账号规则和供应商边界。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `68ce418` | [T-prototype-content-integration] Repair prototype audit gaps and verify v0.3.21 |
+| `f126ffa` | [T-prototype-content-integration] Record verified v0.3.21 release package |
+
+### Testing
+
+- [OK] 后端421、前端94、部署12；真实本地Chrome业务16及七旧URL独立1项；22题由独立Worker生成报告；Storybook和文档审计通过。
+- [OK] PDF共50页渲染与目视，运营批准凭据保留；发布包关键12文件逐字节核验。
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- 依据AGENTS.md等待本次v0.3.21推送/main合并/生产备份迁移部署放行；生产仍v0.3.20。
+- 保留父任务in_progress：原手机/NFC/相机现场彩排、业务确认与关联CA资料彻底去标识策略未完成。

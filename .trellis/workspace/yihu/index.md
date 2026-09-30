@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 29
+- **Total Sessions**: 30
 - **Last Active**: 2026-09-30
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~728 | Active |
+| `journal-1.md` | ~765 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 30 | 2026-09-30 | v0.3.21原型审计修复与本地发布准备 | `68ce418`, `f126ffa` | `codex/release-v0.3.21` |
 | 29 | 2026-09-30 | v0.3.20最终匹配审计及遗漏确认 | `7237061` | `codex/release-v0.3.20` |
 | 28 | 2026-09-30 | v0.3.20 production deployment verified | `8480064` | `codex/release-v0.3.20` |
 | 27 | 2026-09-30 | v0.3.20 full prototype integration local verified | `17fb016`, `9db1fa6` | `codex/release-v0.3.20` |
