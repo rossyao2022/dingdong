@@ -1,0 +1,7 @@
+->  celery@6fefec2044c6: OK
+        pong
+
+1 node online.
+2026-09-30T22:41:48+08:00 POST /api/dingdong/prototype/events 400 400 0.003
+2026-09-30T22:41:48+08:00 POST /api/dingdong/prototype/events 400 400 0.003
+2026-09-30T22:41:48+08:00 HEAD /api/dingdong/prototype/events 405 405 0.003

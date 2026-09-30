@@ -1,0 +1,57 @@
+{
+  "probes": [
+    {
+      "scheme": "http",
+      "method": "POST",
+      "path": "/api/dingdong/prototype/events",
+      "status": 400,
+      "expected_status": 400,
+      "passed": true,
+      "body": {
+        "code": "PUSH_HEADERS_MISSING",
+        "message": "缺少推送请求头",
+        "field_errors": [],
+        "trace_id": "ffbd05dc-3e44-4756-bcb3-f241e7e7346c"
+      }
+    },
+    {
+      "scheme": "https",
+      "method": "POST",
+      "path": "/api/dingdong/prototype/events",
+      "status": 400,
+      "expected_status": 400,
+      "passed": true,
+      "body": {
+        "code": "PUSH_HEADERS_MISSING",
+        "message": "缺少推送请求头",
+        "field_errors": [],
+        "trace_id": "f4716e6d-9536-4540-a6f6-2a0c7ca63ad0"
+      }
+    },
+    {
+      "scheme": "http",
+      "method": "HEAD",
+      "path": "/api/dingdong/prototype/events",
+      "status": 405,
+      "expected_status": 405,
+      "passed": true
+    },
+    {
+      "scheme": "http",
+      "method": "GET",
+      "path": "/api/v1/runtime",
+      "status": 404,
+      "expected_status": 404,
+      "passed": true
+    },
+    {
+      "scheme": "http",
+      "method": "GET",
+      "path": "/ops/",
+      "status": 404,
+      "expected_status": 404,
+      "passed": true
+    }
+  ],
+  "signed_supplier_event_sent": false
+}

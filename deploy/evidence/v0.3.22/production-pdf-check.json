@@ -1,0 +1,17 @@
+{
+  "pages": {
+    "家长": 37,
+    "运营": 18
+  },
+  "sha256": {
+    "叮咚家长操作指南_生产机试用版_v0.3.22.pdf": "2902ce2932b88d44cd0296acc7283593825dbc30b1674f037c0c47b050d30c11",
+    "叮咚运营操作指南_生产机试用版_v0.3.22.pdf": "61ad882cd4bab491787212caed039427b2db6a21e7b2d04fd24eb39b802a6e15"
+  },
+  "status": "v0.3.22 deployed on production; 2026-09-30",
+  "all_pages_rendered": true,
+  "dom_footer_overlap": false,
+  "privacy": "Approved credentials remain only in ignored private PDF; no values in evidence",
+  "approved_ops_credentials_retained": true,
+  "login_screenshots": "Actual anonymous public Chrome v0.3.22; other screenshot sources remain explicitly labelled",
+  "visual_review": "All 55 rendered pages visually inspected through 6 contact sheets; changed public login and release state text clear; no clipping or footer collisions"
+}

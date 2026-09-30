@@ -1,0 +1,3 @@
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+{"nginx_test": true, "nginx_reloaded": true, "http_callback_exact_only": true, "other_http_root_still_404": true, "backup": "/opt/dingdong/backups/nginx-pre-v0322"}

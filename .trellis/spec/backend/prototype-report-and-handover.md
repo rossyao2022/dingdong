@@ -63,3 +63,6 @@ Correct：新儿童输入为空时开始实际流程，测评报告由真实subm
 
 
 发布脚本枚举Git路径必须用`git ls-files -z`与NUL分隔；不要解析默认带引号/八进制转义的中文文件名。先排除deploy/evidence及私密docs，再核对所有包内运行文件字节及RELEASE.json实际源码commit。
+
+
+生产验证基线须在宿主机私密目录保存：容器内/opt路径未必挂载。若补充比较脚本失败，用已验证的部署前pg_dump恢复只读比较基线，不以部署后状态冒充部署前；pg_restore导出SQL需显式--file=-。COPY数据仅在服务器内解析，证据只输出数量与一致性布尔。Worker探针沿Compose实际-A config，不猜模块名。

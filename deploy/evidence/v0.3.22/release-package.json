@@ -17,5 +17,6 @@
   "private_pdf_and_credentials_excluded": true,
   "example_env_only": true,
   "evidence_excluded_even_with_unicode_filenames": true,
-  "status": "local package verified; not published or deployed"
+  "status": "Published and deployed on 1.15.23.152 dingdong-prod-trial; public version 0.3.22 verified 2026-09-30",
+  "publication_commit": "5b89d0b"
 }
