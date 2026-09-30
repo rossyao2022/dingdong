@@ -633,3 +633,25 @@ User explicitly authorized push and main integration, then chose CA origin main 
 ### Status
 
 [OK] **Completed**
+
+
+## Session 26: 原型完整整合方案与参展验收计划
+<!-- trellis-session: v=2 fp=1717d662826d53d9 -->
+
+**Date**: 2026-09-30
+**Task**: 原型完整整合方案与参展验收计划
+**Branch**: `main`
+
+### Summary
+
+核对原型 GitHub main@3b8723e 与参考站，确认此前仅素材整合导致六岛/八维/指纹缺失。形成完整清单、CA 儿童级存稿与服务端计分设计、后台/活动适配、移动与旧功能验收、三方支持和 10.4 倒排目标。用户仅授权规划，任务保持 planning，未实施、推送或部署；原有文档校验 JSON 保留。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `8b17c28` | [T-prototype-content-integration] Plan full prototype content integration |
+
+### Status
+
+[OK] **Completed**
