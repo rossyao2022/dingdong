@@ -787,3 +787,26 @@ User explicitly authorized上线. Atomic push of release/main; verified producti
 ### Status
 
 [OK] **Completed**
+
+
+## Session 32: v0.3.22完整版本生产发布验收
+<!-- trellis-session: v=2 fp=7760f71879c71853 -->
+
+**Date**: 2026-09-30
+**Task**: v0.3.22完整版本生产发布验收
+**Branch**: `codex/release-v0.3.22`
+
+### Summary
+
+用户放行完整v0.3.21+v0.3.22 push/main快进和生产部署；备份、0015+0016、四应用、原CA历史保留、四weekly供应商真实只读、28模块27素材、六宽度Chrome和精确HTTP/HTTPS回调通过。PDF55页同步已上线且批准凭据只留忽略产物。未发短信或生产业务写；自动实发与真机NFC换号彩排保留尾项，父任务继续in_progress，用户原audit JSON未纳入。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `5b89d0b` | [T-prototype-content-integration] Record local closed-loop verification session |
+| `5abe45526e3e2546b49220b28b1ebdbd037a209f` | [T-prototype-content-integration] Record v0.3.22 production deployment and verification |
+
+### Status
+
+[OK] **Completed**
