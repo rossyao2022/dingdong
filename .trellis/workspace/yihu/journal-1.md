@@ -588,3 +588,26 @@ Recorded explicit user decision: our local CA implementation is the primary func
 ### Status
 
 [OK] **Completed**
+
+
+## Session 24: Publish v0.3.19 and establish CA main
+<!-- trellis-session: v=2 fp=0ebaf36b29e50cf0 -->
+
+**Date**: 2026-09-30
+**Task**: Publish v0.3.19 and establish CA main
+**Branch**: `codex/release-v0.3.19`
+
+### Summary
+
+User explicitly authorized push and main integration, then chose CA origin main creation and default-branch change. Pushed complete locally verified v0.3.19, created main from former default release-v0.3.6 and fast-forwarded all local functionality, retained old release history and upstream unchanged. Verified equal remote SHA/tree, main VERSION 0.3.19, GitHub default main, runtime identical to verified package. Documentation audits passed; unrelated audit JSON preserved. No deployment, SMS or production DB write. Final bookkeeping is synchronized to release/main.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `d7608a3` | [T-publish-ca-main] Plan latest CA branch publication and main integration |
+| `5763820` | [T-publish-ca-main] Record successful CA main integration and default branch |
+
+### Status
+
+[OK] **Completed**
