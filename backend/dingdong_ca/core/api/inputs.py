@@ -1,6 +1,8 @@
 from django.utils import timezone
 from rest_framework import serializers
 
+from dingdong_ca.core.models import GUIDE_MODES
+
 
 class StrictSerializer(serializers.Serializer):
     def to_internal_value(self, data):
@@ -75,6 +77,7 @@ class ActivityCreate(StrictSerializer):
     activity_version_id = serializers.UUIDField()
     mode = serializers.ChoiceField(choices=["guide", "web"])
     style = StrictString(max_length=32)
+    guide_mode = serializers.ChoiceField(choices=["", *GUIDE_MODES], required=False, default="")
 
 
 class ActivityProgress(StrictSerializer):
@@ -126,3 +129,8 @@ class SubmitInput(StrictSerializer):
 
 class ExplorationCompletion(StrictSerializer):
     revision = serializers.IntegerField(min_value=1)
+
+
+class CompanionPreferenceInput(StrictSerializer):
+    guide_mode = serializers.ChoiceField(choices=GUIDE_MODES)
+    revision = serializers.IntegerField(min_value=0)

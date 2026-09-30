@@ -12,7 +12,7 @@
     <button type="button" class="btn btn-sm btn-primary"
             data-ops-action="/api/v1/staff/questionnaires/{{ row.pk }}/publish"
             data-ops-confirm-title="发布题库版本"
-            data-ops-confirm="发布后家长端的新答卷将使用《{{ row.title }}》{{ row.version }}。"
+            data-ops-confirm="{{ publish_notice }}"
             data-ops-confirm-impacts="同一题库当前已发布的版本会被自动停用|历史答卷仍绑定各自创建时的版本|发布后该版本不可再编辑"
             data-ops-confirm-label="确认发布"
             data-ops-reload="1"
@@ -22,11 +22,15 @@
 
 {% block content %}
   <div class="alert alert-info" role="alert">
-    <h4 class="alert-heading">这是运营视角的预览</h4>
+    <div>
+    <h4 class="alert-heading">这是运营视角的整库预览</h4>
     <p class="mb-0">
       预览内容与家长端展示一致：题库名称、用途说明、题干、选项与必填规则。
       题目数量：{{ row.questions|length }} 题。
+      {% if row.purpose == "interest" %}六岛整库共18题，每岛3题。家长按顺序选择3岛后实际作答9题，每题0–4分，每岛取3题平均。{% elif row.purpose == "talent" %}八维整库共24题，每个方向3题，每题1–5分，每个方向合计3–15分；只作日常观察，不作能力排名。{% endif %}
+      {{ publish_notice }}
     </p>
+    </div>
   </div>
 
   <section class="card">
@@ -39,11 +43,11 @@
     <div class="card-body">
       <p class="text-secondary">{{ row.description }}</p>
 
-      {% for question in row.questions %}
+      {% for question in preview_questions %}
         <div class="preview-question">
           <b>第 {{ forloop.counter }} 题 · {{ question.title }}</b>
           <div class="text-secondary small">
-            {{ question.type|label:"QUESTION_TYPE" }}
+            {% if question.direction_label %}{{ question.direction_label }} · {% endif %}{{ question.type|label:"QUESTION_TYPE" }}
             {% if question.required %}· 必填{% else %}· 选填{% endif %}
             {% if question.type == "multiple_choice" %}· 最少选 {{ question.min_choices }} 项，最多选 {{ question.max_choices }} 项{% endif %}
           </div>

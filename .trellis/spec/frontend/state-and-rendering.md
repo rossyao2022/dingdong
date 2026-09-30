@@ -70,3 +70,12 @@
 原型模块经统一bridge.run→act，ensure/answer/complete必须等待真实API成功，核对身份+儿童+路由+探索上下文票据后再更新。答卷不进storage。`exploration-session.js`归一化服务端答案，保留合法零分；只在ensure恢复首次未答题号，单题保存不能自动跳题。
 
 `closeDialog()`调用`leaveContext({disposePage:false})`只关闭当前弹窗和编辑会话；同页指纹活动弹窗关闭后必须继续可用。真正换路由、切儿童、退出及pagehide才使用默认disposePage=true清理FingerprintLab及递增探索票据。不要把相机/Blob清理挂在所有弹窗关闭上。
+
+
+## 网页引导偏好与导出（v0.3.21）
+
+`state.companionPreference`来自当前儿童API，保存guide_mode/revision/child_id；不进storage。加载、保存和导出await后必须检查explorationToken及返回child_id。换儿童、退出清空；伙伴页/活动详情恢复后端偏好。guide_mode为原四种网页方式，活动style保持既有合法值，两者独立；既有活动始终使用创建时的guide_mode。
+
+`guideText(record)`是页面与朗读唯一文案入口：guide用四套原话术，web用实际活动alternative。进度回退仍带revision。旅程筛选改变后丢弃旧cursor，用相同status拉下一页。
+
+导出经真实儿童export API，创建仅本次下载的Blob URL，await后验上下文，下载后和pagehide时释放。全局busy导航门禁只能放行本次trackedBlobURL，不能放行任意href或其他导航；否则原有busy保护会把程序触发的a.click也拦掉，HTTP200不等于下载成功。

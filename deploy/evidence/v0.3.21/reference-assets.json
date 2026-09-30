@@ -1,0 +1,113 @@
+{
+  "source_commit": "3b8723e0089b411c19c41e13e4361cb90e6b7c71",
+  "assets": [
+    {
+      "asset": "assets/dingdong.svg",
+      "equal": true
+    },
+    {
+      "asset": "assets/dingdong/companion-world.webp",
+      "equal": true
+    },
+    {
+      "asset": "assets/dingdong/fingerprint-lab.webp",
+      "equal": true
+    },
+    {
+      "asset": "assets/dingdong/gift.webp",
+      "equal": true
+    },
+    {
+      "asset": "assets/dingdong/island-A.webp",
+      "equal": true
+    },
+    {
+      "asset": "assets/dingdong/island-C.webp",
+      "equal": true
+    },
+    {
+      "asset": "assets/dingdong/island-E.webp",
+      "equal": true
+    },
+    {
+      "asset": "assets/dingdong/island-I.webp",
+      "equal": true
+    },
+    {
+      "asset": "assets/dingdong/island-R.webp",
+      "equal": true
+    },
+    {
+      "asset": "assets/dingdong/island-S.webp",
+      "equal": true
+    },
+    {
+      "asset": "assets/dingdong/robot-front.webp",
+      "equal": true
+    },
+    {
+      "asset": "assets/dingdong/robot-wave.webp",
+      "equal": true
+    },
+    {
+      "asset": "assets/fingerprints/arch.webp",
+      "equal": true
+    },
+    {
+      "asset": "assets/fingerprints/loop.webp",
+      "equal": true
+    },
+    {
+      "asset": "assets/fingerprints/reverse.webp",
+      "equal": true
+    },
+    {
+      "asset": "assets/fingerprints/whorl.webp",
+      "equal": true
+    },
+    {
+      "asset": "assets/generated/island-A-v5.webp",
+      "equal": true
+    },
+    {
+      "asset": "assets/generated/island-C-v5.webp",
+      "equal": true
+    },
+    {
+      "asset": "assets/generated/island-E-v5.webp",
+      "equal": true
+    },
+    {
+      "asset": "assets/generated/island-I-v5.webp",
+      "equal": true
+    },
+    {
+      "asset": "assets/generated/island-R-v5.webp",
+      "equal": true
+    },
+    {
+      "asset": "assets/generated/island-S-v5.webp",
+      "equal": true
+    },
+    {
+      "asset": "assets/islands/imagination.svg",
+      "equal": true
+    },
+    {
+      "asset": "assets/islands/nature.svg",
+      "equal": true
+    },
+    {
+      "asset": "assets/islands/science.svg",
+      "equal": true
+    },
+    {
+      "asset": "assets/islands/story.svg",
+      "equal": true
+    },
+    {
+      "asset": "assets/mark.svg",
+      "equal": true
+    }
+  ]
+}

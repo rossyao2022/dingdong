@@ -1,0 +1,8 @@
+
+Running 1 test using 1 worker
+
+(node:24660) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/exhibition-recovery.spec.js:30:1 › 标签进入后刷新，提示重碰且不存凭据；重新碰标签仍能继续 (2.6s)
+
+  1 passed (3.2s)

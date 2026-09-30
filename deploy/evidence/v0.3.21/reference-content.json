@@ -1,0 +1,149 @@
+{
+  "RIASEC": {
+    "equal": true
+  },
+  "TalentData": {
+    "equal": true
+  },
+  "CareerData": {
+    "equal": true
+  },
+  "guides": {
+    "equal": true
+  },
+  "app.js": {
+    "referenceActions": [
+      "action:${state.active?",
+      "action:answer",
+      "action:assessment",
+      "action:assessment-next",
+      "action:assessment-prev",
+      "action:assessment-restart",
+      "action:blindbox",
+      "action:close",
+      "action:consent",
+      "action:device",
+      "action:export",
+      "action:feedback",
+      "action:filter",
+      "action:finish-task",
+      "action:mood",
+      "action:next-step",
+      "action:open-box",
+      "action:parent-tips",
+      "action:period",
+      "action:prev-step",
+      "action:profile",
+      "action:replace-task",
+      "action:reset",
+      "action:reset-dialog",
+      "action:resume-existing",
+      "action:resume-guide",
+      "action:rotate-task",
+      "action:skip-dialog",
+      "action:skip-task",
+      "action:speak-intro",
+      "action:speak-step",
+      "action:start-task",
+      "action:style",
+      "action:talents",
+      "action:task-detail",
+      "action:to-companion",
+      "action:web-task"
+    ],
+    "currentActions": [
+      "action:${action}",
+      "action:close",
+      "action:growth-period",
+      "action:journey-filter",
+      "action:mood",
+      "action:style"
+    ]
+  },
+  "island-explorer.js": {
+    "referenceActions": [
+      "action:blindbox",
+      "interest-action:answer",
+      "interest-action:back",
+      "interest-action:earlier",
+      "interest-action:next",
+      "interest-action:previous",
+      "interest-action:remove",
+      "interest-action:review",
+      "interest-action:select",
+      "interest-action:start",
+      "interest-action:task"
+    ],
+    "currentActions": [
+      "action:blindbox",
+      "interest-action:answer",
+      "interest-action:back",
+      "interest-action:earlier",
+      "interest-action:next",
+      "interest-action:previous",
+      "interest-action:remove",
+      "interest-action:restart",
+      "interest-action:review",
+      "interest-action:select",
+      "interest-action:start",
+      "interest-action:task"
+    ]
+  },
+  "talent-explorer.js": {
+    "referenceActions": [
+      "action:export",
+      "talent-action:answer",
+      "talent-action:next",
+      "talent-action:previous",
+      "talent-action:review",
+      "talent-action:start"
+    ],
+    "currentActions": [
+      "action:export-child",
+      "talent-action:answer",
+      "talent-action:next",
+      "talent-action:previous",
+      "talent-action:restart",
+      "talent-action:review",
+      "talent-action:start"
+    ]
+  },
+  "fingerprint.js": {
+    "referenceActions": [
+      "fp-action:camera",
+      "fp-action:capture",
+      "fp-action:pattern",
+      "fp-action:read-guide",
+      "fp-action:reset",
+      "fp-action:sample",
+      "fp-action:scan",
+      "fp-action:upload"
+    ],
+    "currentActions": [
+      "fp-action:camera",
+      "fp-action:capture",
+      "fp-action:pattern",
+      "fp-action:read-guide",
+      "fp-action:reset",
+      "fp-action:sample",
+      "fp-action:scan",
+      "fp-action:upload"
+    ]
+  },
+  "playworld.js": {
+    "referenceActions": [
+      "action:blindbox",
+      "action:open-box"
+    ],
+    "currentActions": [
+      "action:blindbox",
+      "action:open-box"
+    ]
+  },
+  "backendkeys": [
+    "source_commit",
+    "interest",
+    "talent",
+    "fingerprint_guides"
+  ]
+}

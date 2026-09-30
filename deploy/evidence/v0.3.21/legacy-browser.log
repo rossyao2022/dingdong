@@ -1,0 +1,6 @@
+
+Running 1 test using 1 worker
+
+  ✓  1 frontend/tests/legacy-compat.spec.js:4:1 › all seven old page URLs open their current CA page and discard identity, scores and NFC tokens (709ms)
+
+  1 passed (1.3s)

@@ -1,0 +1,4 @@
+Operations to perform:
+  Apply all migrations: admin, auth, contenttypes, core, sessions, testsupport, users
+Running migrations:
+  Applying core.0015_childcompanionpreference_activityrecord_guide_mode_and_more... OK

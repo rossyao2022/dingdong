@@ -113,3 +113,40 @@ def compute_result(session):
         "profiles": rows if q.purpose == "interest" else [],
         "dimensions": rows if q.purpose == "talent" else [],
     }
+
+
+def guidance_summary(session):
+    """Count original four-choice preferences by stable option code, not option order."""
+    q = session.questionnaire_version
+    expected_codes = {"Q01", "Q02", "Q03", "Q04"}
+    if (
+        session.status != "completed"
+        or q.purpose != "exploration"
+        or q.code != "exploration"
+        or {item["code"] for item in q.questions} != expected_codes
+        or len(q.questions) != 4
+    ):
+        return None
+    if any(
+        item["type"] != "single_choice"
+        or {option["code"] for option in item["options"]} != set("ABCD")
+        or len(item["options"]) != 4
+        for item in q.questions
+    ):
+        return None
+    values = [session.answers.get(code, []) for code in sorted(expected_codes)]
+    if any(
+        not isinstance(value, list) or len(value) != 1 or value[0] not in set("ABCD")
+        for value in values
+    ):
+        return None
+    modes = {"A": "cognitive", "B": "imitative", "C": "reverse", "D": "open"}
+    counts = dict.fromkeys(modes.values(), 0)
+    for value in values:
+        counts[modes[value[0]]] += 1
+    return {
+        "questionnaire_version_id": str(q.pk),
+        "content_version": q.version,
+        "answered_count": 4,
+        "counts": counts,
+    }

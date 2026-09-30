@@ -1,0 +1,12 @@
+
+Running 4 tests using 1 worker
+
+(node:23379) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/exhibition-recovery.spec.js:6:1 › 发码后冷却，刷新与登录退出后仍保留剩余时间 (1.4s)
+  ✓  2 tests/flows.spec.js:120:1 › 真实登录、活动完成、刷新恢复、退出清理 (6.2s)
+
+  ✓  3 tests/flows.spec.js:152:1 › 用途授权、22题、合成输入、真实初始报告 (25.5s)
+  ✓  4 tests/flows.spec.js:339:1 › 登录后首页小岛出发与全部菜单可点击 (3.4s)
+
+  4 passed (37.7s)

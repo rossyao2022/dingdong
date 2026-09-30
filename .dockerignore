@@ -13,6 +13,13 @@ backend/docs
 backend/tests
 !frontend/
 !frontend/index.html
+!frontend/daily.html
+!frontend/test.html
+!frontend/result.html
+!frontend/thumb.html
+!frontend/island.html
+!frontend/blindbox.html
+!frontend/report.html
 !frontend/*.js
 !frontend/*.css
 !frontend/assets/

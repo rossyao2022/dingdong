@@ -1,0 +1,22 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_______ test_operator_preview_explains_full_bank_and_independent_publish _______
+
+client = <rest_framework.test.APIClient object at 0x109adea50>
+
+    def test_operator_preview_explains_full_bank_and_independent_publish(client):
+        from ops_helpers import post_json
+        call_command("import_prototype_content", apply=True, publish=True, stdout=StringIO())
+        staff = ops_client(make_staff("content"))
+        create_page = staff.get("/ops/questionnaires/new/")
+        assert create_page.status_code == 200
+>       assert "复制当前默认题库为新版本" in create_page.content.decode()
+E       assert '复制当前默认题库为新版本' in '<!doctype html>\n<html lang="zh-CN" data-bs-theme="light">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="v...data.questionnaire.id + "/";\n          }, 700);\n        }\n      });\n    })();\n  </script>\n\n  </body>\n</html>\n'
+E        +  where '<!doctype html>\n<html lang="zh-CN" data-bs-theme="light">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="v...data.questionnaire.id + "/";\n          }, 700);\n        }\n      });\n    })();\n  </script>\n\n  </body>\n</html>\n' = <built-in method decode of bytes object at 0x1453bbc00>()
+E        +    where <built-in method decode of bytes object at 0x1453bbc00> = b'<!doctype html>\n<html lang="zh-CN" data-bs-theme="light">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="...data.questionnaire.id + "/";\n          }, 700);\n        }\n      });\n    })();\n  </script>\n\n  </body>\n</html>\n'.decode
+E        +      where b'<!doctype html>\n<html lang="zh-CN" data-bs-theme="light">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="...data.questionnaire.id + "/";\n          }, 700);\n        }\n      });\n    })();\n  </script>\n\n  </body>\n</html>\n' = <HttpResponse status_code=200, "text/html; charset=utf-8">.content
+
+tests/test_prototype_repair.py:301: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_prototype_repair.py::test_operator_preview_explains_full_bank_and_independent_publish
+1 failed in 1.12s

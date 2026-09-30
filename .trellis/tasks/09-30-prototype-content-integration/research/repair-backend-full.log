@@ -1,0 +1,13 @@
+........................................................................ [ 17%]
+........................................................................ [ 34%]
+........................................................................ [ 51%]
+........................................................................ [ 68%]
+........................................................................ [ 85%]
+.............................................................            [100%]
+=============================== warnings summary ===============================
+dingdong_ca/testsupport/models.py:6
+  /Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/testsupport/models.py:6: PytestCollectionWarning: cannot collect test class 'TestFixture' because it has a __init__ constructor (from: tests/test_ca_display.py)
+    class TestFixture(models.Model):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+421 passed, 1 warning in 14.63s

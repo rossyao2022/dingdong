@@ -12,7 +12,7 @@
   "assignee": "yihu",
   "createdAt": "2026-09-30",
   "completedAt": null,
-  "branch": "codex/release-v0.3.20",
+  "branch": "codex/release-v0.3.21",
   "base_branch": "main",
   "worktree_path": null,
   "commit": "b08dc43",
@@ -25,6 +25,6 @@
   ],
   "parent": null,
   "relatedFiles": [],
-  "notes": "v0.3.20已推送/main合并并部署，2026-09-30最终独立复核确认核心结构/素材对齐，但发现原四情境入口、四种引导效果、导出/上一步/筛选/家长支持/旧URL等操作遗漏及CA账号关联儿童删除500，详见final-reference-audit.md、final-backend-audit.md及deploy最终报告。上述未修复，父任务保留in_progress；还需CA原手机/NFC/相机与DingDong现场彩排。",
+  "notes": "用户2026-09-30批准按最终审计建议修复；正在本地实施v0.3.21。生产仍v0.3.20；完成后记录修复核销/回归/手册与发布包，远端推送合并部署另行放行。原手机NFC/相机彩排及普通CA关联资料彻底去标识设计仍保留边界。",
   "meta": {}
 }

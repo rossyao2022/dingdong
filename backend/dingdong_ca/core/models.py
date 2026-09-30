@@ -158,6 +158,30 @@ class ActivityContentVersion(Entity):
         ]
 
 
+GUIDE_MODES = ["cognitive", "imitative", "reverse", "open"]
+
+
+class ChildCompanionPreference(Entity):
+    """Child-scoped webpage guidance only; never a device/persona setting."""
+
+    child = models.OneToOneField(Child, on_delete=models.PROTECT)
+    guide_mode = models.CharField(max_length=16, default="cognitive")
+    revision = models.PositiveBigIntegerField(default=1)
+
+    class Meta:
+        db_table = "child_companion_preference"
+        verbose_name = "网页陪伴偏好"
+        verbose_name_plural = "网页陪伴偏好"
+        constraints = [
+            models.CheckConstraint(
+                condition=Q(guide_mode__in=GUIDE_MODES), name="companion_preference_mode_valid"
+            ),
+            models.CheckConstraint(
+                condition=Q(revision__gte=1), name="companion_preference_revision_positive"
+            ),
+        ]
+
+
 class ActivityRecord(Entity):
     child = models.ForeignKey(Child, on_delete=models.PROTECT)
     started_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
@@ -165,6 +189,7 @@ class ActivityRecord(Entity):
     create_request_key = models.UUIDField()
     mode = models.CharField(max_length=16)
     style = models.CharField(max_length=32)
+    guide_mode = models.CharField(max_length=16, default="", blank=True)
     status = models.CharField(max_length=16, default="active")
     step_index = models.PositiveIntegerField(default=0)
     revision = models.PositiveBigIntegerField(default=1)
@@ -190,6 +215,9 @@ class ActivityRecord(Entity):
             ),
             models.CheckConstraint(
                 condition=Q(mode__in=["guide", "web"]), name="activity_record_mode"
+            ),
+            models.CheckConstraint(
+                condition=Q(guide_mode__in=["", *GUIDE_MODES]), name="activity_guide_mode_valid"
             ),
             models.CheckConstraint(
                 condition=Q(source="web_self_report"), name="activity_source_web"

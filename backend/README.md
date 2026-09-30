@@ -41,7 +41,7 @@ uv run python scripts/smoke_http.py
 
 pytest 使用 PostgreSQL 的 test_dingdong 数据库，测试结束清理测试库，不重置开发库。并发用例用独立线程/数据库连接验证锁和唯一约束。测试读取上级工作区设计/API/openapi.json 做响应契约校验，单独复制 backend 时也要携带契约文件或调整测试路径。
 
-## 当前接口（51 个操作，全部 OpenAPI 路由已实现）
+## 当前接口（65 个操作，全部 OpenAPI 路由已实现）
 
 - GET runtime、GET auth/csrf；POST auth/sms、auth/login、auth/refresh、auth/logout；GET me。
 - GET/POST children；PATCH children/{child_id}。
@@ -183,3 +183,12 @@ uv run python manage.py prepare_prototype_demo_report --apply
 ```
 
 同版本内容完全一致时可重复执行；已有版本不一致或其他同标识版本时拒绝覆盖。运营通过复制新版本、编辑题干及选项文案、预览和发布维护内容；后台儿童详情可查看该次真实答案与固定分数。远端执行导入及发布属于部署写入，必须按仓库门禁先获放行。
+
+## 网页陪伴与记录导出（v0.3.21）
+
+- `GET/PATCH /api/v1/children/{child_id}/companion-preference` 保存当前儿童的网页陪伴方式：`cognitive/imitative/reverse/open`。未设置时GET只返回默认`cognitive`、`revision:0`，不创建记录；PATCH必须带当前修订号，冲突返回409。该偏好独立于机器人配置与活动既有`style`。
+- 活动创建可附加`guide_mode`；历史记录默认空值，不改变旧`style/mode`。同一`request_id`换陪伴方式会返回幂等冲突。
+- 默认四题探索完成后返回`guidance_summary`，按固定Q01–Q04的A/B/C/D选项代码统计四种陪伴选择；未完成或自建题库不生成该摘要，不作为能力评分。
+- `GET /api/v1/children/{child_id}/export` 返回`schema_version:ca-child-export-v1`，只导出当前儿童基本信息、真实探索答卷（版本、题目、答案、结果）、活动与网页偏好。无手机号、登录凭据、机器人账户/NFC、指纹图片、其他儿童数据，也不包含专业合成测评。
+- 儿童关联任何机器人账户或受保护历史事件时，实际删除返回409 `CA_ACCOUNT_CONFLICT`，在任何写入前停止；儿童资料、活动、偏好、审计与删除申请均不改变。保留账户ID和历史关联，不能把这种拒绝显示成删除成功。
+- 运营维护当前会展题库应从默认题库复制新版本；新建独立题库不会自动替换首页入口。后台预览完整18题兴趣库，但家长选择3岛后只答9题；八维24题每方向3题累计3–15分。

@@ -37,6 +37,15 @@ const files = new Set([
   "talents.css",
   "readability.css",
   "exploration-session.js",
+  "guide-preference.js",
+  "legacy.js",
+  "daily.html",
+  "test.html",
+  "result.html",
+  "thumb.html",
+  "island.html",
+  "blindbox.html",
+  "report.html",
 ]);
 http
   .createServer((req, res) => {

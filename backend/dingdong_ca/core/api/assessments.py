@@ -27,6 +27,7 @@ from dingdong_ca.core.services.assessments import (
 from dingdong_ca.core.services.exploration import (
     PURPOSES,
     compute_result,
+    guidance_summary,
     selected_context,
     session_questions,
 )
@@ -71,6 +72,7 @@ def serialize_session(session):
         "selected_islands": session.input_context.get("selected_islands", []),
         "exploration_result": session.exploration_result,
         "scoring": session.questionnaire_version.scoring,
+        "guidance_summary": guidance_summary(session),
         "purpose": session.questionnaire_version.purpose,
         "questionnaire_code": session.questionnaire_version.code,
         "title": session.questionnaire_version.title,

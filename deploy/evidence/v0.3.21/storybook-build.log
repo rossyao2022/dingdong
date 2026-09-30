@@ -1,0 +1,87 @@
+
+┌  Building storybook v10.6.0
+│
+◇  Cleaning outputDir: ../dist/storybook-ui
+(node:13988) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+│
+◇  Loading presets
+│
+◇  Building manager..
+│
+●  Building open services..
+│
+●  Building preview..
+│  Vite vite v8.3.1 building client environment for production...
+transforming...
+│
+●  Copying static files: assets at ../dist/storybook-ui/assets
+✓ 169 modules transformed.
+rendering chunks...
+computing gzip size...
+│  Vite ../dist/storybook-ui/iframe.html
+│  18.86 kB │ gzip:   5.34 kB
+│  ../dist/storybook-ui/assets/iframe-BXuDUFhQ.css
+│  145.84 kB │ gzip:  31.45 kB
+│  ../dist/storybook-ui/assets/iframe-XNANngXn.js
+│  0.04 kB │ gzip:   0.06 kB
+│  ../dist/storybook-ui/assets/components-BAXDMi6t.js
+│  0.21 kB │ gzip:   0.18 kB
+│  ../dist/storybook-ui/assets/formatter-L2YTDE3Q-RkjpF8cC.js
+│  0.30 kB │ gzip:   0.24 kB
+│  ../dist/storybook-ui/assets/chunk-QQBDHPVZ-DC5n6Pix.js
+│  0.32 kB │ gzip:   0.20 kB
+│  ../dist/storybook-ui/assets/react-BXJ34t_g.js
+│  0.58 kB │ gzip:   0.34 kB
+│  ../dist/storybook-ui/assets/ui-components-DV2pLehv.js
+│  0.86 kB │ gzip:   0.52 kB
+│  ../dist/storybook-ui/assets/rolldown-runtime-DkW27tQK.js
+│  1.19 kB │ gzip:   0.67 kB
+│  ../dist/storybook-ui/assets/preload-helper-VEOc_cSF.js
+│  1.33 kB │ gzip:   0.75 kB
+│  ../dist/storybook-ui/assets/chunk-IMSF75WX-CGYlPTyG.js
+│  1.67 kB │ gzip:   0.91 kB
+│  ../dist/storybook-ui/assets/chunk-DRQKCCAG-DtXejAOb.js
+│  3.38 kB │ gzip:   1.41 kB
+│  ../dist/storybook-ui/assets/chunk-242VQQM5-DHIfGiiL.js
+│  4.09 kB │ gzip:   1.52 kB
+│  ../dist/storybook-ui/assets/parent-ui.stories-Doh6geAe.js
+│  4.60 kB │ gzip:   1.90 kB
+│  ../dist/storybook-ui/assets/chunk-7PIQR4A3-BGgO7bU4.js
+│  5.14 kB │ gzip:   1.93 kB
+│  ../dist/storybook-ui/assets/guide-preference.stories-DsYk1FBQ.js
+│  5.47 kB │ gzip:   2.54 kB
+│  ../dist/storybook-ui/assets/react-Q1GcV6wX.js
+│  7.87 kB │ gzip:   3.01 kB
+│  ../dist/storybook-ui/assets/chunk-W22LQPXL-ktoajZHf.js
+│  23.08 kB │ gzip:   7.77 kB
+│  ../dist/storybook-ui/vite-inject-mocker-entry.js
+│  27.84 kB │ gzip:   9.66 kB
+│  ../dist/storybook-ui/assets/Color-6AOWCN3U-D5INh7aU.js
+│  30.42 kB │ gzip:  11.51 kB
+│  ../dist/storybook-ui/assets/WithTooltip-CDUNV5IS-DBnBpGUt.js
+│  32.71 kB │ gzip:  11.47 kB
+│  ../dist/storybook-ui/assets/theming-Pvvp6kTV.js
+│  55.40 kB │ gzip:  21.34 kB
+│  ../dist/storybook-ui/assets/syntaxhighlighter-4REYKNEV-OYC-Thz7.js
+│  75.89 kB │ gzip:  27.25 kB
+│  ../dist/storybook-ui/assets/exploration.stories-CoAbKmHD.js
+│  81.73 kB │ gzip:  31.75 kB
+│  ../dist/storybook-ui/assets/iframe-B9nxy4am.js
+│  859.78 kB │ gzip: 240.71 kB
+│  ../dist/storybook-ui/assets/DocsRenderer-JROSPFPF-CeGjSHJ1.js
+│  960.74 kB │ gzip: 304.24 kB
+
+│
+▲  Vite [plugin builtin:vite-reporter]
+│  (!) Some chunks are larger than 500 kB after minification. Consider:
+│  - Using dynamic import() to code-split the application
+│  - Use build.rolldownOptions.output.codeSplitting to improve chunking:
+│  ]8;;https://rolldown.rs/reference/OutputOptions.codeSplittinghttps://rolldown.rs/reference/OutputOptions.codeSplitting]8;;
+│  - Adjust chunk size limit for this warning via
+│  build.chunkSizeWarningLimit.
+│  Vite ✓ built in 475ms
+│
+◇  Output directory: /Users/yihu/Documents/ChatGPT/叮咚/dist/storybook-ui
+│
+└  Storybook build completed successfully

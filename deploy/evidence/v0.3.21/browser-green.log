@@ -1,0 +1,37 @@
+
+Running 3 tests using 1 worker
+
+(node:16759) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/prototype-audit-fixes.spec.js:17:1 › 原四类偏好真实保存、刷新恢复、儿童隔离、退出 (7.4s)
+  ✓  2 tests/prototype-audit-fixes.spec.js:23:1 › 活动四种引导实际不同、自主模式、上一步、筛选与真实导出 (35.8s)
+  ✘  3 tests/prototype-audit-fixes.spec.js:31:1 › 伙伴四情境、服务端分布、重做保留旧结果与家长支持 (9.3s)
+
+
+  1) tests/prototype-audit-fixes.spec.js:31:1 › 伙伴四情境、服务端分布、重做保留旧结果与家长支持 ───────────────────────────
+
+    Error: locator.click: Error: strict mode violation: locator('#dialog [data-action=close]') resolved to 2 elements:
+        1) <button aria-label="关闭对话框" class="text-button" data-action="close">关闭</button> aka getByRole('button', { name: '关闭对话框' })
+        2) <button type="button" class="button " data-action="close">记下了</button> aka getByRole('button', { name: '记下了' })
+
+    Call log:
+      - waiting for locator('#dialog [data-action=close]')
+
+
+      33 |  for(let i=1;i<=4;i++){await expect(page.getByText('第 '+i+' / 4 题',{exact:false})).toBeVisible();await page.locator('#answer-form input[name=answer]').first().check();await page.locator('#answer-form button[type=submit]').click();}
+      34 |  await page.locator('[data-action=complete-exploration]').click();await expect(page.locator('.guidance-summary')).toBeVisible();const s=await api(page,'/assessments/'+old);expect(s.guidance_summary.counts).toEqual({cognitive:4,imitative:0,reverse:0,open:0});await page.reload();await expect(page.locator('.guidance-summary')).toContainText('4');await shot(page,'repair-guidance-result-390');await page.locator('[data-action=redo-exploration]').click();await expect(page.getByText('第 1 / 4 题',{exact:false})).toBeVisible();expect(page.url()).not.toContain(old);expect((await api(page,'/assessments/'+old)).guidance_summary).toEqual(s.guidance_summary);
+    > 35 |  await page.goto(base+'/#reports');await expect(page.getByRole('heading',{name:'已完成的探索体验',exact:true})).toBeVisible();await page.goto(base+'/#services');await page.locator('[data-action=parent-reflection]').click();await expect(page.locator('#dialog')).toContainText('三个');expect(await page.locator('#dialog ol li').count()).toBe(3);await shot(page,'repair-parent-reflection-390');await page.locator('#dialog [data-action=close]').click();const ca=page.locator('a[href="https://happykua.com/CareerAcademy.html"]');await expect(ca).toHaveAttribute('rel',/noopener/);await expect(ca).toHaveAttribute('rel',/noreferrer/);for(const width of [320,390,768,1280]){await page.setViewportSize({width,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)).toBeLessThanOrEqual(1);}expect(errors).toEqual([]);
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                ^
+      36 | });
+      37 |
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/prototype-audit-fixes.spec.js:35:432
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../deploy/evidence/v0.3.21/green-browser-final/prototype-audit-fixes-伙伴四情境、服务端分布、重做保留旧结果与家长支持/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../deploy/evidence/v0.3.21/green-browser-final/prototype-audit-fixes-伙伴四情境、服务端分布、重做保留旧结果与家长支持/error-context.md
+
+  1 failed
+    tests/prototype-audit-fixes.spec.js:31:1 › 伙伴四情境、服务端分布、重做保留旧结果与家长支持 ────────────────────────────
+  2 passed (53.2s)

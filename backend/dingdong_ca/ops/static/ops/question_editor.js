@@ -458,7 +458,7 @@
       }
       const agreed = await window.Ops.confirm({
         title: "发布题库版本",
-        message: "发布后家长端的新答卷将使用《" + saved.questionnaire.title + "》" + saved.questionnaire.version + "。",
+        message: saved.questionnaire.publish_notice || config.dataset.publishNotice || "发布该题库版本，历史答卷不变。",
         impacts: [
           "同一题库当前已发布的版本会被自动停用",
           "历史答卷仍绑定各自创建时的版本，不会被改写",

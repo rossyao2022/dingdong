@@ -363,6 +363,13 @@ def _questionnaire_row(version_id):
     return get_object_or_404(QuestionnaireVersion, pk=version_id)
 
 
+def questionnaire_publish_notice(row):
+    """Tell operators what publication actually changes for the fixed exhibition entry."""
+    if row.purpose in ["interest", "talent"] and row.code != f"prototype-{row.purpose}":
+        return "这是一份独立题库，发布不会替换当前展会首页的默认问卷。修改首页内容请复制当前默认题库为新版本。"
+    return f"发布后选择这份题库的新答卷将使用《{row.title}》{row.version}，历史答卷不变。"
+
+
 def _content_payload(row):
     return {
         "id": str(row.pk),
@@ -371,6 +378,7 @@ def _content_payload(row):
         "title": row.title,
         "description": row.description,
         "purpose": row.purpose,
+        "publish_notice": questionnaire_publish_notice(row),
         "status": row.status,
         "questions": row.questions,
         "scoring": row.scoring,

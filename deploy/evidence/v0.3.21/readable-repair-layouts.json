@@ -1,0 +1,46 @@
+{
+  "environment": "isolated local existing real E2E LoginGrant",
+  "sms_requests": 0,
+  "rows": [
+    {
+      "page": "companion",
+      "width": 320,
+      "overflow": 0,
+      "entry_to_card_gap": 20
+    },
+    {
+      "page": "companion",
+      "width": 390,
+      "overflow": 0,
+      "entry_to_card_gap": 20
+    },
+    {
+      "page": "companion",
+      "width": 768,
+      "overflow": 0,
+      "entry_to_card_gap": 20
+    },
+    {
+      "page": "companion",
+      "width": 1280,
+      "overflow": 0,
+      "entry_to_card_gap": 20
+    },
+    {
+      "page": "parent reflection dialog",
+      "width": 320
+    },
+    {
+      "page": "parent reflection dialog",
+      "width": 390
+    },
+    {
+      "page": "parent reflection dialog",
+      "width": 768
+    },
+    {
+      "page": "parent reflection dialog",
+      "width": 1280
+    }
+  ]
+}

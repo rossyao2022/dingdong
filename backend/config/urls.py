@@ -9,9 +9,11 @@ from dingdong_ca.core.api import (
     ca_accounts,
     ca_display,
     children,
+    companion_preferences,
     consents,
     data_requests,
     dingdong_push,
+    exports,
     growth,
     prototype_demo,
     reports,
@@ -39,6 +41,8 @@ def handler404(request, exception=None):
 
 
 urlpatterns = [
+    path("api/v1/children/<uuid:child_id>/companion-preference", companion_preferences.preference),
+    path("api/v1/children/<uuid:child_id>/export", exports.child_export),
     # DingDong → CA 的 Prototype webhook 入站推送（验签 + event_id 幂等）。
     # 路径按对方文档 §11 的建议：POST /api/dingdong/prototype/events。
     path("api/dingdong/prototype/events", dingdong_push.prototype_events),

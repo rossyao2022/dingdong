@@ -77,3 +77,29 @@
 3. 复用现有API补活动上一步、旅程状态筛选；补家长复盘3问/CA链接。
 4. 补7个旧地址映射及静态白名单/容器清单；验证旧score query不会生成假结果。
 5. 补最小真实浏览器回归及本地单测，并追加本审计的关闭证据。完成之前只能说“四模块核心内容已经对齐”，不能说“原型所有内容/流程完美匹配”。
+
+
+## 本地修复核销复核（2026-09-30，v0.3.21 工作区；尚未发布）
+
+本节保留前文 `2e4567b` 审计快照，不将当时遗漏改写为已经存在。当前复核只列本轮实际证据。
+
+| 原遗漏/边界 | 当前实现与验证 | 核销状态 |
+| --- | --- | --- |
+| 原四种网页引导标签/问候语/实际话术 | `guide-preference.js` 的 cognitive/imitative/reverse/open 标签、描述、问候与原 `upstream/main@3b8723e:app.js` 四套话术逐项核对；5项新纯单测覆盖四首步/末步、web替代、历史空值/未知方式与第4步回退。`app.js` 显示采用 `esc(guideText(record))`，朗读采用同一 helper。 | 纯模块与接线核销；完整保存/刷新/活动浏览器证据由根交互验收记录 |
+| 不能破坏旧CA style/机器人设置 | ChildCompanionPreference 与 ActivityRecord.guide_mode 独立；输入限制原4键。新活动仍提交合法CAstyle并另传guide_mode；进度PATCH仅revision/step_index，偏好改变不改既有活动；历史blank保持cognitive当前步骤话术，没有从style硬映射。未新增机器人configure请求。 | 静态合同与纯回退已核对，数据库/API证据由后端组记录 |
+| 四情境与结果动作 | `#companion`直达原4题，后端优先原默认code；`guidance_summary`仅完成的exploration/code=exploration/Q01..Q04/ABCD完整结构生成计数，其他问卷返回null；结果出现“选择伙伴引导”及新答卷重做。 | 代码接线已补，真实作答/不可变历史/刷新待根浏览器核销 |
+| 真实导出与跨儿童 | `/children/{id}/export`只筛当前child的探索三purpose、活动和网页偏好；白名单无手机号、认证、NFC、指纹或正式算法图像。前端回包校验child与身份/儿童/route/epoch后才下载，切换/退出清偏好和Blob。八维结果已补共用export-child按钮。 | 静态边界已核对，导出内容/换儿童真实验证由后端与浏览器组核销 |
+| 七旧页面404 | `daily→home; test/result→talents; thumb→fingerprint; island/blindbox→explore; report→reports`：七HTML加载固定 `legacy.js`，仅同源已知文件映射，完全舍弃query/hash；referrer=no-referrer，避免秘密参数外传。2项新unit含临时真实HTTP服务；独立Chrome1项覆盖七URL自动跳转、无身份/NFC参数和秘密referrer。 | 本地已核销，无SMS/业务写入 |
+| 镜像遗漏旧入口 | `.dockerignore`七HTML放行，Dockerfile.web、from-v0319、from-v0320明确COPY两个新模块及七HTML；nginx现有try_files可直接服务。2项deploy检查通过。 | 构建配置核销，未远端部署 |
+| 原四组内容/素材完整性 | 本轮重新对比原源码：RIASEC/TalentData/CareerData/FingerprintGuide.guides深结构相等；27个上游assets逐一SHA256与当前资源相等。 | 保持完整，不以更晚提交替换CA功能 |
+
+本组最新检查：前端全套 **94/94 unit**（含本组新增7）；旧链接独立Chrome **1/1**（覆盖七URL）；发布兼容 **2/2**。证据：`deploy/evidence/v0.3.21/guide-legacy-unit.log`、`legacy-browser.log`、`legacy-deploy-resources.log`、`reference-content.json`、`reference-assets.json`。新增Storybook网页引导四故事直接复用生产helper，最终构建由根任务记录。
+
+尚不能声称“全部完美匹配”：真实交互组仍需关闭原四题、导出、活动上一步/筛选等浏览器核销；运营复制/全库预览/资料删除409由后端验收；新增手册截图/PDF、远端发布及原手机/NFC彩排状态由根任务分别记录。既有CA真实账户、独立Worker、不可变历史、指纹仅临时本地和真实删除流程仍是经批准的适配，不能回退成上游浏览器假档案。
+
+
+### 根集成核销追加
+
+上述当时待浏览器项现已由真实本地API/数据库关闭：新增3项、既有6模块+2历史、旧登录/冷却/22题独立Worker/首页4项、NFC刷新1项，共16项不同业务Chrome用例全部通过。独立旧链接Chrome1项覆盖7入口。后端421、前端94、部署12与Storybook构建通过；运营实际18题预览显示、已有CA删除409/申请open/儿童active/账号bound均保留已取证。详见 `deploy/PROTOTYPE_REPAIR_20260930_V0321.md` 及该版证据目录。
+
+远端发布、原手机/原NFC/相机彩排、正式供应商接入及有关联CA资料彻底去标识仍保留独立边界，不能据本地核销称“全站完美匹配”。

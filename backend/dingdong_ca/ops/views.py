@@ -319,6 +319,8 @@ def questionnaire_new(request):
 
 @ops_page("questionnaire.view")
 def questionnaire_edit(request, version_id):
+    from .api import questionnaire_publish_notice
+
     row = get_object_or_404(QuestionnaireVersion, pk=version_id)
     return render(
         request,
@@ -329,6 +331,7 @@ def questionnaire_edit(request, version_id):
             row=row,
             can_edit=can(request, "questionnaire.edit") and row.status == "draft",
             can_manage=can(request, "questionnaire.edit"),
+            publish_notice=questionnaire_publish_notice(row),
             problems=None,
             payload={
                 "title": row.title,
@@ -347,11 +350,25 @@ def questionnaire_edit(request, version_id):
 
 @ops_page("questionnaire.view")
 def questionnaire_preview(request, version_id):
+    from .api import questionnaire_publish_notice
+
     row = get_object_or_404(QuestionnaireVersion, pk=version_id)
+    groups = row.scoring.get("groups", {})
+    labels = row.scoring.get("labels", {})
     return render(
         request,
         "ops/questionnaire_preview.html",
-        base_context(request, "questionnaires", row=row, purpose_label=row.get_purpose_display()),
+        base_context(
+            request,
+            "questionnaires",
+            row=row,
+            purpose_label=row.get_purpose_display(),
+            publish_notice=questionnaire_publish_notice(row),
+            preview_questions=[
+                {**question, "direction_label": labels.get(groups.get(question["code"]), "")}
+                for question in row.questions
+            ],
+        ),
     )
 
 

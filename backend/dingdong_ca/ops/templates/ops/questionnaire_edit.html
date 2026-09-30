@@ -27,10 +27,12 @@
   {% endif %}
 
   <div id="conflict" hidden></div>
+  <div class="alert alert-info">{{ publish_notice }}</div>
 
   <div id="questionnaire-config"
        data-status="{{ row.status }}"
        data-purpose="{{ row.purpose }}"
+       data-publish-notice="{{ publish_notice }}"
        data-editable="{% if can_edit %}1{% else %}0{% endif %}"
        data-revision="{{ row.revision }}"
        data-save-url="{% url 'ops:api_questionnaire_save' row.pk %}"

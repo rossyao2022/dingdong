@@ -3,7 +3,7 @@
   "info": {
     "title": "CA × DingDong 一期前后端 API",
     "version": "0.1.0",
-    "description": "设计契约，尚未实现。短信固定 00000；其余 API 真实读写 PostgreSQL。base/mock 为数据初始化和场景注入，禁止路由静态假响应。database_fixture 为非生产外部数据适配源，不证明真实上游联调。"
+    "description": "CA自有接口运行契约。短信模式由runtime与部署环境明确决定；业务API真实读写PostgreSQL。database_fixture为非生产外部数据适配源，不证明真实供应商接入；reference探索计分源于家长实际答案，独立于专业算法。"
   },
   "servers": [
     {
@@ -10338,7 +10338,7 @@
             }
           },
           "409": {
-            "description": "状态/版本/幂等冲突",
+            "description": "状态冲突，或CA_ACCOUNT_CONFLICT：机器人账户/历史记录保护，在任何删除写操作前拒绝，资料和事项不变",
             "content": {
               "application/json": {
                 "schema": {
@@ -11074,6 +11074,406 @@
           },
           "409": {
             "description": "DINGDONG_BIND_PENDING：机器人待接通，请用原标签重试绑定",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/children/{child_id}/companion-preference": {
+      "get": {
+        "operationId": "get_children_child_companion_preference",
+        "tags": [
+          "探索记录"
+        ],
+        "summary": "读取当前儿童网页陪伴偏好；未保存返回默认cognitive/revision0且不创建记录",
+        "description": "读取当前儿童网页陪伴偏好；未保存返回默认cognitive/revision0且不创建记录",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "child_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "目标对象 ID，后端必须验证权限与归属",
+              "examples": [
+                "11111111-1111-4111-8111-111111111111"
+              ],
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "type": "string",
+                  "description": "请求追踪号",
+                  "examples": [
+                    "11111111-1111-4111-8111-111111111111"
+                  ],
+                  "format": "uuid"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanionPreference"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "格式错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "登录无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限/用途不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "不存在或不属于当前家庭",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "请求过频",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "未预期错误，仅安全错误码及追踪号",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "依赖不可用",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "patch_children_child_companion_preference",
+        "tags": [
+          "探索记录"
+        ],
+        "summary": "按修订号更新当前儿童网页陪伴偏好，不修改机器人或活动style",
+        "description": "按修订号更新当前儿童网页陪伴偏好，不修改机器人或活动style",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "child_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "目标对象 ID，后端必须验证权限与归属",
+              "examples": [
+                "11111111-1111-4111-8111-111111111111"
+              ],
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "type": "string",
+                  "description": "请求追踪号",
+                  "examples": [
+                    "11111111-1111-4111-8111-111111111111"
+                  ],
+                  "format": "uuid"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanionPreference"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "格式错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "登录无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限/用途不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "不存在或不属于当前家庭",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "请求过频",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "未预期错误，仅安全错误码及追踪号",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "依赖不可用",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "状态/版本/幂等冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "字段校验失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompanionPreferenceInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/children/{child_id}/export": {
+      "get": {
+        "operationId": "get_children_child_export",
+        "tags": [
+          "探索记录"
+        ],
+        "summary": "导出当前儿童真实探索问卷、固定结果、活动及网页偏好；不含设备令牌、认证或图片",
+        "description": "导出当前儿童真实探索问卷、固定结果、活动及网页偏好；不含设备令牌、认证或图片",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "child_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "目标对象 ID，后端必须验证权限与归属",
+              "examples": [
+                "11111111-1111-4111-8111-111111111111"
+              ],
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "type": "string",
+                  "description": "请求追踪号",
+                  "examples": [
+                    "11111111-1111-4111-8111-111111111111"
+                  ],
+                  "format": "uuid"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChildExport"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "格式错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "登录无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "权限/用途不足",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "不存在或不属于当前家庭",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "请求过频",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "未预期错误，仅安全错误码及追踪号",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "依赖不可用",
             "content": {
               "application/json": {
                 "schema": {
@@ -12444,6 +12844,9 @@
             ],
             "format": "date-time",
             "description": "本次完成时间"
+          },
+          "guidance_summary": {
+            "$ref": "#/components/schemas/GuidanceSummary"
           }
         },
         "required": [
@@ -12841,6 +13244,18 @@
             "examples": [
               "cognitive"
             ]
+          },
+          "guide_mode": {
+            "type": "string",
+            "enum": [
+              "",
+              "cognitive",
+              "imitative",
+              "reverse",
+              "open"
+            ],
+            "default": "",
+            "description": "可选网页提示方式，纳入创建幂等比对"
           }
         },
         "required": [
@@ -13056,6 +13471,17 @@
               "live",
               "reference"
             ]
+          },
+          "guide_mode": {
+            "type": "string",
+            "enum": [
+              "",
+              "cognitive",
+              "imitative",
+              "reverse",
+              "open"
+            ],
+            "description": "活动开始时固定的网页提示方式；旧记录为空，不改变旧style"
           }
         },
         "required": [
@@ -16199,6 +16625,194 @@
           "selected_islands",
           "profiles",
           "dimensions"
+        ]
+      },
+      "CompanionPreference": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "当前儿童的网页陪伴偏好，与设备、人设和旧活动style独立",
+        "properties": {
+          "child_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "当前儿童UUID"
+          },
+          "guide_mode": {
+            "type": "string",
+            "enum": [
+              "cognitive",
+              "imitative",
+              "reverse",
+              "open"
+            ],
+            "description": "网页提示方式"
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "0表示尚未保存；GET默认值不写库"
+          }
+        },
+        "required": [
+          "child_id",
+          "guide_mode",
+          "revision"
+        ]
+      },
+      "CompanionPreferenceInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "更新网页陪伴偏好；旧修订号409且不覆盖",
+        "properties": {
+          "guide_mode": {
+            "type": "string",
+            "enum": [
+              "cognitive",
+              "imitative",
+              "reverse",
+              "open"
+            ]
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "guide_mode",
+          "revision"
+        ]
+      },
+      "GuidanceSummary": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "additionalProperties": false,
+        "description": "仅已完成默认四情境的选择次数，不是能力计分；其他问卷为null",
+        "properties": {
+          "questionnaire_version_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "content_version": {
+            "type": "string"
+          },
+          "answered_count": {
+            "type": "integer",
+            "const": 4
+          },
+          "counts": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "cognitive": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 4
+              },
+              "imitative": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 4
+              },
+              "reverse": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 4
+              },
+              "open": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 4
+              }
+            },
+            "required": [
+              "cognitive",
+              "imitative",
+              "reverse",
+              "open"
+            ]
+          }
+        },
+        "required": [
+          "questionnaire_version_id",
+          "content_version",
+          "answered_count",
+          "counts"
+        ]
+      },
+      "ChildExport": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "当前儿童真实记录导出白名单，不含手机号、认证、设备令牌、指纹或测评图片",
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "ca-child-export-v1"
+          },
+          "exported_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "child": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid",
+                "description": "当前儿童UUID"
+              },
+              "name": {
+                "type": "string"
+              },
+              "gender": {
+                "type": "string",
+                "enum": [
+                  "unknown",
+                  "male",
+                  "female"
+                ]
+              },
+              "birth_date": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "gender",
+              "birth_date"
+            ]
+          },
+          "companion_preference": {
+            "$ref": "#/components/schemas/CompanionPreference"
+          },
+          "explorations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Assessment"
+            }
+          },
+          "activities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ActivityRecord"
+            }
+          }
+        },
+        "required": [
+          "schema_version",
+          "exported_at",
+          "child",
+          "companion_preference",
+          "explorations",
+          "activities"
         ]
       }
     }

@@ -1,0 +1,96 @@
+
+Running 3 tests using 1 worker
+
+(node:11483) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/prototype-audit-fixes.spec.js:17:1 › 原四类偏好真实保存、刷新恢复、儿童隔离、退出 (7.0s)
+(node:11563) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/prototype-audit-fixes.spec.js:23:1 › 活动四种引导实际不同、自主模式、上一步、筛选与真实导出 (2.0m)
+(node:12202) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 tests/prototype-audit-fixes.spec.js:30:1 › 伙伴四情境、服务端分布、重做保留旧结果与家长支持 (15.1s)
+
+
+  1) tests/prototype-audit-fixes.spec.js:17:1 › 原四类偏好真实保存、刷新恢复、儿童隔离、退出 ─────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-action=style][data-value=imitative]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('[data-action=style][data-value=imitative]') with timeout 5000ms
+      - waiting for locator('[data-action=style][data-value=imitative]')
+
+
+      16 | function watch(page){const errors=[];page.on('pageerror',e=>errors.push(e.message));return errors;}
+      17 | test('原四类偏好真实保存、刷新恢复、儿童隔离、退出',async({page})=>{
+    > 18 |  const errors=watch(page);await login(page);const child=await page.locator('#child-select').inputValue();await page.goto(base+'/#companion');await expect(page.locator('[data-action=style][data-value=imitative]')).toBeVisible();await page.locator('[data-action=style][data-value=imitative]').click();await expect(page.locator('[data-value=imitative][data-action=style]')).toHaveAttribute('aria-pressed','true');await page.reload();await expect(page.locator('[data-value=imitative][data-action=style]')).toHaveAttribute('aria-pressed','true');await shot(page,'repair-companion-390');
+         |                                                                                                                                                                                                                      ^
+      19 |  const pref=await api(page,`/children/${child}/companion-preference`);expect(pref.guide_mode).toBe('imitative');expect(pref.revision).toBeGreaterThan(0);
+      20 |  await page.goto(base+'/#settings');await page.getByRole('button',{name:'添加儿童档案',exact:true}).click();await page.getByLabel('姓名或称呼').fill('另一个儿童');await page.getByRole('button',{name:'保存档案',exact:true}).click();await expect(page.locator('.six-islands')).toBeVisible();const other=await page.locator('#child-select').inputValue();expect(other).not.toBe(child);await page.goto(base+'/#companion');await expect(page.locator('[data-value=cognitive][data-action=style]')).toHaveAttribute('aria-pressed','true');await page.locator('[data-value=open][data-action=style]').click();await expect(page.locator('[data-value=open][data-action=style]')).toHaveAttribute('aria-pressed','true');await page.locator('#child-select').selectOption(child);await expect(page.locator('.six-islands')).toBeVisible();await page.goto(base+'/#companion');await expect(page.locator('[data-value=imitative][data-action=style]')).toHaveAttribute('aria-pressed','true');
+      21 |  await page.locator('#logout-shortcut').click();await expect(page.getByRole('heading',{name:'家长登录',exact:true})).toBeVisible();expect(errors).toEqual([]);
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/prototype-audit-fixes.spec.js:18:214
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../deploy/evidence/v0.3.21/red-browser/prototype-audit-fixes-原四类偏好真实保存、刷新恢复、儿童隔离、退出/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../deploy/evidence/v0.3.21/red-browser/prototype-audit-fixes-原四类偏好真实保存、刷新恢复、儿童隔离、退出/error-context.md
+
+  2) tests/prototype-audit-fixes.spec.js:23:1 › 活动四种引导实际不同、自主模式、上一步、筛选与真实导出 ────────────────────────
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for locator('#activity-guide-mode')
+
+
+      10 | async function shot(page,name){await expect(page.locator('#toast.show')).toHaveCount(0,{timeout:10000});await page.screenshot({path:`${shots}/${name}.png`,animations:'disabled'});}
+      11 | async function openTask(page,mode='guide',guide='cognitive'){
+    > 12 |  await page.goto(base+'/#fingerprint');await page.locator('[data-fp-action=sample]').click();await page.locator('[data-fp-action=pattern][data-fp-pattern=whorl]').click();await page.locator('[data-action=exploration-guide-task]').click();await page.locator('#activity-mode').selectOption(mode);await page.locator('#activity-guide-mode').selectOption(guide);await page.locator('[data-action=start-activity]').click();await expect(page.locator('.step-title')).toBeVisible();
+         |                                                                                                                                                                                                                                                                                                                                                  ^
+      13 | }
+      14 | async function skip(page){await page.locator('[data-action=skip]').click();await expect(page.locator('#timeline')).toBeVisible();}
+      15 | async function finish(page){for(let i=1;i<3;i++){await page.locator('[data-action=next-step]').click();await expect(page.getByText('第 '+(i+1)+' / 3 步',{exact:true})).toBeVisible();}await page.locator('#activity-note').fill('完成活动的可导出真实记录');await page.locator('[data-action=finish]').click();await expect(page.locator('#timeline')).toContainText('完成活动的可导出真实记录');}
+        at openTask (/Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/prototype-audit-fixes.spec.js:12:338)
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/prototype-audit-fixes.spec.js:25:65
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../deploy/evidence/v0.3.21/red-browser/prototype-audit-fixes-活动四种引导实际不同、自主模式、上一步、筛选与真实导出/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../deploy/evidence/v0.3.21/red-browser/prototype-audit-fixes-活动四种引导实际不同、自主模式、上一步、筛选与真实导出/error-context.md
+
+  3) tests/prototype-audit-fixes.spec.js:30:1 › 伙伴四情境、服务端分布、重做保留旧结果与家长支持 ───────────────────────────
+
+    Test timeout of 15000ms exceeded.
+
+    Error: locator.click: Test timeout of 15000ms exceeded.
+    Call log:
+      - waiting for locator('[data-action=companion-exploration]')
+
+
+      29 | });
+      30 | test('伙伴四情境、服务端分布、重做保留旧结果与家长支持',async({page})=>{
+    > 31 |  const errors=watch(page);await login(page);await page.goto(base+'/#companion');await page.locator('[data-action=companion-exploration]').click();if(await page.locator('#consent-check').count()){await page.locator('#consent-check').check();await page.locator('[data-action=agree-assessment]').click();}await expect(page.getByText('第 1 / 4 题',{exact:false})).toBeVisible();const old=page.url().split('/').pop();
+         |                                                                                                                                           ^
+      32 |  for(let i=1;i<=4;i++){await expect(page.getByText('第 '+i+' / 4 题',{exact:false})).toBeVisible();await page.locator('#answer-form input[name=answer]').first().check();await page.locator('#answer-form button[type=submit]').click();}
+      33 |  await page.locator('[data-action=complete-exploration]').click();await expect(page.locator('.guidance-summary')).toBeVisible();const s=await api(page,'/assessments/'+old);expect(s.guidance_summary.counts).toEqual({cognitive:4,imitative:0,reverse:0,open:0});await page.reload();await expect(page.locator('.guidance-summary')).toContainText('4');await shot(page,'repair-guidance-result-390');await page.locator('[data-action=redo-exploration]').click();await expect(page.getByText('第 1 / 4 题',{exact:false})).toBeVisible();expect(page.url()).not.toContain(old);expect((await api(page,'/assessments/'+old)).guidance_summary).toEqual(s.guidance_summary);
+      34 |  await page.goto(base+'/#reports');await expect(page.getByRole('heading',{name:'已完成的探索体验',exact:true})).toBeVisible();await page.goto(base+'/#services');await page.locator('[data-action=parent-reflection]').click();await expect(page.locator('#dialog')).toContainText('三个');expect(await page.locator('#dialog ol li').count()).toBe(3);await shot(page,'repair-parent-reflection-390');await page.locator('#dialog [data-action=close]').click();const ca=page.locator('a[href="https://happykua.com/CareerAcademy.html"]');await expect(ca).toHaveAttribute('rel',/noopener/);await expect(ca).toHaveAttribute('rel',/noreferrer/);for(const width of [320,390,768,1280]){await page.setViewportSize({width,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)).toBeLessThanOrEqual(1);}expect(errors).toEqual([]);
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/prototype-audit-fixes.spec.js:31:139
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../deploy/evidence/v0.3.21/red-browser/prototype-audit-fixes-伙伴四情境、服务端分布、重做保留旧结果与家长支持/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../deploy/evidence/v0.3.21/red-browser/prototype-audit-fixes-伙伴四情境、服务端分布、重做保留旧结果与家长支持/error-context.md
+
+  3 failed
+    tests/prototype-audit-fixes.spec.js:17:1 › 原四类偏好真实保存、刷新恢复、儿童隔离、退出 ──────────────────────────────
+    tests/prototype-audit-fixes.spec.js:23:1 › 活动四种引导实际不同、自主模式、上一步、筛选与真实导出 ─────────────────────────
+    tests/prototype-audit-fixes.spec.js:30:1 › 伙伴四情境、服务端分布、重做保留旧结果与家长支持 ────────────────────────────

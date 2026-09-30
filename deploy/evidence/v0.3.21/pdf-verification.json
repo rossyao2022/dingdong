@@ -1,0 +1,16 @@
+{
+  "pages": {
+    "parent": 33,
+    "ops": 17
+  },
+  "all_pages_rendered": true,
+  "dom_footer_overlap": false,
+  "approved_ops_credentials_retained": true,
+  "privacy": "credentials remain ignored private PDFs; no values in evidence",
+  "status": "local v0.3.21 pending publication; production v0.3.20",
+  "sha256": {
+    "叮咚运营操作指南_生产机试用版_v0.3.21.pdf": "35a4cca0e363f041f00fa151a2e33223e8d459f28b22bfbf86c8b5a95d43423f",
+    "叮咚家长操作指南_生产机试用版_v0.3.21.pdf": "541d913aaee8572b6ed0d065f864effff6b414ee2fd358414f85de992d1745a1"
+  },
+  "visual_review": "all 50 pages reviewed via contact sheets; new operation pages enlarged and readable; no clipping or footer collisions"
+}

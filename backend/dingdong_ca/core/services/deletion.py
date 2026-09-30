@@ -9,6 +9,19 @@ from dingdong_ca.testsupport.models import TestFixture
 
 def delete_child(child):
     # Caller holds the child row lock, shared by every external result writer.
+    # C1 keeps every account identity and its protected child mapping forever.
+    # Refuse before ANY mutation; retirement does not remove that protection.
+    if (
+        m.CaAccount.objects.filter(child=child).exists()
+        or m.CaReassessmentEvent.objects.filter(child=child).exists()
+    ):
+        from dingdong_ca.core.api.common import ApiError
+
+        raise ApiError(
+            "CA_ACCOUNT_CONFLICT",
+            409,
+            "该儿童仍有关联的机器人账户或历史记录，暂不能删除。请联系技术人员核对处理，资料和申请均未改变。",
+        )
     associations = m.ExternalAssociation.objects.filter(child=child)
     profiles = m.ProfileSnapshot.objects.filter(child=child)
     jobs = m.BackgroundJob.objects.filter(Q(association__in=associations) | Q(profile__in=profiles))
@@ -21,6 +34,7 @@ def delete_child(child):
         m.AssessmentSession.objects.filter(child=child),
         m.AlgorithmAttempt.objects.filter(session__child=child),
         m.ActivityRecord.objects.filter(child=child),
+        m.ChildCompanionPreference.objects.filter(child=child),
         m.ReportVersion.objects.filter(profile__in=profiles),
         m.ObservationBatch.objects.filter(association__in=associations),
     ]:
@@ -37,6 +51,7 @@ def delete_child(child):
     associations.delete()
     m.AlgorithmAttempt.objects.filter(session__child=child).delete()
     m.AssessmentSession.objects.filter(child=child).delete()
+    m.ChildCompanionPreference.objects.filter(child=child).delete()
     m.ConsentGrant.objects.filter(child=child).delete()
     m.ActivityRecord.objects.filter(child=child).delete()
     TestFixture.objects.filter(subject_key=str(child.pk)).delete()

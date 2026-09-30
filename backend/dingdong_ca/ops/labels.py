@@ -256,6 +256,7 @@ ERROR_ACTION = {
 }
 
 AUDIT_ACTION = {
+    "companion_preference.update": "更新网页陪伴方式",
     "prototype_content.import": "导入原型内容草稿",
     "prototype_content.publish": "发布原型内容版本",
     "prototype_demo.prepare_report": "准备会展报告体验",
@@ -364,6 +365,7 @@ DETAIL_VALUE = {
 }
 
 TARGET_KIND = {
+    "child_companion_preference": "网页陪伴偏好",
     "questionnaire_version": "题库版本",
     "activity_content_version": "活动版本",
     "report_template_version": "报告模板",

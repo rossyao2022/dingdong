@@ -14,6 +14,7 @@
 | [models-and-migrations.md](./models-and-migrations.md) | `Entity` 基类与 `db_table`、条件唯一与 CheckConstraint、不可变与已发布模型、`revision`/幂等键、迁移只加不删 |
 | [services-and-idempotency.md](./services-and-idempotency.md) | 服务层分工、锁顺序、事务边界与“网络调用放事务外”、幂等模式、ULID 发号器、咨询锁、后台作业栅栏、审计 |
 | [external-integrations.md](./external-integrations.md) | 不许 mock 业务 API / 不许伪造成功；fixture 数据源、DingDong 出站客户端、上传与留存边界 |
+| [companion-preferences-and-export.md](./companion-preferences-and-export.md) | 网页四种引导、儿童级偏好与记录导出、CA关联删除保护 |
 | [testing.md](./testing.md) | pytest 配置、为什么必须 PostgreSQL、`conftest.py` 与 `ops_helpers.py`、并发用例写法、命令与禁止项 |
 | [quality-guidelines.md](./quality-guidelines.md) | ruff 配置与 py314 格式化坑、注释与文案风格、日志与敏感数据、禁止模式、提交门禁、文档同步 |
 

@@ -40,6 +40,7 @@ def serialize_record(r):
         "activity": serialize_activity(r.activity_version),
         "mode": r.mode,
         "style": r.style,
+        "guide_mode": r.guide_mode,
         "status": r.status,
         "step_index": r.step_index,
         "revision": r.revision,
@@ -135,6 +136,7 @@ def records(request, child_id):
                 or row.activity_version_id != data["activity_version_id"]
                 or row.mode != data["mode"]
                 or row.style != data["style"]
+                or row.guide_mode != data["guide_mode"]
             ):
                 raise ApiError("IDEMPOTENCY_CONFLICT", 409, "创建请求内容不一致")
             return Response(serialize_record(row))
@@ -152,6 +154,7 @@ def records(request, child_id):
             create_request_key=data["request_id"],
             mode=data["mode"],
             style=data["style"],
+            guide_mode=data["guide_mode"],
             started_at=timezone.now(),
         )
         audit(request.user, "activity.start", row)

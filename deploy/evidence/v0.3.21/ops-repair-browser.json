@@ -1,0 +1,18 @@
+{
+  "environment": "isolated local real ops session",
+  "screens": [
+    "repair-ops-preview.png",
+    "repair-ops-preview-390.png",
+    "repair-ops-deletion.png"
+  ],
+  "deletion_status": 409,
+  "deletion_error": "CA_ACCOUNT_CONFLICT",
+  "unchanged": {
+    "request_status": "open",
+    "child_active": true,
+    "bound_account_preserved": true
+  },
+  "page_errors": [],
+  "sms_requests": 0,
+  "production_writes": 0
+}
