@@ -10,24 +10,49 @@
     />
     <title>DingDong · 成长空间</title>
     <link rel="icon" href="assets/mark.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css" />
-    <link rel="stylesheet" href="dingdong-report.css" />
-    <link rel="stylesheet" href="playful.css" />
-    <link rel="stylesheet" href="fingerprint.css" />
-    <link rel="stylesheet" href="exploration-v4.css" />
-    <link rel="stylesheet" href="talents.css" />
-    <link rel="stylesheet" href="readability.css" />
-    <link rel="stylesheet" href="client.css" />
-    <script src="talent-data.js" defer></script>
-    <script src="talent-explorer.js" defer></script>
-    <script src="career-data.js" defer></script>
-    <script src="career-explorer.js" defer></script>
-    <script src="riasec.js" defer></script>
-    <script src="island-explorer.js" defer></script>
-    <script src="fingerprint-guide.js" defer></script>
-    <script src="fingerprint.js" defer></script>
-    <script src="playworld.js" defer></script>
-    <script src="app.js" type="module"></script>
+    <link rel="stylesheet" href="styles.css?v=0.3.23" />
+    <link rel="stylesheet" href="dingdong-report.css?v=0.3.23" />
+    <link rel="stylesheet" href="playful.css?v=0.3.23" />
+    <link rel="stylesheet" href="fingerprint.css?v=0.3.23" />
+    <link rel="stylesheet" href="exploration-v4.css?v=0.3.23" />
+    <link rel="stylesheet" href="talents.css?v=0.3.23" />
+    <link rel="stylesheet" href="readability.css?v=0.3.23" />
+    <link rel="stylesheet" href="client.css?v=0.3.23" />
+    <script src="talent-data.js?v=0.3.23" defer></script>
+    <script src="talent-explorer.js?v=0.3.23" defer></script>
+    <script src="career-data.js?v=0.3.23" defer></script>
+    <script src="career-explorer.js?v=0.3.23" defer></script>
+    <script src="riasec.js?v=0.3.23" defer></script>
+    <script src="island-explorer.js?v=0.3.23" defer></script>
+    <script src="fingerprint-guide.js?v=0.3.23" defer></script>
+    <script src="fingerprint.js?v=0.3.23" defer></script>
+    <script src="playworld.js?v=0.3.23" defer></script>
+    <script>
+      // This guard also works if the independent loader itself cannot be fetched.
+      window.dingdongStartupFailure = () => {
+        const show = () => {
+          const loading = document.getElementById("startup-loading");
+          const retry = document.getElementById("startup-retry");
+          if (!retry) return;
+          if (loading) loading.hidden = true;
+          retry.hidden = false;
+          document.getElementById("main").setAttribute("aria-busy", "false");
+          document.getElementById("environment").hidden = true;
+        };
+        if (document.readyState === "loading")
+          document.addEventListener("DOMContentLoaded", show, { once: true });
+        else show();
+      };
+      window.dingdongStartupTimer = setTimeout(
+        window.dingdongStartupFailure,
+        20000,
+      );
+    </script>
+    <script
+      src="bootstrap.js?v=0.3.23"
+      type="module"
+      onerror="window.dingdongStartupFailure()"
+    ></script>
   </head>
   <body>
     <a class="skip-link" href="#main">跳到主要内容</a>
@@ -79,7 +104,14 @@
         </div>
       </header>
       <main id="main" tabindex="-1" aria-busy="true">
-        <div class="loading">正在连接成长空间…</div>
+        <div id="startup-loading" class="loading">正在连接成长空间…</div>
+        <section id="startup-retry" class="empty-state" role="alert" hidden>
+          <h1>页面暂时没有加载成功</h1>
+          <p>请点击下方按钮重新加载。</p>
+          <button class="button" type="button" onclick="location.reload()">
+            重新加载页面
+          </button>
+        </section>
       </main>
       <footer class="page-footer">
         <span>CA × DingDong · 每一小步，都算数。</span

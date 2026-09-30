@@ -1,4 +1,4 @@
-import * as API from "./api.js";
+import * as API from "./api.js?v=0.3.23";
 import {
   ACCOUNT_STATUS,
   BIND_STATE,
@@ -11,20 +11,20 @@ import {
   replaceFlowNeeded,
   retiredAccounts,
   stripBindingParams,
-} from "./ca-link.js";
+} from "./ca-link.js?v=0.3.23";
 import {
   HEALTH_FOOTER,
   STALE_NOTICE,
   healthSection,
   personaSection,
-} from "./companion.js";
+} from "./companion.js?v=0.3.23";
 import {
   DIMENSION_MISSING,
   PERIODS,
   PROXY_NOTE,
   growthCycleSection,
-} from "./growth-cycle.js";
-import { WRITE_FAILED_TEXT, reassessmentSection } from "./reassessment.js";
+} from "./growth-cycle.js?v=0.3.23";
+import { WRITE_FAILED_TEXT, reassessmentSection } from "./reassessment.js?v=0.3.23";
 import {
   actions,
   button,
@@ -32,20 +32,20 @@ import {
   esc,
   pageHead,
   panel,
-} from "./ui-components.js";
+} from "./ui-components.js?v=0.3.23";
 import {
   explorerState,
   continuedExplorerHash,
   sameSelection,
   resumableSession,
-} from "./exploration-session.js";
+} from "./exploration-session.js?v=0.3.23";
 import {
   GUIDE_MODES,
   greeting,
   guideText,
   renderGuidanceSummary,
-} from "./guide-preference.js";
-import { renderDingDongReport } from "./dingdong-report.js";
+} from "./guide-preference.js?v=0.3.23";
+import { renderDingDongReport } from "./dingdong-report.js?v=0.3.23";
 const $ = (s) => document.querySelector(s);
 const state = {
   user: null,
@@ -2635,13 +2635,14 @@ async function boot() {
     }
     await render();
   } catch (e) {
+    $("#environment").hidden = true;
     page(
       empty(
         "暂时无法连接成长空间",
-        e.message,
+        "请稍后重试，或点击下方按钮重新连接。",
         '<button class="button" onclick="location.reload()">重新连接</button>',
       ),
     );
   }
 }
-boot();
+export const appReady = boot();

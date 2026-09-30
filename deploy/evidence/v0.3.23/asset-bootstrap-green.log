@@ -1,0 +1,16 @@
+✔ each HTML executable and stylesheet and its entire production import graph uses the release version (8.539333ms)
+✔ all supported web images ship bootstrap and mutable production assets cannot be heuristically cached (0.750166ms)
+✔ module link failure produces one recovery view and never automatically reloads (1.053083ms)
+✔ watchdog waits for app first render and is cancelled when app takes over (0.099166ms)
+✔ a stalled boot shows finite recovery once without another load attempt (0.087333ms)
+✔ recovery view is plain parent text, clears busy and retries only after explicit click (0.15725ms)
+✔ seven legacy page names map to fixed CA routes and discard every old parameter (1.47675ms)
+✔ local static server serves all legacy bridges and modules without weakening its allowlist (108.32775ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 179.530666

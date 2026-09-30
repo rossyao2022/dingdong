@@ -12,7 +12,7 @@
   "assignee": "yihu",
   "createdAt": "2026-09-30",
   "completedAt": null,
-  "branch": "codex/release-v0.3.22",
+  "branch": "codex/release-v0.3.23",
   "base_branch": "main",
   "worktree_path": null,
   "commit": "5b89d0b",
@@ -25,6 +25,6 @@
   ],
   "parent": null,
   "relatedFiles": [],
-  "notes": "用户放行完整版本上线；v0.3.22包含v0.3.21全部修复已push/main快进和生产部署，备份/0015+0016/六容器/Worker/28模块27素材/HTTP callback/四weekly真实只读验收通过。原账号与CA历史保留且原号仍bound。供应商自动实发、真短信/实体NFC换家长彩排未验收；父任务继续。",
+  "notes": "用户放行完整版本上线；v0.3.22包含v0.3.21全部修复已push/main快进和生产部署，备份/0015+0016/六容器/Worker/28模块27素材/HTTP callback/四weekly真实只读验收通过。原账号与CA历史保留且原号仍bound。供应商自动实发、真短信/实体NFC换家长彩排未验收；父任务继续。 2026-10-01用户报告页面连接中；定位用户浏览器旧ca-link与新app混用，继续本次上线纠错，版本化/启动兜底与旧缓存升级验收。",
   "meta": {}
 }

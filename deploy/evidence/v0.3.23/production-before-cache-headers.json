@@ -1,0 +1,37 @@
+[
+  {
+    "path": "/",
+    "content_type": "text/html",
+    "cache_control": null,
+    "etag": "\"6abd0df2-e19\"",
+    "last_modified": "Wed, 30 Sep 2026 13:26:10 GMT"
+  },
+  {
+    "path": "index.html",
+    "content_type": "text/html",
+    "cache_control": null,
+    "etag": "\"6abd0df2-e19\"",
+    "last_modified": "Wed, 30 Sep 2026 13:26:10 GMT"
+  },
+  {
+    "path": "app.js",
+    "content_type": "application/javascript",
+    "cache_control": null,
+    "etag": "\"6abd11b9-1d013\"",
+    "last_modified": "Wed, 30 Sep 2026 13:42:17 GMT"
+  },
+  {
+    "path": "ca-link.js",
+    "content_type": "application/javascript",
+    "cache_control": null,
+    "etag": "\"6abd1011-11c0\"",
+    "last_modified": "Wed, 30 Sep 2026 13:35:13 GMT"
+  },
+  {
+    "path": "styles.css",
+    "content_type": "text/css",
+    "cache_control": null,
+    "etag": "\"6ab1d453-7e57\"",
+    "last_modified": "Tue, 22 Sep 2026 01:05:23 GMT"
+  }
+]

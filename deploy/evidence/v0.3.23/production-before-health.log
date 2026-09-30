@@ -1,0 +1,6 @@
+dingdong-prod-trial-web-1 dingdong-web:0.3.22 Up 4 hours
+dingdong-prod-trial-worker-1 dingdong-backend:0.3.22 Up 4 hours
+dingdong-prod-trial-beat-1 dingdong-backend:0.3.22 Up 4 hours
+dingdong-prod-trial-api-1 dingdong-backend:0.3.22 Up 4 hours (healthy)
+dingdong-prod-trial-redis-1 redis:7-alpine Up 2 days (healthy)
+dingdong-prod-trial-postgres-1 postgres:17-alpine Up 2 days (healthy)

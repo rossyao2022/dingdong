@@ -1,13 +1,13 @@
 {
   "name": "dingdong-parent",
-  "version": "0.3.22",
+  "version": "0.3.23",
   "private": true,
   "type": "module",
   "description": "DingDong 家长端，连接 CA 后端",
   "scripts": {
     "dev": "node server.cjs",
     "start": "node server.cjs",
-    "check": "node --check app.js && node --check api.js && node --check ca-link.js && node --check dingdong-report.js && node --check companion.js && node --check growth-cycle.js && node --check reassessment.js && node --check playworld.js && node --check ui-components.js && node --check server.cjs && node --check talent-data.js && node --check talent-explorer.js && node --check career-data.js && node --check career-explorer.js && node --check riasec.js && node --check island-explorer.js && node --check fingerprint-guide.js && node --check fingerprint.js && node --check exploration-session.js && node --check guide-preference.js && node --check legacy.js",
+    "check": "node --check bootstrap.js && node --check app.js && node --check api.js && node --check ca-link.js && node --check dingdong-report.js && node --check companion.js && node --check growth-cycle.js && node --check reassessment.js && node --check playworld.js && node --check ui-components.js && node --check server.cjs && node --check talent-data.js && node --check talent-explorer.js && node --check career-data.js && node --check career-explorer.js && node --check riasec.js && node --check island-explorer.js && node --check fingerprint-guide.js && node --check fingerprint.js && node --check exploration-session.js && node --check guide-preference.js && node --check legacy.js",
     "test": "playwright test",
     "test:unit": "node --test unit/*.test.js",
     "storybook": "storybook dev -p 6006 --no-open",

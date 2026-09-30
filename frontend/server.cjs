@@ -17,6 +17,7 @@ const files = new Set([
   "playful.css",
   "client.css",
   "app.js",
+  "bootstrap.js",
   "api.js",
   "ca-link.js",
   "dingdong-report.js",

@@ -1,0 +1,7 @@
+bootstrap.js 23ms
+index.html 19ms
+unit/asset-version.test.js 5ms
+unit/bootstrap.test.js 6ms
+unit/legacy-compat.test.js 4ms
+playwright.cache.config.js 1ms
+tests/cache-upgrade.spec.js 10ms

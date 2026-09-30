@@ -3,7 +3,12 @@ import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { createServer } from "node:net";
 import { fileURLToPath } from "node:url";
+import { readFileSync } from "node:fs";
 import { LEGACY_ROUTES, legacyTarget } from "../legacy.js";
+const version = readFileSync(
+  new URL("../../VERSION", import.meta.url),
+  "utf8",
+).trim();
 
 test("seven legacy page names map to fixed CA routes and discard every old parameter", () => {
   assert.deepEqual(LEGACY_ROUTES, {
@@ -79,7 +84,7 @@ test("local static server serves all legacy bridges and modules without weakenin
       assert.equal(response.status, 200, file);
       assert.match(response.headers.get("content-type"), /^text\/html/);
       const html = await response.text();
-      assert.ok(html.includes('type="module" src="legacy.js"'));
+      assert.ok(html.includes(`type="module" src="legacy.js?v=${version}"`));
       assert.ok(html.includes(`href="index.html#${route}"`));
       assert.ok(!html.includes("secret"));
       assert.equal(
@@ -87,7 +92,7 @@ test("local static server serves all legacy bridges and modules without weakenin
         200,
       );
     }
-    for (const file of ["legacy.js", "guide-preference.js"])
+    for (const file of ["legacy.js", "guide-preference.js", "bootstrap.js"])
       assert.equal((await fetch(`${base}/${file}`)).status, 200);
     assert.equal((await fetch(`${base}/task.json`)).status, 404);
     assert.equal(

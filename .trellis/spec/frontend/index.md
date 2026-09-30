@@ -31,3 +31,4 @@
 - 窄屏：改动涉及新增长串、面板或表格时，至少看一次 390×844（见 `styling-and-responsive.md`）。
 - 自查：有没有引入框架/CDN、有没有未 `esc()` 的插值、有没有写死 `crypto.randomUUID()`、有没有把凭据留在地址栏或 storage 里。
 - 发现了新的约定或坑，写回本目录对应文件；不要只留在对话里（Trellis 的 Phase 3 要求）。
+- [发布缓存与页面启动契约](release-cache-and-startup.md)：完整版本图、入口失败兜底和真实旧缓存升级验收。

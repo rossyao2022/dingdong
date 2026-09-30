@@ -1,7 +1,7 @@
 # v0.3.22 offline build; retain the verified nginx configuration.
 FROM dingdong-web:0.3.20
 COPY deploy/nginx.conf.template /etc/nginx/templates/default.conf.template
-COPY frontend/index.html frontend/*.css frontend/app.js frontend/api.js frontend/playworld.js frontend/companion.js frontend/reassessment.js frontend/growth-cycle.js frontend/ca-link.js frontend/dingdong-report.js frontend/ui-components.js frontend/talent-data.js frontend/talent-explorer.js frontend/career-data.js frontend/career-explorer.js frontend/riasec.js frontend/island-explorer.js frontend/fingerprint-guide.js frontend/fingerprint.js frontend/exploration-session.js frontend/guide-preference.js frontend/legacy.js /usr/share/nginx/html/
+COPY frontend/index.html frontend/*.css frontend/app.js frontend/bootstrap.js frontend/api.js frontend/playworld.js frontend/companion.js frontend/reassessment.js frontend/growth-cycle.js frontend/ca-link.js frontend/dingdong-report.js frontend/ui-components.js frontend/talent-data.js frontend/talent-explorer.js frontend/career-data.js frontend/career-explorer.js frontend/riasec.js frontend/island-explorer.js frontend/fingerprint-guide.js frontend/fingerprint.js frontend/exploration-session.js frontend/guide-preference.js frontend/legacy.js /usr/share/nginx/html/
 COPY frontend/daily.html frontend/test.html frontend/result.html frontend/thumb.html frontend/island.html frontend/blindbox.html frontend/report.html /usr/share/nginx/html/
 COPY frontend/assets /usr/share/nginx/html/assets
 COPY VERSION /usr/share/nginx/html/version.txt

@@ -1,0 +1,10 @@
+{
+  "observed_at": "2026-10-01 Asia/Shanghai",
+  "surface": "User Chrome tab 131645408 at production parent entry",
+  "ui": "正在连接成长空间…",
+  "console_error": "SyntaxError: The requested module './ca-link.js' does not provide an export named 'conflictNeedsRefresh'",
+  "server_current_ca_link_has_export": true,
+  "server_mutable_js_cache_control_present": false,
+  "diagnosis": "Mixed release graph due to unversioned mutable modules and browser cache; module linking failed before boot catch could run",
+  "real_supplier_or_sms_requests": false
+}

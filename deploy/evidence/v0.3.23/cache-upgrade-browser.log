@@ -1,0 +1,12 @@
+
+Running 5 tests using 1 worker
+
+(node:89728) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/cache-upgrade.spec.js:142:1 › populated old immutable module cache reproduces the old error; versioned current app then boots and ordinary reload works (950ms)
+  ✓  2 tests/cache-upgrade.spec.js:200:1 › fresh cache boots the full real app (169ms)
+  ✓  3 tests/cache-upgrade.spec.js:215:3 › broken-dependency offers manual recovery, keeps NFC until healthy app boot and never loops (694ms)
+  ✓  4 tests/cache-upgrade.spec.js:215:3 › broken-entry offers manual recovery, keeps NFC until healthy app boot and never loops (641ms)
+  ✓  5 tests/cache-upgrade.spec.js:264:1 › entry fetch stalls: independent HTML watchdog shows recovery once and healthy retry cancels timers (20.2s)
+
+  5 passed (23.8s)

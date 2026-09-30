@@ -1,5 +1,5 @@
 /** Render only the supplied DingDong snapshot; never calculate projected scores here. */
-import { esc } from "./ui-components.js";
+import { esc } from "./ui-components.js?v=0.3.23";
 
 export const DIMENSION_KEYS = Object.freeze([
   "linguistic",

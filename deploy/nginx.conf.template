@@ -6,6 +6,10 @@ server {
     access_log off;
     add_header X-Content-Type-Options nosniff always;
     add_header Referrer-Policy same-origin always;
+    # HTML and executable styles/scripts are mutable release resources. Versioned
+    # module URLs bypass old browser entries; no-store protects subsequent upgrades.
+    # At server scope these coexist with the existing security headers.
+    add_header Cache-Control "no-store, max-age=0" always;
     location / { try_files $uri $uri/ =404; }
     # Every Django-served prefix must be listed here; anything missing falls
     # through to the static try_files below and returns an nginx 404.
