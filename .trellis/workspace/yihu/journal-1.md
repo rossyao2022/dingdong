@@ -678,3 +678,25 @@ Completed full reference modules and21assets, child-scoped API/results and ops w
 ### Status
 
 [OK] **Completed**
+
+
+## Session 28: v0.3.20 production deployment verified
+<!-- trellis-session: v=2 fp=609e5fb15adac3f1 -->
+
+**Date**: 2026-09-30
+**Task**: v0.3.20 production deployment verified
+**Branch**: `codex/release-v0.3.20`
+
+### Summary
+
+User explicitly authorized上线. Atomic push of release/main; verified production19, backed up database161289bytes/list/hash, offline built20, migration0014, explicit published2questionnaires10activities, only4apps recreated;6containers andWorkerpong healthy. Public52assets byte-match, independentChrome6login widths/21image decode/17scriptstyle entries passed, noSMS orproductionaccountlogin. Updated26/15page privatePDFs with currentpublicloginshots and verified approved opscredentials. Deployedsource b08dc43, latercommit onlydocs/evidence; no runtime drift, existingenv/keys/R2/CDN preserved. Parent remainsin_progress solely for CA originalphone/NFC/camera onsite rehearsal. User dirty documentJSON untouched.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `8480064` | [T-prototype-content-integration] Record v0.3.20 production deployment and public acceptance |
+
+### Status
+
+[OK] **Completed**

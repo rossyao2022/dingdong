@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 27
+- **Total Sessions**: 28
 - **Last Active**: 2026-09-30
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~680 | Active |
+| `journal-1.md` | ~702 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 28 | 2026-09-30 | v0.3.20 production deployment verified | `8480064` | `codex/release-v0.3.20` |
 | 27 | 2026-09-30 | v0.3.20 full prototype integration local verified | `17fb016`, `9db1fa6` | `codex/release-v0.3.20` |
 | 26 | 2026-09-30 | 原型完整整合方案与参展验收计划 | `8b17c28` | `main` |
 | 25 | 2026-09-30 | v0.3.19 生产机部署与会展输入准备 | `5096976` | `codex/release-v0.3.19` |
