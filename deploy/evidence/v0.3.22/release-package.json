@@ -1,0 +1,21 @@
+{
+  "version": "0.3.22",
+  "source_commit": "dbe5165c0fe65c6048b62ad1dd36acf59f136a08",
+  "sha256": "8f27e994320767296644a980a23c7af1e8ad8497743cde25b66496f1ba743b38",
+  "runtime_files_byte_verified": 427,
+  "new_required_files_verified": [
+    "frontend/dingdong-report.js",
+    "frontend/dingdong-report.css",
+    "backend/dingdong_ca/core/services/demo_report.py",
+    "backend/dingdong_ca/core/services/prototype_reports.py",
+    "backend/dingdong_ca/core/migrations/0016_prototypereportsnapshot_caaccount_prototype_demo_and_more.py",
+    "backend/dingdong_ca/ops/templates/ops/dingdong_push.html",
+    "deploy/production-trial/nginx-http-locations.conf",
+    "deploy/production-trial/nginx-push-log.conf"
+  ],
+  "bytes": 4461823,
+  "private_pdf_and_credentials_excluded": true,
+  "example_env_only": true,
+  "evidence_excluded_even_with_unicode_filenames": true,
+  "status": "local package verified; not published or deployed"
+}
