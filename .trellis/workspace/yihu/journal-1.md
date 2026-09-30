@@ -566,3 +566,25 @@ Protected fixed demo account, gated unbound insights, added bind retry/NFC refre
 ### Status
 
 [OK] **Completed**
+
+
+## Session 23: CA local-first technical ownership decision
+<!-- trellis-session: v=2 fp=5ee26a139caa5d77 -->
+
+**Date**: 2026-09-30
+**Task**: CA local-first technical ownership decision
+**Branch**: `codex/release-v0.3.19`
+
+### Summary
+
+Recorded explicit user decision: our local CA implementation is the primary functional baseline and our team is CA first technical owner. Remote submissions and deployed versions yield to local completed functionality; review remote differences, preserve local behavior on conflicts, adapt and verify useful additions before release. Persisted in AGENTS, confirmed constraints, project memory and merge guide. Documentation audit errors 0; no push, merge, deployment or remote writes.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `e5c83bb` | [T-ca-local-authority] Record CA technical ownership and local-first integration policy |
+
+### Status
+
+[OK] **Completed**
