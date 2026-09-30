@@ -833,3 +833,25 @@ User explicitly authorized上线. Atomic push of release/main; verified producti
 ### Status
 
 [OK] **Completed**
+
+
+## Session 34: v0.3.24家长机器人和展会体验本地交付
+<!-- trellis-session: v=2 fp=39ff70b9d1f7eba0 -->
+
+**Date**: 2026-10-01
+**Task**: v0.3.24家长机器人和展会体验本地交付
+**Branch**: `codex/release-v0.3.24`
+
+### Summary
+
+保留登录建档及CA主线；完整绑定报告、独立展会预览和现有手机号运营跟进。463后端/111前端/13部署配置及真实HTTP Chrome新4/CA9/Worker1/缓存5通过，ops和慢接口通过，私密截图PDF38/21页批准凭据保留。仅本地提交未推送部署；生产上次23，供应商和实体NFC尾项留父任务。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `da70469` | [T-parent-robot-experience] feat: unify parent robot reports and exhibition experience |
+
+### Status
+
+[OK] **Completed**
