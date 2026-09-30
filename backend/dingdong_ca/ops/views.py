@@ -239,7 +239,9 @@ def child_detail(request, child_id):
 
 def answer_rows(session):
     """把答卷答案翻译成"题目 + 选项文字"，运营不需要看代码。"""
-    questions = session.questionnaire_version.questions or []
+    from dingdong_ca.core.services.exploration import session_questions
+
+    questions = session_questions(session)
     answers = session.answers or {}
     rows = []
     for question in questions:
@@ -305,7 +307,12 @@ def questionnaire_new(request):
             request,
             "questionnaires",
             purposes=list(L.QUESTIONNAIRE_PURPOSE.items()),
-            ranges={"exploration": "1–10", "assessment": "20–30"},
+            ranges={
+                "exploration": "1–10",
+                "assessment": "20–30",
+                "interest": "18（每岛3）",
+                "talent": "24（每方向3）",
+            },
         ),
     )
 
@@ -327,6 +334,7 @@ def questionnaire_edit(request, version_id):
                 "title": row.title,
                 "description": row.description,
                 "questions": row.questions or [],
+                "scoring": row.scoring,
             },
             history=list(
                 QuestionnaireVersion.objects.filter(code=row.code)

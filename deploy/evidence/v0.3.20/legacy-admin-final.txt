@@ -1,0 +1,8 @@
+
+Running 1 test using 1 worker
+
+(node:46735) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/flows.spec.js:265:1 › 家长提交删除、后台实际处理、无儿童时查看回执 (3.9s)
+
+  1 passed (5.2s)

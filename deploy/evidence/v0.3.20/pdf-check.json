@@ -1,0 +1,12 @@
+{
+  "pages": {
+    "parent": 26,
+    "ops": 15
+  },
+  "ops_credentials_present": true,
+  "credentials_printed": false,
+  "visual_review": "41 pages rendered and inspected; five unreadable/faded screenshots replaced and revised six pages inspected",
+  "source": "local isolated E2E and preserved labeled v0.3.19 screenshots",
+  "release_status": "pending publication",
+  "permissions": "0600"
+}

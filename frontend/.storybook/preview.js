@@ -1,5 +1,9 @@
 import "../styles.css";
 import "../playful.css";
+import "../fingerprint.css";
+import "../exploration-v4.css";
+import "../talents.css";
+import "../readability.css";
 import "../client.css";
 
 export default {

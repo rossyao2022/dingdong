@@ -1,0 +1,4 @@
+  ✓  1 frontend/tests/prototype-history-restart.spec.js:5:3 › interest历史结果重新探索后刷新保留新答卷 (4.2s)
+  ✓  2 frontend/tests/prototype-history-restart.spec.js:5:3 › talent历史结果重新探索后刷新保留新答卷（重新授权） (5.0s)
+
+  2 passed (10.0s)

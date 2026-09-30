@@ -209,7 +209,7 @@ def audit(user, action, obj, label="", detail=None):
     )
 
 
-def paginate(queryset, request, serialize, scope):
+def paginate(queryset, request, serialize, scope, *, newest_first=False):
     try:
         size = int(request.query_params.get("page_size", "20"))
         if not 1 <= size <= 100:
@@ -222,12 +222,18 @@ def paginate(queryset, request, serialize, scope):
             payload = signing.loads(cursor, salt="ca-pagination")
             if payload["scope"] != scope:
                 raise ValueError
+            comparison = "lt" if newest_first else "gt"
             queryset = queryset.filter(
-                Q(created_at__gt=payload["at"]) | Q(created_at=payload["at"], id__gt=payload["id"])
+                Q(**{f"created_at__{comparison}": payload["at"]})
+                | Q(created_at=payload["at"], **{f"id__{comparison}": payload["id"]})
             )
         except (signing.BadSignature, ValueError, KeyError):
             raise ApiError("VALIDATION_ERROR", 422, "分页游标无效") from None
-    rows = list(queryset.order_by("created_at", "id")[: size + 1])
+    rows = list(
+        queryset.order_by(*(["-created_at", "-id"] if newest_first else ["created_at", "id"]))[
+            : size + 1
+        ]
+    )
     more = len(rows) > size
     rows = rows[:size]
     next_cursor = None

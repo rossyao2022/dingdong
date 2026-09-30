@@ -35,7 +35,9 @@ class QuestionnaireForm(forms.ModelForm):
             "questions": "逐题编辑",
             "data_origin": "内容来源",
         }
-        help_texts = {"questions": "保存草稿后再发布。探索体验 1–10 题，测评流程测试 20–30 题。"}
+        help_texts = {
+            "questions": "保存草稿后再发布。探索体验 1–10 题，六岛18题，八维24题，测评流程测试20–30题。"
+        }
 
     def clean_questions(self):
         questions = self.cleaned_data["questions"] or []
@@ -56,6 +58,7 @@ class QuestionnaireAdminMixin:
         "purpose",
         "description",
         "data_origin",
+        "scoring",
         "questions",
         "status",
         "published_at",
@@ -69,7 +72,7 @@ class QuestionnaireAdminMixin:
         ]
 
     def get_readonly_fields(self, request, obj=None):
-        return list(super().get_readonly_fields(request, obj)) + ["question_preview"]
+        return list(super().get_readonly_fields(request, obj)) + ["question_preview", "scoring"]
 
     def question_preview(self, obj):
         from django.utils.html import format_html_join
@@ -121,6 +124,7 @@ class QuestionnaireAdminMixin:
                 data_origin=source.data_origin,
                 schema_version=source.schema_version,
                 questions=copy.deepcopy(source.questions),
+                scoring=copy.deepcopy(source.scoring),
             )
             from .api.common import audit
 

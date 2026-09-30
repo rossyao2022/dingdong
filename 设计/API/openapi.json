@@ -2868,6 +2868,21 @@
               "minimum": 1,
               "maximum": 100
             }
+          },
+          {
+            "name": "purpose",
+            "in": "query",
+            "required": false,
+            "description": "仅查看指定用途；interest/talent新到旧，其余用途保留旧到新顺序",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "assessment",
+                "exploration",
+                "interest",
+                "talent"
+              ]
+            }
           }
         ],
         "responses": {
@@ -11972,7 +11987,8 @@
             "enum": [
               "synthetic_only",
               "live",
-              "disabled"
+              "disabled",
+              "none"
             ]
           },
           "slots": {
@@ -12095,7 +12111,8 @@
             ],
             "enum": [
               "synthetic",
-              "live"
+              "live",
+              "reference"
             ]
           },
           "purpose": {
@@ -12148,6 +12165,11 @@
               ],
               "additionalProperties": false
             }
+          },
+          "scoring": {
+            "type": "object",
+            "description": "固定题库的计分版本与题目方向映射；旧测评为空对象",
+            "additionalProperties": true
           }
         },
         "required": [
@@ -12187,6 +12209,24 @@
               "11111111-1111-4111-8111-111111111111"
             ],
             "format": "uuid"
+          },
+          "selected_islands": {
+            "type": "array",
+            "description": "六岛用途必须提供三个不同岛屿，顺序表示选择先后；其余用途不接受此字段",
+            "minItems": 0,
+            "maxItems": 3,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "enum": [
+                "R",
+                "I",
+                "A",
+                "S",
+                "E",
+                "C"
+              ]
+            }
           }
         },
         "required": [
@@ -12337,7 +12377,8 @@
             ],
             "enum": [
               "synthetic",
-              "live"
+              "live",
+              "reference"
             ]
           },
           "purpose": {
@@ -12376,6 +12417,33 @@
           },
           "questionnaire_code": {
             "type": "string"
+          },
+          "scoring": {
+            "type": "object",
+            "description": "固定题库的计分版本与题目方向映射；旧测评为空对象",
+            "additionalProperties": true
+          },
+          "selected_islands": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "exploration_result": {
+            "$ref": "#/components/schemas/ExplorationResult"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "草稿有效期，过期需创建新会话"
+          },
+          "completed_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "本次完成时间"
           }
         },
         "required": [
@@ -12686,7 +12754,8 @@
             ],
             "enum": [
               "synthetic",
-              "live"
+              "live",
+              "reference"
             ]
           }
         },
@@ -12984,7 +13053,8 @@
             ],
             "enum": [
               "synthetic",
-              "live"
+              "live",
+              "reference"
             ]
           }
         },
@@ -16034,6 +16104,102 @@
             "format": "uri"
           }
         }
+      },
+      "ExplorationScore": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "label",
+          "score",
+          "total",
+          "answered_count"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "score": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 15
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 15
+          },
+          "answered_count": {
+            "type": "integer",
+            "const": 3
+          }
+        }
+      },
+      "ExplorationResult": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "description": "仅完整作答并明确完成后保存；由本次真实答案计算，非专业算法画像",
+        "additionalProperties": false,
+        "properties": {
+          "purpose": {
+            "type": "string",
+            "enum": [
+              "interest",
+              "talent"
+            ]
+          },
+          "questionnaire_version_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "content_version": {
+            "type": "string"
+          },
+          "scoring_version": {
+            "type": "string",
+            "enum": [
+              "interest-mean-v1",
+              "talent-sum-v1"
+            ]
+          },
+          "source_commit": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{40}$"
+          },
+          "selected_islands": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "profiles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExplorationScore"
+            }
+          },
+          "dimensions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExplorationScore"
+            }
+          }
+        },
+        "required": [
+          "purpose",
+          "questionnaire_version_id",
+          "content_version",
+          "scoring_version",
+          "source_commit",
+          "selected_islands",
+          "profiles",
+          "dimensions"
+        ]
       }
     }
   }

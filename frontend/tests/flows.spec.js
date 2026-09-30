@@ -53,6 +53,7 @@ function cliDbIdentityOrUnknown() {
   }
 }
 
+const backendBase = process.env.E2E_BACKEND_URL || "http://127.0.0.1:8017";
 const phone = () =>
   "138" + String(Math.floor(Math.random() * 1e8)).padStart(8, "0");
 async function login(page, number = phone()) {
@@ -75,7 +76,7 @@ async function child(page, name = "浏览器合成儿童") {
   await page.getByRole("button", { name: "保存档案", exact: true }).click();
   const id = (await (await response).json()).id;
   await expect(
-    page.getByRole("heading", { name: "好奇心，准备出发！" }),
+    page.getByRole("heading", { name: "发现兴趣，认识独特的你。" }),
   ).toBeVisible();
   return id;
 }
@@ -172,11 +173,15 @@ test("用途授权、22题、合成输入、真实初始报告", async ({ page }
       .click();
   }
   await expect(
-    page.getByText("这一步使用演示图片，不需要上传孩子的照片。", { exact: true }),
+    page.getByText("这一步使用演示图片，不需要上传孩子的照片。", {
+      exact: true,
+    }),
   ).toBeVisible();
   await page.reload();
   await expect(
-    page.getByText("这一步使用演示图片，不需要上传孩子的照片。", { exact: true }),
+    page.getByText("这一步使用演示图片，不需要上传孩子的照片。", {
+      exact: true,
+    }),
   ).toBeVisible();
   await page.getByRole("button", { name: "生成演示报告", exact: true }).click();
   // 外层 setTimeout 10 分钟、实测报告就绪 75s+；队列积压时 20s 会复现 T-042 红灯，
@@ -199,9 +204,7 @@ test("机器人关联、阶段报告、撤回同步授权", async ({ page }) => 
   await page.getByLabel("我已阅读并同意获取机器人记录").check();
   await page.getByLabel("核验凭据", { exact: true }).fill("TEST-PROOF-" + id);
   await page.getByRole("button", { name: "确认连接", exact: true }).click();
-  await expect(
-    page.getByText("记录已连接", { exact: true }),
-  ).toBeVisible();
+  await expect(page.getByText("记录已连接", { exact: true })).toBeVisible();
   await nav(page, "测评与报告");
   await expect(
     page.getByRole("button", { name: "查看阶段报告", exact: true }),
@@ -252,9 +255,7 @@ test("移动端布局、儿童切换与跨页退出", async ({ page, context }) 
   ).toBeVisible();
   const other = await context.newPage();
   await other.goto("/#settings");
-  await expect(
-    other.locator("#logout-shortcut"),
-  ).toBeVisible();
+  await expect(other.locator("#logout-shortcut")).toBeVisible();
   await other.locator("#logout-shortcut").click();
   await expect(
     page.getByRole("button", { name: "登录", exact: true }),
@@ -304,16 +305,14 @@ test("家长提交删除、后台实际处理、无儿童时查看回执", async
   const staff = await browser.newContext();
   try {
     const admin = await staff.newPage();
-    await admin.goto("http://127.0.0.1:8017/admin/login/");
+    await admin.goto(backendBase + "/admin/login/");
     await admin.locator("#id_username").fill(username);
     await admin.locator("#id_password").fill(password);
     await admin.locator("input[type=submit]").click();
-    await expect(admin).toHaveURL("http://127.0.0.1:8017/admin/");
+    await expect(admin).toHaveURL(backendBase + "/admin/");
     const cookies = await staff.cookies();
     const result = await staff.request.post(
-      "http://127.0.0.1:8017/api/v1/staff/data-requests/" +
-        receipt.id +
-        "/resolve",
+      backendBase + "/api/v1/staff/data-requests/" + receipt.id + "/resolve",
       {
         headers: {
           "X-CSRFToken": cookies.find((c) => c.name === "csrftoken").value,
@@ -328,9 +327,7 @@ test("家长提交删除、后台实际处理、无儿童时查看回执", async
       page.getByText("儿童数据删除 · 已完成", { exact: true }),
     ).toBeVisible();
     await expect(page.getByRole("heading", { name: "申请进度" })).toBeVisible();
-    await expect(
-      page.locator("#logout-shortcut"),
-    ).toBeVisible();
+    await expect(page.locator("#logout-shortcut")).toBeVisible();
   } finally {
     await staff.close();
     shell(
@@ -344,9 +341,19 @@ test("登录后首页小岛出发与全部菜单可点击", async ({ page }) => 
   page.on("pageerror", (e) => errors.push(e.message));
   await login(page);
   await child(page);
-  await page.locator('[data-world-id="science"]').click();
-  await expect(page.locator('[data-world-action="depart"]')).toBeEnabled();
-  await page.locator('[data-world-action="depart"]').click();
+  for (const id of ["R", "I", "A"])
+    await page
+      .locator(`[data-interest-action="select"][data-id="${id}"]`)
+      .click();
+  await expect(page.locator('[data-interest-action="start"]')).toBeEnabled();
+  await page.locator('[data-interest-action="start"]').click();
+  await page.locator("#explorer-consent").check();
+  await page.locator('[data-action="agree-explorer"]').click();
+  await expect(page.locator(".interest-question-meta")).toContainText(
+    "第 1 / 9 题",
+  );
+  await page.getByRole("button", { name: "关闭对话框", exact: true }).click();
+  await nav(page, "今日陪伴");
   await expect(
     page.getByRole("heading", { name: "今日陪伴", exact: true }),
   ).toBeVisible();
@@ -356,7 +363,7 @@ test("登录后首页小岛出发与全部菜单可点击", async ({ page }) => 
     ["我的 DingDong", "我的 DingDong"],
     ["账户与关联", "账户与关联"],
     ["家长支持", "家长支持"],
-    ["天赋探索", "好奇心，准备出发！"],
+    ["天赋探索", "发现兴趣，认识独特的你。"],
   ]) {
     await nav(page, label);
     await expect(
@@ -455,7 +462,10 @@ test("移动端各页面、无效关联提示、资料编辑与帮助回执", as
   await expect(
     page.getByRole("heading", { name: "家长支持", exact: true }),
   ).toBeVisible();
-  await page.getByRole("link", { name: "账户与关联", exact: true }).last().click();
+  await page
+    .getByRole("link", { name: "账户与关联", exact: true })
+    .last()
+    .click();
   await page.getByRole("link", { name: "伙伴引导", exact: true }).click();
   await expect(
     page.getByRole("heading", { name: "我的 DingDong", exact: true }),
@@ -468,7 +478,9 @@ test("移动端各页面、无效关联提示、资料编辑与帮助回执", as
   const profilePanel = page.locator("#main section.panel").filter({
     has: page.getByRole("heading", { name: "儿童档案", exact: true }),
   });
-  await expect(profilePanel.getByText("小米的新称呼", { exact: true })).toBeVisible();
+  await expect(
+    profilePanel.getByText("小米的新称呼", { exact: true }),
+  ).toBeVisible();
   await page.getByRole("button", { name: "连接互动记录", exact: true }).click();
   await page.getByLabel("我已阅读并同意获取机器人记录").check();
   await page.getByLabel("核验凭据", { exact: true }).fill("INVALID-TEST-PROOF");

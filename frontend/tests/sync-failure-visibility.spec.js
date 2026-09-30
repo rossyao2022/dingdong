@@ -36,7 +36,7 @@ async function child(page, name = "同步失败验证儿童") {
   await page.getByRole("button", { name: "保存档案", exact: true }).click();
   const id = (await (await response).json()).id;
   await expect(
-    page.getByRole("heading", { name: "好奇心，准备出发！" }),
+    page.getByRole("heading", { name: "发现兴趣，认识独特的你。" }),
   ).toBeVisible();
   return id;
 }

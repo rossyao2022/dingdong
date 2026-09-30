@@ -30,6 +30,12 @@ import {
   pageHead,
   panel,
 } from "./ui-components.js";
+import {
+  explorerState,
+  continuedExplorerHash,
+  sameSelection,
+  resumableSession,
+} from "./exploration-session.js";
 const $ = (s) => document.querySelector(s);
 const state = {
   user: null,
@@ -61,6 +67,7 @@ const state = {
   // 答案再 POST 一次（同一个 `request_id`，幂等重放）。
   reassessmentRespondError: null,
 };
+let explorationEpoch = 0;
 let viewEpoch = 0,
   busy = false,
   pollTimer,
@@ -88,20 +95,25 @@ const channel =
  * 重渲染不算——`render()` 每次进来都关对话框会让打开中的对话框被轮询渲染关掉
  * （T-040 的 P-16：复测「开始复测」的同意对话框只闪现约 1.7 秒）。
  */
-function leaveContext() {
+function leaveContext({ disposePage = true } = {}) {
+  if (disposePage) {
+    explorationEpoch++;
+    window.FingerprintLab?.cleanup();
+  }
   if ($("#dialog").open) $("#dialog").close();
   // 对话框一关，编辑会话就结束：不允许残留的基准修订号在下次打开时复用。
   childEdit = null;
 }
 /** 对话框流程走完：关掉它并结束编辑会话，供「提交成功后重渲染」的流程调用。 */
 function closeDialog() {
-  leaveContext();
+  leaveContext({ disposePage: false });
   window.speechSynthesis?.cancel();
 }
 function stopWork() {
   clearTimeout(pollTimer);
   clearTimeout(smsCooldownTimer);
-  closeDialog();
+  leaveContext();
+  window.speechSynthesis?.cancel();
 }
 /** 观察未就绪时按固定间隔重渲染一次；对话框打开期间挂起，关闭后恢复。 */
 function schedulePoll(tick, delay) {
@@ -116,6 +128,8 @@ function schedulePoll(tick, delay) {
 function forget() {
   viewEpoch++;
   stopWork();
+  window.IslandExplorer?.reset();
+  window.TalentExplorer?.reset();
   state.user = null;
   state.child = null;
   state.children = [];
@@ -259,7 +273,10 @@ function toast(text) {
   setTimeout(() => $("#toast").classList.remove("show"), 5000);
 }
 function header() {
-  const page = location.hash.slice(1).split("/")[0] || "explore";
+  const route = location.hash.slice(1).split("/")[0] || "explore";
+  const page = ["talents", "fingerprint", "interest"].includes(route)
+    ? "explore"
+    : route;
   $("#logout-shortcut").hidden = !state.user;
   $("#page-label").textContent =
     nav.find((n) => n[0] === page)?.[2] || "成长空间";
@@ -711,7 +728,19 @@ async function render() {
   $("#main").setAttribute("aria-busy", "true");
   let html = "";
   try {
-    if (route === "explore") {
+    if (["explore", "talents", "interest"].includes(route)) {
+      await loadExplorers(child, route, id);
+      if (tick !== viewEpoch || state.child?.id !== child) return;
+    }
+    if (route === "talents") {
+      html = window.TalentExplorer.render();
+    } else if (route === "fingerprint") {
+      html = window.FingerprintLab.render();
+    } else if (route === "interest" && id) {
+      html =
+        window.IslandExplorer.render() +
+        `<div class="actions">${button("show-interest-result", "查看这次兴趣组合")}</div>`;
+    } else if (route === "explore") {
       html =
         window.PlayWorld.render() +
         `<div class="grid extra-links"><section class="card"><h2>从一个小行动开始</h2><p>选一个适合此刻心情的活动，和孩子一起试试看。</p><a class="button" href="#home">今日陪伴</a></section><section class="card"><h2>把观察慢慢积累下来</h2><p>查看测评进度和成长报告。</p><a class="button secondary" href="#reports">测评与报告</a></section></div>`;
@@ -841,7 +870,9 @@ async function render() {
         `<p>从几个日常小情境开始，听听孩子此刻的想法。非正式测评，不做天赋或能力评分。</p>${exploration ? button("continue-assessment", "继续探索体验", `data-id="${exploration.id}"`) : button("begin-exploration", "开始探索体验")}`,
       );
       const otherBanks = catalog.questionnaires.filter(
-        (q) => !["exploration", "initial-assessment"].includes(q.code),
+        (q) =>
+          ["exploration", "assessment"].includes(q.purpose) &&
+          !["exploration", "initial-assessment"].includes(q.code),
       );
       const bankCards = otherBanks
         .map((q) => {
@@ -858,6 +889,17 @@ async function render() {
           );
         })
         .join("");
+      const savedExplorations = sessions.filter(
+        (s) =>
+          ["interest", "talent"].includes(s.purpose) &&
+          s.status === "completed",
+      );
+      const explorationHistory = savedExplorations.length
+        ? panel(
+            "兴趣与八维探索记录",
+            `<div class="exploration-history">${savedExplorations.map((s) => `<a class="button secondary" href="#${s.purpose === "interest" ? "interest" : "talents"}/${esc(s.id)}">${esc(s.title)} · 回看</a>`).join("")}</div>`,
+          )
+        : "";
       const history = sessions.filter(
         (s) => s.purpose === "exploration" && s.status === "completed",
       );
@@ -875,7 +917,7 @@ async function render() {
         : [];
       html =
         head("测评与报告", "查看孩子的选择与成长记录。") +
-        `<div class="report-flow"><div class="grid">${bankCards}${explorationCard}<div class="panel"><div class="card-heading"><h2>${active ? "本次测评尚未结束" : "初始测评"}</h2>${testTag()}</div><p>${active ? esc(statusNames[active.status]) : "通过日常情境题了解孩子的近期状态，完成后生成初始报告。"}</p>${active ? button("continue-assessment", "继续本次测评", `data-id="${active.id}"`) : button("begin-assessment", "开始测评")}</div></div>${companionPanel(companion, health, reassessment)}${history.length ? `<section class="panel"><h2>已完成的探索体验</h2>${history.map((s) => button("continue-assessment", esc(s.title) + " · 查看选择", `data-id="${s.id}"`, true)).join("")}</section>` : ""}<h2 class="report-section-title">已生成报告</h2>${reportCards(reports.reverse())}${growthCyclePanel(cycle)}<h2 class="report-section-title">成长观察</h2>${windowForm()}<div class="grid">${observationBlock(overview.robot_observation)}<section class="panel"><h2>阶段观察</h2><p>${{ no_data: "还没有观察记录。", waiting_rule: "新记录还在整理中。", processing: "正在整理最新记录。", ready: "新记录已整理完成。", failed: "暂时无法更新，请稍后再看。" }[overview.stage_status]}</p>${trendRows.length ? metrics(trendRows) : ""}${button("refresh", "刷新", "", true)}</section></div></div>`;
+        `<div class="report-flow"><div class="grid">${bankCards}${explorationCard}<div class="panel"><div class="card-heading"><h2>${active ? "本次测评尚未结束" : "初始测评"}</h2>${testTag()}</div><p>${active ? esc(statusNames[active.status]) : "通过日常情境题了解孩子的近期状态，完成后生成初始报告。"}</p>${active ? button("continue-assessment", "继续本次测评", `data-id="${active.id}"`) : button("begin-assessment", "开始测评")}</div></div>${explorationHistory}${companionPanel(companion, health, reassessment)}${history.length ? `<section class="panel"><h2>已完成的探索体验</h2>${history.map((s) => button("continue-assessment", esc(s.title) + " · 查看选择", `data-id="${s.id}"`, true)).join("")}</section>` : ""}<h2 class="report-section-title">已生成报告</h2>${reportCards(reports.reverse())}${growthCyclePanel(cycle)}<h2 class="report-section-title">成长观察</h2>${windowForm()}<div class="grid">${observationBlock(overview.robot_observation)}<section class="panel"><h2>阶段观察</h2><p>${{ no_data: "还没有观察记录。", waiting_rule: "新记录还在整理中。", processing: "正在整理最新记录。", ready: "新记录已整理完成。", failed: "暂时无法更新，请稍后再看。" }[overview.stage_status]}</p>${trendRows.length ? metrics(trendRows) : ""}${button("refresh", "刷新", "", true)}</section></div></div>`;
     } else if (route === "settings") {
       const [consents, associations, receipts, accounts, companion] =
         await Promise.all([
@@ -954,6 +996,7 @@ async function render() {
     // 「刚生成」只强调一次：账户页渲染出来之后这个号就不再冒充新号。
     if (route === "settings") hints.newAccountId = "";
     bindForms();
+    if (route === "fingerprint") window.FingerprintLab.mount();
     // 凭据是在登录之前就取到的：等页面真的渲染出来再弹绑定，
     // 家长不必自己找入口。只在有凭据时弹一次。
     if (hints.nfcToken && !hints.nfcPrompted) {
@@ -1844,6 +1887,35 @@ async function handleAction(action, el) {
       if (!nextCursor) el.remove();
       break;
     }
+    case "agree-explorer": {
+      if (!$("#explorer-consent").checked)
+        throw new Error("请先阅读并同意保存本次回答。");
+      const pending = hints.pendingExplorer;
+      if (!pending || pending.child !== state.child.id)
+        throw new Error("请重新开始探索。");
+      const token = explorationToken();
+      await consent("assessment_processing", pending.policy);
+      if (!explorerCurrent(token)) break;
+      delete hints.pendingExplorer;
+      closeDialog();
+      if (pending.fresh) await explorerModule(pending.purpose).restart();
+      else await explorerModule(pending.purpose).start();
+      break;
+    }
+    case "show-interest-result":
+      await window.IslandExplorer.start();
+      break;
+    case "exploration-guide-task":
+      await explorationBridge.task(el.dataset.code);
+      break;
+    case "blindbox":
+      hints.activities = await API.all("/activities");
+      if (!hints.activities.length) throw new Error("暂时没有可选的活动。");
+      await activityDetail(
+        hints.activities[Math.floor(Math.random() * hints.activities.length)]
+          .id,
+      );
+      break;
     case "begin-bank":
       await beginAssessment(el.dataset.purpose, id);
       break;
@@ -2076,6 +2148,8 @@ $("#dialog").addEventListener("close", () => {
 });
 $("#child-select").onchange = (e) => {
   stopWork();
+  window.IslandExplorer.reset();
+  window.TalentExplorer.reset();
   state.child = state.children.find((c) => c.id === e.target.value);
   state.session = null;
   state.record = null;
@@ -2085,12 +2159,213 @@ $("#child-select").onchange = (e) => {
   saveHints();
   to("explore");
 };
+const explorerModule = (purpose) =>
+  purpose === "interest" ? window.IslandExplorer : window.TalentExplorer;
+const explorationToken = () =>
+  `${state.user?.id}:${state.child?.id}:${location.hash}:${explorationEpoch}`;
+const explorerCurrent = (token) => token === explorationToken();
+async function loadExplorers(child, route, id) {
+  if (hints.explorerChild !== child) {
+    const token = explorationToken();
+    const rows = (await API.all(`/children/${child}/assessments`)).reverse();
+    if (!explorerCurrent(token)) return;
+    hints.explorerChild = child;
+    hints.explorerRecord = null;
+    hints.explorerSessions = {};
+    for (const purpose of ["interest", "talent"]) {
+      const session = resumableSession(rows, purpose);
+      hints.explorerSessions[purpose] = session || null;
+      explorerModule(purpose).setState(explorerState(session));
+    }
+  }
+  if (
+    id &&
+    ["interest", "talents"].includes(route) &&
+    hints.explorerRecord !== id
+  ) {
+    const token = explorationToken();
+    const session = await API.request("/assessments/" + encodeURIComponent(id));
+    if (!explorerCurrent(token)) return;
+    const purpose = route === "interest" ? "interest" : "talent";
+    if (session.child_id !== child || session.purpose !== purpose)
+      throw new Error("请先切换到对应的儿童档案。");
+    hints.explorerSessions[purpose] = session;
+    hints.explorerRecord = id;
+    explorerModule(purpose).setState(explorerState(session));
+  }
+}
+async function ensureExplorer(purpose, selected = [], fresh = false) {
+  const token = explorationToken(),
+    child = state.child.id;
+  const current = hints.explorerSessions?.[purpose];
+  let expired = false;
+  if (
+    !fresh &&
+    current &&
+    (purpose !== "interest" ||
+      sameSelection(current.selected_islands || [], selected))
+  ) {
+    const latest = await API.request("/assessments/" + current.id);
+    if (!explorerCurrent(token)) return null;
+    if (
+      ["draft", "ready", "completed"].includes(latest.status) &&
+      (latest.status === "completed" ||
+        !latest.expires_at ||
+        Date.parse(latest.expires_at) > Date.now())
+    ) {
+      hints.explorerSessions[purpose] = latest;
+      return explorerState(latest);
+    }
+    expired =
+      latest.status !== "completed" &&
+      Date.parse(latest.expires_at) <= Date.now();
+  }
+  const [config, grants] = await Promise.all([
+    API.request("/assessment-config?purpose=" + purpose),
+    API.all(`/children/${child}/consents`),
+  ]);
+  if (!explorerCurrent(token)) return null;
+  if (!config.available) throw new Error("这份探索还未开放，请稍后再来。");
+  const grant = grants.find(
+    (c) => c.purpose === "assessment_processing" && !c.revoked_at,
+  );
+  if (!grant) {
+    const policy = await API.request(
+      "/policies/current?purpose=assessment_processing",
+      { auth: false },
+    );
+    if (!explorerCurrent(token)) return null;
+    hints.pendingExplorer = { child, purpose, selected, policy, fresh };
+    showDialog(
+      "保存这次探索",
+      `<p>回答会保存在当前儿童档案中，方便下次继续和回看。不会发送给机器人。</p><details class="policy-details"><summary>查看使用说明</summary><div class="policy-body">${esc(policy.body)}</div></details><label class="checkline"><input id="explorer-consent" type="checkbox">我已阅读并同意保存本次回答</label>${actions(button("agree-explorer", "同意并开始"), button("close", "稍后再说", "", true))}`,
+    );
+    return null;
+  }
+  const key = `explorer-create:${child}:${purpose}:${selected.join("")}:${fresh ? "new" : "resume"}`;
+  const session = await API.request(`/children/${child}/assessments`, {
+    method: "POST",
+    body: {
+      request_id: requestKey(key),
+      questionnaire_version_id: config.questionnaire_version_id,
+      consent_grant_id: grant.id,
+      ...(purpose === "interest" ? { selected_islands: selected } : {}),
+    },
+  });
+  keys.delete(key);
+  if (!explorerCurrent(token)) return null;
+  hints.explorerSessions ||= {};
+  hints.explorerSessions[purpose] = session;
+  if (expired) toast("上次探索已结束，这次从第一题开始。");
+  return explorerState(session);
+}
+const explorationBridge = {
+  context: explorationToken,
+  isCurrent: explorerCurrent,
+  run: (fn, el) => act(fn, el),
+  ensure: ensureExplorer,
+  adopt(purpose) {
+    const session = hints.explorerSessions?.[purpose];
+    if (!session || session.child_id !== state.child?.id) return;
+    const nextHash = continuedExplorerHash(location.hash, purpose, session.id);
+    if (nextHash !== location.hash)
+      history.replaceState(history.state, "", nextHash);
+    const [route, record] = location.hash.slice(1).split("/");
+    hints.explorerRecord =
+      record && route === (purpose === "interest" ? "interest" : "talents")
+        ? session.id
+        : null;
+  },
+  async selection(selected, previous) {
+    if (
+      previous &&
+      (previous.completed || Object.keys(previous.answers || {}).length)
+    ) {
+      if (
+        !window.confirm(
+          "调整组合会开始一次新的探索。原来的回答和结果仍会保留，继续吗？",
+        )
+      )
+        return previous;
+    }
+    if (hints.explorerSessions) hints.explorerSessions.interest = null;
+    return { selected, answers: {}, completed: false, result: null, index: 0 };
+  },
+  async answer(purpose, questionCode, value) {
+    const token = explorationToken(),
+      session = hints.explorerSessions?.[purpose];
+    if (!session || session.child_id !== state.child.id)
+      throw new Error("请重新打开这次探索。");
+    const saved = await API.request(`/assessments/${session.id}/answers`, {
+      method: "PATCH",
+      body: {
+        revision: session.revision,
+        answers: [
+          {
+            question_code: String(questionCode),
+            option_codes: [String(value)],
+          },
+        ],
+      },
+    });
+    if (!explorerCurrent(token)) return null;
+    hints.explorerSessions[purpose] = saved;
+    const normalized = explorerState(saved);
+    delete normalized.index;
+    return normalized;
+  },
+  async complete(purpose) {
+    const token = explorationToken(),
+      session = hints.explorerSessions?.[purpose];
+    if (!session || session.child_id !== state.child.id)
+      throw new Error("请重新打开这次探索。");
+    const completed = await API.request(
+      `/assessments/${session.id}/complete-exploration`,
+      { method: "POST", body: { revision: session.revision } },
+    );
+    if (!explorerCurrent(token)) return null;
+    hints.explorerSessions[purpose] = completed;
+    return explorerState(completed);
+  },
+  async restart(purpose) {
+    const selected =
+      purpose === "interest" ? window.IslandExplorer.exportData().selected : [];
+    return ensureExplorer(purpose, selected, true);
+  },
+  dialog(title, body, footer = "") {
+    showDialog(
+      title,
+      body + (footer ? `<div class="actions">${footer}</div>` : ""),
+    );
+  },
+  close: closeDialog,
+  render,
+  toast,
+  async task(code) {
+    const token = explorationToken();
+    const activities = await API.all("/activities");
+    if (!explorerCurrent(token)) return;
+    const activity = activities.find(
+      (a) => a.code === code || a.code === "prototype-" + code,
+    );
+    if (!activity) {
+      toast("这个活动还在准备中，可以先试试今日陪伴里的活动。");
+      return;
+    }
+    hints.activities = activities;
+    closeDialog();
+    await activityDetail(activity.id);
+  },
+};
+window.IslandExplorer.bind(explorationBridge);
+window.TalentExplorer.bind(explorationBridge);
 window.PlayWorld.bind({
   island(id) {
     state.island = id;
     state.mood = "";
     to("home");
   },
+  ...explorationBridge,
 });
 channel?.addEventListener("message", (e) => {
   if (e.data.logout || e.data.user !== state.user?.id) {

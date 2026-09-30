@@ -40,10 +40,21 @@ def serialize_job(job):
 
 def validate_content(row):
     try:
-        if row.data_origin != "synthetic":
+        if row.data_origin != "synthetic" and not (
+            isinstance(row, (m.QuestionnaireVersion, m.ActivityContentVersion))
+            and row.data_origin == "reference"
+            and (
+                not isinstance(row, m.QuestionnaireVersion) or row.purpose in ["interest", "talent"]
+            )
+        ):
             raise ValueError
         if isinstance(row, m.QuestionnaireVersion):
-            bounds = {"exploration": (1, 10), "assessment": (20, 30)}.get(row.purpose)
+            bounds = {
+                "exploration": (1, 10),
+                "assessment": (20, 30),
+                "interest": (18, 18),
+                "talent": (24, 24),
+            }.get(row.purpose)
             if (
                 not bounds
                 or not isinstance(row.questions, list)
@@ -95,6 +106,10 @@ def validate_content(row):
                     for o in q["options"]
                 ):
                     raise ValueError
+            if row.purpose in ["interest", "talent"]:
+                from dingdong_ca.core.services.exploration import validate_scoring
+
+                validate_scoring(row)
         elif isinstance(row, m.RuleVersion):
             c = row.config
             if (
@@ -135,7 +150,7 @@ def validate_content(row):
                 ):
                     raise ValueError
     except (KeyError, TypeError, ValueError):
-        raise ApiError("CONTENT_INVALID", 422, "发布内容不符合当前测试协议") from None
+        raise ApiError("CONTENT_INVALID", 422, "发布内容不符合题库或活动规则") from None
 
 
 @endpoint(["POST"], staff_roles=["content"], csrf=True)

@@ -17,11 +17,13 @@ from dingdong_ca.core.models import (
 )
 from dingdong_ca.testsupport.adapter import FixtureFailure, initial_result
 
+from .exploration import session_questions
+
 
 def missing_questions(session):
     return [
         q["code"]
-        for q in session.questionnaire_version.questions
+        for q in session_questions(session)
         if q["required"] and not session.answers.get(q["code"])
     ]
 
@@ -64,7 +66,7 @@ def merge_answers(session_id, revision, answers):
             raise ApiError("STATE_CONFLICT", 409, "当前会话不能修改答案")
         if session.revision != revision:
             raise ApiError("REVISION_CONFLICT", 409, "记录已更新")
-        questions = {q["code"]: q for q in session.questionnaire_version.questions}
+        questions = {q["code"]: q for q in session_questions(session)}
         seen = set()
         merged = dict(session.answers)
         for answer in answers:
@@ -103,7 +105,8 @@ def begin_attempt(session_id, request_id, revision):
                 raise ApiError("IDEMPOTENCY_CONFLICT", 409, "提交请求不一致")
             return old, False
         if (
-            settings.INTEGRATION_DATA_SOURCE != "database_fixture"
+            session.questionnaire_version.purpose != "assessment"
+            or settings.INTEGRATION_DATA_SOURCE != "database_fixture"
             or session.questionnaire_version.data_origin != "synthetic"
         ):
             raise ApiError("INTEGRATION_NOT_READY", 503, "真实算法尚未接入")

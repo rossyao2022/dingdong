@@ -1,0 +1,18 @@
+
+Running 13 tests using 1 worker
+
+  ✓   1 tests/mobile-layout.spec.js:54:1 › 登录验证码控件在手机、平板与桌面宽度下对齐且互不遮挡 (867ms)
+  ✓   2 tests/mobile-layout.spec.js:88:1 › 首次建档和无儿童账户页跨屏宽不溢出 (639ms)
+  ✓   3 tests/mobile-layout.spec.js:117:1 › 窄屏切换页面回到页首，帮助入口按钮保持一致 (741ms)
+  ✓   4 tests/mobile-layout.spec.js:156:1 › 320px 今日陪伴页标题和机器人插画各有空间 (438ms)
+  ✓   5 tests/mobile-layout.spec.js:169:1 › 活动和测评详情在手机、平板、桌面可读可操作 (1.2s)
+  ✓   6 tests/mobile-layout.spec.js:228:1 › 报告详情在多档宽度可读（合成视觉样例） (501ms)
+  ✓   7 tests/mobile-layout.spec.js:267:1 › 手机登录、主要页面、底部导航与表单的布局保持清楚 (2.3s)
+  ✓   8 tests/prototype-integration.spec.js:74:1 › 六岛完整、选三顺序、九题真实保存、刷新恢复与儿童隔离 (2.7s)
+  ✓   9 tests/prototype-integration.spec.js:154:1 › 24题八维观察真实作答、断点恢复、最低分相同不强排前三 (6.6s)
+  ✓  10 tests/prototype-integration.spec.js:190:1 › 八维最高分及第四名并列全部呈现，重新探索保留历史结果 (8.4s)
+  ✓  11 tests/prototype-integration.spec.js:219:1 › 过期草稿重新打开建立新答卷，原答案保留且选岛不丢 (4.7s)
+  ✓  12 tests/prototype-integration.spec.js:249:1 › 指纹四类完整指南、示例及临时预览不上传，离开释放图片 (8.1s)
+  ✓  13 tests/prototype-integration.spec.js:299:1 › 四模块和六岛在手机平板桌面无溢出、遮挡或坏图 (2.6s)
+
+  13 passed (40.8s)

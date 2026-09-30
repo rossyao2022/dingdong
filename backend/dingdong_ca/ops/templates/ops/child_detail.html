@@ -113,6 +113,11 @@
                 提交时间 {{ session.submitted_at|date:"Y-m-d H:i"|default:"未提交" }} ·
                 完成时间 {{ session.completed_at|date:"Y-m-d H:i"|default:"未完成" }}
               </p>
+              {% if session.exploration_result %}
+                <h3>本次观察结果</h3>
+                <p>计分版本 {{ session.exploration_result.scoring_version }} · 内容版本 {{ session.exploration_result.content_version }}</p>
+                <ul>{% for item in session.exploration_result.profiles %}<li>{{ item.label }}：{{ item.score|floatformat:2 }} / 4</li>{% endfor %}{% for item in session.exploration_result.dimensions %}<li>{{ item.label }}：{{ item.score }} / 15</li>{% endfor %}</ul>
+              {% endif %}
               <div class="table-responsive">
                 <table class="table table-vcenter ops-table">
                   <tbody>

@@ -1,0 +1,185 @@
+{
+  "source": "local server 4175",
+  "assets": [
+    {
+      "path": "assets/dingdong/companion-world.webp",
+      "sha256": "b20b2ca243348181ed6e1874c45e470fc62c72284e3d524c7bc8e1ce980f2a9c",
+      "bytes": 33492
+    },
+    {
+      "path": "assets/dingdong/fingerprint-lab.webp",
+      "sha256": "fe8eac84f35ab64d8f66dd443626c6e809159b56bc97378a1ce55b28d2901f7b",
+      "bytes": 47960
+    },
+    {
+      "path": "assets/dingdong/gift.webp",
+      "sha256": "5fb7f0f5bc14854977cd4e28a93837e909e4925c6d46944beb9e9df89ed9de3a",
+      "bytes": 57326
+    },
+    {
+      "path": "assets/dingdong/island-A.webp",
+      "sha256": "e99b803120c4cb82a3457a7c099b24494540c830f79380a186aa62f06313c04a",
+      "bytes": 55192
+    },
+    {
+      "path": "assets/dingdong/island-C.webp",
+      "sha256": "30882ef4e5c94e41288713ab2b3a8f812816cea65c407e7919630f324a419202",
+      "bytes": 52052
+    },
+    {
+      "path": "assets/dingdong/island-E.webp",
+      "sha256": "6d56ed3240f38fa0867226e0e3d520b1e2f50bc732e8a871381219f1d86a5f1b",
+      "bytes": 58380
+    },
+    {
+      "path": "assets/dingdong/island-I.webp",
+      "sha256": "389f80752346c84f55f50b6167bec7a439bc22599640b1a5fbbbf7c0241c0c36",
+      "bytes": 55368
+    },
+    {
+      "path": "assets/dingdong/island-R.webp",
+      "sha256": "54e99c774661216ec0a6ad38e256f80cf60467d70a8ea66a6d91596aa2d3edb4",
+      "bytes": 46060
+    },
+    {
+      "path": "assets/dingdong/island-S.webp",
+      "sha256": "98e66fb1437a866d06b8e7c44d6e4f95fa956cff214ed52e71d5b20e3fade570",
+      "bytes": 70168
+    },
+    {
+      "path": "assets/dingdong/robot-front.webp",
+      "sha256": "fb9848881c87b1e480b2fd74ae2edf1aafbaf80aa17a0d4813744265e2313715",
+      "bytes": 27032
+    },
+    {
+      "path": "assets/dingdong/robot-wave.webp",
+      "sha256": "89e65a181debcef75589d50ff268fa47a6912541313f338155a8b776d5a769e2",
+      "bytes": 30122
+    },
+    {
+      "path": "assets/dingdong.svg",
+      "sha256": "036a95d10d1811f8a2774be6b8a4d3fe163952bc80286cb2b99974dba9a67b1e",
+      "bytes": 3191
+    },
+    {
+      "path": "assets/fingerprints/arch.webp",
+      "sha256": "012006f0d9d93bb7739679e65047e9134fdbbe6c2d0e1b8157b8bf0a6c1ebbc0",
+      "bytes": 74630
+    },
+    {
+      "path": "assets/fingerprints/loop.webp",
+      "sha256": "518acbfe15f58e59f18f97bdb5a52e299ef2a3493440aa4d9739878390e91fad",
+      "bytes": 58452
+    },
+    {
+      "path": "assets/fingerprints/reverse.webp",
+      "sha256": "227c38d1d72973da65c9eb562f9aabf3bcea9fe98cb483a9b3c3460e60cba5c2",
+      "bytes": 58880
+    },
+    {
+      "path": "assets/fingerprints/whorl.webp",
+      "sha256": "36c2f2eb51cb4f662c9025508cae326f45905961d0871bc3d3254b3eadd39752",
+      "bytes": 76922
+    },
+    {
+      "path": "assets/generated/island-A-v5.webp",
+      "sha256": "7f61c83565647b916c4ed16920356dc76b685816d31f0c0c597f30f72e0cecc1",
+      "bytes": 131184
+    },
+    {
+      "path": "assets/generated/island-C-v5.webp",
+      "sha256": "9b3b1f08b33843e6885cfb4be2c079ab980eeea428dbe5362c221faaeb870d11",
+      "bytes": 142336
+    },
+    {
+      "path": "assets/generated/island-E-v5.webp",
+      "sha256": "d59df9048e1a2e1b18f12c44b406918f3896c2aa4bb4ad282586f2ea6e427268",
+      "bytes": 151830
+    },
+    {
+      "path": "assets/generated/island-I-v5.webp",
+      "sha256": "eae0b14cc6a7b7c9b187eddca943e3f99552a2305c3cfc648c65720f8818b151",
+      "bytes": 151494
+    },
+    {
+      "path": "assets/generated/island-R-v5.webp",
+      "sha256": "1421317ff7d7cdf954c5154856541387c6531bcf02b8e7865c310af25322d4d3",
+      "bytes": 172936
+    },
+    {
+      "path": "assets/generated/island-S-v5.webp",
+      "sha256": "1b580a4a6cb0d201a02c82f59a1cf899aa82157505e64c6004e8c2d0e95443d7",
+      "bytes": 132858
+    },
+    {
+      "path": "assets/islands/imagination.svg",
+      "sha256": "21a4e439194d1f786b8d4b81190ff6a1a38e20d6b709b26b79cf7fb33a26d5ef",
+      "bytes": 5134
+    },
+    {
+      "path": "assets/islands/imagination.webp",
+      "sha256": "7f61c83565647b916c4ed16920356dc76b685816d31f0c0c597f30f72e0cecc1",
+      "bytes": 131184
+    },
+    {
+      "path": "assets/islands/nature.svg",
+      "sha256": "5ba0b1cb5eb2a6bae8546d04b66e036f23b030f3defd6d232e6fe5ee64a5b160",
+      "bytes": 5320
+    },
+    {
+      "path": "assets/islands/nature.webp",
+      "sha256": "1421317ff7d7cdf954c5154856541387c6531bcf02b8e7865c310af25322d4d3",
+      "bytes": 172936
+    },
+    {
+      "path": "assets/islands/science.svg",
+      "sha256": "6a248befa52cc6b8e5471098e5ad121c391f2456e317942c1fe4d61a94ca7c25",
+      "bytes": 5039
+    },
+    {
+      "path": "assets/islands/science.webp",
+      "sha256": "eae0b14cc6a7b7c9b187eddca943e3f99552a2305c3cfc648c65720f8818b151",
+      "bytes": 151494
+    },
+    {
+      "path": "assets/islands/story.svg",
+      "sha256": "b507645806efcd188ab55fda4e870bb8dfd86c4e70114d88b49f47a85de8f02d",
+      "bytes": 4827
+    },
+    {
+      "path": "assets/islands/story.webp",
+      "sha256": "1b580a4a6cb0d201a02c82f59a1cf899aa82157505e64c6004e8c2d0e95443d7",
+      "bytes": 132858
+    },
+    {
+      "path": "assets/mark.svg",
+      "sha256": "af65cba2a08bd25c76c9e170f2f792b59bd847649d73c842324ea78b7bf0a4b2",
+      "bytes": 439
+    },
+    {
+      "path": "assets/sample-1.png",
+      "sha256": "5f044f3f93a7294700361517e1d83cee367dad98e36f4ae55a5e92ca3458c3f6",
+      "bytes": 132
+    },
+    {
+      "path": "assets/sample-2.png",
+      "sha256": "9e828bfe745099c6c7fa5367a489b72ff61bce3b8167ef815aa5856eb7d99270",
+      "bytes": 132
+    },
+    {
+      "path": "assets/sample-3.png",
+      "sha256": "ae5307b096382c068887f1208d25794a455617e8c71bd3f41c614f1bd159a26e",
+      "bytes": 132
+    },
+    {
+      "path": "assets/sample-4.png",
+      "sha256": "f2f789213bdfa2713c0be39a2dc98aadcaa84644355f00bf21f13388611d22c1",
+      "bytes": 133
+    },
+    {
+      "path": "assets/sample-5.png",
+      "sha256": "5668b252c5370bb65d85e219e426c385c0e4260c7a2bd6095150436639d87e7d",
+      "bytes": 133
+    }
+  ]
+}

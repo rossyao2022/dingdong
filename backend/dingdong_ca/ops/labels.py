@@ -24,6 +24,8 @@ GENDER = {
 QUESTIONNAIRE_PURPOSE = {
     "exploration": "探索体验",
     "assessment": "初始测评",
+    "interest": "六岛兴趣探索",
+    "talent": "八维日常观察",
 }
 
 CONTENT_STATUS = {
@@ -35,6 +37,7 @@ CONTENT_STATUS = {
 DATA_ORIGIN = {
     "synthetic": "测试数据",
     "live": "真实数据",
+    "reference": "原型参考内容",
 }
 
 QUESTION_TYPE = {
@@ -57,6 +60,12 @@ ACTIVITY_ISLAND = {
     "story": "故事表达",
     "nature": "自然观察",
     "imagination": "创意想象",
+    "R": "自然原始岛",
+    "I": "深思冥想岛",
+    "A": "美丽浪漫岛",
+    "S": "温暖友善岛",
+    "E": "显赫富庶岛",
+    "C": "现代井然岛",
 }
 
 ACTIVITY_MOOD = {
@@ -247,6 +256,8 @@ ERROR_ACTION = {
 }
 
 AUDIT_ACTION = {
+    "prototype_content.import": "导入原型内容草稿",
+    "prototype_content.publish": "发布原型内容版本",
     "prototype_demo.prepare_report": "准备会展报告体验",
     # 运营后台自己的动作
     "content.publish": "发布内容版本",

@@ -1,0 +1,185 @@
+
+Running 23 tests using 1 worker
+
+  ✓   1 tests/ca-account.spec.js:55:1 › NFC 承接：凭据不在地址栏留下，新号如实显示待接通 (1.9s)
+  ✓   2 tests/ca-account.spec.js:91:1 › 同一台机器人再次绑定复用同一个号，不换号 (2.4s)
+  ✓   3 tests/ca-account.spec.js:103:1 › 换机：确认弹窗讲清代价，旧号归档可查，新号重新开始 (2.8s)
+  ✓   4 tests/ca-account.spec.js:145:1 › 绑定成功后停在账户页并高亮新号，标签不带路由也不跳回探索页 (2.5s)
+  ✓   5 tests/ca-account.spec.js:189:1 › 新会话从标签进来：登录建档案后绑定，同样落在账户页 (2.3s)
+  ✓   6 tests/ca-account.spec.js:211:1 › 手填绑定：空凭据就地提示，对话框不关 (3.8s)
+  ✓   7 tests/ca-account.spec.js:251:1 › 绑定落点截图：桌面与 390×844 (3.3s)
+  ✓   8 tests/ca-account.spec.js:283:1 › 窄屏下账户号不撑破页面 (2.4s)
+  ✓   9 tests/exhibition-recovery.spec.js:6:1 › 发码后冷却，刷新与登录退出后仍保留剩余时间 (1.3s)
+  ✓  10 tests/exhibition-recovery.spec.js:30:1 › 标签进入后刷新，提示重碰且不存凭据；重新碰标签仍能继续 (2.5s)
+  ✓  11 tests/login-validation.spec.js:14:1 › 空手机号点「获取验证码」：中文提示，且不发请求 (1.2s)
+  ✓  12 tests/login-validation.spec.js:27:1 › 空手机号在 390×844 窄屏同样给中文提示 (1.2s)
+  ✓  13 tests/login-validation.spec.js:35:1 › 格式不合法的手机号：界面提示是中文，不含内部 repr (1.2s)
+  ✓  14 tests/login-validation.spec.js:45:1 › 填了合法手机号仍能拿到验证码并登录（回归） (1.3s)
+  ✓  15 tests/mobile-layout.spec.js:52:1 › 登录验证码控件在手机、平板与桌面宽度下对齐且互不遮挡 (580ms)
+  ✓  16 tests/mobile-layout.spec.js:86:1 › 首次建档和无儿童账户页跨屏宽不溢出 (624ms)
+  ✘  17 tests/mobile-layout.spec.js:115:1 › 窄屏切换页面回到页首，帮助入口按钮保持一致 (5.4s)
+  ✘  18 tests/mobile-layout.spec.js:154:1 › 320px 今日陪伴页标题和机器人插画各有空间 (5.4s)
+  ✘  19 tests/mobile-layout.spec.js:167:1 › 活动和测评详情在手机、平板、桌面可读可操作 (5.4s)
+  ✘  20 tests/mobile-layout.spec.js:226:1 › 报告详情在多档宽度可读（合成视觉样例） (5.5s)
+  ✘  21 tests/mobile-layout.spec.js:265:1 › 手机登录、主要页面、底部导航与表单的布局保持清楚 (5.5s)
+  ✓  22 tests/parent-facing-copy.spec.js:14:1 › 家长在建档页可直接退出 (1.4s)
+  ✓  23 tests/parent-facing-copy.spec.js:24:1 › 家长页面不显示内部说明，手机上也能退出 (2.7s)
+
+
+  1) tests/mobile-layout.spec.js:115:1 › 窄屏切换页面回到页首，帮助入口按钮保持一致 ─────────────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: '发现兴趣，认识独特的你。' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: '发现兴趣，认识独特的你。' }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: '发现兴趣，认识独特的你。' })
+
+
+      46 |   await expect(
+      47 |     page.getByRole("heading", { name: "发现兴趣，认识独特的你。" }),
+    > 48 |   ).toBeVisible();
+         |     ^
+      49 |   return childId;
+      50 | }
+      51 |
+        at createParentAndChild (/Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/mobile-layout.spec.js:48:5)
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/mobile-layout.spec.js:119:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../.trellis/.runtime/prototype-integration/regression/mobile-layout-窄屏切换页面回到页首，帮助入口按钮保持一致/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../.trellis/.runtime/prototype-integration/regression/mobile-layout-窄屏切换页面回到页首，帮助入口按钮保持一致/error-context.md
+
+  2) tests/mobile-layout.spec.js:154:1 › 320px 今日陪伴页标题和机器人插画各有空间 ───────────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: '发现兴趣，认识独特的你。' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: '发现兴趣，认识独特的你。' }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: '发现兴趣，认识独特的你。' })
+
+
+      46 |   await expect(
+      47 |     page.getByRole("heading", { name: "发现兴趣，认识独特的你。" }),
+    > 48 |   ).toBeVisible();
+         |     ^
+      49 |   return childId;
+      50 | }
+      51 |
+        at createParentAndChild (/Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/mobile-layout.spec.js:48:5)
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/mobile-layout.spec.js:158:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../.trellis/.runtime/prototype-integration/regression/mobile-layout-320px-今日陪伴页标题和机器人插画各有空间/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../.trellis/.runtime/prototype-integration/regression/mobile-layout-320px-今日陪伴页标题和机器人插画各有空间/error-context.md
+
+  3) tests/mobile-layout.spec.js:167:1 › 活动和测评详情在手机、平板、桌面可读可操作 ─────────────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: '发现兴趣，认识独特的你。' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: '发现兴趣，认识独特的你。' }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: '发现兴趣，认识独特的你。' })
+
+
+      46 |   await expect(
+      47 |     page.getByRole("heading", { name: "发现兴趣，认识独特的你。" }),
+    > 48 |   ).toBeVisible();
+         |     ^
+      49 |   return childId;
+      50 | }
+      51 |
+        at createParentAndChild (/Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/mobile-layout.spec.js:48:5)
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/mobile-layout.spec.js:173:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../.trellis/.runtime/prototype-integration/regression/mobile-layout-活动和测评详情在手机、平板、桌面可读可操作/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../.trellis/.runtime/prototype-integration/regression/mobile-layout-活动和测评详情在手机、平板、桌面可读可操作/error-context.md
+
+  4) tests/mobile-layout.spec.js:226:1 › 报告详情在多档宽度可读（合成视觉样例） ───────────────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: '发现兴趣，认识独特的你。' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: '发现兴趣，认识独特的你。' }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: '发现兴趣，认识独特的你。' })
+
+
+      46 |   await expect(
+      47 |     page.getByRole("heading", { name: "发现兴趣，认识独特的你。" }),
+    > 48 |   ).toBeVisible();
+         |     ^
+      49 |   return childId;
+      50 | }
+      51 |
+        at createParentAndChild (/Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/mobile-layout.spec.js:48:5)
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/mobile-layout.spec.js:230:19
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../.trellis/.runtime/prototype-integration/regression/mobile-layout-报告详情在多档宽度可读（合成视觉样例）/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../.trellis/.runtime/prototype-integration/regression/mobile-layout-报告详情在多档宽度可读（合成视觉样例）/error-context.md
+
+  5) tests/mobile-layout.spec.js:265:1 › 手机登录、主要页面、底部导航与表单的布局保持清楚 ──────────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: '发现兴趣，认识独特的你。' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: '发现兴趣，认识独特的你。' }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: '发现兴趣，认识独特的你。' })
+
+
+      46 |   await expect(
+      47 |     page.getByRole("heading", { name: "发现兴趣，认识独特的你。" }),
+    > 48 |   ).toBeVisible();
+         |     ^
+      49 |   return childId;
+      50 | }
+      51 |
+        at createParentAndChild (/Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/mobile-layout.spec.js:48:5)
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/mobile-layout.spec.js:283:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../.trellis/.runtime/prototype-integration/regression/mobile-layout-手机登录、主要页面、底部导航与表单的布局保持清楚/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../.trellis/.runtime/prototype-integration/regression/mobile-layout-手机登录、主要页面、底部导航与表单的布局保持清楚/error-context.md
+
+  5 failed
+    tests/mobile-layout.spec.js:115:1 › 窄屏切换页面回到页首，帮助入口按钮保持一致 ──────────────────────────────────────
+    tests/mobile-layout.spec.js:154:1 › 320px 今日陪伴页标题和机器人插画各有空间 ────────────────────────────────────
+    tests/mobile-layout.spec.js:167:1 › 活动和测评详情在手机、平板、桌面可读可操作 ──────────────────────────────────────
+    tests/mobile-layout.spec.js:226:1 › 报告详情在多档宽度可读（合成视觉样例） ────────────────────────────────────────
+    tests/mobile-layout.spec.js:265:1 › 手机登录、主要页面、底部导航与表单的布局保持清楚 ───────────────────────────────────
+  18 passed (1.1m)

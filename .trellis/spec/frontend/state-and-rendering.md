@@ -43,7 +43,7 @@
 - 跳转用 `to(route)`：同 hash 直接 `render()`，否则改 `location.hash` 让 `hashchange` 触发渲染。未知 route 落到“没有找到这个页面”的空态。
 - 切儿童用 `#child-select` 的 `onchange`：清 `state.session` / `state.record` / `state.question` / `state.island`、`keys.clear()`、存导航提示，然后回到 `#explore`。
 - 页面内锚点（如兴趣岛“测评与报告”入口）是普通 `<a href="#…">`。
-- 路由状态只放 hash，**不要**引入 history API 的中间状态；唯一的 `history.replaceState` 用途是摘掉 NFC 凭据（见 `api-conventions.md`）。
+- 路由状态只放 hash，不引入 history API 的隐藏中间状态。`history.replaceState` 仅用于摘掉 NFC 凭据（见 `api-conventions.md`），以及从历史探索结果成功建立新答卷后，将同用途的 `#interest/<旧ID>` / `#talents/<旧ID>` 同步为新答卷ID。后一操作必须在真实会话响应、身份/儿童/路由上下文检查及模块接纳状态之后执行，不触发 `hashchange` 或关闭刚打开的题目；刷新读取新答卷，旧答卷仍可按原地址回看。
 
 ## 生命周期与跨标签页
 
@@ -65,3 +65,8 @@
 - 把表单当数据源（唯一例外是冲突恢复里的 `childEditDraft()`，它刻意读输入框，因为要保留家长未保存的填写，见 `ui-conventions.md`）。
 - 加长驻 `setInterval` 轮询、或把轮询开在所有状态上。
 - 把一次性上下文（凭据、对话框里的对象）塞进 `state`：那会让 `forget()` 覆盖不全。
+## 探索适配与指纹生命周期（2026-09-30）
+
+原型模块经统一bridge.run→act，ensure/answer/complete必须等待真实API成功，核对身份+儿童+路由+探索上下文票据后再更新。答卷不进storage。`exploration-session.js`归一化服务端答案，保留合法零分；只在ensure恢复首次未答题号，单题保存不能自动跳题。
+
+`closeDialog()`调用`leaveContext({disposePage:false})`只关闭当前弹窗和编辑会话；同页指纹活动弹窗关闭后必须继续可用。真正换路由、切儿童、退出及pagehide才使用默认disposePage=true清理FingerprintLab及递增探索票据。不要把相机/Blob清理挂在所有弹窗关闭上。

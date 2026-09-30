@@ -24,10 +24,16 @@ from dingdong_ca.core.services.assessments import (
     missing_questions,
     require_authorized,
 )
+from dingdong_ca.core.services.exploration import (
+    PURPOSES,
+    compute_result,
+    selected_context,
+    session_questions,
+)
 
 from .children import owned_child
 from .common import ApiError, audit, endpoint, family_for, validate
-from .inputs import AnswersInput, AssessmentCreate
+from .inputs import AnswersInput, AssessmentCreate, ExplorationCompletion
 from .uploads import MAX_FILE, MAX_TOTAL, SLOTS, BoundedMultipartParser, validate_synthetic_input
 
 
@@ -57,9 +63,14 @@ def serialize_session(session):
         "id": str(session.pk),
         "child_id": str(session.child_id),
         "status": session.status,
+        "expires_at": session.expires_at.isoformat(),
+        "completed_at": session.completed_at.isoformat() if session.completed_at else None,
         "revision": session.revision,
         "questionnaire_version_id": str(session.questionnaire_version_id),
-        "questions": session.questionnaire_version.questions,
+        "questions": session_questions(session),
+        "selected_islands": session.input_context.get("selected_islands", []),
+        "exploration_result": session.exploration_result,
+        "scoring": session.questionnaire_version.scoring,
         "purpose": session.questionnaire_version.purpose,
         "questionnaire_code": session.questionnaire_version.code,
         "title": session.questionnaire_version.title,
@@ -91,7 +102,7 @@ def serialize_session(session):
 @endpoint(["GET"])
 def config(request):
     purpose = request.query_params.get("purpose", "assessment")
-    if purpose not in ["assessment", "exploration"]:
+    if purpose not in ["assessment", "exploration", "interest", "talent"]:
         raise ApiError("VALIDATION_ERROR", 422, "题库用途无效")
     published = QuestionnaireVersion.objects.filter(status="published").order_by(
         "-published_at", "-id"
@@ -107,15 +118,25 @@ def config(request):
         q = get_object_or_404(published, pk=ident, purpose=purpose)
     else:
         q = published.filter(
-            code="exploration" if purpose == "exploration" else "initial-assessment",
+            code={
+                "exploration": "exploration",
+                "assessment": "initial-assessment",
+                "interest": "prototype-interest",
+                "talent": "prototype-talent",
+            }[purpose],
             purpose=purpose,
         ).first()
         if q is None:
             q = published.filter(purpose=purpose).first()
     ready = bool(
         q
-        and q.data_origin == "synthetic"
-        and settings.INTEGRATION_DATA_SOURCE == "database_fixture"
+        and (
+            (q.purpose in PURPOSES and q.data_origin == "reference")
+            or (
+                q.data_origin == "synthetic"
+                and settings.INTEGRATION_DATA_SOURCE == "database_fixture"
+            )
+        )
     )
     return Response(
         {
@@ -135,13 +156,16 @@ def config(request):
             "reason": None if ready else "integration_not_ready",
             "questionnaire_version_id": str(q.pk) if q else None,
             "questions": q.questions if q else [],
+            "scoring": q.scoring if q else {},
             "purpose": purpose,
             "title": q.title if q else "",
             "description": q.description if q else "",
             "version": q.version if q else "",
             "input_requirements": {
-                "collection_mode": "synthetic_only" if ready else "disabled",
-                "slots": [] if purpose == "exploration" else SLOTS,
+                "collection_mode": ("none" if purpose in PURPOSES else "synthetic_only")
+                if ready
+                else "disabled",
+                "slots": SLOTS if purpose == "assessment" else [],
                 "mime_types": ["image/png"],
                 "max_file_bytes": MAX_FILE,
                 "max_total_bytes": MAX_TOTAL,
@@ -158,12 +182,23 @@ def create(request, child_id):
         from .common import paginate
 
         child = owned_child(request, child_id)
+        rows = AssessmentSession.objects.filter(child=child).order_by("-created_at", "-id")
+        purpose = request.query_params.get("purpose")
+        if purpose:
+            if purpose not in ["assessment", "exploration", "interest", "talent"]:
+                raise ApiError("VALIDATION_ERROR", 422, "题库用途无效")
+            rows = rows.filter(questionnaire_version__purpose=purpose)
         return Response(
             paginate(
-                AssessmentSession.objects.filter(child=child),
+                rows,
                 request,
                 serialize_session,
-                "assessments:" + str(child.pk),
+                "assessments:"
+                + str(child.pk)
+                + ":"
+                + (purpose or "all")
+                + (":newest" if purpose in PURPOSES else ":oldest"),
+                newest_first=purpose in PURPOSES,
             )
         )
     data = validate(AssessmentCreate, request.data)
@@ -177,6 +212,7 @@ def create(request, child_id):
                 existing.child_id != child.pk
                 or existing.consent_grant_id != data["consent_grant_id"]
                 or existing.questionnaire_version_id != data["questionnaire_version_id"]
+                or existing.input_context.get("selected_islands", []) != data["selected_islands"]
             ):
                 raise ApiError("IDEMPOTENCY_CONFLICT", 409, "创建请求不一致")
             return Response(serialize_session(existing))
@@ -188,10 +224,20 @@ def create(request, child_id):
         q = get_object_or_404(
             QuestionnaireVersion, pk=data["questionnaire_version_id"], status="published"
         )
-        if q.data_origin != "synthetic" or settings.INTEGRATION_DATA_SOURCE != "database_fixture":
+        if not (
+            (q.purpose in PURPOSES and q.data_origin == "reference")
+            or (
+                q.data_origin == "synthetic"
+                and settings.INTEGRATION_DATA_SOURCE == "database_fixture"
+            )
+        ):
             raise ApiError("INTEGRATION_NOT_READY", 503, "真实算法尚未接入")
         today = timezone.localdate()
         context = {"reference_date": today.isoformat()}
+        if q.purpose in PURPOSES:
+            context["selected_islands"] = selected_context(q, data["selected_islands"])
+        elif data["selected_islands"]:
+            raise ApiError("VALIDATION_ERROR", 422, "该题库不接受岛屿选择")
         if child.birth_date:
             context["age_months"] = (
                 (today.year - child.birth_date.year) * 12
@@ -268,18 +314,11 @@ def cancel(request, session_id):
 @endpoint(["POST"])
 def complete_exploration(request, session_id):
     owned_session(request, session_id)
-    from rest_framework import serializers
-
-    from .inputs import StrictSerializer
-
-    class CompletionInput(StrictSerializer):
-        revision = serializers.IntegerField(min_value=1)
-
-    data = validate(CompletionInput, request.data)
+    data = validate(ExplorationCompletion, request.data)
     with transaction.atomic():
         session = lock_session(session_id)
         require_authorized(session)
-        if session.questionnaire_version.purpose != "exploration":
+        if session.questionnaire_version.purpose not in ["exploration", "interest", "talent"]:
             raise ApiError("VALIDATION_ERROR", 422, "此入口仅用于探索体验")
         if data["revision"] != session.revision:
             raise ApiError("REVISION_CONFLICT", 409, "答案已更新，请刷新后确认")
@@ -289,8 +328,17 @@ def complete_exploration(request, session_id):
             raise ApiError("STATE_CONFLICT", 409, "当前体验不能提交")
         if missing_questions(session):
             raise ApiError("ANSWERS_INCOMPLETE", 422, "请完成必填题")
+        session.exploration_result = compute_result(session)
         session.status = "completed"
         session.submitted_at = session.completed_at = timezone.now()
-        session.save(update_fields=["status", "submitted_at", "completed_at", "updated_at"])
+        session.save(
+            update_fields=[
+                "status",
+                "submitted_at",
+                "completed_at",
+                "exploration_result",
+                "updated_at",
+            ]
+        )
         audit(request.user, "exploration.complete", session)
         return Response(serialize_session(session))

@@ -37,7 +37,7 @@ async function login(page) {
   await page.getByLabel("姓名或称呼").fill("文案清理儿童");
   await page.getByRole("button", { name: "保存档案", exact: true }).click();
   await expect(
-    page.getByRole("heading", { name: "好奇心，准备出发！" }),
+    page.getByRole("heading", { name: "发现兴趣，认识独特的你。" }),
   ).toBeVisible();
 }
 

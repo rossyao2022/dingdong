@@ -23,6 +23,7 @@ from rest_framework.decorators import api_view
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 
 from dingdong_ca.core.models import ActivityContentVersion, Child, Family, QuestionnaireVersion
+from dingdong_ca.core.services.prototype_content import questionnaire_payloads
 
 from . import labels as L
 from .permissions import has_permission
@@ -30,7 +31,12 @@ from .services import OpsError, json_error, json_ok, ops_audit
 
 MAX_QUESTIONS = 50
 MAX_OPTIONS = 12
-PURPOSE_RANGE = {"exploration": (1, 10), "assessment": (20, 30)}
+PURPOSE_RANGE = {
+    "exploration": (1, 10),
+    "assessment": (20, 30),
+    "interest": (18, 18),
+    "talent": (24, 24),
+}
 
 
 # --------------------------------------------------------------------------- 并发控制
@@ -367,6 +373,7 @@ def _content_payload(row):
         "purpose": row.purpose,
         "status": row.status,
         "questions": row.questions,
+        "scoring": row.scoring,
         "revision": row.revision,
         "updated_at": row.updated_at.isoformat(),
     }
@@ -473,9 +480,19 @@ def questionnaire_create(request, data):
             title=title,
             purpose=purpose,
             description=description,
-            data_origin="synthetic",
+            data_origin="reference" if purpose in ["interest", "talent"] else "synthetic",
+            scoring=next(
+                (p["scoring"] for p in questionnaire_payloads() if p["purpose"] == purpose), {}
+            ),
             schema_version="questionnaire-v1",
-            questions=[],
+            questions=next(
+                (
+                    copy.deepcopy(p["questions"])
+                    for p in questionnaire_payloads()
+                    if p["purpose"] == purpose
+                ),
+                [],
+            ),
             status="draft",
             create_request_key=key,
         )
@@ -557,6 +574,7 @@ def questionnaire_copy(request, data, version_id):
             data_origin=source.data_origin,
             schema_version=source.schema_version,
             questions=copy.deepcopy(source.questions),
+            scoring=copy.deepcopy(source.scoring),
             status="draft",
             create_request_key=key,
         )

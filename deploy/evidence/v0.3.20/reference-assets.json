@@ -1,0 +1,131 @@
+{
+  "reference_commit": "3b8723e0089b411c19c41e13e4361cb90e6b7c71",
+  "images": [
+    {
+      "file": "frontend/assets/generated/island-R-v5.webp",
+      "bytes": 172936,
+      "sha256": "1421317ff7d7cdf954c5154856541387c6531bcf02b8e7865c310af25322d4d3",
+      "matches_reference": true
+    },
+    {
+      "file": "frontend/assets/generated/island-I-v5.webp",
+      "bytes": 151494,
+      "sha256": "eae0b14cc6a7b7c9b187eddca943e3f99552a2305c3cfc648c65720f8818b151",
+      "matches_reference": true
+    },
+    {
+      "file": "frontend/assets/generated/island-A-v5.webp",
+      "bytes": 131184,
+      "sha256": "7f61c83565647b916c4ed16920356dc76b685816d31f0c0c597f30f72e0cecc1",
+      "matches_reference": true
+    },
+    {
+      "file": "frontend/assets/generated/island-S-v5.webp",
+      "bytes": 132858,
+      "sha256": "1b580a4a6cb0d201a02c82f59a1cf899aa82157505e64c6004e8c2d0e95443d7",
+      "matches_reference": true
+    },
+    {
+      "file": "frontend/assets/generated/island-E-v5.webp",
+      "bytes": 151830,
+      "sha256": "d59df9048e1a2e1b18f12c44b406918f3896c2aa4bb4ad282586f2ea6e427268",
+      "matches_reference": true
+    },
+    {
+      "file": "frontend/assets/generated/island-C-v5.webp",
+      "bytes": 142336,
+      "sha256": "9b3b1f08b33843e6885cfb4be2c079ab980eeea428dbe5362c221faaeb870d11",
+      "matches_reference": true
+    },
+    {
+      "file": "frontend/assets/fingerprints/arch.webp",
+      "bytes": 74630,
+      "sha256": "012006f0d9d93bb7739679e65047e9134fdbbe6c2d0e1b8157b8bf0a6c1ebbc0",
+      "matches_reference": true
+    },
+    {
+      "file": "frontend/assets/fingerprints/loop.webp",
+      "bytes": 58452,
+      "sha256": "518acbfe15f58e59f18f97bdb5a52e299ef2a3493440aa4d9739878390e91fad",
+      "matches_reference": true
+    },
+    {
+      "file": "frontend/assets/fingerprints/reverse.webp",
+      "bytes": 58880,
+      "sha256": "227c38d1d72973da65c9eb562f9aabf3bcea9fe98cb483a9b3c3460e60cba5c2",
+      "matches_reference": true
+    },
+    {
+      "file": "frontend/assets/fingerprints/whorl.webp",
+      "bytes": 76922,
+      "sha256": "36c2f2eb51cb4f662c9025508cae326f45905961d0871bc3d3254b3eadd39752",
+      "matches_reference": true
+    },
+    {
+      "file": "frontend/assets/dingdong/robot-front.webp",
+      "bytes": 27032,
+      "sha256": "fb9848881c87b1e480b2fd74ae2edf1aafbaf80aa17a0d4813744265e2313715",
+      "matches_reference": true
+    },
+    {
+      "file": "frontend/assets/dingdong/robot-wave.webp",
+      "bytes": 30122,
+      "sha256": "89e65a181debcef75589d50ff268fa47a6912541313f338155a8b776d5a769e2",
+      "matches_reference": true
+    },
+    {
+      "file": "frontend/assets/dingdong/companion-world.webp",
+      "bytes": 33492,
+      "sha256": "b20b2ca243348181ed6e1874c45e470fc62c72284e3d524c7bc8e1ce980f2a9c",
+      "matches_reference": true
+    },
+    {
+      "file": "frontend/assets/dingdong/fingerprint-lab.webp",
+      "bytes": 47960,
+      "sha256": "fe8eac84f35ab64d8f66dd443626c6e809159b56bc97378a1ce55b28d2901f7b",
+      "matches_reference": true
+    },
+    {
+      "file": "frontend/assets/dingdong/gift.webp",
+      "bytes": 57326,
+      "sha256": "5fb7f0f5bc14854977cd4e28a93837e909e4925c6d46944beb9e9df89ed9de3a",
+      "matches_reference": true
+    },
+    {
+      "file": "frontend/assets/dingdong/island-R.webp",
+      "bytes": 46060,
+      "sha256": "54e99c774661216ec0a6ad38e256f80cf60467d70a8ea66a6d91596aa2d3edb4",
+      "matches_reference": true
+    },
+    {
+      "file": "frontend/assets/dingdong/island-I.webp",
+      "bytes": 55368,
+      "sha256": "389f80752346c84f55f50b6167bec7a439bc22599640b1a5fbbbf7c0241c0c36",
+      "matches_reference": true
+    },
+    {
+      "file": "frontend/assets/dingdong/island-A.webp",
+      "bytes": 55192,
+      "sha256": "e99b803120c4cb82a3457a7c099b24494540c830f79380a186aa62f06313c04a",
+      "matches_reference": true
+    },
+    {
+      "file": "frontend/assets/dingdong/island-S.webp",
+      "bytes": 70168,
+      "sha256": "98e66fb1437a866d06b8e7c44d6e4f95fa956cff214ed52e71d5b20e3fade570",
+      "matches_reference": true
+    },
+    {
+      "file": "frontend/assets/dingdong/island-E.webp",
+      "bytes": 58380,
+      "sha256": "6d56ed3240f38fa0867226e0e3d520b1e2f50bc732e8a871381219f1d86a5f1b",
+      "matches_reference": true
+    },
+    {
+      "file": "frontend/assets/dingdong/island-C.webp",
+      "bytes": 52052,
+      "sha256": "30882ef4e5c94e41288713ab2b3a8f812816cea65c407e7919630f324a419202",
+      "matches_reference": true
+    }
+  ]
+}

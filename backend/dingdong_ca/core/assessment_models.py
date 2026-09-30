@@ -77,18 +77,24 @@ class QuestionnaireVersion(PublishedVersion):
     purpose = models.CharField(
         max_length=24,
         default="assessment",
-        choices=[("exploration", "探索偏好体验"), ("assessment", "正式测评流程")],
+        choices=[
+            ("exploration", "探索偏好体验"),
+            ("assessment", "正式测评流程"),
+            ("interest", "六岛兴趣探索"),
+            ("talent", "八维日常观察"),
+        ],
     )
     title = models.CharField(max_length=160, default="日常情境问卷")
     description = models.TextField(default="仅用于测试流程，非专业量表，不作能力评价。")
     schema_version = models.CharField(max_length=32, default="questionnaire-v1")
     questions = models.JSONField(default=list, blank=True)
+    scoring = models.JSONField(default=dict, blank=True)
     # 修订号：运营后台保存草稿时用它做乐观并发控制，防止旧页面静默覆盖别人的修改。
     # 系统字段：不出现在任何表单里，由接口在事务内维护。
     revision = models.PositiveBigIntegerField(default=1, editable=False)
     # 新建请求幂等键：双击或重试不会产生两份内容。
     create_request_key = models.UUIDField(null=True, blank=True, editable=False)
-    frozen_fields = ("schema_version", "questions", "purpose", "title", "description")
+    frozen_fields = ("schema_version", "questions", "purpose", "title", "description", "scoring")
 
     def __str__(self):
         return f"{self.title} · {self.version}"
@@ -135,10 +141,34 @@ class AssessmentSession(Entity):
     status = models.CharField(max_length=24, default="draft")
     answers = models.JSONField(default=dict)
     input_context = models.JSONField(default=dict)
+    exploration_result = models.JSONField(null=True, blank=True)
     revision = models.PositiveBigIntegerField(default=1)
     submitted_at = models.DateTimeField(null=True)
     completed_at = models.DateTimeField(null=True)
     expires_at = models.DateTimeField()
+
+    def save(self, *args, **kwargs):
+        old = type(self).objects.filter(pk=self.pk).first() if self.pk else None
+        if (
+            old
+            and old.status == "completed"
+            and old.questionnaire_version.purpose in ["interest", "talent"]
+        ):
+            if any(
+                getattr(old, field) != getattr(self, field)
+                for field in [
+                    "status",
+                    "answers",
+                    "input_context",
+                    "questionnaire_version_id",
+                    "exploration_result",
+                    "revision",
+                    "completed_at",
+                    "submitted_at",
+                ]
+            ):
+                raise ValidationError("已完成的探索记录不可修改；请开始新一次探索")
+        return super().save(*args, **kwargs)
 
     class Meta:
         db_table = "assessment_session"

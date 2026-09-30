@@ -30,6 +30,7 @@
 
   <div id="questionnaire-config"
        data-status="{{ row.status }}"
+       data-purpose="{{ row.purpose }}"
        data-editable="{% if can_edit %}1{% else %}0{% endif %}"
        data-revision="{{ row.revision }}"
        data-save-url="{% url 'ops:api_questionnaire_save' row.pk %}"
@@ -61,8 +62,10 @@
             <dt>系统编号</dt><dd>{{ row.code }}（自动生成，无需维护）</dd>
             <dt>版本号</dt><dd>{{ row.version }}</dd>
             <dt>用途</dt><dd>{{ row.purpose|label:"QUESTIONNAIRE_PURPOSE" }}</dd>
+            {% if row.purpose == "interest" %}<dt>计分方式</dt><dd>每题五档喜欢程度0–4分，每岛3题取平均。家长按顺序选3岛，实际作答9题。</dd>{% elif row.purpose == "talent" %}<dt>计分方式</dt><dd>每题五档符合程度1–5分，每方向3题合计3–15分。用于日常观察，不是能力评定。</dd>{% endif %}
+            {% if row.scoring %}<dt>规则版本</dt><dd>{{ row.scoring.version }}。题型、必填和五档选项数量固定，可修改题干和选项文案；发布新版本后仅影响新答卷。</dd>{% endif %}
             <dt>题目数量要求</dt>
-            <dd>{% if row.purpose == "exploration" %}1–10 题{% else %}20–30 题{% endif %}（发布时校验）</dd>
+            <dd>{% if row.purpose == "exploration" %}1–10 题{% elif row.purpose == "interest" %}18题，每岛3题，家长选3岛后作答9题{% elif row.purpose == "talent" %}24题，每个观察方向3题{% else %}20–30 题{% endif %}（发布时校验）</dd>
           </dl>
         </div>
       </section>
@@ -71,10 +74,10 @@
         <div class="card-header">
           <div>
             <h2 class="card-title">题目</h2>
-            <div class="card-subtitle">可调整顺序、题型、必填规则和选项，无需接触任何代码或 JSON。</div>
+            <div class="card-subtitle">{% if row.purpose == "interest" or row.purpose == "talent" %}可编辑题干和五档选项文案，观察方向和计分规则固定。{% else %}可调整顺序、题型、必填规则和选项，无需接触任何代码或 JSON。{% endif %}</div>
           </div>
           <div class="card-actions">
-            {% if can_edit %}
+            {% if can_edit and row.purpose != "interest" and row.purpose != "talent" %}
               <button type="button" class="btn btn-sm btn-primary" id="add-question">
                 <i class="ti ti-plus" aria-hidden="true"></i>添加题目
               </button>

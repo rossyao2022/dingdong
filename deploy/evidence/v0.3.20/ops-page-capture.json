@@ -1,0 +1,14 @@
+{
+  "environment": "local isolated fixed_code",
+  "authentication": "Django isolated test session; captcha/login not part of this page-capture evidence",
+  "captured": [
+    "ops-questionnaires",
+    "ops-interest-editor",
+    "ops-interest-preview",
+    "ops-talent-editor",
+    "ops-talent-preview",
+    "ops-child-results",
+    "ops-activities"
+  ],
+  "page_errors": []
+}

@@ -1,0 +1,49 @@
+
+Running 4 tests using 1 worker
+
+(node:41858) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/flows.spec.js:226:1 › 移动端布局、儿童切换与跨页退出 (4.2s)
+  ✘  2 tests/flows.spec.js:264:1 › 家长提交删除、后台实际处理、无儿童时查看回执 (8.8s)
+(node:42070) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 tests/flows.spec.js:340:1 › 登录后首页小岛出发与全部菜单可点击 (4.1s)
+  ✓  4 tests/flows.spec.js:434:1 › 移动端各页面、无效关联提示、资料编辑与帮助回执 (4.9s)
+
+
+  1) tests/flows.spec.js:264:1 › 家长提交删除、后台实际处理、无儿童时查看回执 ────────────────────────────────────────────
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected: "http://127.0.0.1:8017/admin/"
+    Received: "http://127.0.0.1:8017/admin/login/"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 5000ms
+        14 × locator resolved to <html dir="ltr" lang="zh-hans" data-theme="auto">…</html>
+           - unexpected value "http://127.0.0.1:8017/admin/login/"
+
+
+      309 |     await admin.locator("#id_password").fill(password);
+      310 |     await admin.locator("input[type=submit]").click();
+    > 311 |     await expect(admin).toHaveURL("http://127.0.0.1:8017/admin/");
+          |                         ^
+      312 |     const cookies = await staff.cookies();
+      313 |     const result = await staff.request.post(
+      314 |       "http://127.0.0.1:8017/api/v1/staff/data-requests/" +
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/flows.spec.js:311:25
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../.trellis/.runtime/prototype-integration/old-flows-recheck/flows-家长提交删除、后台实际处理、无儿童时查看回执/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../.trellis/.runtime/prototype-integration/old-flows-recheck/flows-家长提交删除、后台实际处理、无儿童时查看回执/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../.trellis/.runtime/prototype-integration/old-flows-recheck/flows-家长提交删除、后台实际处理、无儿童时查看回执/error-context.md
+
+  1 failed
+    tests/flows.spec.js:264:1 › 家长提交删除、后台实际处理、无儿童时查看回执 ─────────────────────────────────────────────
+  3 passed (24.3s)

@@ -104,6 +104,9 @@ class AssessmentCreate(StrictSerializer):
     request_id = serializers.UUIDField()
     questionnaire_version_id = serializers.UUIDField()
     consent_grant_id = serializers.UUIDField()
+    selected_islands = serializers.ListField(
+        child=StrictString(max_length=1), max_length=3, required=False, default=list
+    )
 
 
 class AnswerInput(StrictSerializer):
@@ -118,4 +121,8 @@ class AnswersInput(StrictSerializer):
 
 class SubmitInput(StrictSerializer):
     request_id = serializers.UUIDField()
+    revision = serializers.IntegerField(min_value=1)
+
+
+class ExplorationCompletion(StrictSerializer):
     revision = serializers.IntegerField(min_value=1)

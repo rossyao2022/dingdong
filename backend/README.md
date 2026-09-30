@@ -160,3 +160,26 @@ uv run python manage.py prepare_prototype_demo_report --apply
 ```
 
 第一条仅预检，第二条仅给 `ca_dingdong` 当前原儿童补合成输入，并记录审计。原标签不匹配、账号或儿童失效、缺少发布内容、已有不同输入时拒绝写入，不覆盖或发布题库。准备完成后仍须通过家长端同意用途、完成问卷、提交，让 Worker 生成报告。生产机执行前遵守远端写入放行门禁。
+
+
+## 六岛兴趣与八维日常观察（v0.3.20）
+
+这两项是由家长本次作答得到的日常探索记录，独立于专业算法和DingDong画像。原型内容固定来自 `upstream/main@3b8723e`，内容来源标记为 `reference`，不冒充供应商测评。
+
+- `GET /api/v1/assessment-config?purpose=interest|talent` 获取已发布题库。
+- 继续使用原有儿童答卷创建、答案保存、查询与 `complete-exploration` 接口。
+- 兴趣创建需 `selected_islands` 按先后顺序提供三个不同的 `R/I/A/S/E/C`；会话固定所选9题，选项代码为字符串 `0`–`4`。每岛3题取平均0–4，未选岛不生成分数。
+- 八维固定24题，选项代码字符串 `1`–`5`，每方向3题相加3–15。并列结果保留全部方向，不生成职业概率或能力标签。
+- 缺题、无效选项、过期或修订号冲突不完成。完成时保存固定 `exploration_result`；已完成记录、题库版本和计分规则不可原地改动。重新选择或再次探索创建新答卷。
+- 原有 `assessment` 的合成图片、数据库fixture和专业算法未接入闸门保持有效。新用途不接受提交图片。
+- 列表可按用途筛选；`interest/talent` 筛选结果按新到旧，其余原有调用保留旧到新顺序，分页游标绑定用途与顺序。
+
+本地导入只新增两份题库与十个对应活动（六岛、四个指纹指南活动），保留既有活动分类和版本：
+
+```sh
+.venv/bin/python manage.py import_prototype_content                  # 仅预览，无写入
+.venv/bin/python manage.py import_prototype_content --apply          # 创建草稿
+.venv/bin/python manage.py import_prototype_content --apply --publish # 明确发布新增版本
+```
+
+同版本内容完全一致时可重复执行；已有版本不一致或其他同标识版本时拒绝覆盖。运营通过复制新版本、编辑题干及选项文案、预览和发布维护内容；后台儿童详情可查看该次真实答案与固定分数。远端执行导入及发布属于部署写入，必须按仓库门禁先获放行。

@@ -25,7 +25,7 @@ test("家长页面不显示内部说明，手机上也能退出", async ({ page 
   await login(page);
   await page.getByLabel("姓名或称呼").fill("文案验收儿童");
   await page.getByRole("button", { name: "保存档案" }).click();
-  await expect(page.getByRole("heading", { name: "好奇心，准备出发！" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "发现兴趣，认识独特的你。" })).toBeVisible();
   await page.locator('#main a[href="#reports"]').first().click();
   await expect(page.getByRole("heading", { name: "探索偏好体验" })).toBeVisible();
   await expect(page.getByText("题目来自后台已发布的体验题库，答案按儿童档案保存。", { exact: true })).toHaveCount(0);

@@ -21,6 +21,7 @@
     list: config.dataset.listUrl,
   };
   const editable = config.dataset.editable === "1";
+  const fixedStructure = ["interest", "talent"].includes(config.dataset.purpose);
 
   function el(tag, className, text) {
     const node = document.createElement(tag);
@@ -57,6 +58,8 @@
 
     const head = el("div", "ops-editor-head");
     head.appendChild(el("span", "idx", "第 " + (index + 1) + " 题"));
+    const group = state.scoring?.groups?.[question.code];
+    if (group) head.appendChild(el("span", "badge", state.scoring.labels[group]));
 
     const typeSelect = el("select", "form-select form-select-sm w-auto");
     typeSelect.setAttribute("aria-label", "题型");
@@ -69,7 +72,7 @@
       if (question.type === pair[0]) option.selected = true;
       typeSelect.appendChild(option);
     });
-    typeSelect.disabled = !editable;
+    typeSelect.disabled = !editable || fixedStructure;
     typeSelect.addEventListener("change", function () {
       question.type = typeSelect.value;
       if (question.type === "single_choice") {
@@ -91,7 +94,7 @@
     const required = el("input", "form-check-input");
     required.type = "checkbox";
     required.checked = !!question.required;
-    required.disabled = !editable;
+    required.disabled = !editable || fixedStructure;
     required.addEventListener("change", function () {
       question.required = required.checked;
       touch();
@@ -101,7 +104,7 @@
     head.appendChild(requiredLabel);
 
     head.appendChild(el("span", "ops-editor-spacer"));
-    if (editable) {
+    if (editable && !fixedStructure) {
       head.appendChild(button("↑", "btn btn-sm btn-icon", function () {
         if (index === 0) return;
         state.questions.splice(index - 1, 0, state.questions.splice(index, 1)[0]);
@@ -156,7 +159,7 @@
         touch();
       });
       row.appendChild(input);
-      if (editable && question.options.length > 1) {
+      if (editable && !fixedStructure && question.options.length > 1) {
         row.appendChild(button("删除", "btn btn-sm", function () {
           question.options.splice(optionIndex, 1);
           if (question.max_choices > question.options.length) {
@@ -173,7 +176,7 @@
     });
     body.appendChild(optionsBox);
 
-    if (editable) {
+    if (editable && !fixedStructure) {
       const addOption = button("添加选项", "btn btn-sm", function () {
         question.options.push({ code: "O" + (question.options.length + 1), label: "" });
         if (question.type === "multiple_choice") {
@@ -279,6 +282,7 @@
   }
 
   function applyLatest(current) {
+    if (current.scoring) state.scoring = current.scoring;
     document.getElementById("q-title").value = current.title || "";
     document.getElementById("q-description").value = current.description || "";
     state.questions = JSON.parse(JSON.stringify(current.questions || []));
@@ -404,7 +408,7 @@
   }
 
   const addQuestion = document.getElementById("add-question");
-  if (addQuestion) {
+  if (addQuestion && !fixedStructure) {
     addQuestion.addEventListener("click", function () {
       state.questions.push({
         code: "Q" + (state.questions.length + 1),

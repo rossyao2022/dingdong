@@ -46,7 +46,7 @@ test("标签进入后刷新，提示重碰且不存凭据；重新碰标签仍�
   await page.getByLabel("姓名或称呼").fill("刷新恢复合成儿童");
   await page.getByRole("button", { name: "保存档案", exact: true }).click();
   await expect(
-    page.getByRole("heading", { name: "好奇心，准备出发！" }),
+    page.getByRole("heading", { name: "发现兴趣，认识独特的你。" }),
   ).toBeVisible();
   await page.goto("/#settings");
   await expect(page.locator("#main")).toContainText("请再碰一次机器人标签");

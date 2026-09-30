@@ -1,0 +1,271 @@
+/* Optional family learning guides; fingerprint shape is not a psychological assessment. */
+(() => {
+  "use strict";
+  const guides = {
+    whorl: {
+      name: "斗纹",
+      code: "W",
+      title: "认知型",
+      lead: "先理解，再出发",
+      color: "#96632e",
+      shape:
+        "中心纹路围成环形或螺旋，像一个小漩涡。先找到中心，再看周围的线条如何环绕。",
+      intro:
+        "把“为什么”变成探索的起点。先弄懂目标和原因，再用自己的方法试一试，在观察与验证中形成理解。",
+      tags: ["理解原因", "自主尝试", "验证想法"],
+      angle: [
+        [
+          "爱追问原因",
+          "遇到新事物时，会问“为什么会这样”，希望听到事情背后的解释。",
+        ],
+        ["想先想一想", "开始任务前，愿意先猜结果、说计划，或提出自己的做法。"],
+        [
+          "在意是否说得通",
+          "发现前后不一致时，会继续提问，希望把不同线索联系起来。",
+        ],
+      ],
+      learning: [
+        [
+          "先提问，再讲解",
+          "用“你猜会发生什么”引出想法，再用一个小实验解释原理。",
+        ],
+        [
+          "给选择，也给理由",
+          "提供两种安全做法，请孩子选一种，并说说选择的原因。",
+        ],
+        ["把发现说出来", "一起回顾：原来怎么想、实际看到什么、现在怎样理解。"],
+      ],
+      communication: [
+        [
+          "把要求讲清楚",
+          "说出目标与原因，例如“把工具收好，下次就能更快找到”。",
+        ],
+        ["先听完整的想法", "孩子有不同做法时，先请他解释，再商量可行的调整。"],
+        [
+          "回应具体的过程",
+          "用“你比较了两种方法”代替笼统评价，让思考过程被看见。",
+        ],
+      ],
+      prompt: "“你觉得为什么会这样？我们可以怎样验证你的猜想？”",
+      avoid: "“别问了，照着做就行。”",
+      activity: {
+        title: "一张纸的两种桥",
+        time: "10 分钟",
+        materials: "两张纸、两本书、一块小橡皮",
+        steps: [
+          "先猜一猜：平铺的纸和折过的纸，哪种更稳？",
+          "在相同间距的两本书之间搭桥，分别轻放同一块橡皮。",
+          "比较结果，画下或说出一个新发现。",
+        ],
+        observe: "留意孩子是否愿意解释猜想、对照结果，并调整最初的想法。",
+      },
+      style: "认知型引导",
+    },
+    loop: {
+      name: "正箕纹",
+      code: "L",
+      title: "模仿型",
+      lead: "看见例子，再试试看",
+      color: "#32747d",
+      shape:
+        "纹路从一侧进入，在中间回转，再从同侧离开，像一条转弯的小河。辨别方向时，需要同时对照左右手和手指朝向。",
+      intro:
+        "让一个清楚的例子，成为安心开始的台阶。看一遍、做一遍、再改一点，从熟悉步骤走向独立尝试。",
+      tags: ["示范起步", "分步练习", "独立完成"],
+      angle: [
+        [
+          "希望先看一遍",
+          "接触新任务时，会留意别人怎样做，或主动请求一个示范。",
+        ],
+        [
+          "喜欢具体的提示",
+          "相比抽象解释，更容易理解实物、图片或一步一步的说明。",
+        ],
+        [
+          "熟悉后愿意尝试",
+          "掌握基本步骤后，开始加上自己的变化，或主动重复练习。",
+        ],
+      ],
+      learning: [
+        ["一次示范一小步", "边做边说出关键动作，随后把材料交给孩子亲手操作。"],
+        ["让步骤看得见", "把任务画成三格小清单，完成一格就做一个记号。"],
+        ["慢慢减少帮助", "先一起做，再让孩子独立做；最后请他教家人做一次。"],
+      ],
+      communication: [
+        ["把指令说具体", "用“先把红色积木放在底下”，代替“你要认真一点”。"],
+        ["提前介绍新情境", "说清要去哪里、会做什么，让孩子有时间熟悉和准备。"],
+        [
+          "给自己的变化留位置",
+          "问“你想保留哪一步、改变哪一步”，鼓励在参考中形成选择。",
+        ],
+      ],
+      prompt: "“我们先看一个例子。轮到你时，你想保留什么、改变什么？”",
+      avoid: "“我都做过一遍了，你怎么还不会？”",
+      activity: {
+        title: "叮咚的小小建筑师",
+        time: "10 分钟",
+        materials: "几块积木，或可叠放的安全小纸盒",
+        steps: [
+          "家长用三块积木搭一个简单造型，慢慢展示顺序。",
+          "孩子参考着搭一次，可以随时请求再看某一步。",
+          "请孩子改变一个部分，再教家长搭出新的作品。",
+        ],
+        observe: "留意哪种提示最有帮助，以及孩子何时开始加入自己的变化。",
+      },
+      style: "模仿型引导",
+    },
+    reverse: {
+      name: "反箕纹",
+      code: "R",
+      title: "逆思型",
+      lead: "换个方向，发现新办法",
+      color: "#795598",
+      shape:
+        "同属有回转结构的箕形纹路。与正箕纹的开口方向关系，需要结合手别和手指朝向判断，不能只看照片的左右。",
+      intro:
+        "给“如果换一种呢”留出空间。用不同角度比较问题，在安全的尝试中检验想法，也练习把不同意见说清楚。",
+      tags: ["换位思考", "比较方案", "尊重分歧"],
+      angle: [
+        [
+          "常提出另一种可能",
+          "听到一个办法后，会追问“反过来呢”，或想出不同的路线。",
+        ],
+        [
+          "喜欢改变熟悉的做法",
+          "给故事换结尾、给物品想新用途，愿意尝试不一样的组合。",
+        ],
+        [
+          "愿意为想法找理由",
+          "面对不同意见，会解释自己的判断，也需要练习倾听别人的依据。",
+        ],
+      ],
+      learning: [
+        ["从结果倒推过程", "给出一个故事结尾，请孩子想出两种可能的开头。"],
+        ["把不同方案放在一起", "尝试两种办法，用同样的条件比较各自的效果。"],
+        [
+          "为试错划定边界",
+          "先约定安全范围，再自由尝试；没有成功时一起找原因。",
+        ],
+      ],
+      communication: [
+        ["先确认自己听懂了", "用“你的意思是……”复述想法，请孩子补充或纠正。"],
+        [
+          "讨论证据，不争输赢",
+          "问“我们怎样知道这个办法可行”，把分歧变成可观察的问题。",
+        ],
+        [
+          "温和地表达不同",
+          "示范“我有另一个想法，因为……”，让不同意见也能好好交流。",
+        ],
+      ],
+      prompt: "“如果换一个方向，会有什么不一样？我们试着找个证据。”",
+      avoid: "“就你想得不一样，别捣乱。”",
+      activity: {
+        title: "给故事换一条路",
+        time: "10 分钟",
+        materials: "一本熟悉的绘本，或一个大家听过的短故事",
+        steps: [
+          "选一个故事里的小难题，说说主人公原本怎样解决。",
+          "各想一种不同的办法，猜一猜后面会发生什么。",
+          "比较两种办法，轮流说明喜欢它的理由，也听听对方。",
+        ],
+        observe: "留意孩子能否提出不同方案、说出理由，并接受别人保留不同想法。",
+      },
+      style: "逆思型引导",
+    },
+    arch: {
+      name: "弧纹",
+      code: "X",
+      title: "开放型",
+      lead: "多种体验，一点点积累",
+      color: "#55723b",
+      shape:
+        "纹路从一侧升起，在中间形成弧形，再向另一侧落下，像一座小山丘。可以沿着一条纹路看看它的起伏。",
+      intro:
+        "用丰富但不过量的体验，发现愿意持续投入的事。一次从一个小目标开始，边尝试、边表达感受，再决定下一步。",
+      tags: ["多样体验", "小步积累", "发现偏好"],
+      angle: [
+        [
+          "对新体验有好奇",
+          "面对不熟悉的材料或玩法，愿意先看看、摸摸，了解它能做什么。",
+        ],
+        [
+          "需要在体验后作选择",
+          "比起提前判断喜不喜欢，更愿意试过之后再说感受。",
+        ],
+        [
+          "合适的节奏很重要",
+          "当目标明确、任务不多时，更容易投入并继续积累经验。",
+        ],
+      ],
+      learning: [
+        ["给少量清楚的选择", "一次提供两种不同活动，让孩子选择先试哪一种。"],
+        ["把目标缩小一点", "用“先找出一个不同”这样的小目标，让开始变得容易。"],
+        [
+          "留意愿意重复的活动",
+          "体验后问“还想再试吗”，为持续的兴趣安排下一次机会。",
+        ],
+      ],
+      communication: [
+        [
+          "一次说清一件事",
+          "使用简短、一致的说明，完成当前一步后再介绍下一步。",
+        ],
+        [
+          "肯定看得见的进步",
+          "指出“你今天多观察了一个细节”，让小小积累有回响。",
+        ],
+        [
+          "允许调整与暂停",
+          "孩子不感兴趣或需要休息时，可以换个玩法，或稍后再来。",
+        ],
+      ],
+      prompt: "“今天想先认识哪一种新玩法？我们从一个小步骤开始。”",
+      avoid: "“别人都选好了，你怎么还没决定？”",
+      activity: {
+        title: "两种玩法的小发现",
+        time: "10 分钟",
+        materials: "一张纸、彩笔，以及三件安全的小物品",
+        steps: [
+          "提供两个选择：画一种新图案，或给小物品分类。",
+          "让孩子先选一个玩五分钟，再决定是否体验另一个。",
+          "一起聊聊最喜欢哪一步，约好下一次想继续的玩法。",
+        ],
+        observe: "留意孩子主动选择、愿意重复的活动，以及帮助他投入的节奏。",
+      },
+      style: "开放型引导",
+    },
+  };
+  const activityCodes = {
+    whorl: "prototype-paper-bridge",
+    loop: "prototype-building",
+    reverse: "prototype-story-route",
+    arch: "prototype-two-plays",
+  };
+  function render(id) {
+    const g = guides[id];
+    if (!g) return "";
+    return `<section class="fp-guide-report" id="fp-guide-report" aria-labelledby="fp-guide-title" style="--guide-color:${g.color}"><div class="fp-guide-section-label"><span>03</span><div><b>我的纹路与陪伴指南</b><p>认识指尖的细节，也为日常互动找到一个新起点。</p></div></div><nav class="fp-guide-switcher" aria-label="切换纹路说明">${Object.entries(
+      guides,
+    )
+      .map(
+        ([key, v]) =>
+          `<button data-fp-action="pattern" data-fp-guide-pattern="${key}" aria-pressed="${key === id}">${v.name}</button>`,
+      )
+      .join(
+        "",
+      )}</nav><header class="fp-guide-header"><img src="assets/fingerprints/${id}.webp" alt="${g.name}纹路示意图" width="112" height="112"><div><span class="fp-manual-label">纹路观察 · ${g.name}</span><h2 id="fp-guide-title">${g.title}引导 <b>${g.code}</b></h2><p>${g.lead}</p><div class="fp-guide-tags">${g.tags.map((t) => `<span>${t}</span>`).join("")}</div></div><span class="fp-guide-stamp">一起<br>发现</span></header><div class="fp-guide-shape"><b>纹路识别</b><p>${g.shape}</p></div><div class="fp-guide-intro"><h3>从一种舒服的方式，开始陪伴。</h3><p>${g.intro}</p><small>先看看这些情境是否贴近孩子最近的表现，再选择适合的建议。</small></div><div class="fp-guide-columns">${[
+      ["01", "看见日常表现", "从具体的小事开始观察", g.angle],
+      ["02", "让学习更容易", "把建议变成清楚的步骤", g.learning],
+      ["03", "把话说进心里", "让孩子愿意继续表达", g.communication],
+    ]
+      .map(
+        ([n, title, sub, items]) =>
+          `<article><header><span>${n}</span><div><h3>${title}</h3><p>${sub}</p></div></header><ul>${items.map(([t, d]) => `<li><b>${t}</b><p>${d}</p></li>`).join("")}</ul></article>`,
+      )
+      .join(
+        "",
+      )}</div><section class="fp-guide-activity" aria-labelledby="fp-activity-title"><div class="fp-activity-heading"><span>一起试一试</span><h3 id="fp-activity-title">${g.activity.title}</h3><b>约 ${g.activity.time}</b></div><p class="fp-activity-materials">准备：${g.activity.materials}</p><ol>${g.activity.steps.map((s, i) => `<li><span>${i + 1}</span><p>${s}</p></li>`).join("")}</ol><p class="fp-activity-observe"><b>家长观察小提示</b>${g.activity.observe}</p><div class="actions"><button type="button" class="button" data-action="exploration-guide-task" data-code="${activityCodes[id]}">开始这个小行动 →</button></div></section><div class="fp-guide-dialogue"><img src="assets/dingdong/robot-wave.webp" alt="DingDong" width="90" height="90"><div><span>换一种说法，开启一次好对话</span><blockquote>${g.prompt}</blockquote><p class="fp-dialogue-avoid">少一点催促：${g.avoid}</p></div></div><div class="fp-guide-next"><div><b>让 DingDong 陪你一起试</b><p>进入“我的 DingDong”，选择孩子喜欢的陪伴方式，从一个小行动开始。</p></div><a class="button" href="#companion">选择伙伴引导 →</a></div><p class="fp-guide-footnote">使用说明：指纹仅用于形态观察，不能据此判断能力、性格或职业。上述引导方式可自由选择，以孩子的实际表现与感受为准。</p></section>`;
+  }
+  window.FingerprintGuide = { guides, render };
+})();

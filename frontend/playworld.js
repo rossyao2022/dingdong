@@ -1,92 +1,33 @@
 (() => {
   "use strict";
-  const islands = [
-    {
-      id: "science",
-      name: "科学发现岛",
-      en: "SCIENCE",
-      task: "paper-bridge",
-      tag: "给好奇一个答案",
-      desc: "一张纸，也能搭起一座桥？带上你的小猜想，去实验室试一试。",
-      time: "3 分钟",
-      color: "#e6a467",
-      mark: "01",
-    },
-    {
-      id: "story",
-      name: "故事表达岛",
-      en: "STORY",
-      task: "cloud-story",
-      tag: "让想象开口说话",
-      desc: "如果云朵也要上班，它会做什么？把你脑袋里的故事，说给伙伴听。",
-      time: "3 分钟",
-      color: "#b795d5",
-      mark: "02",
-    },
-    {
-      id: "nature",
-      name: "自然观察岛",
-      en: "NATURE",
-      task: "leaf-look",
-      tag: "收藏世界的小细节",
-      desc: "一片叶子里，藏着多少小秘密？放慢一点，让眼睛带我们去发现。",
-      time: "2 分钟",
-      color: "#79ad75",
-      mark: "03",
-    },
-    {
-      id: "imagination",
-      name: "创意想象岛",
-      en: "IMAGINATION",
-      task: "new-use",
-      tag: "让不可能变成可能",
-      desc: "一把勺子，还能有什么新工作？这里欢迎每一个天马行空的主意。",
-      time: "2 分钟",
-      color: "#e79582",
-      mark: "04",
-    },
-  ];
-  let selected = null;
-  let bridge = {};
   let revealTimer = null;
-  const arrow =
-    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-5-5 5 5-5 5"/></svg>';
-  const spark =
-    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 3 7 7 3-7 3-3 7-3-7-7-3 7-3Z"/></svg>';
-  const fp =
-    '<svg viewBox="0 0 80 90" aria-hidden="true"><path d="M13 43C13 4 68 5 68 43m-48 4C19 14 61 15 61 44c0 19-2 27-9 36M26 51C21 24 54 23 54 43c0 21-3 30-8 34M32 55c-9-29 18-30 16-9 0 17-2 22-6 29M37 58c-6-19 5-22 5-12 0 19-7 23-8 34M24 59c2 10 4 11 1 19M15 56l4 14M68 52c1 10-1 16-4 22"/></svg>';
+  const arrow = '<span aria-hidden="true">→</span>';
   function render() {
-    return `<div class="wonder-heading"><div><span class="wonder-eyebrow">THE LITTLE WORLD OF BIG POSSIBILITIES</span><h1>好奇心，准备出发！<span class="heading-spark">${spark}</span></h1><p>和 DingDong 一起，去看看你还没发现的自己。</p></div><div class="explore-header-links"><a class="fingerprint-shortcut" href="#reports">${fp}<span>测评与报告</span>${arrow}</a><a class="explorer-pass" href="#journey"><span class="passport-icon">${spark}</span><span><small>我的探索手账</small><b>每个发现都值得收藏</b></span>${arrow}</a></div></div>
- <section class="adventure-world ${selected ? "has-selection" : ""}" id="interest-map" data-selected="${selected?.id || ""}" aria-label="选择兴趣岛冒险地图">
-  <div class="sky-cloud cloud-one"></div><div class="sky-cloud cloud-two"></div><div class="sky-cloud cloud-three"></div><span class="map-sun" aria-hidden="true"><i></i><b></b></span>
-  <div class="world-intro"><div><span class="map-label"><i></i> 兴趣岛 · 探索地图</span><h2>下一站，<span>你的热爱。</span></h2><p>点一点小岛，看看今天有什么新奇的冒险。</p></div><div class="world-guide"><span>别担心，我会陪你一起！</span><img src="assets/dingdong/robot-wave.webp" alt="DingDong 正在等你出发"></div></div>
-  <div class="island-ocean"><svg class="map-path" viewBox="0 0 1100 320" preserveAspectRatio="none" aria-hidden="true"><path d="M110 120C170 300 360 295 405 150S630 0 695 135s210 175 285-45" fill="none" stroke="white" stroke-width="3" stroke-dasharray="4 12" stroke-linecap="round"/><path d="M20 220q40-20 80 0m320 65q35-15 65 0m520-65q35-15 65 0" fill="none" stroke="#83cac7" stroke-width="2" opacity=".6"/></svg>
-   <span class="ocean-ripple ripple-one"></span><span class="ocean-ripple ripple-two"></span><span class="paper-boat" aria-hidden="true"><i></i></span>
-   <div class="floating-islands">${islands.map((island) => `<button class="island-stop ${selected?.id === island.id ? "is-chosen" : ""}" data-world-action="select-island" data-world-id="${island.id}" aria-pressed="${selected?.id === island.id}" style="--island-color:${island.color}"><span class="island-selected-flag">${spark}就去这里！</span><span class="island-halo"></span><img src="assets/islands/${island.id}.webp" alt="${island.name}的浮空小世界" draggable="false"><span class="island-title"><small>${island.en}</small><b>${island.name}</b><span>${island.tag}</span></span></button>`).join("")}</div>
-  </div>
-  <div class="world-dock" id="world-dock" aria-live="polite">${dock()}</div><span class="map-coordinate" aria-hidden="true">DINGDONG EXPLORER CLUB · EST. 2026</span>
- </section>
-`;
+    return (
+      window.IslandExplorer.render() +
+      talentSection() +
+      `<section class="discovery-portals" aria-label="更多天赋探索入口"><div class="portal-section-heading"><h2>把发现，带进每一天</h2><span>观察与行动 · 两种轻松的开始</span></div><div class="portal-grid portal-grid-two">
+
+ <a class="discovery-portal fingerprint-portal" href="#fingerprint"><div class="portal-art"><img class="portal-fingerprint" src="assets/fingerprints/whorl.webp" alt="斗纹示意图" loading="lazy"><span class="portal-sticker">03 · 纹路与陪伴</span></div><div class="portal-copy"><span class="portal-kicker">TINY LINES, BIG WONDER</span><h3>指纹小宇宙</h3><p>认识四种纹路，找到清楚的学习建议、沟通示例和亲子小行动。</p><span class="portal-go">打开指纹探索 →</span></div></a>
+ <button class="discovery-portal gift-portal" data-action="blindbox"><div class="portal-art"><img class="portal-supplied-art" src="assets/dingdong/gift.webp" alt="DingDong 和惊喜礼盒" loading="lazy"><span class="portal-sticker">04 · 今日小行动</span></div><div class="portal-copy"><span class="portal-kicker">A SURPRISE JUST FOR YOU</span><h3>灵感惊喜盲盒</h3><p>把一个意想不到的小行动，装进今天的生活。</p><span class="portal-go">拆开看看 →</span></div></button>
+ </div></section><div class="explore-kind-note"><img src="assets/dingdong/robot-front.webp" alt=""><p>兴趣可以不止一种，答案也可以慢慢改变。<b>跟着好奇心走，就很好。</b></p></div>`
+    );
   }
-  function dock() {
-    if (!selected)
-      return `<div class="dock-marker">${spark}</div><div class="dock-copy"><span>READY WHEN YOU ARE</span><h3>选一座小岛，给好奇心一个方向。</h3><p>科学、故事、自然、创意……今天想试哪一种？</p></div><button class="button adventure-button" disabled>先点一点小岛 ${arrow}</button>`;
-    return `<div class="dock-marker chosen" style="--island-color:${selected.color}"><img src="assets/islands/${selected.id}.webp" alt=""></div><div class="dock-copy"><span>目的地已选好 · ${selected.time}的小冒险</span><h3>${selected.name}，我们来啦！</h3><p>${selected.desc}</p></div><button class="button adventure-button" data-world-action="depart">坐上小船，出发！${arrow}</button>`;
+  function talentSection() {
+    return `<section class="talent-module" aria-label="八大天赋优势模块"><div class="module-heading" style="--module:#765492"><b>02</b><div><h2>八大天赋优势 · 我有哪些表现</h2><p>从真实生活中的 24 个细节，了解语言、音乐、逻辑等八个维度。</p></div><span>24 题 · 约 5–8 分钟</span></div>${window.TalentExplorer.summary()}<div class="talent-dimension-chips">${window.TalentData.dimensions.map((d) => `<span><i aria-hidden="true">${d.icon}</i>${d.name}</span>`).join("")}</div><p class="module-outcome"><b>完成后可以看到</b>八维雷达 · 每项表现解读 · 适合本周尝试的小活动</p></section>`;
   }
-  function select(id) {
-    selected = islands.find((i) => i.id === id);
-    if (!selected) return;
-    const world = document.querySelector(".adventure-world");
-    if (!world) return;
-    world.classList.add("has-selection");
-    world.dataset.selected = id;
-    world.querySelectorAll(".island-stop").forEach((el) => {
-      const chosen = el.dataset.worldId === id;
-      el.classList.toggle("is-chosen", chosen);
-      el.setAttribute("aria-pressed", String(chosen));
-    });
-    document.querySelector("#world-dock").innerHTML = dock();
-  }
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-module-scroll]");
+    if (b)
+      document
+        .getElementById(b.dataset.moduleScroll)
+        ?.scrollIntoView({
+          behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
+            ? "auto"
+            : "smooth",
+          block: "start",
+        });
+  });
   function gift(large = true) {
     return `<div class="toy-gift ${large ? "large" : ""}"><span class="gift-glow"></span><span class="gift-box"><i></i><b></b></span><span class="gift-lid"><i></i><b></b><em></em></span><span class="gift-star star-a">✦</span><span class="gift-star star-b">✧</span><span class="gift-star star-c">✦</span></div>`;
   }
@@ -125,38 +66,18 @@
     document.body.append(layer);
     setTimeout(() => layer.remove(), 1800);
   }
-  document.addEventListener("click", (event) => {
-    const el = event.target.closest("[data-world-action]");
-    if (!el) return;
-    if (el.dataset.worldAction === "select-island") select(el.dataset.worldId);
-    if (el.dataset.worldAction === "depart" && selected) {
-      bridge.island?.(selected.id);
-      burst();
-    }
-  });
   window.PlayWorld = {
     render,
     mount() {},
     bind(callbacks) {
-      bridge = callbacks;
+      window.IslandExplorer.bind(callbacks);
+      window.TalentExplorer.bind(callbacks);
     },
     giftBody,
     openGift,
     burst,
     goToIslands() {
-      if (location.hash !== "#explore") {
-        location.hash = "explore";
-        setTimeout(
-          () =>
-            document
-              .querySelector("#interest-map")
-              ?.scrollIntoView({ behavior: "smooth", block: "start" }),
-          100,
-        );
-      } else
-        document
-          .querySelector("#interest-map")
-          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      window.IslandExplorer.goToIslands();
     },
   };
 })();

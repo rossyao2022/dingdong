@@ -24,6 +24,19 @@ const files = new Set([
   "reassessment.js",
   "ui-components.js",
   "playworld.js",
+  "talent-data.js",
+  "talent-explorer.js",
+  "career-data.js",
+  "career-explorer.js",
+  "riasec.js",
+  "island-explorer.js",
+  "fingerprint-guide.js",
+  "fingerprint.js",
+  "fingerprint.css",
+  "exploration-v4.css",
+  "talents.css",
+  "readability.css",
+  "exploration-session.js",
 ]);
 http
   .createServer((req, res) => {
@@ -45,7 +58,10 @@ http
           localAddress: process.env.E2E_PROXY_SOURCE_IP || undefined,
           path: req.url,
           method: req.method,
-          headers: { ...req.headers, host: `127.0.0.1:${process.env.BACKEND_PORT || 8017}` },
+          headers: {
+            ...req.headers,
+            host: `127.0.0.1:${process.env.BACKEND_PORT || 8017}`,
+          },
         },
         (response) => {
           res.writeHead(response.statusCode, response.headers);
@@ -73,7 +89,9 @@ http
     const name = pathname === "/" ? "index.html" : pathname.slice(1);
     if (
       !files.has(name) &&
-      !/^assets\/(?:(?:islands|dingdong)\/)?[a-z0-9_-]+\.(svg|png|webp)$/.test(name)
+      !/^assets\/(?:(?:islands|dingdong|generated|fingerprints)\/)?[a-zA-Z0-9_-]+\.(svg|png|webp)$/.test(
+        name,
+      )
     ) {
       res.writeHead(404).end();
       return;
@@ -93,5 +111,7 @@ http
     });
   })
   .listen(Number(process.env.PORT || 4173), "127.0.0.1", () =>
-    console.log(`DingDong 家长端：http://127.0.0.1:${process.env.PORT || 4173}`),
+    console.log(
+      `DingDong 家长端：http://127.0.0.1:${process.env.PORT || 4173}`,
+    ),
   );

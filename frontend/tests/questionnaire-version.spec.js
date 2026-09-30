@@ -100,7 +100,7 @@ test("家长端答题页不显示题库版本或内部 code", async ({
     await page.getByLabel("姓名或称呼").fill("版本文案合成儿童");
     await page.getByRole("button", { name: "保存档案", exact: true }).click();
     await expect(
-      page.getByRole("heading", { name: "好奇心，准备出发！" }),
+      page.getByRole("heading", { name: "发现兴趣，认识独特的你。" }),
     ).toBeVisible();
 
     await page

@@ -149,7 +149,8 @@ class ActivityContentVersion(Entity):
                 name="activity_content_status",
             ),
             models.CheckConstraint(
-                condition=Q(data_origin__in=["synthetic", "live"]), name="activity_origin"
+                condition=Q(data_origin__in=["synthetic", "live", "reference"]),
+                name="activity_origin",
             ),
             models.CheckConstraint(
                 condition=Q(duration_minutes__gt=0), name="activity_duration_positive"

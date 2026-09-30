@@ -18,7 +18,18 @@ async function noHorizontalOverflow(page) {
 
 async function noBrokenImages(page) {
   const broken = await page.locator("#main img").evaluateAll(async (images) => {
-    await Promise.all(images.map((image) => image.decode().catch(() => {})));
+    // Trigger off-screen lazy assets before verifying every page image.
+    images.forEach((image) => {
+      image.loading = "eager";
+    });
+    await Promise.all(
+      images.map((image) =>
+        Promise.race([
+          image.decode().catch(() => {}),
+          new Promise((resolve) => setTimeout(resolve, 5000)),
+        ]),
+      ),
+    );
     return images
       .filter((image) => image.naturalWidth === 0)
       .map((image) => image.getAttribute("src"));
@@ -44,7 +55,7 @@ async function createParentAndChild(page) {
   await page.getByRole("button", { name: "保存档案", exact: true }).click();
   const childId = (await (await created).json()).id;
   await expect(
-    page.getByRole("heading", { name: "好奇心，准备出发！" }),
+    page.getByRole("heading", { name: "发现兴趣，认识独特的你。" }),
   ).toBeVisible();
   return childId;
 }

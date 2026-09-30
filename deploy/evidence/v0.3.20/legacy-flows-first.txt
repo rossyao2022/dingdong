@@ -1,0 +1,146 @@
+
+Running 8 tests using 1 worker
+
+(node:38933) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/flows.spec.js:119:1 › 真实登录、活动完成、刷新恢复、退出清理 (5.9s)
+
+  ✓  2 tests/flows.spec.js:151:1 › 用途授权、22题、合成输入、真实初始报告 (29.6s)
+
+  ✓  3 tests/flows.spec.js:193:1 › 机器人关联、阶段报告、撤回同步授权 (6.3s)
+  ✘  4 tests/flows.spec.js:224:1 › 移动端布局、儿童切换与跨页退出 (7.6s)
+(node:39780) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  5 tests/flows.spec.js:264:1 › 家长提交删除、后台实际处理、无儿童时查看回执 (8.8s)
+(node:39887) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  6 tests/flows.spec.js:342:1 › 登录后首页小岛出发与全部菜单可点击 (1.0m)
+(node:40396) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  7 tests/flows.spec.js:369:1 › 探索四题、刷新恢复、返回修改、完成仅展示选择 (8.3s)
+  ✘  8 tests/flows.spec.js:426:1 › 移动端各页面、无效关联提示、资料编辑与帮助回执 (7.1s)
+
+
+  1) tests/flows.spec.js:224:1 › 移动端布局、儿童切换与跨页退出 ───────────────────────────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: '发现兴趣，认识独特的你。' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: '发现兴趣，认识独特的你。' }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: '发现兴趣，认识独特的你。' })
+
+
+      77 |   await expect(
+      78 |     page.getByRole("heading", { name: "发现兴趣，认识独特的你。" }),
+    > 79 |   ).toBeVisible();
+         |     ^
+      80 |   return id;
+      81 | }
+      82 | function inject(id, scenario) {
+        at child (/Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/flows.spec.js:79:5)
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/flows.spec.js:227:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../.trellis/.runtime/prototype-integration/old-flows/flows-移动端布局、儿童切换与跨页退出/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../.trellis/.runtime/prototype-integration/old-flows/flows-移动端布局、儿童切换与跨页退出/error-context.md
+
+  2) tests/flows.spec.js:264:1 › 家长提交删除、后台实际处理、无儿童时查看回执 ────────────────────────────────────────────
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected: "http://127.0.0.1:8017/admin/"
+    Received: "http://127.0.0.1:8017/admin/login/"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 5000ms
+        14 × locator resolved to <html dir="ltr" lang="zh-hans" data-theme="auto">…</html>
+           - unexpected value "http://127.0.0.1:8017/admin/login/"
+
+
+      309 |     await admin.locator("#id_password").fill(password);
+      310 |     await admin.locator("input[type=submit]").click();
+    > 311 |     await expect(admin).toHaveURL("http://127.0.0.1:8017/admin/");
+          |                         ^
+      312 |     const cookies = await staff.cookies();
+      313 |     const result = await staff.request.post(
+      314 |       "http://127.0.0.1:8017/api/v1/staff/data-requests/" +
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/flows.spec.js:311:25
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../.trellis/.runtime/prototype-integration/old-flows/flows-家长提交删除、后台实际处理、无儿童时查看回执/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../.trellis/.runtime/prototype-integration/old-flows/flows-家长提交删除、后台实际处理、无儿童时查看回执/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../.trellis/.runtime/prototype-integration/old-flows/flows-家长提交删除、后台实际处理、无儿童时查看回执/error-context.md
+
+  3) tests/flows.spec.js:342:1 › 登录后首页小岛出发与全部菜单可点击 ─────────────────────────────────────────────────
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for locator('[data-world-id="science"]')
+
+
+      345 |   for (const id of ["R", "I", "A"])
+      346 |     await page
+    > 347 |       .locator(`[data-interest-action="select"][data-id="${id}"]`)
+          |                                                   ^
+      348 |       .click();
+      349 |   await expect(page.locator('[data-interest-action="start"]')).toBeEnabled();
+      350 |   await page.locator('[data-interest-action="start"]').click();
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/flows.spec.js:347:51
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../.trellis/.runtime/prototype-integration/old-flows/flows-登录后首页小岛出发与全部菜单可点击/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../.trellis/.runtime/prototype-integration/old-flows/flows-登录后首页小岛出发与全部菜单可点击/error-context.md
+
+  4) tests/flows.spec.js:426:1 › 移动端各页面、无效关联提示、资料编辑与帮助回执 ───────────────────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: '发现兴趣，认识独特的你。' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: '发现兴趣，认识独特的你。' }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: '发现兴趣，认识独特的你。' })
+
+
+      77 |   await expect(
+      78 |     page.getByRole("heading", { name: "发现兴趣，认识独特的你。" }),
+    > 79 |   ).toBeVisible();
+         |     ^
+      80 |   return id;
+      81 | }
+      82 | function inject(id, scenario) {
+        at child (/Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/flows.spec.js:79:5)
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/flows.spec.js:429:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../.trellis/.runtime/prototype-integration/old-flows/flows-移动端各页面、无效关联提示、资料编辑与帮助回执/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../.trellis/.runtime/prototype-integration/old-flows/flows-移动端各页面、无效关联提示、资料编辑与帮助回执/error-context.md
+
+  4 failed
+    tests/flows.spec.js:224:1 › 移动端布局、儿童切换与跨页退出 ────────────────────────────────────────────────────
+    tests/flows.spec.js:264:1 › 家长提交删除、后台实际处理、无儿童时查看回执 ─────────────────────────────────────────────
+    tests/flows.spec.js:342:1 › 登录后首页小岛出发与全部菜单可点击 ──────────────────────────────────────────────────
+    tests/flows.spec.js:426:1 › 移动端各页面、无效关联提示、资料编辑与帮助回执 ────────────────────────────────────────────
+  4 passed (2.3m)

@@ -229,3 +229,15 @@ npx playwright test tests/t041-dialog-and-labels.spec.js --reporter=list      # 
 P-16 用例的判定不靠截图：先等 `#reports` 的 `growth-overview` 轮询真实发生，点「开始复测」后断言对话框打开期间又跨过一次轮询周期且 `#dialog.open` 仍为 `true`，再完成「同意并开始」进入测评。回退 `app.js` 后该用例在 `#dialog.open` 处失败（逐字输出见 `../.trellis/tasks/T-041/shots/p16-before-fix-dialog-closed.log`）。截图 10 张在 `../.trellis/tasks/T-041/shots/`。
 
 **这条用例的已知脆弱点**：它靠「观察还没同步/阶段画像还没出」这段时间里真实存在的轮询，所以断言分两段——先要求轮询确实又走了一轮（`overviewCalls` 变大），再要求对话框还开着。如果点「开始复测」之前轮询已经停了（阶段报告已生成），它会卡在前一段而不是后一段，报 `Expected: > N / Received: N` 这种与对话框无关的失败。这类失败只会假红、不会假绿（对话框没打开或已被关掉时后一段必然失败）。要彻底去掉这个时序依赖，得让「观察未就绪」在断言窗口内可控（例如改用 `not_synced` 场景），留给下一次巡检评估。
+
+## 原型完整整合 v0.3.20（2026-09-30，本地验收，发布另行记录）
+
+探索首页沿用参考 main@3b8723e 的四模块结构：六岛有序选三、九个情境与职业项目；24题八维观察；四类指纹指南；真实活动盲盒。`riasec/island-explorer`、`talent-data/talent-explorer`、`career-data/career-explorer`、`fingerprint-guide/fingerprint` 保留完整内容，CA 的 `app.js/api.js` 负责身份、儿童、授权及保存。
+
+- 两类探索使用 CA 题库与答卷 API。点击出发并同意保存后创建答卷；尚未出发的选岛是临时准备。答案不进入浏览器持久存储。刷新和重登按儿童恢复；完成后只读，重新探索保留旧记录。
+- 兴趣0–4、八维3–15由服务端实际答案计算并保存，不走专业供应商算法、不生成合成评分。后台支持新用途、版本预览发布、答卷和结果查看。题目/选项文字来自答卷绑定版本。
+- 指纹仅示例、手动选择与当前页临时预览，不上传或持久保存。关闭同页弹窗保留观察界面；真正离页、切儿童、退出、pagehide才释放图片与摄像头。
+- 新JS/CSS同步本地静态白名单和Docker COPY，generated/fingerprints路径严格允许；发布时沿用静态目录755/文件644。
+- Storybook `家长端/探索模块` 直接调用实际模块及生产CSS；故事中的样例只用于组件预览。
+
+隔离真实浏览器验收：`E2E_BASE_URL=... npx playwright test tests/prototype-integration.spec.js`。`flows.spec.js` 另可指定 `E2E_BACKEND_URL` 为同一个隔离后端地址，避免运营请求误进默认8017。测试使用本地固定码及合成图片，不发送生产短信，不拦截业务响应。

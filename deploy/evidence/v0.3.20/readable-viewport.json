@@ -1,0 +1,15 @@
+{
+  "environment": "local isolated E2E records",
+  "authentication": "existing fixed-code LoginGrant and isolated ops test session",
+  "sms_requests": 0,
+  "supplier_requests": 0,
+  "full_page": false,
+  "captured": [
+    "home-overview-390",
+    "talent-report-390",
+    "fingerprint-overview-390",
+    "ops-interest-editor-viewport",
+    "ops-child-results-viewport"
+  ],
+  "page_errors": []
+}
