@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 21
+- **Total Sessions**: 22
 - **Last Active**: 2026-09-30
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~544 | Active |
+| `journal-1.md` | ~568 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 22 | 2026-09-30 | v0.3.19 exhibition hardening and illustrated guides | `4268ebb`, `45f4ea7`, `5beb5bd` | `codex/release-v0.3.19` |
 | 21 | 2026-09-30 | Exhibition readiness code review | `ee6888b` | `codex/release-v0.3.18` |
 | 20 | 2026-09-30 | Fixed Prototype demo account prepared for NFC rebind | `dd73c5a` | `codex/release-v0.3.18` |
 | 19 | 2026-09-29 | v0.3.18 家长与运营图文指南 | `9c0e5f3`, `784b5dc` | `codex/release-v0.3.18` |

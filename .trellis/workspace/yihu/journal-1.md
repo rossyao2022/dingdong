@@ -542,3 +542,27 @@ Reviewed v0.3.18 source and production read-only state. Backend 381 and frontend
 ### Status
 
 [OK] **Completed**
+
+
+## Session 22: v0.3.19 exhibition hardening and illustrated guides
+<!-- trellis-session: v=2 fp=7b9373e0109a9e7e -->
+
+**Date**: 2026-09-30
+**Task**: v0.3.19 exhibition hardening and illustrated guides
+**Branch**: `codex/release-v0.3.19`
+
+### Summary
+
+Protected fixed demo account, gated unbound insights, added bind retry/NFC refresh notice/SMS countdown, limited report input preparation. Backend 389, frontend 68, Chrome 23, deploy config 10 passed; isolated 390px E2E used real DingDong bind/read and 22-answer submit with independent Worker report. Parent/ops PDFs 19/12 pages inspected with approved private credentials. Release package ready; push/deployment/production report input and physical phone NFC rehearsal remain separately gated. Existing document audit JSON left untouched.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `4268ebb` | [T-exhibition-hardening] Harden exhibition demo recovery and prepare v0.3.19 |
+| `45f4ea7` | [T-exhibition-hardening] Normalize release verification log |
+| `5beb5bd` | [T-exhibition-hardening] Record v0.3.19 release package |
+
+### Status
+
+[OK] **Completed**
