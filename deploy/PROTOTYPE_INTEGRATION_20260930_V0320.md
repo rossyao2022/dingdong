@@ -19,7 +19,7 @@ CA 本地功能优先，不以原视觉仓库覆盖身份或业务代码。原�
 | 原 CA 链路 | 登录/退出/冷却、儿童、22 题测评和 Worker 报告、NFC 与固定号恢复、账户/授权/伙伴功能保留 |
 | 共用组件 | Storybook 使用实际新模块和样式，未另写一套演示组件 |
 
-完整内容映射及源码证据见[模块矩阵](../.trellis/tasks/09-30-prototype-modules/research/content-matrix.md)、[后端契约](../.trellis/tasks/09-30-prototype-exploration-data/research/api-contract.md)、[浏览器验收](../.trellis/tasks/09-30-prototype-content-integration/research/browser-acceptance.md)。
+完整内容映射及源码证据见[模块矩阵](../.trellis/tasks/archive/2026-09/09-30-prototype-modules/research/content-matrix.md)、[后端契约](../.trellis/tasks/archive/2026-09/09-30-prototype-exploration-data/research/api-contract.md)、[浏览器验收](../.trellis/tasks/09-30-prototype-content-integration/research/browser-acceptance.md)。
 
 ## 数据及生命周期
 
@@ -73,3 +73,7 @@ CA 本地功能优先，不以原视觉仓库覆盖身份或业务代码。原�
 0014 保留新答案及字段，不反向删除字段或恢复整个旧库覆盖新业务。回退到 v0.3.19 前，通过审计内容操作停用本版新增两题库与十活动，避免旧页面列出无法理解的新用途；保留历史记录，然后仅回退四应用镜像。新数据处理需先核对，不自动删行。
 
 会展展示仍需 CA 业务同事确认题目、指南、活动及讲解口径，携原手机/原 NFC 标签/原儿童完成短信、绑定、授权、报告、选伙伴和聊天彩排。DingDong 正式账号、多游客共享设备策略、正式成长/健康子接口与真实 milestone 推送仍是此前三方待办，不因页面原型整合而变为已完成。
+
+## 本地提交与包
+
+功能提交 `17fb016`，日志格式整理 `9db1fa6`。三个本地交付子任务已归档；父任务保留 in_progress，等待远端放行及真机彩排。发布包由 `python3 deploy/package.py` 从已提交文件生成，实际完整修订在包内 RELEASE.json，摘要在本机忽略目录 dist/dingdong-v0.3.20.tar.gz.sha256；不将未部署状态改称已上线。
