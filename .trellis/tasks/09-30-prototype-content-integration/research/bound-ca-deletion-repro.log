@@ -1,0 +1,287 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+___________ test_operator_deletion_handles_child_with_robot_account ____________
+
+client = <rest_framework.test.APIClient object at 0x1059474d0>
+
+    def test_operator_deletion_handles_child_with_robot_account(client):
+        child = setup_child(client)
+        assert issue(client, child).status_code == 201
+        request = client.post(
+            f"/api/v1/children/{child['id']}/data-requests",
+            {"request_id": str(uuid.uuid4()), "kind": "deletion", "reason_code": "delete_child_data"},
+            format="json",
+        )
+        assert request.status_code == 201
+        operator = ops_client(make_staff("technical"))
+>       response = operator.post(
+            f"/api/v1/staff/data-requests/{request.json()['id']}/resolve",
+            {"action": "execute_deletion", "resolution_code": "deleted"},
+            content_type="application/json",
+        )
+
+tests/test_bound_ca_deletion_regression.py:22:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv/lib/python3.14/site-packages/rest_framework/test.py:283: in post
+    response = super().post(
+.venv/lib/python3.14/site-packages/rest_framework/test.py:197: in post
+    return self.generic('POST', path, data, content_type, **extra)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/rest_framework/test.py:221: in generic
+    return super().generic(
+.venv/lib/python3.14/site-packages/django/test/client.py:671: in generic
+    return self.request(**r)
+           ^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/rest_framework/test.py:273: in request
+    return super().request(**kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/rest_framework/test.py:225: in request
+    request = super().request(**kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/test/client.py:1090: in request
+    self.check_exception(response)
+.venv/lib/python3.14/site-packages/django/test/client.py:805: in check_exception
+    raise exc_value
+.venv/lib/python3.14/site-packages/django/core/handlers/exception.py:55: in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/core/handlers/base.py:198: in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/views/decorators/csrf.py:65: in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/views/generic/base.py:106: in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/rest_framework/views.py:515: in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/rest_framework/views.py:475: in handle_exception
+    self.raise_uncaught_exception(exc)
+.venv/lib/python3.14/site-packages/rest_framework/views.py:486: in raise_uncaught_exception
+    raise exc
+.venv/lib/python3.14/site-packages/rest_framework/views.py:512: in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/rest_framework/decorators.py:50: in handler
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+dingdong_ca/core/api/common.py:91: in wrapped
+    response = fn(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+dingdong_ca/core/api/staff.py:320: in resolve
+    delete_child(child)
+dingdong_ca/core/services/deletion.py:48: in delete_child
+    child.delete()
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1299: in delete
+    collector.collect([self], keep_parents=keep_parents)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.models.deletion.Collector object at 0x106d5b690>
+objs = [<Child: Child object (04903bec-a959-4388-b7e1-56e37fdd4d1f)>]
+source = None, nullable = False, collect_related = True, source_attr = None
+reverse_dependency = False, keep_parents = False, fail_on_restricted = True
+
+    def collect(
+        self,
+        objs,
+        source=None,
+        nullable=False,
+        collect_related=True,
+        source_attr=None,
+        reverse_dependency=False,
+        keep_parents=False,
+        fail_on_restricted=True,
+    ):
+        """
+        Add 'objs' to the collection of objects to be deleted as well as all
+        parent instances. 'objs' must be a homogeneous iterable collection of
+        model instances (e.g. a QuerySet). If 'collect_related' is True,
+        related objects will be handled by their respective on_delete handler.
+
+        If the call is the result of a cascade, 'source' should be the model
+        that caused it and 'nullable' should be set to True, if the relation
+        can be null.
+
+        If 'reverse_dependency' is True, 'source' will be deleted before the
+        current model, rather than after. (Needed for cascading to parent
+        models, the one case in which the cascade follows the forwards
+        direction of an FK rather than the reverse direction.)
+
+        If 'keep_parents' is True, data of parent model's will be not deleted.
+
+        If 'fail_on_restricted' is False, error won't be raised even if it's
+        prohibited to delete such objects due to RESTRICT, that defers
+        restricted object checking in recursive calls where the top-level call
+        may need to collect more objects to determine whether restricted ones
+        can be deleted.
+        """
+        if self.can_fast_delete(objs):
+            self.fast_deletes.append(objs)
+            return
+        new_objs = self.add(
+            objs, source, nullable, reverse_dependency=reverse_dependency
+        )
+        if not new_objs:
+            return
+
+        model = new_objs[0].__class__
+
+        if not keep_parents:
+            # Recursively collect concrete model's parent models, but not their
+            # related objects. These will be found by meta.get_fields()
+            concrete_model = model._meta.concrete_model
+            for ptr in concrete_model._meta.parents.values():
+                if ptr:
+                    parent_objs = [getattr(obj, ptr.name) for obj in new_objs]
+                    self.collect(
+                        parent_objs,
+                        source=model,
+                        source_attr=ptr.remote_field.related_name,
+                        collect_related=False,
+                        reverse_dependency=True,
+                        fail_on_restricted=False,
+                    )
+        if not collect_related:
+            return
+
+        model_fast_deletes = defaultdict(list)
+        protected_objects = defaultdict(list)
+        for related in get_candidate_relations_to_delete(model._meta):
+            # Preserve parent reverse relationships if keep_parents=True.
+            if (
+                keep_parents
+                and related.model._meta.concrete_model in model._meta.all_parents
+            ):
+                continue
+            field = related.field
+            on_delete = field.remote_field.on_delete
+            if on_delete == DO_NOTHING:
+                continue
+            related_model = related.related_model
+            if self.can_fast_delete(related_model, from_field=field):
+                model_fast_deletes[related_model].append(field)
+                continue
+            batches = self.get_del_batches(new_objs, [field])
+            for batch in batches:
+                sub_objs = self.related_objects(related_model, [field], batch)
+                # Non-referenced fields can be deferred if no signal receivers
+                # are connected for the related model as they'll never be
+                # exposed to the user. Skip field deferring when some
+                # relationships are select_related as interactions between both
+                # features are hard to get right. This should only happen in
+                # the rare cases where .related_objects is overridden anyway.
+                if not (
+                    sub_objs.query.select_related
+                    or self._has_signal_listeners(related_model)
+                ):
+                    referenced_fields = set(
+                        chain.from_iterable(
+                            (rf.attname for rf in rel.field.foreign_related_fields)
+                            for rel in get_candidate_relations_to_delete(
+                                related_model._meta
+                            )
+                        )
+                    )
+                    sub_objs = sub_objs.only(*tuple(referenced_fields))
+                if getattr(on_delete, "lazy_sub_objs", False) or sub_objs:
+                    try:
+                        on_delete(self, field, sub_objs, self.using)
+                    except ProtectedError as error:
+                        key = "'%s.%s'" % (field.model.__name__, field.name)
+                        protected_objects[key] += error.protected_objects
+        if protected_objects:
+>           raise ProtectedError(
+                "Cannot delete some instances of model %r because they are "
+                "referenced through protected foreign keys: %s."
+                % (
+                    model.__name__,
+                    ", ".join(protected_objects),
+                ),
+                set(chain.from_iterable(protected_objects.values())),
+            )
+E           django.db.models.deletion.ProtectedError: ("Cannot delete some instances of model 'Child' because they are referenced through protected foreign keys: 'CaAccount.child'.", {<CaAccount: ca_01M3RFPXN21BX5Y42XD15QMEAP>})
+
+.venv/lib/python3.14/site-packages/django/db/models/deletion.py:354: ProtectedError
+----------------------------- Captured stderr call -----------------------------
+Internal Server Error: /api/v1/staff/data-requests/ec99eab9-4129-4b11-8051-3ef197537565/resolve
+Traceback (most recent call last):
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/core/handlers/base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/views/generic/base.py", line 106, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/views.py", line 515, in dispatch
+    response = self.handle_exception(exc)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/views.py", line 475, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/views.py", line 486, in raise_uncaught_exception
+    raise exc
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/views.py", line 512, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/decorators.py", line 50, in handler
+    return func(*args, **kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/api/common.py", line 91, in wrapped
+    response = fn(request, *args, **kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/api/staff.py", line 320, in resolve
+    delete_child(child)
+    ~~~~~~~~~~~~^^^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/services/deletion.py", line 48, in delete_child
+    child.delete()
+    ~~~~~~~~~~~~^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/models/base.py", line 1299, in delete
+    collector.collect([self], keep_parents=keep_parents)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/models/deletion.py", line 354, in collect
+    raise ProtectedError(
+    ...<7 lines>...
+    )
+django.db.models.deletion.ProtectedError: ("Cannot delete some instances of model 'Child' because they are referenced through protected foreign keys: 'CaAccount.child'.", {<CaAccount: ca_01M3RFPXN21BX5Y42XD15QMEAP>})
+------------------------------ Captured log call -------------------------------
+ERROR    django.request:log.py:249 Internal Server Error: /api/v1/staff/data-requests/ec99eab9-4129-4b11-8051-3ef197537565/resolve
+Traceback (most recent call last):
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/core/handlers/base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/views/generic/base.py", line 106, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/views.py", line 515, in dispatch
+    response = self.handle_exception(exc)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/views.py", line 475, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/views.py", line 486, in raise_uncaught_exception
+    raise exc
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/views.py", line 512, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/decorators.py", line 50, in handler
+    return func(*args, **kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/api/common.py", line 91, in wrapped
+    response = fn(request, *args, **kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/api/staff.py", line 320, in resolve
+    delete_child(child)
+    ~~~~~~~~~~~~^^^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/services/deletion.py", line 48, in delete_child
+    child.delete()
+    ~~~~~~~~~~~~^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/models/base.py", line 1299, in delete
+    collector.collect([self], keep_parents=keep_parents)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/models/deletion.py", line 354, in collect
+    raise ProtectedError(
+    ...<7 lines>...
+    )
+django.db.models.deletion.ProtectedError: ("Cannot delete some instances of model 'Child' because they are referenced through protected foreign keys: 'CaAccount.child'.", {<CaAccount: ca_01M3RFPXN21BX5Y42XD15QMEAP>})
+=========================== short test summary info ============================
+FAILED tests/test_bound_ca_deletion_regression.py::test_operator_deletion_handles_child_with_robot_account
+1 failed in 1.46s

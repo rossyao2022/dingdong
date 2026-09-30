@@ -1,0 +1,13 @@
+Actual run 2026-09-30: local 4175 / backend 8020 / isolated schema prototype_integration_final_20260930.
+Initial tee target directory was missing; shell pipeline exit=1 from tee, Playwright result all passed. Below is preserved actual tool output, not a rerun.
+
+  ✓  1 tests/prototype-history-restart.spec.js:5:3 › interest历史结果重新探索后刷新保留新答卷 (5.2s)
+  ✓  2 tests/prototype-history-restart.spec.js:5:3 › talent历史结果重新探索后刷新保留新答卷（重新授权） (5.0s)
+  ✓  3 tests/prototype-integration.spec.js:116:1 › 六岛完整、选三顺序、九题真实保存、刷新恢复与儿童隔离 (2.8s)
+  ✓  4 tests/prototype-integration.spec.js:252:1 › 24题八维观察真实作答、断点恢复、最低分相同不强排前三 (6.5s)
+  ✓  5 tests/prototype-integration.spec.js:303:1 › 八维最高分及第四名并列全部呈现，重新探索保留历史结果 (8.4s)
+  ✓  6 tests/prototype-integration.spec.js:355:1 › 过期草稿重新打开建立新答卷，原答案保留且选岛不丢 (5.2s)
+  ✓  7 tests/prototype-integration.spec.js:407:1 › 指纹四类完整指南、示例及临时预览不上传，离开释放图片 (8.2s)
+  ✓  8 tests/prototype-integration.spec.js:501:1 › 四模块和六岛在手机平板桌面无溢出、遮挡或坏图 (2.5s)
+
+  8 passed (45.0s)

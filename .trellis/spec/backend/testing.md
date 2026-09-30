@@ -1,7 +1,7 @@
 # 测试约定
 
 > 用例在 `backend/tests/`，配置在 `backend/pyproject.toml` 的 `[tool.pytest.ini_options]`。
-> 全量后端套件很慢（当前 266 项，量级十几到二十分钟），**按改动范围挑文件跑**，不要无差别重跑；但也不许拿历史绿灯日志当本轮证据（`PROJECT_MEMORY.md`）。
+> 全量后端套件耗时受数据库环境影响，数量与耗时以本轮实际记录为准，**按改动范围挑文件跑**，不要无差别重跑；但也不许拿历史绿灯日志当本轮证据（`PROJECT_MEMORY.md`）。
 
 ## 配置与前置
 
@@ -68,3 +68,33 @@ cd backend && .venv/bin/python -m pytest ../deploy/tests -q # 部署配置测试
 - 不要为了“跑绿”而放宽 fixture 校验、跳过用例或把失败标成 `skip` 后计入通过数（`backend/README.md`：“没有把 M2/M3 写成 skip 再计入通过数”）。
 - 不要写拦截接口响应的假测试来代替真实链路；真实浏览器验收的纪律见 [../frontend/testing-and-acceptance.md](../frontend/testing-and-acceptance.md)。
 - 不要在用例里连真实外部端点（见 [external-integrations.md](./external-integrations.md)）。
+
+## CA关联与删除的跨链路验收（2026-09-30）
+
+### 范围与触发
+
+删除儿童资料必须覆盖已有CA账号的情况，不能只测没有机器人的儿童。最终审计曾在408项绿灯之外复现该遗漏；待接通也会触发PROTECT，不要求真实出站绑定。
+
+### 接口与模型
+
+`POST /api/v1/children/{id}/data-requests` 创建 deletion；technical运营 `POST /api/v1/staff/data-requests/{id}/resolve` 携 `action=execute_deletion`、`resolution_code=deleted`。`CaAccount.child`、`CaReassessmentEvent.child` 为PROTECT，旧CA号永久保留。
+
+### 当前契约及未决规则
+
+C1要求child必填及retired账号永久保留。删除服务当前没有处理这些引用；2026-09-30实测抛ProtectedError并回滚，**尚未修复**。不得把cascade/删号/置空child当作已批准方案；普通账号的去标识处理需要明确设计。
+
+### 验证矩阵
+
+无CA号走原删除场景；active/unbound、active/bound、retired及复测事件各单独覆盖；固定演示号保持保护。不能仅断言“不是500”或只检查运营事项状态，必须核验事务、家庭资料、授权、号占位与审计均符合批准规则。
+
+### 好/基本/坏场景
+
+好：按批准设计完整处理资料并保留必要号码占位；基本：不具备执行条件时清晰拒绝且不修改事项；坏：500、假报已删除、半删、删永久旧号或复用号码。拒绝错误码待实现确认，不在规范中杜撰已上线行为。
+
+### 必需证据
+
+用真实家长/运营HTTP与隔离PostgreSQL，建普通ULID账号，阻断所有真实供应商出站；复现失败单列，不纳入绿灯总数。完成修复后再提交预期正确行为的回归测试。
+
+### 错误与正确
+
+错误：删除无关联儿童的测试通过就称全部删除验收完成。正确：覆盖永久保留的CA账号/事件交叉关系，并把当前缺陷和已通过的核心探索测试分别记录。

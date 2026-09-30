@@ -1,0 +1,100 @@
+- link "跳到主要内容":
+  - /url: "#main"
+- complementary "主导航":
+  - link "DingDong 天赋成长伙伴":
+    - /url: "#explore"
+    - text: DingDong
+    - generic: 天赋成长伙伴
+  - generic: CAREER ACADEMY × DINGDONG
+  - paragraph: 一起，发现更多可能
+  - navigation:
+    - link "天赋探索":
+      - /url: "#explore"
+      - text: 天赋探索
+    - link "今日陪伴":
+      - /url: "#home"
+      - text: 今日陪伴
+    - link "我的 DingDong":
+      - /url: "#companion"
+      - text: 我的 DingDong
+    - link "成长旅程":
+      - /url: "#journey"
+      - text: 成长旅程
+    - link "成长观察":
+      - /url: "#reports"
+      - text: 成长观察
+    - link "家长支持":
+      - /url: "#services"
+      - text: 家长支持
+  - generic: ✧
+  - text: 每一小步，都算数。
+  - paragraph: 孩子在探索，伙伴也在成长。
+  - link "走进家长观察室 ↗":
+    - /url: "#reports"
+    - text: 走进家长观察室
+    - generic: ↗
+  - link "账户与设备":
+    - /url: "#settings"
+    - text: 账户与设备
+  - generic: CA
+  - generic: 专业视角 · 温暖陪伴
+- banner:
+  - generic: DingDong 成长空间
+  - generic: /
+  - generic: 我的 DingDong
+  - generic: 互动演示版
+  - button "查看成长提醒":
+  - button "编辑探索家档案":
+    - generic: 芽
+    - generic: 小小探索家
+- main:
+  - generic: MEET YOUR LITTLE COMPANION
+  - heading "嗨，我是 DingDong 叮咚。" [level=1]
+  - paragraph: 你带着好奇来，我陪你一步一步试。
+  - text: 9月30日星期三
+  - generic: DingDong 伙伴形象 · 网页互动预演
+  - img "DingDong 提供的紫色机器人形象"
+  - text: 先猜一猜，再一起找答案。
+  - generic: 点击朗读，可以听到浏览器语音示范
+  - button "听听伙伴怎么说":
+    - text: 听听伙伴怎么说
+  - heading "你喜欢怎样一起探索？" [level=2]
+  - paragraph: 选择今天喜欢的引导方式。它会改变网页任务中的提问，不会改变正式测评结果。
+  - button "用 4 个小情境了解引导偏好 →"
+  - button "认知型引导 多问一个为什么" [pressed]:
+    - text: 认知型引导
+    - paragraph: 多问一个为什么
+  - button "模仿型引导 看一看，再试试看":
+    - text: 模仿型引导
+    - paragraph: 看一看，再试试看
+  - button "逆思型引导 给熟悉的事换个方向":
+    - text: 逆思型引导
+    - paragraph: 给熟悉的事换个方向
+  - button "开放型引导 让想象自由发生":
+    - text: 开放型引导
+    - paragraph: 让想象自由发生
+  - button "一起做个小实验":
+    - text: 一起做个小实验
+  - generic: 网页偏好已保存；机器人配置尚未同步。当前使用 DingDong 提供的素材；设备远程设置仍需技术接入。
+  - generic: 设备关联
+  - button "未关联 · 查看连接方式":
+    - text: 未关联 · 查看连接方式
+- contentinfo:
+  - generic: CA × DingDong · 让天赋在陪伴中生长
+  - generic: 演示内容仅保存在当前浏览器 · 未接入真实设备
+- dialog "用你喜欢的方式，开始探索。":
+  - generic: DINGDONG · 一起慢慢来
+  - heading "用你喜欢的方式，开始探索。" [level=2]
+  - button "关闭弹窗" [active]:
+  - generic: 探索偏好体验 · 非正式测评
+  - generic: 第 1 / 4 个小情境
+  - generic: 答案已自动保存在本浏览器
+  - heading "遇到一件从没见过的小玩意儿，你更想先……" [level=3]
+  - button "弄清楚它为什么会这样"
+  - button "看别人怎么玩一次"
+  - button "试试不按说明会怎样"
+  - button "想出一种自己的新玩法"
+  - paragraph: 这些是流程演示情境，不是 CA 正式题库，不做天赋评分。选一个此刻最接近你的答案就好。
+  - button "上一个" [disabled]
+  - button "下一个情境" [disabled]:
+    - text: 下一个情境

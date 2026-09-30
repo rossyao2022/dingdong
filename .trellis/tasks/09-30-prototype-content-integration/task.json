@@ -25,6 +25,6 @@
   ],
   "parent": null,
   "relatedFiles": [],
-  "notes": "用户已明确放行，v0.3.20推送/main合并与生产备份迁移、2题库10活动显式发布、部署/公网验收和PDF上线同步均完成。父任务仅保留CA业务原手机/原NFC及相机现场彩排尾项，不冒称已完成真机E2E。",
+  "notes": "v0.3.20已推送/main合并并部署，2026-09-30最终独立复核确认核心结构/素材对齐，但发现原四情境入口、四种引导效果、导出/上一步/筛选/家长支持/旧URL等操作遗漏及CA账号关联儿童删除500，详见final-reference-audit.md、final-backend-audit.md及deploy最终报告。上述未修复，父任务保留in_progress；还需CA原手机/NFC/相机与DingDong现场彩排。",
   "meta": {}
 }

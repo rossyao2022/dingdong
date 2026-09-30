@@ -1,0 +1,2 @@
+PUBLIC_ASSETS_MATCH 52
+{"version": "0.3.20", "version_source": "/dingdong/version.txt; bytes match committed VERSION", "parent": {"status": 200, "final_url": "https://1.15.23.152/dingdong/"}, "ops": {"status": 200, "final_url": "https://1.15.23.152/ops/login/?next=/ops/"}, "runtime": {"status": 200, "final_url": "https://1.15.23.152/api/v1/runtime", "data": {"environment": "demo", "sms_mode": "aliyun_verify", "data_source": "database_fixture", "fixture_dataset": null}}}

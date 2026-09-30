@@ -1,0 +1,27 @@
+{
+  "source": "https://happykua.com/dingdong/",
+  "date": "2026-09-30T06:29:34.957Z",
+  "layouts": [
+    {
+      "islands": 6,
+      "overflow": -15,
+      "width": 320
+    },
+    {
+      "width": 390,
+      "overflow": -15,
+      "islands": 6
+    },
+    {
+      "islands": 6,
+      "overflow": -15,
+      "width": 768
+    },
+    {
+      "islands": 6,
+      "overflow": -15,
+      "width": 1280
+    }
+  ],
+  "companion_four_question_direct_entry": true
+}
