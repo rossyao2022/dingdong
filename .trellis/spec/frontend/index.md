@@ -15,6 +15,7 @@
 | [styling-and-responsive.md](./styling-and-responsive.md) | 三层 CSS 的边界、断点与 390×844 视口约定、本地资源 |
 | [quality-guidelines.md](./quality-guidelines.md) | 检查命令的真实含义、禁止模式、依赖与代码风格 |
 | [testing-and-acceptance.md](./testing-and-acceptance.md) | 单测 / 本地端到端 / 公网验收三层怎么跑、各自前置条件、“不许拦截假响应”这条纪律 |
+| [parent-robot-and-exhibition.md](./parent-robot-and-exhibition.md) | CA主线、完整机器人报告、独立展会与访客运营、慢首启及换儿童换机隔离 |
 
 ## 开工前检查（Pre-Development Checklist）
 

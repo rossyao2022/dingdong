@@ -256,6 +256,7 @@ ERROR_ACTION = {
 }
 
 AUDIT_ACTION = {
+    "exhibition.followup": "更新展会跟进记录",
     "companion_preference.update": "更新网页陪伴方式",
     "prototype_content.import": "导入原型内容草稿",
     "prototype_content.publish": "发布原型内容版本",
@@ -314,6 +315,8 @@ AUDIT_ACTION = {
 
 # 审计 detail 里的字段名 -> 运营看得懂的说法
 DETAIL_KEY = {
+    "previous_status": "原跟进状态",
+    "revision": "修订号",
     "purpose": "用途",
     "questions": "题目数量",
     "from": "复制来源",
@@ -341,6 +344,9 @@ DETAIL_KEY = {
 
 # detail 里的取值 -> 中文（与取值本身同形的通用词）
 DETAIL_VALUE = {
+    "pending": "待联系",
+    "contacted": "已联系",
+    "closed": "已结束",
     True: "是",
     False: "否",
     "exploration": "探索体验",
@@ -365,6 +371,7 @@ DETAIL_VALUE = {
 }
 
 TARGET_KIND = {
+    "exhibition_visitor": "展会体验用户",
     "child_companion_preference": "网页陪伴偏好",
     "questionnaire_version": "题库版本",
     "activity_content_version": "活动版本",

@@ -2,6 +2,7 @@ import {
   CURVE_DAYS,
   DIMENSION_KEYS,
   renderDingDongReport,
+  renderRobotEntry,
 } from "../dingdong-report.js";
 
 export default {
@@ -43,12 +44,12 @@ const snapshot = {
 
 export const Ready = {
   name: "完整陪伴报告",
-  render: () => renderDingDongReport(snapshot),
+  render: () => renderDingDongReport(snapshot, { demonstration: true }),
 };
 export const NarrowPhone = {
   name: "390px 手机报告",
   parameters: { viewport: { defaultViewport: "phone" } },
-  render: () => renderDingDongReport(snapshot),
+  render: () => renderDingDongReport(snapshot, { demonstration: true }),
 };
 export const Empty = {
   name: "暂无报告",
@@ -73,4 +74,31 @@ export const MissingData = {
         curve: snapshot.growth.curve.filter((point) => point.day !== 30),
       },
     }),
+};
+
+export const UnboundRobot = {
+  name: "未绑定：CA体验与可选展会入口",
+  render: () =>
+    renderRobotEntry([], "synthetic-child", { exhibition_enabled: true }),
+};
+export const BoundRobot = {
+  name: "已绑定：聊天、报告和管理",
+  render: () =>
+    renderRobotEntry(
+      [
+        {
+          child_id: "synthetic-child",
+          status: "active",
+          bind_state: "bound",
+          chat_url: "http://122.51.108.225",
+        },
+      ],
+      "synthetic-child",
+      { exhibition_enabled: true },
+    ),
+};
+export const Exhibition = {
+  name: "独立展会演示报告",
+  render: () =>
+    `<section class="panel"><h2>展会体验</h2><p>演示报告不代表孩子的测评结果。多人共享这次演示，伙伴和内容可能随体验变化。</p></section>${renderDingDongReport(snapshot, { demonstration: true })}`,
 };

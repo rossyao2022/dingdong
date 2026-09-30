@@ -134,3 +134,8 @@ class ExplorationCompletion(StrictSerializer):
 class CompanionPreferenceInput(StrictSerializer):
     guide_mode = serializers.ChoiceField(choices=GUIDE_MODES)
     revision = serializers.IntegerField(min_value=0)
+
+
+class ExhibitionVisitInput(StrictSerializer):
+    request_id = serializers.UUIDField()
+    event = serializers.ChoiceField(choices=["entered", "report_viewed"])

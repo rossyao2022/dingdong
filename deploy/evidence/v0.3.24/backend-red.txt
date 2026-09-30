@@ -1,0 +1,188 @@
+FFFFFFF                                                                  [100%]
+=================================== FAILURES ===================================
+__________ test_preview_auth_shared_source_and_no_personal_assignment __________
+
+client = <rest_framework.test.APIClient object at 0x10984f230>
+
+    def test_preview_auth_shared_source_and_no_personal_assignment(client):
+>       assert client.get("/api/v1/exhibition/report").status_code == 401
+E       assert 404 == 401
+E        +  where 404 = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">.status_code
+E        +    where <HttpResponseNotFound status_code=404, "text/html; charset=utf-8"> = get('/api/v1/exhibition/report')
+E        +      where get = <rest_framework.test.APIClient object at 0x10984f230>.get
+
+tests/test_exhibition.py:33: AssertionError
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/exhibition/report
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/exhibition/report
+_____ test_invalid_report_never_marked_viewed_and_push_frequency_fallback ______
+
+client = <rest_framework.test.APIClient object at 0x10ad39e50>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10a054050>
+
+    def test_invalid_report_never_marked_viewed_and_push_frequency_fallback(client, monkeypatch):
+        sign_in(client)
+>       assert client.get("/api/v1/exhibition/report?weekly_turns=5").status_code == 422
+E       assert 404 == 422
+E        +  where 404 = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">.status_code
+E        +    where <HttpResponseNotFound status_code=404, "text/html; charset=utf-8"> = get('/api/v1/exhibition/report?weekly_turns=5')
+E        +      where get = <rest_framework.test.APIClient object at 0x10ad39e50>.get
+
+tests/test_exhibition.py:51: AssertionError
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/exhibition/report
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/exhibition/report
+___________________ test_visits_idempotent_scoped_and_strict ___________________
+
+client = <rest_framework.test.APIClient object at 0x10ad66fd0>
+
+    def test_visits_idempotent_scoped_and_strict(client):
+>       assert visit(client).status_code == 401
+E       assert 404 == 401
+E        +  where 404 = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">.status_code
+E        +    where <HttpResponseNotFound status_code=404, "text/html; charset=utf-8"> = visit(<rest_framework.test.APIClient object at 0x10ad66fd0>)
+
+tests/test_exhibition.py:63: AssertionError
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/exhibition/visits
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/exhibition/visits
+_______ test_ops_followup_roles_revision_audit_and_csrf[operations-True] _______
+
+client = <rest_framework.test.APIClient object at 0x10ae088a0>
+role = 'operations', allowed = True
+
+    @pytest.mark.parametrize("role,allowed", [("operations", True), ("technical", True), ("account_admin", True), ("content", False)])
+    def test_ops_followup_roles_revision_audit_and_csrf(client, role, allowed):
+        sign_in(client)
+>       visitor_id = visit(client).json()["id"]
+                     ^^^^^^^^^^^^^^^^^^^^
+
+tests/test_exhibition.py:84: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <rest_framework.test.APIClient object at 0x10ae088a0>
+response = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">
+extra = {}
+
+    def _parse_json(self, response, **extra):
+        if not hasattr(response, "_json"):
+            if not JSON_CONTENT_TYPE_RE.match(response.get("Content-Type")):
+>               raise ValueError(
+                    'Content-Type header is "%s", not "application/json"'
+                    % response.get("Content-Type")
+                )
+E               ValueError: Content-Type header is "text/html; charset=utf-8", not "application/json"
+
+.venv/lib/python3.14/site-packages/django/test/client.py:951: ValueError
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/exhibition/visits
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/exhibition/visits
+_______ test_ops_followup_roles_revision_audit_and_csrf[technical-True] ________
+
+client = <rest_framework.test.APIClient object at 0x10ad3ed70>
+role = 'technical', allowed = True
+
+    @pytest.mark.parametrize("role,allowed", [("operations", True), ("technical", True), ("account_admin", True), ("content", False)])
+    def test_ops_followup_roles_revision_audit_and_csrf(client, role, allowed):
+        sign_in(client)
+>       visitor_id = visit(client).json()["id"]
+                     ^^^^^^^^^^^^^^^^^^^^
+
+tests/test_exhibition.py:84: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <rest_framework.test.APIClient object at 0x10ad3ed70>
+response = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">
+extra = {}
+
+    def _parse_json(self, response, **extra):
+        if not hasattr(response, "_json"):
+            if not JSON_CONTENT_TYPE_RE.match(response.get("Content-Type")):
+>               raise ValueError(
+                    'Content-Type header is "%s", not "application/json"'
+                    % response.get("Content-Type")
+                )
+E               ValueError: Content-Type header is "text/html; charset=utf-8", not "application/json"
+
+.venv/lib/python3.14/site-packages/django/test/client.py:951: ValueError
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/exhibition/visits
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/exhibition/visits
+_____ test_ops_followup_roles_revision_audit_and_csrf[account_admin-True] ______
+
+client = <rest_framework.test.APIClient object at 0x10ac170b0>
+role = 'account_admin', allowed = True
+
+    @pytest.mark.parametrize("role,allowed", [("operations", True), ("technical", True), ("account_admin", True), ("content", False)])
+    def test_ops_followup_roles_revision_audit_and_csrf(client, role, allowed):
+        sign_in(client)
+>       visitor_id = visit(client).json()["id"]
+                     ^^^^^^^^^^^^^^^^^^^^
+
+tests/test_exhibition.py:84: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <rest_framework.test.APIClient object at 0x10ac170b0>
+response = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">
+extra = {}
+
+    def _parse_json(self, response, **extra):
+        if not hasattr(response, "_json"):
+            if not JSON_CONTENT_TYPE_RE.match(response.get("Content-Type")):
+>               raise ValueError(
+                    'Content-Type header is "%s", not "application/json"'
+                    % response.get("Content-Type")
+                )
+E               ValueError: Content-Type header is "text/html; charset=utf-8", not "application/json"
+
+.venv/lib/python3.14/site-packages/django/test/client.py:951: ValueError
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/exhibition/visits
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/exhibition/visits
+________ test_ops_followup_roles_revision_audit_and_csrf[content-False] ________
+
+client = <rest_framework.test.APIClient object at 0x10ad62e00>, role = 'content'
+allowed = False
+
+    @pytest.mark.parametrize("role,allowed", [("operations", True), ("technical", True), ("account_admin", True), ("content", False)])
+    def test_ops_followup_roles_revision_audit_and_csrf(client, role, allowed):
+        sign_in(client)
+>       visitor_id = visit(client).json()["id"]
+                     ^^^^^^^^^^^^^^^^^^^^
+
+tests/test_exhibition.py:84: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <rest_framework.test.APIClient object at 0x10ad62e00>
+response = <HttpResponseNotFound status_code=404, "text/html; charset=utf-8">
+extra = {}
+
+    def _parse_json(self, response, **extra):
+        if not hasattr(response, "_json"):
+            if not JSON_CONTENT_TYPE_RE.match(response.get("Content-Type")):
+>               raise ValueError(
+                    'Content-Type header is "%s", not "application/json"'
+                    % response.get("Content-Type")
+                )
+E               ValueError: Content-Type header is "text/html; charset=utf-8", not "application/json"
+
+.venv/lib/python3.14/site-packages/django/test/client.py:951: ValueError
+----------------------------- Captured stderr call -----------------------------
+Not Found: /api/v1/exhibition/visits
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:249 Not Found: /api/v1/exhibition/visits
+=========================== short test summary info ============================
+FAILED tests/test_exhibition.py::test_preview_auth_shared_source_and_no_personal_assignment
+FAILED tests/test_exhibition.py::test_invalid_report_never_marked_viewed_and_push_frequency_fallback
+FAILED tests/test_exhibition.py::test_visits_idempotent_scoped_and_strict - a...
+FAILED tests/test_exhibition.py::test_ops_followup_roles_revision_audit_and_csrf[operations-True]
+FAILED tests/test_exhibition.py::test_ops_followup_roles_revision_audit_and_csrf[technical-True]
+FAILED tests/test_exhibition.py::test_ops_followup_roles_revision_audit_and_csrf[account_admin-True]
+FAILED tests/test_exhibition.py::test_ops_followup_roles_revision_audit_and_csrf[content-False]
+7 failed in 1.35s

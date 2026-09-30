@@ -1,0 +1,11 @@
+
+Running 4 tests using 1 worker
+
+(node:28588) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/parent-robot-experience.spec.js:60:1 › 展会不能绕过登录建档，导航和CA默认探索保持 (2.9s)
+  ✓  2 tests/parent-robot-experience.spec.js:87:1 › 独立展会全量报告、共享聊天、频率与成功访问记录，无个人绑定 (3.7s)
+  ✓  3 tests/parent-robot-experience.spec.js:109:1 › 已绑定报告授权、聊天不依赖报告、切儿童与解绑立即恢复个人结果 (6.8s)
+  ✓  4 tests/parent-robot-experience.spec.js:137:1 › 换儿童后重新读取该孩子的机器人，换机不会归档上一儿童的机器人 (4.7s)
+
+  4 passed (19.2s)

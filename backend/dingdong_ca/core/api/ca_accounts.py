@@ -27,6 +27,9 @@ class IssueInput(StrictSerializer):
 def serialize_account(row):
     return {
         "ca_account_id": row.ca_account_id,
+        "chat_url": service.prototype_chat_url()
+        if row.status == "active" and row.bind_state == "bound" and row.prototype_demo
+        else None,
         "child_id": str(row.child_id),
         "family_id": str(row.family_id),
         "robot_ref": row.robot_ref,

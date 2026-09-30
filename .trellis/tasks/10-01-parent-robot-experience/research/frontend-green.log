@@ -1,0 +1,32 @@
+✔ 凭据能从查询串里读出来 (0.978833ms)
+✔ 凭据能从 hash 参数里读出来（NFC 标签常这么写） (0.158125ms)
+✔ 查询串优先于 hash，两者都有时取查询串 (0.059542ms)
+✔ 裸 + 不当空格：token 是不透明字符串，不能改写它的字节 (0.11525ms)
+✔ 没有凭据就是空串，不猜也不报错 (0.084125ms)
+✔ 同名参数取第一个 (0.124833ms)
+✔ 机器人标识是独立参数，不影响取凭据 (0.099417ms)
+✔ 摘掉凭据后，hash 路由与其他参数都还在 (0.175667ms)
+✔ 摘掉机器人标识，凭据一并不留 (0.108792ms)
+✔ 没有凭据时，地址原样不动（幂等） (0.09575ms)
+✔ 换机信号只认服务端那一个错误码 (0.062291ms)
+✔ 账户拆分：活跃唯一，归档可多条 (0.862375ms)
+✔ 状态词与运营后台用同一套说法，且两个维度分开 (0.042875ms)
+✔ 机器人占用指引说清先解绑，409不误导刷新 (0.108875ms)
+✔ 会展标记兼容固定旧号与新ULID (0.057458ms)
+✔ bound account is active and belongs to the current child; pending/retired/another child never grant report access (0.291542ms)
+✔ chat destination never propagates credentials, parameters or executable URLs (0.149875ms)
+✔ report uses source baseline/current/180-day curve and preserves zero and companion values over 100 (15.283375ms)
+✔ canonical curve order ignores unknown days, leaves missing/duplicate days blank and never invents values (1.3775ms)
+✔ numeric boundaries reject strings, booleans, infinities, negative and over-100 dimensions (1.007791ms)
+✔ whitelisted report data and rendered HTML never carry credentials or injectable markup (1.137625ms)
+✔ absent report, loading/error and partial data produce readable states without fabricated curves (0.17325ms)
+✔ simulation curve uses real day spacing and does not change robot settings (1.361292ms)
+✔ robot entry keeps bound chat independent of report read failures and preserves unbound CA experience (0.238375ms)
+ℹ tests 24
+ℹ suites 0
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 89.048125

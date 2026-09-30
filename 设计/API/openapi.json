@@ -11659,6 +11659,389 @@
           }
         }
       }
+    },
+    "/exhibition/report": {
+      "get": {
+        "operationId": "get_exhibition_report",
+        "tags": [
+          "展会体验"
+        ],
+        "summary": "登录家长预览共享演示报告",
+        "description": "独立展会共享演示预览；须家长登录、显式demo开关，不建立设备绑定，不写个人报告；前端保留儿童建档流程。",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "weekly_turns",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "enum": [
+                3,
+                7,
+                14,
+                21
+              ],
+              "default": 7
+            },
+            "description": "每周预计有效对话次数，只用于供应商模拟曲线"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "type": "string",
+                  "description": "请求追踪号",
+                  "examples": [
+                    "11111111-1111-4111-8111-111111111111"
+                  ],
+                  "format": "uuid"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExhibitionReport"
+                },
+                "example": {
+                  "availability": "ready",
+                  "assessment_type": "science",
+                  "persona_name": "Nova",
+                  "persona_type": "science",
+                  "match_score": 98.22,
+                  "companion_value": 22,
+                  "effective_turns": 22,
+                  "assessment": {
+                    "baseline_scores": {
+                      "linguistic": 52,
+                      "logical": 84,
+                      "musical": 52,
+                      "spatial": 70,
+                      "bodily": 52,
+                      "intrapersonal": 52,
+                      "interpersonal": 52,
+                      "naturalistic": 78
+                    }
+                  },
+                  "growth": {
+                    "algorithm_version": "growth_v1",
+                    "current": {
+                      "engagement_index": 42.31,
+                      "growth_stage": "developing",
+                      "stage_progress": 11.53,
+                      "dimensions": {
+                        "linguistic": 15.02,
+                        "logical": 42.31,
+                        "musical": 7.51,
+                        "spatial": 24.13,
+                        "bodily": 7.51,
+                        "intrapersonal": 15.02,
+                        "interpersonal": 15.02,
+                        "naturalistic": 33.13
+                      }
+                    },
+                    "weekly_turns": 7,
+                    "curve": [
+                      {
+                        "day": 0,
+                        "companion_value": 22,
+                        "engagement_index": 42.31,
+                        "growth_stage": "developing",
+                        "dimensions": {
+                          "linguistic": 15.02,
+                          "logical": 42.31,
+                          "musical": 7.51,
+                          "spatial": 24.13,
+                          "bodily": 7.51,
+                          "intrapersonal": 15.02,
+                          "interpersonal": 15.02,
+                          "naturalistic": 33.13
+                        }
+                      },
+                      {
+                        "day": 7,
+                        "companion_value": 29,
+                        "engagement_index": 51.57,
+                        "growth_stage": "developing",
+                        "dimensions": {
+                          "linguistic": 18.3,
+                          "logical": 51.57,
+                          "musical": 9.15,
+                          "spatial": 29.42,
+                          "bodily": 9.15,
+                          "intrapersonal": 18.3,
+                          "interpersonal": 18.3,
+                          "naturalistic": 40.38
+                        }
+                      },
+                      {
+                        "day": 15,
+                        "companion_value": 37,
+                        "engagement_index": 60.35,
+                        "growth_stage": "deep",
+                        "dimensions": {
+                          "linguistic": 21.42,
+                          "logical": 60.35,
+                          "musical": 10.71,
+                          "spatial": 34.42,
+                          "bodily": 10.71,
+                          "intrapersonal": 21.42,
+                          "interpersonal": 21.42,
+                          "naturalistic": 47.26
+                        }
+                      },
+                      {
+                        "day": 30,
+                        "companion_value": 52,
+                        "engagement_index": 72.75,
+                        "growth_stage": "deep",
+                        "dimensions": {
+                          "linguistic": 25.82,
+                          "logical": 72.75,
+                          "musical": 12.91,
+                          "spatial": 41.5,
+                          "bodily": 12.91,
+                          "intrapersonal": 25.82,
+                          "interpersonal": 25.82,
+                          "naturalistic": 56.97
+                        }
+                      },
+                      {
+                        "day": 60,
+                        "companion_value": 82,
+                        "engagement_index": 87.13,
+                        "growth_stage": "co_creation",
+                        "dimensions": {
+                          "linguistic": 30.92,
+                          "logical": 87.13,
+                          "musical": 15.46,
+                          "spatial": 49.7,
+                          "bodily": 15.46,
+                          "intrapersonal": 30.92,
+                          "interpersonal": 30.92,
+                          "naturalistic": 68.23
+                        }
+                      },
+                      {
+                        "day": 90,
+                        "companion_value": 112,
+                        "engagement_index": 93.92,
+                        "growth_stage": "co_creation",
+                        "dimensions": {
+                          "linguistic": 33.33,
+                          "logical": 93.92,
+                          "musical": 16.67,
+                          "spatial": 53.57,
+                          "bodily": 16.67,
+                          "intrapersonal": 33.33,
+                          "interpersonal": 33.33,
+                          "naturalistic": 73.55
+                        }
+                      },
+                      {
+                        "day": 180,
+                        "companion_value": 202,
+                        "engagement_index": 99.36,
+                        "growth_stage": "co_creation",
+                        "dimensions": {
+                          "linguistic": 35.27,
+                          "logical": 99.36,
+                          "musical": 17.63,
+                          "spatial": 56.68,
+                          "bodily": 17.63,
+                          "intrapersonal": 35.27,
+                          "interpersonal": 35.27,
+                          "naturalistic": 77.81
+                        }
+                      }
+                    ],
+                    "source": "simulation"
+                  },
+                  "weekly_turns": 7,
+                  "updated_at": "2026-09-30T09:36:29.185359+00:00",
+                  "sync_source": "pull",
+                  "prototype_url": "http://122.51.108.225/"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "登录无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "尚未同意查看机器人记录",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "演示未开启、儿童不属于当前家庭或无当前活跃演示关联",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "对方测试地址或测试 Key 未配置",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "拉取失败或源schema不合法，且无匹配频率的已验证推送快照",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "DINGDONG_BIND_PENDING：机器人待接通，请用原标签重试绑定",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "不支持的weekly_turns或其他查询参数",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/exhibition/visits": {
+      "post": {
+        "operationId": "post_exhibition_visits",
+        "tags": [
+          "展会体验"
+        ],
+        "summary": "记录展会进入或成功查看报告",
+        "description": "手机号取自当前登录用户；按账号聚合；同request_id重放幂等、换event冲突409；由前端成功进入或渲染后记录，GET不记访问；无购买意向或营销消息。",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExhibitionVisitInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "登录无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "尚未同意查看机器人记录",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "演示未开启、儿童不属于当前家庭或无当前活跃演示关联",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "DINGDONG_BIND_PENDING：机器人待接通，请用原标签重试绑定",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "不支持的weekly_turns或其他查询参数",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "重复请求回读原始回执",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExhibitionVisitorReceipt"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "体验记录已保存",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExhibitionVisitorReceipt"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -11769,7 +12152,8 @@
             "enum": [
               "development",
               "test",
-              "production"
+              "production",
+              "demo"
             ]
           },
           "sms_mode": {
@@ -11780,7 +12164,8 @@
             ],
             "enum": [
               "fixed_code",
-              "provider"
+              "provider",
+              "aliyun_verify"
             ]
           },
           "data_source": {
@@ -11803,13 +12188,27 @@
             "examples": [
               "phase1-20260911-v1"
             ]
+          },
+          "exhibition_enabled": {
+            "type": "boolean",
+            "description": "当前环境是否启用展会共享演示"
+          },
+          "exhibition_chat_url": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uri",
+            "description": "服务端配置的展会聊天地址；关闭或缺配置时为空"
           }
         },
         "required": [
           "environment",
           "sms_mode",
           "data_source",
-          "fixture_dataset"
+          "fixture_dataset",
+          "exhibition_enabled",
+          "exhibition_chat_url"
         ]
       },
       "Csrf": {
@@ -15190,7 +15589,8 @@
           "bind_state",
           "bound_at",
           "created_at",
-          "is_prototype_demo"
+          "is_prototype_demo",
+          "chat_url"
         ],
         "properties": {
           "ca_account_id": {
@@ -15251,6 +15651,14 @@
           "is_prototype_demo": {
             "type": "boolean",
             "description": "本地演示关联标识；本地新号可映射固定供应商源，旧号永不复用。"
+          },
+          "chat_url": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uri",
+            "description": "当前有效已绑定共享源的聊天入口；不依赖报告拉取，其他状态为空"
           }
         }
       },
@@ -16711,7 +17119,10 @@
             ]
           },
           "prototype_url": {
-            "type": "string",
+            "type": [
+              "string",
+              "null"
+            ],
             "format": "uri"
           },
           "assessment": {
@@ -17202,6 +17613,170 @@
             "enum": [
               "simulation"
             ]
+          }
+        }
+      },
+      "ExhibitionReport": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "availability",
+          "assessment_type",
+          "persona_name",
+          "persona_type",
+          "match_score",
+          "companion_value",
+          "effective_turns",
+          "prototype_url",
+          "assessment",
+          "growth",
+          "weekly_turns",
+          "updated_at",
+          "sync_source"
+        ],
+        "properties": {
+          "availability": {
+            "type": "string",
+            "enum": [
+              "ready"
+            ]
+          },
+          "assessment_type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "persona_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "persona_type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "match_score": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "companion_value": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "effective_turns": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "prototype_url": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uri"
+          },
+          "assessment": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "baseline_scores"
+            ],
+            "properties": {
+              "baseline_scores": {
+                "$ref": "#/components/schemas/PrototypeDimensions"
+              }
+            }
+          },
+          "growth": {
+            "$ref": "#/components/schemas/PrototypeGrowth"
+          },
+          "weekly_turns": {
+            "type": "integer",
+            "enum": [
+              3,
+              7,
+              14,
+              21
+            ]
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "sync_source": {
+            "type": "string",
+            "enum": [
+              "pull",
+              "push"
+            ]
+          }
+        },
+        "description": "独立展会共享演示预览；须家长登录、显式demo开关，不建立设备绑定，不写个人报告；前端保留儿童建档流程。"
+      },
+      "ExhibitionVisitInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "event",
+          "request_id"
+        ],
+        "properties": {
+          "event": {
+            "type": "string",
+            "enum": [
+              "entered",
+              "report_viewed"
+            ]
+          },
+          "request_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "ExhibitionVisitorReceipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "first_entered_at",
+          "last_entered_at",
+          "last_report_viewed_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "first_entered_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "last_entered_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "last_report_viewed_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
           }
         }
       }

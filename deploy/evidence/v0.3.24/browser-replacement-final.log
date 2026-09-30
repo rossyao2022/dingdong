@@ -1,0 +1,8 @@
+
+Running 1 test using 1 worker
+
+(node:36109) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/parent-robot-experience.spec.js:137:1 › 换儿童后重新读取该孩子的机器人，换机不会归档上一儿童的机器人 (5.3s)
+
+  1 passed (6.4s)

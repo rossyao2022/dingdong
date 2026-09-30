@@ -541,7 +541,7 @@ wheels = [
 
 [[package]]
 name = "dingdong-ca-backend"
-version = "0.3.22"
+version = "0.3.24"
 source = { virtual = "." }
 dependencies = [
     { name = "alibabacloud-dypnsapi20170525" },

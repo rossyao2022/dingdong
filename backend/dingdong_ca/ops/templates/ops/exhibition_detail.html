@@ -1,0 +1,21 @@
+{% extends "ops/base.html" %}
+{% load ops_labels %}
+{% block title %}展会体验跟进{% endblock %}
+{% block page_title %}展会体验跟进{% endblock %}
+{% block crumb %}{{ row.user.phone }}{% endblock %}
+{% block content %}
+<div class="row row-cards"><div class="col-12 col-lg-7"><section class="card"><div class="card-body">
+<p>首次进入：{{ row.first_entered_at|date:"Y-m-d H:i"|default:"尚无记录" }}</p>
+<p>最近进入：{{ row.last_entered_at|date:"Y-m-d H:i"|default:"尚无记录" }}</p>
+<p>最近查看报告：{{ row.last_report_viewed_at|date:"Y-m-d H:i"|default:"尚无记录" }}</p>
+<form method="post">{% csrf_token %}{{ form.revision }}
+{% if form.non_field_errors %}<div class="alert alert-danger" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+<div class="mb-3">{{ form.status.label_tag }}{{ form.status }}{{ form.status.errors }}</div>
+<div class="mb-3">{{ form.note.label_tag }}{{ form.note }}{{ form.note.errors }}</div>
+<p class="text-secondary">仅保存跟进记录，不会自动联系家长。</p>
+<div class="btn-list"><button class="btn btn-primary" type="submit">保存跟进记录</button><a class="btn" href="{% url 'ops:exhibition' %}">返回列表</a></div>
+</form></div></section></div>
+<div class="col-12 col-lg-5"><section class="card"><div class="card-header"><h2 class="card-title">跟进历史</h2></div><div class="card-body"><ul class="timeline">
+{% for item in history %}<li><div>{{ item.actor|display_name }} · {{ item.created_at|date:"Y-m-d H:i" }}</div><div>{% if item.detail.status == "pending" %}待联系{% elif item.detail.status == "contacted" %}已联系{% else %}已结束{% endif %}</div><p>{{ item.detail.note|default:"未填写备注" }}</p></li>{% empty %}<li>还没有跟进记录。</li>{% endfor %}
+</ul></div></section></div></div>
+{% endblock %}

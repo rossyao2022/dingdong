@@ -1,0 +1,9 @@
+{
+  "boundary": "local synthetic supplier HTTP source, isolated schema, fixed SMS, no production/supplier writes",
+  "checks": [
+    "CA visible before 5s supplier; full robot response patches only robot region, open questionnaire chooser preserved",
+    "restored-login boot remains usable beyond 20s startup deadline; supplier timeout stays local, chat and CA available"
+  ],
+  "caVisibleAfterMs": 112,
+  "pageErrors": []
+}

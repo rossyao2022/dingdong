@@ -207,3 +207,36 @@ def process_event(event_id):
         event.save(update_fields=["processing_status", "processing_error", "updated_at"])
         event_log(event, event.processing_status, event.processing_error)
         return event
+
+
+def shared_snapshot(weekly):
+    from dingdong_ca.core.api.common import ApiError
+
+    from . import dingdong_client
+    from .dingdong_client import DingDongError
+
+    snapshot = latest_push(weekly)
+    failure = None
+    try:
+        if not dingdong_client.is_configured():
+            raise ApiError("DINGDONG_NOT_CONFIGURED", 503, "伙伴数据暂不可用")
+        data = dingdong_client.call(
+            "GET",
+            "/api/v1/ca/prototype/insights",
+            query={"ca_account_id": PROTOTYPE_ACCOUNT_ID, "weekly_turns": weekly},
+        )
+        view = report_view(data, weekly)
+        pulled = save_snapshot(view, "pull")
+        # A slower response can overlap a newer webhook; compare after receiving pull.
+        snapshot = latest_push(weekly)
+        if snapshot is None or snapshot.source_updated_at <= parse_datetime(view["updated_at"]):
+            snapshot = pulled
+    except DingDongError:
+        failure = ApiError("DINGDONG_UNAVAILABLE", 502, "伙伴数据暂不可用")
+    except InvalidPrototypeReport:
+        failure = ApiError("DINGDONG_RESPONSE_INVALID", 502, "伙伴数据暂不可用")
+    except ApiError as exc:
+        failure = exc
+    if failure and snapshot is None:
+        raise failure
+    return snapshot

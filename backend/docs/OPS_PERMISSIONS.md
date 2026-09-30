@@ -63,6 +63,8 @@
 | `service.view` | ✓ | | ✓ | ✓ | 服务事项列表、事项详情 |
 | `service.handle` | ✓ | | ✓ | ✓ | 确认已处理 |
 | `service.delete` | | | ✓ | ✓ | 执行数据删除 |
+| `exhibition.view` | ✓ | | ✓ | ✓ | 展会体验用户列表、详情 |
+| `exhibition.handle` | ✓ | | ✓ | ✓ | 保存跟进状态和备注，不自动发送消息 |
 | `audit.view` | ✓ | | ✓ | ✓ | 操作审计 |
 | `account.manage` | | | | ✓ | 账号管理全部功能 |
 
@@ -76,6 +78,7 @@
 | 日常 | 家庭与儿童 | `family.view` |
 | 日常 | 服务事项 | `service.view` |
 | 日常 | 报告管理 | `report.view` |
+| 日常 | 展会体验用户 | `exhibition.view` |
 | 内容 | 题库管理 | `questionnaire.view` |
 | 内容 | 活动管理 | `activity.view` |
 | 技术 | 生成任务 | `job.view` |

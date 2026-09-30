@@ -182,3 +182,17 @@ class OpsPasswordChangeForm(OpsFormMixin, PasswordChangeForm):
         self.fields["old_password"].label = "当前密码"
         self.fields["new_password1"].label = "新密码"
         self.fields["new_password2"].label = "确认新密码"
+
+
+class ExhibitionFollowupForm(OpsFormMixin, forms.Form):
+    revision = forms.IntegerField(min_value=1, widget=forms.HiddenInput)
+    status = forms.ChoiceField(
+        label="跟进状态",
+        choices=[("pending", "待联系"), ("contacted", "已联系"), ("closed", "已结束")],
+    )
+    note = forms.CharField(
+        label="跟进备注",
+        max_length=2000,
+        required=False,
+        widget=forms.Textarea(attrs={"rows": 4}),
+    )

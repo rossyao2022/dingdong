@@ -169,3 +169,34 @@ test("会展标记兼容固定旧号与新ULID", () => {
   assert.equal(isPrototypeDemo({ ca_account_id: "ca_new" }), false);
   assert.equal(isPrototypeDemo(null), false);
 });
+
+test("bound account is active and belongs to the current child; pending/retired/another child never grant report access", async () => {
+  const { boundAccount } = await import("../ca-link.js");
+  const rows = [
+    { status: "retired", bind_state: "bound", child_id: "a" },
+    { status: "active", bind_state: "bound", child_id: "b" },
+    { status: "active", bind_state: "unbound", child_id: "a" },
+  ];
+  assert.equal(boundAccount(rows, "a"), null);
+  const own = { status: "active", bind_state: "bound", child_id: "a" };
+  assert.equal(boundAccount([...rows, own], "a"), own);
+  assert.equal(boundAccount([own], "b"), null);
+});
+
+test("chat destination never propagates credentials, parameters or executable URLs", async () => {
+  const { safeChatUrl } = await import("../ca-link.js");
+  assert.equal(safeChatUrl("http://122.51.108.225"), "http://122.51.108.225/");
+  assert.equal(
+    safeChatUrl("https://example.org/chat"),
+    "https://example.org/chat",
+  );
+  for (const value of [
+    "javascript:alert(1)",
+    "//example.org",
+    "https://u:p@example.org",
+    "https://example.org?nfc_token=secret",
+    "https://example.org#access=secret",
+    null,
+  ])
+    assert.equal(safeChatUrl(value), null);
+});

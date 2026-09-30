@@ -627,7 +627,8 @@ def test_every_openapi_operation_has_a_real_view():
     # 一律以 child_id 为键，家长端不出现 ca_account_id。
     # 会展固定号增加一个授权后的 Prototype 聚合结果只读接口。
     # 网页陪伴偏好的 GET/PATCH 与当前儿童真实记录导出增加3个操作。
-    assert operations == 65
+    # 独立展会报告读取与登录用户体验记录增加2个操作，不放宽个人报告授权。
+    assert operations == 67
 
 
 def test_initial_fixture_tracks_current_questionnaire_and_can_target_fixed_old_session(client):

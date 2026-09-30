@@ -1,5 +1,15 @@
 /** Render only the supplied DingDong snapshot; never calculate projected scores here. */
-import { esc } from "./ui-components.js?v=0.3.23";
+import { esc } from "./ui-components.js?v=0.3.24";
+import { boundAccount, safeChatUrl } from "./ca-link.js?v=0.3.24";
+
+export function renderRobotEntry(accounts, childId, runtime = {}) {
+  const bound = boundAccount(accounts, childId);
+  const chat = safeChatUrl(bound?.chat_url);
+  const exhibition = runtime?.exhibition_enabled
+    ? '<a class="button secondary" href="#exhibition">展会体验</a>'
+    : "";
+  return `<section class="panel robot-entry"><h2>我的机器人</h2><p>${bound ? "机器人已绑定，来看看陪伴记录，或和 DingDong 聊聊。" : "还没有绑定机器人。可以继续探索和测评，也可以绑定机器人查看陪伴记录。"}</p><div class="actions">${bound ? `${chat ? `<a class="button" href="${esc(chat)}" target="_blank" rel="noopener noreferrer">和 DingDong 对话 ↗</a>` : ""}<a class="button secondary" href="#reports">查看机器人报告</a><a class="text-button" href="#settings">管理机器人</a>` : '<button class="button" type="button" data-action="bind-robot">绑定机器人</button>'}${exhibition}</div></section>`;
+}
 
 export const DIMENSION_KEYS = Object.freeze([
   "linguistic",
@@ -106,7 +116,7 @@ function curveSvg(view) {
     )
   )
     return '<div class="dd-report-empty"><p>曲线还没有记录，稍后可以再来看。</p></div>';
-  const x = (index) => 58 + index * 91;
+  const x = (day) => 58 + (day / 180) * 546;
   const y = (value) => 285 - value * 2.45;
   const grid = [0, 25, 50, 75, 100]
     .map(
@@ -116,18 +126,19 @@ function curveSvg(view) {
     .join("");
   const labels = CURVE_DAYS.map(
     (day, index) =>
-      `<text x="${x(index)}" y="319" text-anchor="middle">${day}</text>`,
+      `<text x="${x(day)}" y="${index % 2 ? 336 : 319}" text-anchor="middle">${day}</text>`,
   ).join("");
   const lines = view.dimensions
     .map((dimension) => {
       const segments = [];
       let points = [];
-      for (const [index, point] of view.curve.entries()) {
+      for (const point of view.curve) {
         const value = point.dimensions[dimension.key];
         if (value === null) {
           if (points.length) segments.push(points);
           points = [];
-        } else points.push({ x: x(index), y: y(value), value, day: point.day });
+        } else
+          points.push({ x: x(point.day), y: y(value), value, day: point.day });
       }
       if (points.length) segments.push(points);
       return segments
@@ -142,8 +153,7 @@ function curveSvg(view) {
 }
 
 export function renderDingDongReport(data, options = {}) {
-  const title =
-    '<div class="dd-report-heading"><span class="eyebrow">DINGDONG · 陪伴与发现</span><h1 aria-label="DingDong 陪伴成长报告">DingDong <span class="dd-report-title-phrase">陪伴成长报告</span></h1></div>';
+  const title = `<div class="dd-report-heading"><span class="eyebrow">DINGDONG · 陪伴与发现</span>${options.demonstration ? '<span class="tag muted">演示内容</span>' : ""}<h1 aria-label="DingDong 陪伴成长报告">DingDong <span class="dd-report-title-phrase">陪伴成长报告</span></h1></div>`;
   const view = normaliseDingDongReport(data);
   if (!view) {
     const text =
@@ -166,7 +176,7 @@ export function renderDingDongReport(data, options = {}) {
       }).format(new Date(view.updatedAt))
     : null;
   const summary = `<section class="panel dd-report-summary"><div><span class="dd-report-label">陪学伙伴</span><h2>${view.personaName ? esc(view.personaName) : "还没有选择伙伴"}</h2></div><div><span class="dd-report-label">陪伴值</span><strong>${esc(display(view.companionValue))}</strong></div><div><span class="dd-report-label">有效互动</span><strong>${esc(display(view.effectiveTurns))}<small> 次</small></strong></div></section>`;
-  const frequency = `<section class="panel dd-report-frequency"><h2>预计每周聊几次？</h2><p>选择一个舒服的节奏，看看不同陪伴频率下的参考趋势。</p><div class="dd-report-frequency-actions" role="group" aria-label="预计每周对话次数">${WEEKLY_TURNS.map((value) => `<button type="button" class="button secondary" data-action="dingdong-weekly-turns" data-value="${value}" aria-pressed="${weeklyTurns === value}">${value} 次</button>`).join("")}</div></section>`;
+  const frequency = `<section class="panel dd-report-frequency"><h2>预计每周聊几次？</h2><p>选择不同频率，体验模拟趋势，不会修改机器人设置。</p><div class="dd-report-frequency-actions" role="group" aria-label="预计每周对话次数">${WEEKLY_TURNS.map((value) => `<button type="button" class="button secondary" data-action="dingdong-weekly-turns" data-value="${value}" aria-pressed="${weeklyTurns === value}">${value} 次</button>`).join("")}</div></section>`;
   const chart = `<section class="panel dd-report-trend"><h2>好奇心，一点一点积累</h2><p class="dd-report-simulation">模拟趋势参考：根据陪伴情况估算，未来可能与这里不同，不代表孩子的能力或正式测评结果。</p>${curveSvg(view)}</section>`;
   const comparison = `<section class="panel dd-report-comparison"><h2>从起点，看看未来的可能</h2><p>这里只作趋势参考，缺少记录的地方保持空白。</p><div class="dd-report-table" role="table" aria-label="八个方面的起点、目前和180天参考"><div class="dd-report-row dd-report-table-head" role="row"><span role="columnheader">观察方向</span><span role="columnheader">起点</span><span role="columnheader">目前</span><span role="columnheader">180 天参考</span></div>${view.dimensions.map((d) => `<div class="dd-report-row" role="row"><span role="rowheader">${esc(d.label)}</span><span role="cell">${esc(display(d.baseline))}</span><span role="cell">${esc(display(d.current))}</span><span role="cell">${esc(display(d.future))}</span></div>`).join("")}</div></section>`;
   const footer = `<div class="dd-report-footer">${updated ? `<p>最近更新：${esc(updated)}</p>` : ""}<button type="button" class="button secondary" data-action="dingdong-report-refresh">刷新陪伴变化</button></div>`;

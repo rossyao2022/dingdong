@@ -1,0 +1,18 @@
+{% extends "ops/base.html" %}
+{% block title %}展会体验用户{% endblock %}
+{% block page_title %}展会体验用户{% endblock %}
+{% block crumb %}查看体验记录与跟进情况{% endblock %}
+{% block content %}
+{% include "ops/_filter_problems.html" %}
+<section class="card"><div class="card-body">
+<form method="get" class="row g-3 align-items-end">
+<div class="col-12 col-md-5"><label class="form-label" for="q">家长手机号</label><input class="form-control" id="q" name="q" value="{{ keyword }}" type="search"></div>
+<div class="col-12 col-md-4"><label class="form-label" for="status">跟进状态</label><select class="form-select" id="status" name="status"><option value="">全部</option>{% for key,text in statuses.items %}<option value="{{ key }}" {% if status == key %}selected{% endif %}>{{ text }}</option>{% endfor %}</select></div>
+<div class="col-12 col-md-3"><button class="btn btn-primary" type="submit">筛选</button></div>
+</form>
+<p class="text-secondary mt-3 mb-0">这里记录展会体验情况，不代表购买意向。修改跟进状态不会发送消息。</p>
+</div></section>
+<section class="card mt-3"><div class="table-responsive"><table class="table table-vcenter"><thead><tr><th>家长手机号</th><th>最近进入</th><th>最近查看报告</th><th>跟进状态</th><th>操作</th></tr></thead><tbody>
+{% for row in items %}<tr><td>{{ row.user.phone }}</td><td>{{ row.last_entered_at|date:"Y-m-d H:i"|default:"尚无记录" }}</td><td>{{ row.last_report_viewed_at|date:"Y-m-d H:i"|default:"尚无记录" }}</td><td>{% if row.status == "pending" %}待联系{% elif row.status == "contacted" %}已联系{% else %}已结束{% endif %}</td><td><a href="{% url 'ops:exhibition_detail' row.pk %}">查看与跟进</a></td></tr>{% empty %}<tr><td colspan="5" class="text-center text-secondary">尚无符合条件的体验用户。</td></tr>{% endfor %}
+</tbody></table></div>{% include "ops/_pagination.html" %}</section>
+{% endblock %}

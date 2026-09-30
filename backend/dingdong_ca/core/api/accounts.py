@@ -14,6 +14,7 @@ from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 
 from dingdong_ca.core.models import Family, FamilyMembership, LoginGrant, SmsChallenge
+from dingdong_ca.core.services import ca_account
 from dingdong_ca.core.services.aliyun_verify_sms import SmsDeliveryError, send_verification_code
 
 from .common import ApiError, audit, endpoint, family_for, validate
@@ -89,6 +90,8 @@ def runtime(request):
             "sms_mode": settings.SMS_MODE,
             "data_source": settings.INTEGRATION_DATA_SOURCE,
             "fixture_dataset": None,
+            "exhibition_enabled": ca_account.prototype_demo_enabled(),
+            "exhibition_chat_url": ca_account.prototype_chat_url(),
         }
     )
 

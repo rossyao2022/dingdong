@@ -150,3 +150,36 @@ test("absent report, loading/error and partial data produce readable states with
   assert.ok(!html.includes("undefined"));
   assert.ok(!html.includes("NaN"));
 });
+
+test("simulation curve uses real day spacing and does not change robot settings", () => {
+  const html = renderDingDongReport(report(), { demonstration: true });
+  assert.match(html, /cx="79\.23333333333333"[^>]+><title>语言表达 · 第 7 天/);
+  assert.match(html, /不会修改机器人设置/);
+  assert.match(html, /演示内容/);
+  assert.match(html, /有效互动/);
+  assert.ok(!html.includes("<details"));
+});
+
+test("robot entry keeps bound chat independent of report read failures and preserves unbound CA experience", async () => {
+  const { renderRobotEntry } = await import("../dingdong-report.js");
+  const account = {
+    status: "active",
+    bind_state: "bound",
+    child_id: "a",
+    chat_url: "http://122.51.108.225",
+  };
+  const bound = renderRobotEntry([account], "a", { exhibition_enabled: true });
+  assert.match(bound, /和 DingDong 对话/);
+  assert.match(bound, /href="#reports"/);
+  assert.match(bound, /href="#settings"/);
+  assert.ok(!bound.includes("展会机器人"));
+  const own = renderRobotEntry([account], "b", { exhibition_enabled: true });
+  assert.match(own, /绑定机器人/);
+  assert.match(own, /href="#exhibition"/);
+  assert.ok(!own.includes("http://122.51"));
+  assert.ok(
+    !renderRobotEntry([], "a", { exhibition_enabled: false }).includes(
+      "#exhibition",
+    ),
+  );
+});

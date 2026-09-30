@@ -103,6 +103,31 @@ export function replaceFlowNeeded(err) {
 export const activeAccount = (rows) =>
   (rows || []).find((a) => a.status === "active") || null;
 
+export const boundAccount = (rows, childId) =>
+  (rows || []).find(
+    (a) =>
+      a.status === "active" &&
+      a.bind_state === "bound" &&
+      a.child_id === childId,
+  ) || null;
+
+/** Only the configured destination; never carry binding/authentication parameters. */
+export function safeChatUrl(value) {
+  if (typeof value !== "string") return null;
+  try {
+    const url = new URL(value);
+    return ["http:", "https:"].includes(url.protocol) &&
+      !url.username &&
+      !url.password &&
+      !url.search &&
+      !url.hash
+      ? url.href
+      : null;
+  } catch {
+    return null;
+  }
+}
+
 export const retiredAccounts = (rows) =>
   (rows || []).filter((a) => a.status !== "active");
 

@@ -210,3 +210,48 @@ class PrototypeReportSnapshot(ImmutableResult):
                 name="prototype_pull_content_unique",
             ),
         ]
+
+
+class ExhibitionVisitor(Entity):
+    """Existing parent account's exhibition activity, not a purchase-intent record."""
+
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    first_entered_at = models.DateTimeField(null=True)
+    last_entered_at = models.DateTimeField(null=True)
+    last_report_viewed_at = models.DateTimeField(null=True)
+    status = models.CharField(max_length=16, default="pending")
+    note = models.CharField(max_length=2000, blank=True, default="")
+    revision = models.PositiveBigIntegerField(default=1)
+
+    class Meta:
+        db_table = "exhibition_visitor"
+        ordering = ["-updated_at", "-id"]
+        constraints = [
+            models.CheckConstraint(
+                condition=Q(status__in=["pending", "contacted", "closed"]),
+                name="exhibition_followup_status_valid",
+            ),
+            models.CheckConstraint(
+                condition=Q(revision__gte=1), name="exhibition_revision_positive"
+            ),
+        ]
+
+
+class ExhibitionVisit(Entity):
+    """Immutable request receipt keeps retries from moving visit timestamps."""
+
+    visitor = models.ForeignKey(ExhibitionVisitor, on_delete=models.PROTECT)
+    request_id = models.UUIDField()
+    event = models.CharField(max_length=16)
+    response = models.JSONField()
+
+    class Meta:
+        db_table = "exhibition_visit"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["visitor", "request_id"], name="exhibition_visit_unique"
+            ),
+            models.CheckConstraint(
+                condition=Q(event__in=["entered", "report_viewed"]), name="exhibition_event_valid"
+            ),
+        ]

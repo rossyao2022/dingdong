@@ -21,7 +21,8 @@
   "children": [
     "09-30-prototype-exploration-data",
     "09-30-prototype-modules",
-    "09-30-prototype-ui-integration"
+    "09-30-prototype-ui-integration",
+    "10-01-parent-robot-experience"
   ],
   "parent": null,
   "relatedFiles": [],

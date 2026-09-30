@@ -1,10 +1,12 @@
 from django.urls import path
 
-from . import api, captcha, views
+from . import api, captcha, exhibition, views
 
 app_name = "ops"
 
 urlpatterns = [
+    path("exhibition/", exhibition.visitors, name="exhibition"),
+    path("exhibition/<uuid:visitor_id>/", exhibition.detail, name="exhibition_detail"),
     path("", views.dashboard, name="dashboard"),
     path("login/", views.OpsLoginView.as_view(), name="login"),
     path("captcha/", captcha.image, name="captcha"),

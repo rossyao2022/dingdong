@@ -1259,3 +1259,44 @@ dialog::backdrop {
 .island-title b {
   color: #584579;
 }
+
+/* Reports keep CA results and robot records visually separate, with reachable in-page actions. */
+.report-jumps {
+  gap: 12px;
+}
+#dingdong-growth-report,
+#personal-assessments {
+  scroll-margin-top: 96px;
+}
+.assessment-start > summary {
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 18px;
+  min-height: 44px;
+  line-height: 44px;
+}
+.assessment-start[open] > summary {
+  margin-bottom: 20px;
+}
+.assessment-start .card {
+  min-width: 0;
+}
+.robot-entry {
+  margin-bottom: 24px;
+}
+.robot-entry .actions {
+  margin-top: 18px;
+  gap: 12px;
+}
+@media (max-width: 620px) {
+  .robot-entry .actions > .button {
+    flex: 1 1 100%;
+    text-align: center;
+  }
+  .report-jumps > .button {
+    flex: 1 1 0;
+  }
+  .report-flow {
+    gap: 18px;
+  }
+}

@@ -1,0 +1,8 @@
+
+Running 1 test using 1 worker
+
+(node:30284) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/parent-ca-report.spec.js:8:1 › 未绑定从统一问卷入口完成22题，经真实Worker生成并回看自己的CA报告 (24.2s)
+
+  1 passed (25.0s)

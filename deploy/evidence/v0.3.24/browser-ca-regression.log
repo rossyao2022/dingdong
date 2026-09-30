@@ -1,0 +1,16 @@
+
+Running 9 tests using 1 worker
+
+(node:29116) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/prototype-audit-fixes.spec.js:73:1 › 原四类偏好真实保存、刷新恢复、儿童隔离、退出 (7.5s)
+  ✓  2 tests/prototype-audit-fixes.spec.js:120:1 › 活动四种引导实际不同、自主模式、上一步、筛选与真实导出 (41.9s)
+  ✓  3 tests/prototype-audit-fixes.spec.js:256:1 › 伙伴四情境、服务端分布、重做保留旧结果与家长支持 (12.0s)
+  ✓  4 tests/prototype-integration.spec.js:116:1 › 六岛完整、选三顺序、九题真实保存、刷新恢复与儿童隔离 (2.8s)
+  ✓  5 tests/prototype-integration.spec.js:252:1 › 24题八维观察真实作答、断点恢复、最低分相同不强排前三 (6.8s)
+  ✓  6 tests/prototype-integration.spec.js:303:1 › 八维最高分及第四名并列全部呈现，重新探索保留历史结果 (8.4s)
+  ✓  7 tests/prototype-integration.spec.js:355:1 › 过期草稿重新打开建立新答卷，原答案保留且选岛不丢 (5.2s)
+  ✓  8 tests/prototype-integration.spec.js:407:1 › 指纹四类完整指南、示例及临时预览不上传，离开释放图片 (8.3s)
+  ✓  9 tests/prototype-integration.spec.js:501:1 › 四模块和六岛在手机平板桌面无溢出、遮挡或坏图 (2.3s)
+
+  9 passed (1.6m)

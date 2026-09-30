@@ -266,3 +266,26 @@ def retire_account(account, user):
         ).values_list("pk", flat=True):
             end_association(lock_association(ident), user)
     return account
+
+
+def prototype_chat_url():
+    """Only a configured exhibition URL, never credentials or household parameters."""
+    from urllib.parse import urlsplit
+
+    if not prototype_demo_enabled():
+        return None
+    url = settings.DINGDONG_PROTOTYPE_WEB_URL or settings.DINGDONG_BASE_URL
+    try:
+        parsed = urlsplit(url)
+        if (
+            parsed.scheme not in {"http", "https"}
+            or not parsed.hostname
+            or parsed.username
+            or parsed.password
+        ):
+            return None
+        if parsed.query or parsed.fragment:
+            return None
+        return url
+    except ValueError:
+        return None
