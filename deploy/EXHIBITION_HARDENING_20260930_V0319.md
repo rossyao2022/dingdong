@@ -27,6 +27,10 @@
 
 两份 PDF 位于本机 Git 忽略的 `output/pdf/`，版本后缀 `v0.3.19`。截图注明隔离 E2E 与 DingDong Prototype 来源；本地截图不能代替生产真机验收。运营账号密码沿用已获授权的私密凭据来源。
 
+## 本地发布包
+
+分支 `codex/release-v0.3.19`；包内源码提交 `45f4ea792a00ae059d561d5d068b4e7421c00b2c`。标准工具生成 `dist/dingdong-v0.3.19.tar.gz`，SHA-256 为 `03c15189a74bd9dfc7c531e546f99f2db7d9e733ca22beb4408dbec2c36fedc5`，包内无 `.env`、私钥或 PEM 文件。[完整性记录](evidence/v0.3.19/package-integrity.json)。后续归档、journal 和包摘要文档提交不改变该包中的运行时代码。
+
 ## 生产机下一步（待单独放行）
 
 1. 推送本地 v0.3.19 分支；生产机先备份当前试用库，部署到独立 `dingdong-prod-trial`。沿用现有主机 env 与密钥，不读取、复制或打印它们；不影响同机其他业务。
