@@ -1,0 +1,14 @@
+{
+  "version": "0.3.23",
+  "same_affected_user_tab": true,
+  "normal_reload": true,
+  "main_aria_busy": "false",
+  "normal_exploration_home_visible": true,
+  "prior_login_retained": true,
+  "prior_island_selection_visible": true,
+  "all_script_tags_current_version": true,
+  "new_module_export_errors": 0,
+  "old_console_errors_retained_as_history": true,
+  "no_sms_or_binding_write": true,
+  "family_details_in_evidence": false
+}

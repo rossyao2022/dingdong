@@ -1,0 +1,9 @@
+{
+  "version": "0.3.23",
+  "source_commit": "d8527dd1c94b5f1cb3a8b4015ae8bc6bbaf320a3",
+  "sha256": "9d662f24770bc758f6e599ffd3ba73ef36291ed0549cc228de4ca39214eb57b1",
+  "bytes": 4473626,
+  "runtime_files_byte_verified": 434,
+  "private_assets_and_evidence_excluded": true,
+  "status": "published and deployed; production version0.3.23, public graph and original affected browser verified 2026-10-01"
+}

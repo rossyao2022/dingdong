@@ -1,0 +1,78 @@
+a71300b335278fa58cc422257d92e56210c474412fcfdba9e55fb0c2dd337b6f  /opt/dingdong/backups/pre-v0.3.23-20261001.dump
+BACKUP_BYTES=188219 MODE=600
+BACKUP_LIST_VERIFIED
+dingdong-v0.3.23.tar.gz: OK
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  7.357MB
+
+Step 1/5 : FROM dingdong-backend:0.3.20
+ ---> 3410b564a9db
+Step 2/5 : USER root
+ ---> Using cache
+ ---> 18a9407f1d29
+Step 3/5 : COPY --chown=app:app backend/ /app/
+ ---> Using cache
+ ---> ea23bfd89404
+Step 4/5 : RUN DJANGO_SETTINGS_MODULE=config.settings.base .venv/bin/python manage.py collectstatic --noinput
+ ---> Using cache
+ ---> f82a07523bbe
+Step 5/5 : USER app
+ ---> Using cache
+ ---> be5ffa62359f
+Successfully built be5ffa62359f
+Successfully tagged dingdong-backend:0.3.23
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  7.357MB
+
+Step 1/7 : FROM dingdong-web:0.3.20
+ ---> a66800a4c917
+Step 2/7 : COPY deploy/nginx.conf.template /etc/nginx/templates/default.conf.template
+ ---> e0d1d0b8467c
+Step 3/7 : COPY frontend/index.html frontend/*.css frontend/app.js frontend/bootstrap.js frontend/api.js frontend/playworld.js frontend/companion.js frontend/reassessment.js frontend/growth-cycle.js frontend/ca-link.js frontend/dingdong-report.js frontend/ui-components.js frontend/talent-data.js frontend/talent-explorer.js frontend/career-data.js frontend/career-explorer.js frontend/riasec.js frontend/island-explorer.js frontend/fingerprint-guide.js frontend/fingerprint.js frontend/exploration-session.js frontend/guide-preference.js frontend/legacy.js /usr/share/nginx/html/
+ ---> eb3defd0a2c4
+Step 4/7 : COPY frontend/daily.html frontend/test.html frontend/result.html frontend/thumb.html frontend/island.html frontend/blindbox.html frontend/report.html /usr/share/nginx/html/
+ ---> 57898220b846
+Step 5/7 : COPY frontend/assets /usr/share/nginx/html/assets
+ ---> d6d68be1853b
+Step 6/7 : COPY VERSION /usr/share/nginx/html/version.txt
+ ---> a1c98a7dfd8d
+Step 7/7 : RUN find /usr/share/nginx/html -type d -exec chmod 755 {} +     && find /usr/share/nginx/html -type f -exec chmod 644 {} +
+ ---> Running in 0b650c339f7e
+ ---> Removed intermediate container 0b650c339f7e
+ ---> 0ef8cd6e92e0
+Successfully built 0ef8cd6e92e0
+Successfully tagged dingdong-web:0.3.23
+System check identified no issues (0 silenced).
+Operations to perform:
+  Apply all migrations: admin, auth, contenttypes, core, sessions, testsupport, users
+Running migrations:
+  No migrations to apply.
+ Container dingdong-prod-trial-api-1  Recreate
+ Container dingdong-prod-trial-api-1  Recreated
+ Container dingdong-prod-trial-beat-1  Recreate
+ Container dingdong-prod-trial-worker-1  Recreate
+ Container dingdong-prod-trial-web-1  Recreate
+ Container dingdong-prod-trial-web-1  Recreated
+ Container dingdong-prod-trial-beat-1  Recreated
+ Container dingdong-prod-trial-worker-1  Recreated
+ Container dingdong-prod-trial-api-1  Starting
+ Container dingdong-prod-trial-api-1  Started
+ Container dingdong-prod-trial-api-1  Waiting
+ Container dingdong-prod-trial-api-1  Waiting
+ Container dingdong-prod-trial-api-1  Waiting
+ Container dingdong-prod-trial-api-1  Healthy
+ Container dingdong-prod-trial-web-1  Starting
+ Container dingdong-prod-trial-api-1  Healthy
+ Container dingdong-prod-trial-beat-1  Starting
+ Container dingdong-prod-trial-api-1  Healthy
+ Container dingdong-prod-trial-worker-1  Starting
+ Container dingdong-prod-trial-worker-1  Started
+ Container dingdong-prod-trial-beat-1  Started
+ Container dingdong-prod-trial-web-1  Started
+DEPLOY_V0323_FINISHED

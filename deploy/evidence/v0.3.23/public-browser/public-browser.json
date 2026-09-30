@@ -1,0 +1,593 @@
+{
+  "date": "2026-09-30T18:45:56.755Z",
+  "release": "0.3.23",
+  "actual_version": "0.3.23",
+  "verification": "Public app.js SHA256 matches current verified local release",
+  "entry": "https://1.15.23.152/dingdong/",
+  "browser": "real Chrome headless, new unauthenticated context",
+  "https_certificate_handling": "ignoreHTTPSErrors enabled for IP test entry; certificate validity is not asserted",
+  "readiness_attempts": 1,
+  "app_sha256": "81ab2ffa8e3e4e7f854d8f0af143f51b850e493e81363bcefae955ad352b350c",
+  "runtime": {
+    "environment": "demo",
+    "sms_mode": "aliyun_verify",
+    "data_source": "database_fixture",
+    "fixture_dataset": null
+  },
+  "sms_requests": 0,
+  "business_write_requests": [],
+  "authenticated_production_logins": 0,
+  "static_modules": [
+    {
+      "path": "styles.css",
+      "type": "style",
+      "status": 200,
+      "cache_control": "no-store, max-age=0",
+      "sha256": "1b6dbc81ec56b23c3629df2c931e91c03e2079bb97e9f5bf0b3d376e2dbb3780"
+    },
+    {
+      "path": "playful.css",
+      "type": "style",
+      "status": 200,
+      "cache_control": "no-store, max-age=0",
+      "sha256": "ea2dd5203901548871d4cf723b58049a15375c7260028d0df9241d0dadd5a680"
+    },
+    {
+      "path": "client.css",
+      "type": "style",
+      "status": 200,
+      "cache_control": "no-store, max-age=0",
+      "sha256": "fb3b55a39060f85e9545cc9373c58e513b03764b823d328c36d0fd84917fc7a1"
+    },
+    {
+      "path": "app.js",
+      "type": "script",
+      "status": 200,
+      "cache_control": "no-store, max-age=0",
+      "sha256": "81ab2ffa8e3e4e7f854d8f0af143f51b850e493e81363bcefae955ad352b350c"
+    },
+    {
+      "path": "bootstrap.js",
+      "type": "script",
+      "status": 200,
+      "cache_control": "no-store, max-age=0",
+      "sha256": "3950923e02106c2a40238ee2aa7bed31b901c2fd325477c766f7e67fd8c39341"
+    },
+    {
+      "path": "api.js",
+      "type": "script",
+      "status": 200,
+      "cache_control": "no-store, max-age=0",
+      "sha256": "d3d0fa7fc8391dea3c125d82e52d4fdc2fbdfeb65b7a2dc6ab0be0481916adf2"
+    },
+    {
+      "path": "ca-link.js",
+      "type": "script",
+      "status": 200,
+      "cache_control": "no-store, max-age=0",
+      "sha256": "6b85fbe3081ba527161a1d70d700eaa4a0215a34dc9836e49c8aa93ea89348cd"
+    },
+    {
+      "path": "dingdong-report.js",
+      "type": "script",
+      "status": 200,
+      "cache_control": "no-store, max-age=0",
+      "sha256": "32e6289b1c81a9d494fb7885b9fafa8e6afd2cc696c033a8657107d58f5d631a"
+    },
+    {
+      "path": "dingdong-report.css",
+      "type": "style",
+      "status": 200,
+      "cache_control": "no-store, max-age=0",
+      "sha256": "4370eae5b4c20bbfc86b1e363f5730170c5ccfbcca21419245e2115429cb1a6e"
+    },
+    {
+      "path": "companion.js",
+      "type": "script",
+      "status": 200,
+      "cache_control": "no-store, max-age=0",
+      "sha256": "d5e3c052adb23f9346415d58e17c906f5368b5013230d14ba03920e783c694ee"
+    },
+    {
+      "path": "growth-cycle.js",
+      "type": "script",
+      "status": 200,
+      "cache_control": "no-store, max-age=0",
+      "sha256": "dba1794cfba1f879f37188d6477b832259ce95ba703aa47effc7317a3b3d8f71"
+    },
+    {
+      "path": "reassessment.js",
+      "type": "script",
+      "status": 200,
+      "cache_control": "no-store, max-age=0",
+      "sha256": "3bdf40f87e4c00eab900818fd53af38de2539209217439416bf00b1e81805ebd"
+    },
+    {
+      "path": "ui-components.js",
+      "type": "script",
+      "status": 200,
+      "cache_control": "no-store, max-age=0",
+      "sha256": "808543372ac43f4af1217b9fb693ef1023ad98150b6fcc66b7d3606a0c2f4e19"
+    },
+    {
+      "path": "playworld.js",
+      "type": "script",
+      "status": 200,
+      "cache_control": "no-store, max-age=0",
+      "sha256": "e562c123becbe16c8cb41c8e7a413a4eeb43d528a279bdd5285b8db36e9395e5"
+    },
+    {
+      "path": "talent-data.js",
+      "type": "script",
+      "status": 200,
+      "cache_control": "no-store, max-age=0",
+      "sha256": "bd18778f814e8486b6413fc8f9273b833c997e0cc510a0f73bb0e14b9ca491b0"
+    },
+    {
+      "path": "talent-explorer.js",
+      "type": "script",
+      "status": 200,
+      "cache_control": "no-store, max-age=0",
+      "sha256": "7455512dc0002b12298244c342eea3882516351be18a07970e60fa8e2a20a4b5"
+    },
+    {
+      "path": "career-data.js",
+      "type": "script",
+      "status": 200,
+      "cache_control": "no-store, max-age=0",
+      "sha256": "609fa477f06d3515bf0d5c69534da4de6d5c3e04a7557bb4c6a8e19e546c4471"
+    },
+    {
+      "path": "career-explorer.js",
+      "type": "script",
+      "status": 200,
+      "cache_control": "no-store, max-age=0",
+      "sha256": "572248836ede3830d4a0b600e60d548156ce877bb46a6f8282e28d08c8522bf6"
+    },
+    {
+      "path": "riasec.js",
+      "type": "script",
+      "status": 200,
+      "cache_control": "no-store, max-age=0",
+      "sha256": "34ee44adf73bf7f292936dec264b8399dae97b06050adb61ffd3e5dfb870b51c"
+    },
+    {
+      "path": "island-explorer.js",
+      "type": "script",
+      "status": 200,
+      "cache_control": "no-store, max-age=0",
+      "sha256": "3a8b1b0025e1c9b95604cdf62a386b017a8b8a9a488329494daa97e0dadb0624"
+    },
+    {
+      "path": "fingerprint-guide.js",
+      "type": "script",
+      "status": 200,
+      "cache_control": "no-store, max-age=0",
+      "sha256": "aa182a4bf749aa020614ea90dbb5d43a7f8da63aa03cedd02d67cdd4e0c84aff"
+    },
+    {
+      "path": "fingerprint.js",
+      "type": "script",
+      "status": 200,
+      "cache_control": "no-store, max-age=0",
+      "sha256": "a72bceb540dd71701c3a8403d3811589741eccb0d264c584aa55cb4d80c2d445"
+    },
+    {
+      "path": "fingerprint.css",
+      "type": "style",
+      "status": 200,
+      "cache_control": "no-store, max-age=0",
+      "sha256": "bd8e505045f042af941846b74402f24a053289b34635bf4f8338b952da88acd4"
+    },
+    {
+      "path": "exploration-v4.css",
+      "type": "style",
+      "status": 200,
+      "cache_control": "no-store, max-age=0",
+      "sha256": "6fdf045b016b872397913f1ed205f4122d6ec880f04ca3b3221f3c9c783af5d4"
+    },
+    {
+      "path": "talents.css",
+      "type": "style",
+      "status": 200,
+      "cache_control": "no-store, max-age=0",
+      "sha256": "b628713368675bfdc176c7f1031a7fab55ccbf5337100cd4c5db83b3cbbcfc87"
+    },
+    {
+      "path": "readability.css",
+      "type": "style",
+      "status": 200,
+      "cache_control": "no-store, max-age=0",
+      "sha256": "45c66be237dbeb252020cc7e5a8de826b8d61eda445a597476c4b51d5ef9e1f0"
+    },
+    {
+      "path": "exploration-session.js",
+      "type": "script",
+      "status": 200,
+      "cache_control": "no-store, max-age=0",
+      "sha256": "444fe51d0d675c4f42f72f94fe46809bd3e07cf60ddeeed1c201efc6041ca359"
+    },
+    {
+      "path": "guide-preference.js",
+      "type": "script",
+      "status": 200,
+      "cache_control": "no-store, max-age=0",
+      "sha256": "599c49a30ccab7e5ce9b85ddf456ef2ef030aa4dcd840b63c2457add5b15cbdb"
+    },
+    {
+      "path": "legacy.js",
+      "type": "script",
+      "status": 200,
+      "cache_control": "no-store, max-age=0",
+      "sha256": "313915f70f2f4f7b82fb21f41830094c7c8fc247ac9a400897e4ea7a29359f1d"
+    }
+  ],
+  "html_cache_control": "no-store, max-age=0",
+  "browser_tagged_graph": [
+    "https://1.15.23.152/dingdong/styles.css?v=0.3.23",
+    "https://1.15.23.152/dingdong/dingdong-report.css?v=0.3.23",
+    "https://1.15.23.152/dingdong/playful.css?v=0.3.23",
+    "https://1.15.23.152/dingdong/fingerprint.css?v=0.3.23",
+    "https://1.15.23.152/dingdong/exploration-v4.css?v=0.3.23",
+    "https://1.15.23.152/dingdong/talents.css?v=0.3.23",
+    "https://1.15.23.152/dingdong/readability.css?v=0.3.23",
+    "https://1.15.23.152/dingdong/client.css?v=0.3.23",
+    "https://1.15.23.152/dingdong/talent-data.js?v=0.3.23",
+    "https://1.15.23.152/dingdong/talent-explorer.js?v=0.3.23",
+    "https://1.15.23.152/dingdong/career-data.js?v=0.3.23",
+    "https://1.15.23.152/dingdong/career-explorer.js?v=0.3.23",
+    "https://1.15.23.152/dingdong/riasec.js?v=0.3.23",
+    "https://1.15.23.152/dingdong/island-explorer.js?v=0.3.23",
+    "https://1.15.23.152/dingdong/fingerprint-guide.js?v=0.3.23",
+    "https://1.15.23.152/dingdong/fingerprint.js?v=0.3.23",
+    "https://1.15.23.152/dingdong/playworld.js?v=0.3.23",
+    "https://1.15.23.152/dingdong/bootstrap.js?v=0.3.23",
+    "https://1.15.23.152/dingdong/app.js?v=0.3.23",
+    "https://1.15.23.152/dingdong/api.js?v=0.3.23",
+    "https://1.15.23.152/dingdong/ca-link.js?v=0.3.23",
+    "https://1.15.23.152/dingdong/companion.js?v=0.3.23",
+    "https://1.15.23.152/dingdong/growth-cycle.js?v=0.3.23",
+    "https://1.15.23.152/dingdong/reassessment.js?v=0.3.23",
+    "https://1.15.23.152/dingdong/ui-components.js?v=0.3.23",
+    "https://1.15.23.152/dingdong/exploration-session.js?v=0.3.23",
+    "https://1.15.23.152/dingdong/guide-preference.js?v=0.3.23",
+    "https://1.15.23.152/dingdong/dingdong-report.js?v=0.3.23",
+    "https://1.15.23.152/dingdong/legacy.js?v=0.3.23"
+  ],
+  "html_asset_tags": [
+    "https://1.15.23.152/dingdong/styles.css?v=0.3.23",
+    "https://1.15.23.152/dingdong/dingdong-report.css?v=0.3.23",
+    "https://1.15.23.152/dingdong/playful.css?v=0.3.23",
+    "https://1.15.23.152/dingdong/fingerprint.css?v=0.3.23",
+    "https://1.15.23.152/dingdong/exploration-v4.css?v=0.3.23",
+    "https://1.15.23.152/dingdong/talents.css?v=0.3.23",
+    "https://1.15.23.152/dingdong/readability.css?v=0.3.23",
+    "https://1.15.23.152/dingdong/client.css?v=0.3.23",
+    "https://1.15.23.152/dingdong/talent-data.js?v=0.3.23",
+    "https://1.15.23.152/dingdong/talent-explorer.js?v=0.3.23",
+    "https://1.15.23.152/dingdong/career-data.js?v=0.3.23",
+    "https://1.15.23.152/dingdong/career-explorer.js?v=0.3.23",
+    "https://1.15.23.152/dingdong/riasec.js?v=0.3.23",
+    "https://1.15.23.152/dingdong/island-explorer.js?v=0.3.23",
+    "https://1.15.23.152/dingdong/fingerprint-guide.js?v=0.3.23",
+    "https://1.15.23.152/dingdong/fingerprint.js?v=0.3.23",
+    "https://1.15.23.152/dingdong/playworld.js?v=0.3.23",
+    "https://1.15.23.152/dingdong/bootstrap.js?v=0.3.23"
+  ],
+  "reference_images": [
+    {
+      "path": "https://1.15.23.152/dingdong/assets/dingdong.svg",
+      "loaded": true,
+      "width": 440,
+      "height": 460,
+      "decoded": true
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/dingdong/companion-world.webp",
+      "loaded": true,
+      "width": 760,
+      "height": 428,
+      "decoded": true
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/dingdong/fingerprint-lab.webp",
+      "loaded": true,
+      "width": 760,
+      "height": 760,
+      "decoded": true
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/dingdong/gift.webp",
+      "loaded": true,
+      "width": 760,
+      "height": 760,
+      "decoded": true
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/dingdong/island-A.webp",
+      "loaded": true,
+      "width": 760,
+      "height": 760,
+      "decoded": true
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/dingdong/island-C.webp",
+      "loaded": true,
+      "width": 760,
+      "height": 700,
+      "decoded": true
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/dingdong/island-E.webp",
+      "loaded": true,
+      "width": 760,
+      "height": 760,
+      "decoded": true
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/dingdong/island-I.webp",
+      "loaded": true,
+      "width": 760,
+      "height": 760,
+      "decoded": true
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/dingdong/island-R.webp",
+      "loaded": true,
+      "width": 760,
+      "height": 760,
+      "decoded": true
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/dingdong/island-S.webp",
+      "loaded": true,
+      "width": 760,
+      "height": 760,
+      "decoded": true
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/dingdong/robot-front.webp",
+      "loaded": true,
+      "width": 760,
+      "height": 760,
+      "decoded": true
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/dingdong/robot-wave.webp",
+      "loaded": true,
+      "width": 760,
+      "height": 760,
+      "decoded": true
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/fingerprints/arch.webp",
+      "loaded": true,
+      "width": 480,
+      "height": 480,
+      "decoded": true
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/fingerprints/loop.webp",
+      "loaded": true,
+      "width": 480,
+      "height": 480,
+      "decoded": true
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/fingerprints/reverse.webp",
+      "loaded": true,
+      "width": 480,
+      "height": 480,
+      "decoded": true
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/fingerprints/whorl.webp",
+      "loaded": true,
+      "width": 480,
+      "height": 480,
+      "decoded": true
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/generated/island-A-v5.webp",
+      "loaded": true,
+      "width": 720,
+      "height": 720,
+      "decoded": true
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/generated/island-C-v5.webp",
+      "loaded": true,
+      "width": 720,
+      "height": 720,
+      "decoded": true
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/generated/island-E-v5.webp",
+      "loaded": true,
+      "width": 720,
+      "height": 720,
+      "decoded": true
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/generated/island-I-v5.webp",
+      "loaded": true,
+      "width": 720,
+      "height": 720,
+      "decoded": true
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/generated/island-R-v5.webp",
+      "loaded": true,
+      "width": 720,
+      "height": 720,
+      "decoded": true
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/generated/island-S-v5.webp",
+      "loaded": true,
+      "width": 720,
+      "height": 720,
+      "decoded": true
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/islands/imagination.svg",
+      "loaded": true,
+      "width": 360,
+      "height": 300,
+      "decoded": true
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/islands/nature.svg",
+      "loaded": true,
+      "width": 360,
+      "height": 300,
+      "decoded": true
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/islands/science.svg",
+      "loaded": true,
+      "width": 360,
+      "height": 300,
+      "decoded": true
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/islands/story.svg",
+      "loaded": true,
+      "width": 360,
+      "height": 300,
+      "decoded": true
+    },
+    {
+      "path": "https://1.15.23.152/dingdong/assets/mark.svg",
+      "loaded": true,
+      "width": 150,
+      "height": 150,
+      "decoded": true
+    }
+  ],
+  "login_layouts": [
+    {
+      "width": 320,
+      "overflow": 0,
+      "code_button_overlap": false
+    },
+    {
+      "width": 390,
+      "overflow": 0,
+      "code_button_overlap": false
+    },
+    {
+      "width": 430,
+      "overflow": 0,
+      "code_button_overlap": false
+    },
+    {
+      "width": 768,
+      "overflow": 0,
+      "code_button_overlap": false
+    },
+    {
+      "width": 1024,
+      "overflow": 0,
+      "code_button_overlap": false
+    },
+    {
+      "width": 1280,
+      "overflow": 0,
+      "code_button_overlap": false
+    }
+  ],
+  "ops_login": {
+    "viewport": "390x844",
+    "captcha_present": true,
+    "captcha_submission": false
+  },
+  "page_errors": [],
+  "unexpected_console_errors": [],
+  "expected_anonymous_auth_console": [
+    {
+      "message": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "url": "https://1.15.23.152/api/v1/auth/refresh"
+    },
+    {
+      "message": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "url": "https://1.15.23.152/api/v1/auth/refresh"
+    },
+    {
+      "message": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "url": "https://1.15.23.152/api/v1/auth/refresh"
+    },
+    {
+      "message": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "url": "https://1.15.23.152/api/v1/auth/refresh"
+    },
+    {
+      "message": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "url": "https://1.15.23.152/api/v1/auth/refresh"
+    },
+    {
+      "message": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "url": "https://1.15.23.152/api/v1/auth/refresh"
+    },
+    {
+      "message": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "url": "https://1.15.23.152/api/v1/auth/refresh"
+    },
+    {
+      "message": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "url": "https://1.15.23.152/api/v1/auth/refresh"
+    }
+  ],
+  "failed_requests": [],
+  "failed_static": [],
+  "legacy_entries": [
+    {
+      "file": "daily.html",
+      "route": "home",
+      "final_url": "https://1.15.23.152/dingdong/index.html#home",
+      "anonymous_login": true
+    },
+    {
+      "file": "test.html",
+      "route": "talents",
+      "final_url": "https://1.15.23.152/dingdong/index.html#talents",
+      "anonymous_login": true
+    },
+    {
+      "file": "result.html",
+      "route": "talents",
+      "final_url": "https://1.15.23.152/dingdong/index.html#talents",
+      "anonymous_login": true
+    },
+    {
+      "file": "thumb.html",
+      "route": "fingerprint",
+      "final_url": "https://1.15.23.152/dingdong/index.html#fingerprint",
+      "anonymous_login": true
+    },
+    {
+      "file": "island.html",
+      "route": "explore",
+      "final_url": "https://1.15.23.152/dingdong/index.html#explore",
+      "anonymous_login": true
+    },
+    {
+      "file": "blindbox.html",
+      "route": "explore",
+      "final_url": "https://1.15.23.152/dingdong/index.html#explore",
+      "anonymous_login": true
+    },
+    {
+      "file": "report.html",
+      "route": "reports",
+      "final_url": "https://1.15.23.152/dingdong/index.html#reports",
+      "anonymous_login": true
+    }
+  ],
+  "technical_anonymous": {
+    "route": "/ops/dingdong-push/",
+    "final_path": "/ops/login/",
+    "login_required": true
+  },
+  "scope_limit": "No production signed-in exploration/NFC/result write, SMS send, supplier or physical device interaction"
+}
