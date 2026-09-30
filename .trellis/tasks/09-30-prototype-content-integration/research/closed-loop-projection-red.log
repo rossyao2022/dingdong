@@ -1,0 +1,827 @@
+FFFFFFFFFF                                                               [100%]
+=================================== FAILURES ===================================
+____ test_two_families_handover_preserves_old_account_and_uses_fixed_source ____
+
+self = <django.db.backends.utils.CursorWrapper object at 0x108a90590>
+sql = 'SELECT "ca_account"."id", "ca_account"."created_at", "ca_account"."updated_at", "ca_account"."ca_account_id", "ca_acc...RE ("ca_account"."bound_by_id" = %s AND "ca_account"."create_request_key" = %s) ORDER BY "ca_account"."id" ASC LIMIT 1'
+params = (UUID('60cd4252-5cad-4466-89c6-57ca0fae9bc7'), UUID('4c72d760-ad1b-4ae8-bdf9-9428b2cfa730'))
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x108a90590>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [INTRANS] (host=127.0.0.1 port=55439 user=dingdong database=test_dingdong) at 0x108a59010>
+query = 'SELECT "ca_account"."id", "ca_account"."created_at", "ca_account"."updated_at", "ca_account"."ca_account_id", "ca_acc...RE ("ca_account"."bound_by_id" = %s AND "ca_account"."create_request_key" = %s) ORDER BY "ca_account"."id" ASC LIMIT 1'
+params = (UUID('60cd4252-5cad-4466-89c6-57ca0fae9bc7'), UUID('4c72d760-ad1b-4ae8-bdf9-9428b2cfa730'))
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.UndefinedColumn: column ca_account.prototype_demo does not exist
+E           LINE 1: ...ount"."updated_at", "ca_account"."ca_account_id", "ca_accoun...
+E                                                                        ^
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: UndefinedColumn
+
+The above exception was the direct cause of the following exception:
+
+client = <rest_framework.test.APIClient object at 0x1074f38c0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10764e780>
+
+    @override_settings(**DEMO_SETTINGS)
+    def test_two_families_handover_preserves_old_account_and_uses_fixed_source(client, monkeypatch):
+        from dingdong_ca.core.services import dingdong_client
+    
+        calls = []
+        monkeypatch.setattr(dingdong_client, 'call', lambda method, path, **kw: calls.append((method, path, kw)) or {})
+        sign_in(client)
+        child_a = create_child(client)
+        request_id = str(uuid.uuid4())
+>       first = issue(client, child_a, DEMO_TOKEN, request_id=request_id)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_prototype_closed_loop.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_ca_accounts.py:26: in issue
+    return client.post("/api/v1/children/" + child["id"] + "/ca-accounts", body, format="json")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/rest_framework/test.py:283: in post
+    response = super().post(
+.venv/lib/python3.14/site-packages/rest_framework/test.py:197: in post
+    return self.generic('POST', path, data, content_type, **extra)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/rest_framework/test.py:221: in generic
+    return super().generic(
+.venv/lib/python3.14/site-packages/django/test/client.py:671: in generic
+    return self.request(**r)
+           ^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/rest_framework/test.py:273: in request
+    return super().request(**kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/rest_framework/test.py:225: in request
+    request = super().request(**kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/test/client.py:1090: in request
+    self.check_exception(response)
+.venv/lib/python3.14/site-packages/django/test/client.py:805: in check_exception
+    raise exc_value
+.venv/lib/python3.14/site-packages/django/core/handlers/exception.py:55: in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/core/handlers/base.py:198: in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/views/decorators/csrf.py:65: in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/views/generic/base.py:106: in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/rest_framework/views.py:515: in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/rest_framework/views.py:475: in handle_exception
+    self.raise_uncaught_exception(exc)
+.venv/lib/python3.14/site-packages/rest_framework/views.py:486: in raise_uncaught_exception
+    raise exc
+.venv/lib/python3.14/site-packages/rest_framework/views.py:512: in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/rest_framework/decorators.py:50: in handler
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+dingdong_ca/core/api/common.py:91: in wrapped
+    response = fn(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+dingdong_ca/core/api/ca_accounts.py:58: in child_accounts
+    account, created = service.issue_account(
+dingdong_ca/core/services/ca_account.py:118: in issue_account
+    previous = CaAccount.objects.filter(bound_by=user, create_request_key=request_id).first()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1145: in first
+    for obj in queryset[:1]:
+               ^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:390: in __iter__
+    self._fetch_all()
+.venv/lib/python3.14/site-packages/django/db/models/query.py:2000: in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:95: in __iter__
+    results = compiler.execute_sql(
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1624: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:94: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [INTRANS] (host=127.0.0.1 port=55439 user=dingdong database=test_dingdong) at 0x108a59010>
+query = 'SELECT "ca_account"."id", "ca_account"."created_at", "ca_account"."updated_at", "ca_account"."ca_account_id", "ca_acc...RE ("ca_account"."bound_by_id" = %s AND "ca_account"."create_request_key" = %s) ORDER BY "ca_account"."id" ASC LIMIT 1'
+params = (UUID('60cd4252-5cad-4466-89c6-57ca0fae9bc7'), UUID('4c72d760-ad1b-4ae8-bdf9-9428b2cfa730'))
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: column ca_account.prototype_demo does not exist
+E           LINE 1: ...ount"."updated_at", "ca_account"."ca_account_id", "ca_accoun...
+E                                                                        ^
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError
+----------------------------- Captured stderr call -----------------------------
+Internal Server Error: /api/v1/children/36f247c8-e700-4c8d-9382-cd2fef6754b0/ca-accounts
+Traceback (most recent call last):
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/psycopg/cursor.py", line 117, in execute
+    raise ex.with_traceback(None)
+psycopg.errors.UndefinedColumn: column ca_account.prototype_demo does not exist
+LINE 1: ...ount"."updated_at", "ca_account"."ca_account_id", "ca_accoun...
+                                                             ^
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/core/handlers/base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/views/generic/base.py", line 106, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/views.py", line 515, in dispatch
+    response = self.handle_exception(exc)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/views.py", line 475, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/views.py", line 486, in raise_uncaught_exception
+    raise exc
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/views.py", line 512, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/decorators.py", line 50, in handler
+    return func(*args, **kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/api/common.py", line 91, in wrapped
+    response = fn(request, *args, **kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/api/ca_accounts.py", line 58, in child_accounts
+    account, created = service.issue_account(
+                       ~~~~~~~~~~~~~~~~~~~~~^
+        child=child,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        robot_ref=data.get("robot_ref"),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/services/ca_account.py", line 118, in issue_account
+    previous = CaAccount.objects.filter(bound_by=user, create_request_key=request_id).first()
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/models/query.py", line 1145, in first
+    for obj in queryset[:1]:
+               ~~~~~~~~^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/models/query.py", line 390, in __iter__
+    self._fetch_all()
+    ~~~~~~~~~~~~~~~^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/models/query.py", line 2000, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/models/query.py", line 95, in __iter__
+    results = compiler.execute_sql(
+        chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size
+    )
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py", line 1624, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/backends/utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/backends/utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/backends/utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/utils.py", line 94, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/psycopg/cursor.py", line 117, in execute
+    raise ex.with_traceback(None)
+django.db.utils.ProgrammingError: column ca_account.prototype_demo does not exist
+LINE 1: ...ount"."updated_at", "ca_account"."ca_account_id", "ca_accoun...
+                                                             ^
+------------------------------ Captured log call -------------------------------
+ERROR    django.request:log.py:249 Internal Server Error: /api/v1/children/36f247c8-e700-4c8d-9382-cd2fef6754b0/ca-accounts
+Traceback (most recent call last):
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/psycopg/cursor.py", line 117, in execute
+    raise ex.with_traceback(None)
+psycopg.errors.UndefinedColumn: column ca_account.prototype_demo does not exist
+LINE 1: ...ount"."updated_at", "ca_account"."ca_account_id", "ca_accoun...
+                                                             ^
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/core/handlers/base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/views/generic/base.py", line 106, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/views.py", line 515, in dispatch
+    response = self.handle_exception(exc)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/views.py", line 475, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/views.py", line 486, in raise_uncaught_exception
+    raise exc
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/views.py", line 512, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/decorators.py", line 50, in handler
+    return func(*args, **kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/api/common.py", line 91, in wrapped
+    response = fn(request, *args, **kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/api/ca_accounts.py", line 58, in child_accounts
+    account, created = service.issue_account(
+                       ~~~~~~~~~~~~~~~~~~~~~^
+        child=child,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        robot_ref=data.get("robot_ref"),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/services/ca_account.py", line 118, in issue_account
+    previous = CaAccount.objects.filter(bound_by=user, create_request_key=request_id).first()
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/models/query.py", line 1145, in first
+    for obj in queryset[:1]:
+               ~~~~~~~~^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/models/query.py", line 390, in __iter__
+    self._fetch_all()
+    ~~~~~~~~~~~~~~~^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/models/query.py", line 2000, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/models/query.py", line 95, in __iter__
+    results = compiler.execute_sql(
+        chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size
+    )
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py", line 1624, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/backends/utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/backends/utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/backends/utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/utils.py", line 94, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/psycopg/cursor.py", line 117, in execute
+    raise ex.with_traceback(None)
+django.db.utils.ProgrammingError: column ca_account.prototype_demo does not exist
+LINE 1: ...ount"."updated_at", "ca_account"."ca_account_id", "ca_accoun...
+                                                             ^
+_____ test_verified_push_projection_and_frequency_specific_outage_fallback _____
+
+client = <rest_framework.test.APIClient object at 0x108992990>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x108a37ad0>
+
+    @override_settings(**DEMO_SETTINGS,DINGDONG_PUSH_SECRET='synthetic-only-signing-secret')
+    def test_verified_push_projection_and_frequency_specific_outage_fallback(client, monkeypatch):
+>       from dingdong_ca.core.models import DingDongPushEvent, PrototypeReportSnapshot
+E       ImportError: cannot import name 'PrototypeReportSnapshot' from 'dingdong_ca.core.models' (/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/models.py)
+
+tests/test_prototype_closed_loop.py:85: ImportError
+_______ test_older_push_or_pull_cannot_replace_latest_verified_snapshot ________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x108d9b050>
+sql = 'SELECT "ca_account"."id", "ca_account"."created_at", "ca_account"."updated_at", "ca_account"."ca_account_id", "ca_acc...RE ("ca_account"."bound_by_id" = %s AND "ca_account"."create_request_key" = %s) ORDER BY "ca_account"."id" ASC LIMIT 1'
+params = (UUID('8e8b9eb8-782e-4af3-9cfe-6787a4e22437'), UUID('9f4028d5-c57c-4968-bdea-6f4ec2062327'))
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x108d9b050>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [INTRANS] (host=127.0.0.1 port=55439 user=dingdong database=test_dingdong) at 0x108bd19b0>
+query = 'SELECT "ca_account"."id", "ca_account"."created_at", "ca_account"."updated_at", "ca_account"."ca_account_id", "ca_acc...RE ("ca_account"."bound_by_id" = %s AND "ca_account"."create_request_key" = %s) ORDER BY "ca_account"."id" ASC LIMIT 1'
+params = (UUID('8e8b9eb8-782e-4af3-9cfe-6787a4e22437'), UUID('9f4028d5-c57c-4968-bdea-6f4ec2062327'))
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.UndefinedColumn: column ca_account.prototype_demo does not exist
+E           LINE 1: ...ount"."updated_at", "ca_account"."ca_account_id", "ca_accoun...
+E                                                                        ^
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: UndefinedColumn
+
+The above exception was the direct cause of the following exception:
+
+client = <rest_framework.test.APIClient object at 0x108bc3110>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x108bcf020>
+
+    @override_settings(**DEMO_SETTINGS,DINGDONG_PUSH_SECRET='synthetic-only-signing-secret')
+    def test_older_push_or_pull_cannot_replace_latest_verified_snapshot(client, monkeypatch):
+        from dingdong_ca.core.services import dingdong_client
+>       child, account, grant=prepare_bound(client,monkeypatch)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_prototype_closed_loop.py:113: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_prototype_closed_loop.py:68: in prepare_bound
+    account = issue(client, child, DEMO_TOKEN).json()
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_ca_accounts.py:26: in issue
+    return client.post("/api/v1/children/" + child["id"] + "/ca-accounts", body, format="json")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/rest_framework/test.py:283: in post
+    response = super().post(
+.venv/lib/python3.14/site-packages/rest_framework/test.py:197: in post
+    return self.generic('POST', path, data, content_type, **extra)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/rest_framework/test.py:221: in generic
+    return super().generic(
+.venv/lib/python3.14/site-packages/django/test/client.py:671: in generic
+    return self.request(**r)
+           ^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/rest_framework/test.py:273: in request
+    return super().request(**kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/rest_framework/test.py:225: in request
+    request = super().request(**kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/test/client.py:1090: in request
+    self.check_exception(response)
+.venv/lib/python3.14/site-packages/django/test/client.py:805: in check_exception
+    raise exc_value
+.venv/lib/python3.14/site-packages/django/core/handlers/exception.py:55: in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/core/handlers/base.py:198: in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/views/decorators/csrf.py:65: in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/views/generic/base.py:106: in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/rest_framework/views.py:515: in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/rest_framework/views.py:475: in handle_exception
+    self.raise_uncaught_exception(exc)
+.venv/lib/python3.14/site-packages/rest_framework/views.py:486: in raise_uncaught_exception
+    raise exc
+.venv/lib/python3.14/site-packages/rest_framework/views.py:512: in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/rest_framework/decorators.py:50: in handler
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+dingdong_ca/core/api/common.py:91: in wrapped
+    response = fn(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+dingdong_ca/core/api/ca_accounts.py:58: in child_accounts
+    account, created = service.issue_account(
+dingdong_ca/core/services/ca_account.py:118: in issue_account
+    previous = CaAccount.objects.filter(bound_by=user, create_request_key=request_id).first()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1145: in first
+    for obj in queryset[:1]:
+               ^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:390: in __iter__
+    self._fetch_all()
+.venv/lib/python3.14/site-packages/django/db/models/query.py:2000: in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:95: in __iter__
+    results = compiler.execute_sql(
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1624: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:94: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [INTRANS] (host=127.0.0.1 port=55439 user=dingdong database=test_dingdong) at 0x108bd19b0>
+query = 'SELECT "ca_account"."id", "ca_account"."created_at", "ca_account"."updated_at", "ca_account"."ca_account_id", "ca_acc...RE ("ca_account"."bound_by_id" = %s AND "ca_account"."create_request_key" = %s) ORDER BY "ca_account"."id" ASC LIMIT 1'
+params = (UUID('8e8b9eb8-782e-4af3-9cfe-6787a4e22437'), UUID('9f4028d5-c57c-4968-bdea-6f4ec2062327'))
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: column ca_account.prototype_demo does not exist
+E           LINE 1: ...ount"."updated_at", "ca_account"."ca_account_id", "ca_accoun...
+E                                                                        ^
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError
+----------------------------- Captured stderr call -----------------------------
+Internal Server Error: /api/v1/children/89e35548-aeac-4cf9-9b5e-f6301e7555f7/ca-accounts
+Traceback (most recent call last):
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/psycopg/cursor.py", line 117, in execute
+    raise ex.with_traceback(None)
+psycopg.errors.UndefinedColumn: column ca_account.prototype_demo does not exist
+LINE 1: ...ount"."updated_at", "ca_account"."ca_account_id", "ca_accoun...
+                                                             ^
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/core/handlers/base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/views/generic/base.py", line 106, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/views.py", line 515, in dispatch
+    response = self.handle_exception(exc)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/views.py", line 475, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/views.py", line 486, in raise_uncaught_exception
+    raise exc
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/views.py", line 512, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/decorators.py", line 50, in handler
+    return func(*args, **kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/api/common.py", line 91, in wrapped
+    response = fn(request, *args, **kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/api/ca_accounts.py", line 58, in child_accounts
+    account, created = service.issue_account(
+                       ~~~~~~~~~~~~~~~~~~~~~^
+        child=child,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        robot_ref=data.get("robot_ref"),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/services/ca_account.py", line 118, in issue_account
+    previous = CaAccount.objects.filter(bound_by=user, create_request_key=request_id).first()
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/models/query.py", line 1145, in first
+    for obj in queryset[:1]:
+               ~~~~~~~~^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/models/query.py", line 390, in __iter__
+    self._fetch_all()
+    ~~~~~~~~~~~~~~~^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/models/query.py", line 2000, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/models/query.py", line 95, in __iter__
+    results = compiler.execute_sql(
+        chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size
+    )
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py", line 1624, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/backends/utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/backends/utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/backends/utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/utils.py", line 94, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/psycopg/cursor.py", line 117, in execute
+    raise ex.with_traceback(None)
+django.db.utils.ProgrammingError: column ca_account.prototype_demo does not exist
+LINE 1: ...ount"."updated_at", "ca_account"."ca_account_id", "ca_accoun...
+                                                             ^
+------------------------------ Captured log call -------------------------------
+ERROR    django.request:log.py:249 Internal Server Error: /api/v1/children/89e35548-aeac-4cf9-9b5e-f6301e7555f7/ca-accounts
+Traceback (most recent call last):
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/psycopg/cursor.py", line 117, in execute
+    raise ex.with_traceback(None)
+psycopg.errors.UndefinedColumn: column ca_account.prototype_demo does not exist
+LINE 1: ...ount"."updated_at", "ca_account"."ca_account_id", "ca_accoun...
+                                                             ^
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/core/handlers/base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/views/generic/base.py", line 106, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/views.py", line 515, in dispatch
+    response = self.handle_exception(exc)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/views.py", line 475, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/views.py", line 486, in raise_uncaught_exception
+    raise exc
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/views.py", line 512, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/decorators.py", line 50, in handler
+    return func(*args, **kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/api/common.py", line 91, in wrapped
+    response = fn(request, *args, **kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/api/ca_accounts.py", line 58, in child_accounts
+    account, created = service.issue_account(
+                       ~~~~~~~~~~~~~~~~~~~~~^
+        child=child,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        robot_ref=data.get("robot_ref"),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/services/ca_account.py", line 118, in issue_account
+    previous = CaAccount.objects.filter(bound_by=user, create_request_key=request_id).first()
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/models/query.py", line 1145, in first
+    for obj in queryset[:1]:
+               ~~~~~~~~^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/models/query.py", line 390, in __iter__
+    self._fetch_all()
+    ~~~~~~~~~~~~~~~^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/models/query.py", line 2000, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/models/query.py", line 95, in __iter__
+    results = compiler.execute_sql(
+        chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size
+    )
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py", line 1624, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/backends/utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/backends/utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/backends/utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/utils.py", line 94, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/psycopg/cursor.py", line 117, in execute
+    raise ex.with_traceback(None)
+django.db.utils.ProgrammingError: column ca_account.prototype_demo does not exist
+LINE 1: ...ount"."updated_at", "ca_account"."ca_account_id", "ca_accoun...
+                                                             ^
+_ test_invalid_or_unsupported_push_is_retained_without_projection[unknown_event] _
+
+client = <rest_framework.test.APIClient object at 0x108c01350>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x108bcfbd0>
+case = 'unknown_event'
+
+    @override_settings(**DEMO_SETTINGS,DINGDONG_PUSH_SECRET='synthetic-only-signing-secret')
+    @pytest.mark.parametrize('case',['unknown_event','wrong_source','mode','dimensions','nan','curve_order','curve_number'])
+    def test_invalid_or_unsupported_push_is_retained_without_projection(client, monkeypatch, case):
+>       from dingdong_ca.core.models import DingDongPushEvent,PrototypeReportSnapshot
+E       ImportError: cannot import name 'PrototypeReportSnapshot' from 'dingdong_ca.core.models' (/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/models.py)
+
+tests/test_prototype_closed_loop.py:127: ImportError
+_ test_invalid_or_unsupported_push_is_retained_without_projection[wrong_source] _
+
+client = <rest_framework.test.APIClient object at 0x108c01cd0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x108c0d350>
+case = 'wrong_source'
+
+    @override_settings(**DEMO_SETTINGS,DINGDONG_PUSH_SECRET='synthetic-only-signing-secret')
+    @pytest.mark.parametrize('case',['unknown_event','wrong_source','mode','dimensions','nan','curve_order','curve_number'])
+    def test_invalid_or_unsupported_push_is_retained_without_projection(client, monkeypatch, case):
+>       from dingdong_ca.core.models import DingDongPushEvent,PrototypeReportSnapshot
+E       ImportError: cannot import name 'PrototypeReportSnapshot' from 'dingdong_ca.core.models' (/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/models.py)
+
+tests/test_prototype_closed_loop.py:127: ImportError
+____ test_invalid_or_unsupported_push_is_retained_without_projection[mode] _____
+
+client = <rest_framework.test.APIClient object at 0x108c4e450>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x108c0d950>
+case = 'mode'
+
+    @override_settings(**DEMO_SETTINGS,DINGDONG_PUSH_SECRET='synthetic-only-signing-secret')
+    @pytest.mark.parametrize('case',['unknown_event','wrong_source','mode','dimensions','nan','curve_order','curve_number'])
+    def test_invalid_or_unsupported_push_is_retained_without_projection(client, monkeypatch, case):
+>       from dingdong_ca.core.models import DingDongPushEvent,PrototypeReportSnapshot
+E       ImportError: cannot import name 'PrototypeReportSnapshot' from 'dingdong_ca.core.models' (/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/models.py)
+
+tests/test_prototype_closed_loop.py:127: ImportError
+_ test_invalid_or_unsupported_push_is_retained_without_projection[dimensions] __
+
+client = <rest_framework.test.APIClient object at 0x108bf06b0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x108c146e0>
+case = 'dimensions'
+
+    @override_settings(**DEMO_SETTINGS,DINGDONG_PUSH_SECRET='synthetic-only-signing-secret')
+    @pytest.mark.parametrize('case',['unknown_event','wrong_source','mode','dimensions','nan','curve_order','curve_number'])
+    def test_invalid_or_unsupported_push_is_retained_without_projection(client, monkeypatch, case):
+>       from dingdong_ca.core.models import DingDongPushEvent,PrototypeReportSnapshot
+E       ImportError: cannot import name 'PrototypeReportSnapshot' from 'dingdong_ca.core.models' (/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/models.py)
+
+tests/test_prototype_closed_loop.py:127: ImportError
+_____ test_invalid_or_unsupported_push_is_retained_without_projection[nan] _____
+
+client = <rest_framework.test.APIClient object at 0x108bf1480>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x108c15400>
+case = 'nan'
+
+    @override_settings(**DEMO_SETTINGS,DINGDONG_PUSH_SECRET='synthetic-only-signing-secret')
+    @pytest.mark.parametrize('case',['unknown_event','wrong_source','mode','dimensions','nan','curve_order','curve_number'])
+    def test_invalid_or_unsupported_push_is_retained_without_projection(client, monkeypatch, case):
+>       from dingdong_ca.core.models import DingDongPushEvent,PrototypeReportSnapshot
+E       ImportError: cannot import name 'PrototypeReportSnapshot' from 'dingdong_ca.core.models' (/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/models.py)
+
+tests/test_prototype_closed_loop.py:127: ImportError
+_ test_invalid_or_unsupported_push_is_retained_without_projection[curve_order] _
+
+client = <rest_framework.test.APIClient object at 0x108c0ee50>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x108bd2eb0>
+case = 'curve_order'
+
+    @override_settings(**DEMO_SETTINGS,DINGDONG_PUSH_SECRET='synthetic-only-signing-secret')
+    @pytest.mark.parametrize('case',['unknown_event','wrong_source','mode','dimensions','nan','curve_order','curve_number'])
+    def test_invalid_or_unsupported_push_is_retained_without_projection(client, monkeypatch, case):
+>       from dingdong_ca.core.models import DingDongPushEvent,PrototypeReportSnapshot
+E       ImportError: cannot import name 'PrototypeReportSnapshot' from 'dingdong_ca.core.models' (/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/models.py)
+
+tests/test_prototype_closed_loop.py:127: ImportError
+_ test_invalid_or_unsupported_push_is_retained_without_projection[curve_number] _
+
+client = <rest_framework.test.APIClient object at 0x108bcbc50>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x108bd3af0>
+case = 'curve_number'
+
+    @override_settings(**DEMO_SETTINGS,DINGDONG_PUSH_SECRET='synthetic-only-signing-secret')
+    @pytest.mark.parametrize('case',['unknown_event','wrong_source','mode','dimensions','nan','curve_order','curve_number'])
+    def test_invalid_or_unsupported_push_is_retained_without_projection(client, monkeypatch, case):
+>       from dingdong_ca.core.models import DingDongPushEvent,PrototypeReportSnapshot
+E       ImportError: cannot import name 'PrototypeReportSnapshot' from 'dingdong_ca.core.models' (/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/models.py)
+
+tests/test_prototype_closed_loop.py:127: ImportError
+=========================== short test summary info ============================
+FAILED tests/test_prototype_closed_loop.py::test_two_families_handover_preserves_old_account_and_uses_fixed_source
+FAILED tests/test_prototype_closed_loop.py::test_verified_push_projection_and_frequency_specific_outage_fallback
+FAILED tests/test_prototype_closed_loop.py::test_older_push_or_pull_cannot_replace_latest_verified_snapshot
+FAILED tests/test_prototype_closed_loop.py::test_invalid_or_unsupported_push_is_retained_without_projection[unknown_event]
+FAILED tests/test_prototype_closed_loop.py::test_invalid_or_unsupported_push_is_retained_without_projection[wrong_source]
+FAILED tests/test_prototype_closed_loop.py::test_invalid_or_unsupported_push_is_retained_without_projection[mode]
+FAILED tests/test_prototype_closed_loop.py::test_invalid_or_unsupported_push_is_retained_without_projection[dimensions]
+FAILED tests/test_prototype_closed_loop.py::test_invalid_or_unsupported_push_is_retained_without_projection[nan]
+FAILED tests/test_prototype_closed_loop.py::test_invalid_or_unsupported_push_is_retained_without_projection[curve_order]
+FAILED tests/test_prototype_closed_loop.py::test_invalid_or_unsupported_push_is_retained_without_projection[curve_number]
+10 failed in 1.40s

@@ -19,6 +19,8 @@ const files = new Set([
   "app.js",
   "api.js",
   "ca-link.js",
+  "dingdong-report.js",
+  "dingdong-report.css",
   "companion.js",
   "growth-cycle.js",
   "reassessment.js",

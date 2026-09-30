@@ -1,0 +1,25 @@
+{
+  "source": "real authorized GET of existing verified synthetic snapshots",
+  "sms": "fixed local code only",
+  "supplier_requests": 0,
+  "production_writes": 0,
+  "results": [
+    {
+      "width": 320,
+      "overflow": 0,
+      "title_width": 138,
+      "content_width": 238,
+      "title_height": 33,
+      "font_size": 24
+    },
+    {
+      "width": 390,
+      "overflow": 0,
+      "title_width": 138,
+      "content_width": 308,
+      "title_height": 33,
+      "font_size": 24
+    }
+  ],
+  "page_errors": []
+}

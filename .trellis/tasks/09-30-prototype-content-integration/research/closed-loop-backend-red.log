@@ -1,0 +1,26 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+____ test_two_families_handover_preserves_old_account_and_uses_fixed_source ____
+
+client = <rest_framework.test.APIClient object at 0x109ccf620>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x109e1a190>
+
+    @override_settings(**DEMO_SETTINGS)
+    def test_two_families_handover_preserves_old_account_and_uses_fixed_source(client, monkeypatch):
+        from dingdong_ca.core.services import dingdong_client
+    
+        calls = []
+        monkeypatch.setattr(dingdong_client, 'call', lambda method, path, **kw: calls.append((method, path, kw)) or {})
+        sign_in(client)
+        child_a = create_child(client)
+        request_id = str(uuid.uuid4())
+        first = issue(client, child_a, DEMO_TOKEN, request_id=request_id)
+        assert first.status_code == 201
+>       assert first.json()['is_prototype_demo'] is True
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'is_prototype_demo'
+
+tests/test_prototype_closed_loop.py:28: KeyError
+=========================== short test summary info ============================
+FAILED tests/test_prototype_closed_loop.py::test_two_families_handover_preserves_old_account_and_uses_fixed_source
+1 failed in 1.56s

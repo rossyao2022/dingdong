@@ -24,6 +24,8 @@ ALIYUN_VERIFY_TEMPLATE_CODE = env("ALIYUN_VERIFY_TEMPLATE_CODE", default="")
 ALIYUN_VERIFY_REGION = env("ALIYUN_VERIFY_REGION", default="cn-shanghai")
 ALIYUN_VERIFY_ENDPOINT = env("ALIYUN_VERIFY_ENDPOINT", default="dypnsapi.aliyuncs.com")
 INTEGRATION_DATA_SOURCE = env("INTEGRATION_DATA_SOURCE", default="database_fixture")
+# Exhibition only: real answer/report jobs with explicitly missing professional scores.
+CA_DEMO_REPORTS_ENABLED = env.bool("CA_DEMO_REPORTS_ENABLED", default=False)
 
 # --- CA × DingDong 对接（见 设计/CA对接_C1_ca_account_id设计_20260916.md） ---
 # 对外暴露的 CA 账户号前缀。号码形态一经对外发布即冻结，改前缀等于换契约。
@@ -150,6 +152,9 @@ LOGGING = {
     "disable_existing_loggers": False,
     "handlers": {"console": {"class": "logging.StreamHandler"}},
     "root": {"handlers": ["console"], "level": "WARNING"},
+    "loggers": {
+        "dingdong_ca.push": {"handlers": ["console"], "level": "INFO", "propagate": False},
+    },
 }
 
 # Never include vendor data, file payloads or task results in the broker/result backend.

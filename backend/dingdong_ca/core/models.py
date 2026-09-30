@@ -279,6 +279,7 @@ from .integration_models import (  # noqa: E402,F401
     JobObservation,
     ObservationBatch,
     ProfileObservation,
+    PrototypeReportSnapshot,
     RuleVersion,
     SyncCheckpoint,
 )

@@ -30,9 +30,14 @@ def initial_result(child_id, questionnaire_id):
     row = TestFixture.objects.filter(
         dataset="phase1-v1", kind="initial_result", subject_key=str(child_id), sequence=1
     ).first()
-    if not row:
-        raise FixtureFailure("FIXTURE_NOT_FOUND")
-    data = row.payload
+    if row:
+        data = row.payload
+    else:
+        from dingdong_ca.core.services.demo_report import demo_initial_input
+
+        data = demo_initial_input(questionnaire_id)
+        if data is None:
+            raise FixtureFailure("FIXTURE_NOT_FOUND")
     if (
         not isinstance(data, dict)
         or set(data)

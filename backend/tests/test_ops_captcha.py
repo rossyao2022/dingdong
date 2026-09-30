@@ -14,7 +14,10 @@ def image(client, code="2345"):
     assert response["Content-Type"] == "image/png"
     assert response.content.startswith(b"\x89PNG\r\n\x1a\n")
     assert "no-store" in response["Cache-Control"]
-    assert code not in str(dict(client.session))
+    challenge = client.session["ops_captcha"]
+    assert set(challenge) == {"nonce", "signature", "issued_at"}
+    assert all(value != code for value in challenge.values())
+    assert len(challenge["signature"]) == 64
 
 
 def post(client, user, code="2345", password=PASSWORD):

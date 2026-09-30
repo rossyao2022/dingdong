@@ -160,7 +160,53 @@ class DingDongPushEvent(Entity):
     ca_account_id = models.CharField(max_length=64, blank=True, default="")
     occurred_at = models.CharField(max_length=64, blank=True, default="")
     payload = models.JSONField()
+    processing_status = models.CharField(max_length=16, default="received")
+    processing_error = models.CharField(max_length=64, blank=True, default="")
 
     class Meta:
         db_table = "dingdong_push_event"
         indexes = [models.Index(fields=["created_at"])]
+        constraints = [
+            models.CheckConstraint(
+                condition=Q(processing_status__in=["received", "processed", "ignored", "invalid"]),
+                name="dingdong_push_processing_valid",
+            ),
+        ]
+
+
+class PrototypeReportSnapshot(ImmutableResult):
+    """Validated shared mock source, never a formal child assessment report."""
+
+    source_account_id = models.CharField(max_length=64)
+    weekly_turns = models.PositiveSmallIntegerField()
+    source_updated_at = models.DateTimeField()
+    sync_source = models.CharField(max_length=8)
+    event = models.OneToOneField(DingDongPushEvent, null=True, on_delete=models.PROTECT)
+    content_hash = models.CharField(max_length=64)
+    view = models.JSONField()
+
+    class Meta:
+        db_table = "prototype_report_snapshot"
+        verbose_name = verbose_name_plural = "演示伙伴报告快照"
+        indexes = [models.Index(fields=["weekly_turns", "-source_updated_at"])]
+        constraints = [
+            models.CheckConstraint(
+                condition=Q(weekly_turns__in=[3, 7, 14, 21]), name="prototype_weekly_valid"
+            ),
+            models.CheckConstraint(
+                condition=Q(sync_source__in=["pull", "push"]), name="prototype_sync_source_valid"
+            ),
+            models.CheckConstraint(
+                condition=Q(source_account_id="ca_dingdong"), name="prototype_fixed_source_valid"
+            ),
+            models.CheckConstraint(
+                condition=Q(sync_source="pull", event__isnull=True)
+                | Q(sync_source="push", event__isnull=False),
+                name="prototype_event_source_valid",
+            ),
+            models.UniqueConstraint(
+                fields=["weekly_turns", "content_hash"],
+                condition=Q(sync_source="pull"),
+                name="prototype_pull_content_unique",
+            ),
+        ]

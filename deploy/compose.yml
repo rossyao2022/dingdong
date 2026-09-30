@@ -7,6 +7,7 @@ x-app: &app
   restart: unless-stopped
   environment: &env
     APP_ENV: demo
+    CA_DEMO_REPORTS_ENABLED: ${CA_DEMO_REPORTS_ENABLED:-true}
     # 运营后台把版本号拼在静态资源 URL 上做缓存击穿，并显示在页脚。
     # 缺少它会导致上线后浏览器继续用旧界面的静态资源。
     APP_VERSION: ${APP_VERSION:?set APP_VERSION}

@@ -182,7 +182,9 @@ def _fault(account):
 
 
 def _upstream(account, path, *, query=None, payload=None, method="GET", request_id=None):
-    params = {"ca_account_id": account.ca_account_id, **(query or {})}
+    from .ca_account import source_account_id
+
+    params = {"ca_account_id": source_account_id(account), **(query or {})}
     return dingdong_client.call(method, path, payload=payload, query=params, request_id=request_id)
 
 

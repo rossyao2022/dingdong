@@ -5,6 +5,9 @@ import {
   ACCOUNT_STATUS,
   BIND_STATE,
   activeAccount,
+  robotConflictMessage,
+  conflictNeedsRefresh,
+  isPrototypeDemo,
   readNfcToken,
   readParam,
   replaceFlowNeeded,
@@ -131,4 +134,38 @@ test("状态词与运营后台用同一套说法，且两个维度分开", () =>
   assert.equal(ACCOUNT_STATUS.retired, "已归档");
   assert.equal(BIND_STATE.unbound, "待接通");
   assert.equal(BIND_STATE.bound, "已绑定");
+});
+
+test("机器人占用指引说清先解绑，409不误导刷新", () => {
+  for (const code of ["PROTOTYPE_ACCOUNT_OCCUPIED", "CA_ACCOUNT_CONFLICT"]) {
+    const e = { status: 409, code };
+    assert.equal(
+      robotConflictMessage(e),
+      "机器人已被其他孩子绑定，请原绑定家长先解绑，再重新绑定。",
+    );
+    assert.equal(conflictNeedsRefresh(e), false);
+  }
+  for (const code of [
+    "PROTOTYPE_ACCOUNT_PROTECTED",
+    "ACCOUNT_REPLACEMENT_REQUIRED",
+    "CA_ACCOUNT_RETIRED",
+  ])
+    assert.equal(conflictNeedsRefresh({ status: 409, code }), false);
+  assert.equal(
+    conflictNeedsRefresh({ status: 409, code: "REVISION_CONFLICT" }),
+    true,
+  );
+  assert.equal(
+    robotConflictMessage({ status: 500, code: "CA_ACCOUNT_CONFLICT" }),
+    "",
+  );
+});
+test("会展标记兼容固定旧号与新ULID", () => {
+  assert.equal(
+    isPrototypeDemo({ is_prototype_demo: true, ca_account_id: "ca_new" }),
+    true,
+  );
+  assert.equal(isPrototypeDemo({ ca_account_id: "ca_dingdong" }), true);
+  assert.equal(isPrototypeDemo({ ca_account_id: "ca_new" }), false);
+  assert.equal(isPrototypeDemo(null), false);
 });

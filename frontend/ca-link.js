@@ -105,3 +105,28 @@ export const activeAccount = (rows) =>
 
 export const retiredAccounts = (rows) =>
   (rows || []).filter((a) => a.status !== "active");
+
+/** Occupied bindings require the original parent's explicit handover. */
+export function robotConflictMessage(err) {
+  if (err?.status !== 409) return "";
+  if (["PROTOTYPE_ACCOUNT_OCCUPIED", "CA_ACCOUNT_CONFLICT"].includes(err.code))
+    return "机器人已被其他孩子绑定，请原绑定家长先解绑，再重新绑定。";
+  return "";
+}
+export function conflictNeedsRefresh(err) {
+  return (
+    err?.status === 409 &&
+    ![
+      "PROTOTYPE_ACCOUNT_OCCUPIED",
+      "PROTOTYPE_ACCOUNT_PROTECTED",
+      "CA_ACCOUNT_CONFLICT",
+      "ACCOUNT_REPLACEMENT_REQUIRED",
+      "CA_ACCOUNT_RETIRED",
+    ].includes(err.code)
+  );
+}
+export const isPrototypeDemo = (account) =>
+  Boolean(
+    account &&
+    (account.is_prototype_demo || account.ca_account_id === "ca_dingdong"),
+  );

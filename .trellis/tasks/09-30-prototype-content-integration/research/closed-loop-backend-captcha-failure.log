@@ -1,0 +1,44 @@
+........................................................................ [ 16%]
+........................................................................ [ 32%]
+........................................................................ [ 48%]
+.F...................................................................... [ 64%]
+........................................................................ [ 80%]
+........................................................................ [ 96%]
+..............                                                           [100%]
+=================================== FAILURES ===================================
+____________ test_password_failures_are_limited_after_valid_captcha ____________
+
+    def test_password_failures_are_limited_after_valid_captcha():
+        cache.clear()
+        user = make_staff("operations")
+        client = Client()
+        for _ in range(10):
+>           image(client)
+
+tests/test_ops_captcha.py:65: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+client = <django.test.client.Client object at 0x109910c30>, code = '2345'
+
+    def image(client, code="2345"):
+        response = issue_ops_captcha(client, code)
+        assert response["Content-Type"] == "image/png"
+        assert response.content.startswith(b"\x89PNG\r\n\x1a\n")
+        assert "no-store" in response["Cache-Control"]
+>       assert code not in str(dict(client.session))
+E       assert '2345' not in "{'ops_captc...1790775886}}"
+E         
+E         '2345' is contained here:
+E           c7bc23954823453c5faa1809946', 'issued_at': 1790775886}}
+E         ?           ++++
+
+tests/test_ops_captcha.py:17: AssertionError
+=============================== warnings summary ===============================
+dingdong_ca/testsupport/models.py:6
+  /Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/testsupport/models.py:6: PytestCollectionWarning: cannot collect test class 'TestFixture' because it has a __init__ constructor (from: tests/test_ca_display.py)
+    class TestFixture(models.Model):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_ops_captcha.py::test_password_failures_are_limited_after_valid_captcha
+1 failed, 445 passed, 1 warning in 16.04s

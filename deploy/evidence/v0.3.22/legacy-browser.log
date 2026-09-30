@@ -1,0 +1,15 @@
+
+Running 8 tests using 1 worker
+
+(node:87048) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/exhibition-recovery.spec.js:6:1 › 发码后冷却，刷新与登录退出后仍保留剩余时间 (1.0s)
+  ✓  2 tests/exhibition-recovery.spec.js:30:1 › 标签进入后刷新，提示重碰且不存凭据；重新碰标签仍能继续 (2.6s)
+  ✓  3 tests/prototype-integration.spec.js:116:1 › 六岛完整、选三顺序、九题真实保存、刷新恢复与儿童隔离 (3.0s)
+  ✓  4 tests/prototype-integration.spec.js:252:1 › 24题八维观察真实作答、断点恢复、最低分相同不强排前三 (6.3s)
+  ✓  5 tests/prototype-integration.spec.js:303:1 › 八维最高分及第四名并列全部呈现，重新探索保留历史结果 (8.5s)
+  ✓  6 tests/prototype-integration.spec.js:355:1 › 过期草稿重新打开建立新答卷，原答案保留且选岛不丢 (4.7s)
+  ✓  7 tests/prototype-integration.spec.js:407:1 › 指纹四类完整指南、示例及临时预览不上传，离开释放图片 (8.3s)
+  ✓  8 tests/prototype-integration.spec.js:501:1 › 四模块和六岛在手机平板桌面无溢出、遮挡或坏图 (2.3s)
+
+  8 passed (37.9s)

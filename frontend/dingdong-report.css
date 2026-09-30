@@ -1,0 +1,183 @@
+.dd-report {
+  display: grid;
+  gap: 24px;
+  min-width: 0;
+}
+.dd-report-heading h1 {
+  margin: 10px 0 0;
+  font-size: clamp(24px, 4vw, 34px);
+  line-height: 1.35;
+  color: #594576;
+}
+.dd-report-title-phrase {
+  white-space: nowrap;
+}
+.dd-report .panel {
+  margin: 0;
+  min-width: 0;
+}
+.dd-report .panel h2 {
+  margin: 0 0 12px;
+  font-size: 20px;
+  line-height: 1.5;
+}
+.dd-report .panel p {
+  line-height: 1.8;
+}
+.dd-report-summary {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  gap: 24px;
+  background: linear-gradient(120deg, #f4effa, #fff);
+}
+.dd-report-label {
+  display: block;
+  margin-bottom: 8px;
+  color: #756783;
+  font-size: 14px;
+}
+.dd-report-summary strong {
+  font-size: 30px;
+  color: #73529d;
+  overflow-wrap: anywhere;
+}
+.dd-report-summary small {
+  font-size: 14px;
+  font-weight: 500;
+}
+.dd-report-frequency-actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 18px;
+}
+.dd-report button {
+  min-height: 48px;
+  min-width: 44px;
+  padding: 12px 16px;
+  font-size: 15px;
+  line-height: 1.4;
+}
+.dd-report-frequency-actions button[aria-pressed="true"] {
+  color: #fff;
+  border-color: #795b9e;
+  background: #795b9e;
+  box-shadow: 0 4px 0 #604581;
+}
+.dd-report-simulation {
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: #f3eef9;
+  color: #675478;
+  font-size: 14px;
+}
+.dd-report-chart {
+  display: block;
+  width: 100%;
+  max-width: 900px;
+  margin: 22px auto 0;
+  overflow: visible;
+}
+.dd-report-chart text {
+  fill: #716879;
+  font-size: 22px;
+}
+.dd-chart-grid {
+  stroke: #e6dfed;
+  stroke-width: 1;
+}
+.dd-chart-caption {
+  text-align: center;
+  color: #716879;
+  font-size: 14px;
+  margin: 0 0 18px;
+}
+.dd-chart-legend {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px 16px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 14px;
+}
+.dd-chart-legend li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 1.5;
+}
+.dd-chart-legend span {
+  width: 18px;
+  height: 4px;
+  background: var(--dd-color);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.dd-report-table {
+  margin-top: 18px;
+}
+.dd-report-row {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1.2fr;
+  gap: 12px;
+  align-items: center;
+  min-height: 48px;
+  border-bottom: 1px solid #eee7f4;
+  font-size: 15px;
+}
+.dd-report-row > span:not(:first-child) {
+  text-align: center;
+}
+.dd-report-table-head {
+  color: #786489;
+  font-size: 14px;
+  font-weight: 700;
+}
+.dd-report-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+.dd-report-footer p {
+  margin: 0;
+  font-size: 14px;
+  color: #786f80;
+}
+.dd-report-empty {
+  padding: 24px;
+  text-align: center;
+  color: #766880;
+}
+@media (max-width: 620px) {
+  .dd-report {
+    gap: 18px;
+  }
+  .dd-report .panel {
+    padding: 20px 16px;
+  }
+  .dd-report-summary {
+    grid-template-columns: 1fr 1fr;
+    gap: 20px 16px;
+  }
+  .dd-report-summary > div:first-child {
+    grid-column: 1 / -1;
+  }
+  .dd-report-frequency-actions {
+    gap: 12px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .dd-chart-legend {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .dd-report-row {
+    gap: 6px;
+    font-size: 14px;
+    grid-template-columns: 1.3fr 0.8fr 0.8fr 1.2fr;
+  }
+  .dd-report-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

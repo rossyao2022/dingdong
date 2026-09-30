@@ -171,3 +171,10 @@ CaAccount  (db_table = "ca_account")
 **§7 清单实施后补充（2026-09-16）**：本文原先声明"未写任何运行代码"，现已按 §7 落地实现（模型/迁移/服务/家长端 API/家长端界面/运营只读页/测试），并把 §3 草案按实现结果校正。**仍未做**：未部署、未发版；出站 8 个 DingDong 接口未接通（缺 D10/D12）；换机的"主动解绑"分支未实现（缺 D20）。
 
 代码落点：`backend/dingdong_ca/core/ca_models.py`、`core/services/ca_account.py`、`core/services/dingdong_client.py`、`core/api/ca_accounts.py`、`core/migrations/0008_caaccount.py`、`ops/templates/ops/ca_accounts.html`、`frontend/ca-link.js`、`frontend/app.js`；测试 `backend/tests/test_ca_accounts.py`、`backend/tests/test_ops_ca_accounts.py`、`frontend/unit/ca-link.test.js`、`frontend/tests/ca-account.spec.js`。
+
+
+## 2026-09-30 会展Prototype生命周期例外（用户已确认）
+
+只改变固定Mock使用权：原绑定家长可主动解绑，另一个手机号再碰同标签创建新的本地ULID。原CA号、儿童及家庭映射、旧答卷/报告永不修改或回收；原ca_dingdong行只归档，不能改成新家庭。新演示生命周期行以prototype_demo标记，出站source映射仍是供应商共享ca_dingdong。数据库保证同时最多一个活跃演示绑定；非所有者不能抢占。正式账号仍按正文规则。
+
+供应商未提供正式解绑接口，这一会展解除释放CA本地共享Mock访问权，不宣称对方已删除binding或真实成长资料。实现与验证约束见[报告与重绑契约](../.trellis/spec/backend/prototype-report-and-handover.md)。

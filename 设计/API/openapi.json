@@ -5831,7 +5831,7 @@
           "CA 对接"
         ],
         "summary": "绑定机器人并建立 CA 账户",
-        "description": "NFC 承接入口：H5 读到 ?nfc_token= 后由家长选定服务的孩子，建立账户号。幂等键为 request_id。同一台机器人重复绑定复用原号（200）；该孩子已有活跃账户且是另一台机器人时返回 409 ACCOUNT_REPLACEMENT_REQUIRED，要求先归档旧号再发新号（换机发新号）。与对方的绑定尚未接通时 bind_state 保持 unbound，不伪造成功。",
+        "description": "NFC 承接入口：H5 读到 ?nfc_token= 后由家长选定服务的孩子，建立账户号。幂等键为 request_id。同一台机器人重复绑定复用原号（200）；该孩子已有活跃账户且是另一台机器人时返回 409 ACCOUNT_REPLACEMENT_REQUIRED，要求先归档旧号再发新号（换机发新号）。与对方的绑定尚未接通时 bind_state 保持 unbound，不伪造成功。 演示原标签在先解绑后可绑定其他儿童；旧行永久归档不复用或移动，后续本地新ULID以is_prototype_demo标记并映射供应商固定ca_dingdong。其他家庭不能代解绑；已归档request_id重放返回409 CA_ACCOUNT_RETIRED。",
         "security": [
           {
             "bearerAuth": []
@@ -6190,7 +6190,7 @@
           "CA 对接"
         ],
         "summary": "归档 CA 账户（换机第一步）",
-        "description": "把账户置为 retired 并记录解绑时间；号码保留可查、永不重用。重复调用返回同一结果。换机流程是显式两步：先归档旧号，再为新机器人建号。 已启用会展固定账号模式时，ca_dingdong 禁止停用，返回 409 PROTOTYPE_ACCOUNT_PROTECTED。",
+        "description": "把账户置为 retired 并记录解绑时间；号码保留可查、永不重用。重复调用返回同一结果。换机流程是显式两步：先归档旧号，再为新机器人建号。 已启用会展固定账号模式时，ca_dingdong 禁止停用，返回 409 PROTOTYPE_ACCOUNT_PROTECTED。 演示原标签在先解绑后可绑定其他儿童；旧行永久归档不复用或移动，后续本地新ULID以is_prototype_demo标记并映射供应商固定ca_dingdong。其他家庭不能代解绑；已归档request_id重放返回409 CA_ACCOUNT_RETIRED。",
         "security": [
           {
             "bearerAuth": []
@@ -10967,8 +10967,8 @@
         "tags": [
           "CA 对接"
         ],
-        "summary": "会展固定账号的当前陪学伙伴",
-        "description": "仅在显式启用的 Prototype 演示环境中开放；以 child_id 鉴权，需固定演示账户已接通和 dingdong_sync 授权。未接通返回 409，不读取对方聚合；测试 Key 不给浏览器。",
+        "summary": "当前儿童关联的演示伙伴完整报告",
+        "description": "显式demo开关；家庭、儿童active、当前demo账户active/bound和dingdong_sync授权检查。优先真实GET；更晚有效push优先，失联仅回读同weekly_turns已验证推送。结果保留原8字段并新增八维起点、当前指标、7个模拟曲线点、更新时间和来源。测试Key不发送浏览器。",
         "security": [
           {
             "bearerAuth": []
@@ -10987,6 +10987,22 @@
               ],
               "format": "uuid"
             }
+          },
+          {
+            "name": "weekly_turns",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "enum": [
+                3,
+                7,
+                14,
+                21
+              ],
+              "default": 7
+            },
+            "description": "每周预计有效对话次数，只用于供应商模拟曲线"
           }
         ],
         "responses": {
@@ -11014,9 +11030,158 @@
                   "assessment_type": "science",
                   "persona_name": "Nova",
                   "persona_type": "science",
-                  "match_score": 82,
-                  "companion_value": 6,
-                  "effective_turns": 6,
+                  "match_score": 98.22,
+                  "companion_value": 22,
+                  "effective_turns": 22,
+                  "assessment": {
+                    "baseline_scores": {
+                      "linguistic": 52,
+                      "logical": 84,
+                      "musical": 52,
+                      "spatial": 70,
+                      "bodily": 52,
+                      "intrapersonal": 52,
+                      "interpersonal": 52,
+                      "naturalistic": 78
+                    }
+                  },
+                  "growth": {
+                    "algorithm_version": "growth_v1",
+                    "current": {
+                      "engagement_index": 42.31,
+                      "growth_stage": "developing",
+                      "stage_progress": 11.53,
+                      "dimensions": {
+                        "linguistic": 15.02,
+                        "logical": 42.31,
+                        "musical": 7.51,
+                        "spatial": 24.13,
+                        "bodily": 7.51,
+                        "intrapersonal": 15.02,
+                        "interpersonal": 15.02,
+                        "naturalistic": 33.13
+                      }
+                    },
+                    "weekly_turns": 7,
+                    "curve": [
+                      {
+                        "day": 0,
+                        "companion_value": 22,
+                        "engagement_index": 42.31,
+                        "growth_stage": "developing",
+                        "dimensions": {
+                          "linguistic": 15.02,
+                          "logical": 42.31,
+                          "musical": 7.51,
+                          "spatial": 24.13,
+                          "bodily": 7.51,
+                          "intrapersonal": 15.02,
+                          "interpersonal": 15.02,
+                          "naturalistic": 33.13
+                        }
+                      },
+                      {
+                        "day": 7,
+                        "companion_value": 29,
+                        "engagement_index": 51.57,
+                        "growth_stage": "developing",
+                        "dimensions": {
+                          "linguistic": 18.3,
+                          "logical": 51.57,
+                          "musical": 9.15,
+                          "spatial": 29.42,
+                          "bodily": 9.15,
+                          "intrapersonal": 18.3,
+                          "interpersonal": 18.3,
+                          "naturalistic": 40.38
+                        }
+                      },
+                      {
+                        "day": 15,
+                        "companion_value": 37,
+                        "engagement_index": 60.35,
+                        "growth_stage": "deep",
+                        "dimensions": {
+                          "linguistic": 21.42,
+                          "logical": 60.35,
+                          "musical": 10.71,
+                          "spatial": 34.42,
+                          "bodily": 10.71,
+                          "intrapersonal": 21.42,
+                          "interpersonal": 21.42,
+                          "naturalistic": 47.26
+                        }
+                      },
+                      {
+                        "day": 30,
+                        "companion_value": 52,
+                        "engagement_index": 72.75,
+                        "growth_stage": "deep",
+                        "dimensions": {
+                          "linguistic": 25.82,
+                          "logical": 72.75,
+                          "musical": 12.91,
+                          "spatial": 41.5,
+                          "bodily": 12.91,
+                          "intrapersonal": 25.82,
+                          "interpersonal": 25.82,
+                          "naturalistic": 56.97
+                        }
+                      },
+                      {
+                        "day": 60,
+                        "companion_value": 82,
+                        "engagement_index": 87.13,
+                        "growth_stage": "co_creation",
+                        "dimensions": {
+                          "linguistic": 30.92,
+                          "logical": 87.13,
+                          "musical": 15.46,
+                          "spatial": 49.7,
+                          "bodily": 15.46,
+                          "intrapersonal": 30.92,
+                          "interpersonal": 30.92,
+                          "naturalistic": 68.23
+                        }
+                      },
+                      {
+                        "day": 90,
+                        "companion_value": 112,
+                        "engagement_index": 93.92,
+                        "growth_stage": "co_creation",
+                        "dimensions": {
+                          "linguistic": 33.33,
+                          "logical": 93.92,
+                          "musical": 16.67,
+                          "spatial": 53.57,
+                          "bodily": 16.67,
+                          "intrapersonal": 33.33,
+                          "interpersonal": 33.33,
+                          "naturalistic": 73.55
+                        }
+                      },
+                      {
+                        "day": 180,
+                        "companion_value": 202,
+                        "engagement_index": 99.36,
+                        "growth_stage": "co_creation",
+                        "dimensions": {
+                          "linguistic": 35.27,
+                          "logical": 99.36,
+                          "musical": 17.63,
+                          "spatial": 56.68,
+                          "bodily": 17.63,
+                          "intrapersonal": 35.27,
+                          "interpersonal": 35.27,
+                          "naturalistic": 77.81
+                        }
+                      }
+                    ],
+                    "source": "simulation"
+                  },
+                  "weekly_turns": 7,
+                  "updated_at": "2026-09-30T09:36:29.185359+00:00",
+                  "sync_source": "pull",
                   "prototype_url": "http://122.51.108.225/"
                 }
               }
@@ -11043,7 +11208,7 @@
             }
           },
           "404": {
-            "description": "演示未启用、档案不属于当前家庭或未绑定固定演示号",
+            "description": "演示未开启、儿童不属于当前家庭或无当前活跃演示关联",
             "content": {
               "application/json": {
                 "schema": {
@@ -11063,7 +11228,7 @@
             }
           },
           "502": {
-            "description": "对方数据暂不可用",
+            "description": "拉取失败或源schema不合法，且无匹配频率的已验证推送快照",
             "content": {
               "application/json": {
                 "schema": {
@@ -11074,6 +11239,16 @@
           },
           "409": {
             "description": "DINGDONG_BIND_PENDING：机器人待接通，请用原标签重试绑定",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "不支持的weekly_turns或其他查询参数",
             "content": {
               "application/json": {
                 "schema": {
@@ -15014,7 +15189,8 @@
           "status",
           "bind_state",
           "bound_at",
-          "created_at"
+          "created_at",
+          "is_prototype_demo"
         ],
         "properties": {
           "ca_account_id": {
@@ -15071,6 +15247,10 @@
           "created_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "is_prototype_demo": {
+            "type": "boolean",
+            "description": "本地演示关联标识；本地新号可映射固定供应商源，旧号永不复用。"
           }
         }
       },
@@ -16480,7 +16660,12 @@
           "match_score",
           "companion_value",
           "effective_turns",
-          "prototype_url"
+          "prototype_url",
+          "assessment",
+          "growth",
+          "weekly_turns",
+          "updated_at",
+          "sync_source"
         ],
         "properties": {
           "availability": {
@@ -16528,8 +16713,44 @@
           "prototype_url": {
             "type": "string",
             "format": "uri"
+          },
+          "assessment": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "baseline_scores"
+            ],
+            "properties": {
+              "baseline_scores": {
+                "$ref": "#/components/schemas/PrototypeDimensions"
+              }
+            }
+          },
+          "growth": {
+            "$ref": "#/components/schemas/PrototypeGrowth"
+          },
+          "weekly_turns": {
+            "type": "integer",
+            "enum": [
+              3,
+              7,
+              14,
+              21
+            ]
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "sync_source": {
+            "type": "string",
+            "enum": [
+              "pull",
+              "push"
+            ]
           }
-        }
+        },
+        "description": "来自固定共享Prototype mock的已验证快照；按儿童的当前绑定与授权检查访问。曲线是供应商模拟趋势，不是正式15/30日成长报告。"
       },
       "ExplorationScore": {
         "type": "object",
@@ -16814,6 +17035,175 @@
           "explorations",
           "activities"
         ]
+      },
+      "PrototypeDimensions": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "linguistic",
+          "logical",
+          "musical",
+          "spatial",
+          "bodily",
+          "intrapersonal",
+          "interpersonal",
+          "naturalistic"
+        ],
+        "properties": {
+          "linguistic": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "logical": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "musical": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "spatial": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "bodily": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "intrapersonal": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "interpersonal": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "naturalistic": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          }
+        }
+      },
+      "PrototypeGrowthCurrent": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "engagement_index",
+          "growth_stage",
+          "stage_progress",
+          "dimensions"
+        ],
+        "properties": {
+          "engagement_index": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "growth_stage": {
+            "type": "string",
+            "maxLength": 128
+          },
+          "stage_progress": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "dimensions": {
+            "$ref": "#/components/schemas/PrototypeDimensions"
+          }
+        }
+      },
+      "PrototypeCurvePoint": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "day",
+          "companion_value",
+          "engagement_index",
+          "growth_stage",
+          "dimensions"
+        ],
+        "properties": {
+          "day": {
+            "type": "integer",
+            "enum": [
+              0,
+              7,
+              15,
+              30,
+              60,
+              90,
+              180
+            ]
+          },
+          "companion_value": {
+            "type": "number",
+            "minimum": 0
+          },
+          "engagement_index": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "growth_stage": {
+            "type": "string",
+            "maxLength": 128
+          },
+          "dimensions": {
+            "$ref": "#/components/schemas/PrototypeDimensions"
+          }
+        }
+      },
+      "PrototypeGrowth": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "algorithm_version",
+          "current",
+          "weekly_turns",
+          "curve",
+          "source"
+        ],
+        "properties": {
+          "algorithm_version": {
+            "type": "string",
+            "maxLength": 128
+          },
+          "current": {
+            "$ref": "#/components/schemas/PrototypeGrowthCurrent"
+          },
+          "weekly_turns": {
+            "type": "integer",
+            "enum": [
+              3,
+              7,
+              14,
+              21
+            ]
+          },
+          "curve": {
+            "type": "array",
+            "minItems": 7,
+            "maxItems": 7,
+            "items": {
+              "$ref": "#/components/schemas/PrototypeCurvePoint"
+            }
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "simulation"
+            ]
+          }
+        }
       }
     }
   }

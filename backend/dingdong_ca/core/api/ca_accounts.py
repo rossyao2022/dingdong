@@ -34,6 +34,7 @@ def serialize_account(row):
         "nfc_token_fingerprint": service.token_fingerprint(row.nfc_token_hash),
         "status": row.status,
         "bind_state": row.bind_state,
+        "is_prototype_demo": row.prototype_demo,
         "bound_at": row.bound_at.isoformat(),
         "unbound_at": row.unbound_at.isoformat() if row.unbound_at else None,
         "created_at": row.created_at.isoformat(),

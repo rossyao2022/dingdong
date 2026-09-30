@@ -1,0 +1,1 @@
+All app ES imports in local allowlist and all three web recipes; report CSS in HTML/Storybook; runtime Git paths contain no private env or key files (example excluded).

@@ -1,0 +1,25 @@
+file:///Users/yihu/Documents/ChatGPT/%E5%8F%AE%E5%92%9A/frontend/unit/ca-link.test.js:9
+  conflictNeedsRefresh,
+  ^^^^^^^^^^^^^^^^^^^^
+SyntaxError: The requested module '../ca-link.js' does not provide an export named 'conflictNeedsRefresh'
+    at #asyncInstantiate (node:internal/modules/esm/module_job:327:21)
+    at async ModuleJob.run (node:internal/modules/esm/module_job:431:5)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:646:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v26.3.1
+✖ frontend/unit/ca-link.test.js (54.458333ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 58.959375
+
+✖ failing tests:
+
+test at frontend/unit/ca-link.test.js:1:1
+✖ frontend/unit/ca-link.test.js (54.458333ms)
+  'test failed'

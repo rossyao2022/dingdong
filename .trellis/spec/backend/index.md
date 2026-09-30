@@ -15,6 +15,7 @@
 | [services-and-idempotency.md](./services-and-idempotency.md) | 服务层分工、锁顺序、事务边界与“网络调用放事务外”、幂等模式、ULID 发号器、咨询锁、后台作业栅栏、审计 |
 | [external-integrations.md](./external-integrations.md) | 不许 mock 业务 API / 不许伪造成功；fixture 数据源、DingDong 出站客户端、上传与留存边界 |
 | [companion-preferences-and-export.md](./companion-preferences-and-export.md) | 网页四种引导、儿童级偏好与记录导出、CA关联删除保护 |
+| [prototype-report-and-handover.md](./prototype-report-and-handover.md) | 会展独立CA报告、共享Mock报告、安全推送与跨家庭解绑重绑 |
 | [testing.md](./testing.md) | pytest 配置、为什么必须 PostgreSQL、`conftest.py` 与 `ops_helpers.py`、并发用例写法、命令与禁止项 |
 | [quality-guidelines.md](./quality-guidelines.md) | ruff 配置与 py314 格式化坑、注释与文案风格、日志与敏感数据、禁止模式、提交门禁、文档同步 |
 

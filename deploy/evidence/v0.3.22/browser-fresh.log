@@ -1,0 +1,11 @@
+
+Running 4 tests using 1 worker
+
+(node:83569) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/prototype-closed-loop.spec.js:53:1 › 真实同一机器人第二儿童占用不误导刷新，原家长解除后可新绑 (6.0s)
+  ✓  2 tests/prototype-closed-loop.spec.js:90:1 › 真实儿童资料revision冲突仍能载入最新并重新保存 (3.6s)
+  ✓  3 tests/prototype-closed-loop.spec.js:125:1 › 普通新用户无设备无预置输入，真实22题经Worker生成CA报告 (24.9s)
+  ✓  4 tests/prototype-closed-loop.spec.js:227:1 › 会展A真实解绑保留CA记录→B新号待接通→合成bound与验签推送投影→完整报告 (42.6s)
+
+  4 passed (1.3m)

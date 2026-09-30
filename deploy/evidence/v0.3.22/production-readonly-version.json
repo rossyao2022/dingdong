@@ -1,0 +1,9 @@
+{
+  "version": "0.3.20",
+  "runtime": {
+    "environment": "demo",
+    "sms_mode": "aliyun_verify",
+    "data_source": "database_fixture",
+    "fixture_dataset": null
+  }
+}

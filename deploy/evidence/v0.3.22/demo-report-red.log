@@ -1,0 +1,24 @@
+F.....                                                                   [100%]
+=================================== FAILURES ===================================
+_____________ test_fresh_unbound_family_completes_real_report_job ______________
+
+client = <rest_framework.test.APIClient object at 0x107d4b770>
+
+    @override_settings(APP_ENV='demo', CA_DEMO_REPORTS_ENABLED=True)
+    def test_fresh_unbound_family_completes_real_report_job(client):
+        _, session = fresh_assessment(client)
+        key = str(uuid.uuid4())
+        result = submit(client, session, request_id=key)
+>       assert result.status_code == 200, result.content
+E       AssertionError: b'{"code":"FIXTURE_NOT_FOUND","message":"\xe5\xa4\x84\xe7\x90\x86\xe5\xa4\xb1\xe8\xb4\xa5\xef\xbc\x8c\xe8\xaf\xb7\xe6\...\xe9\x87\x8d\xe6\x96\xb0\xe9\x87\x87\xe9\x9b\x86","field_errors":[],"trace_id":"16ceb851-0228-4b7d-b7e5-900048a443bd"}'
+E       assert 503 == 200
+E        +  where 503 = <Response status_code=503, "application/json">.status_code
+
+tests/test_demo_reports.py:47: AssertionError
+----------------------------- Captured stderr call -----------------------------
+Service Unavailable: /api/v1/assessments/e4790ae1-4aab-47e8-8a5d-1d79e964cde2/submit
+------------------------------ Captured log call -------------------------------
+ERROR    django.request:log.py:249 Service Unavailable: /api/v1/assessments/e4790ae1-4aab-47e8-8a5d-1d79e964cde2/submit
+=========================== short test summary info ============================
+FAILED tests/test_demo_reports.py::test_fresh_unbound_family_completes_real_report_job
+1 failed, 5 passed in 1.40s

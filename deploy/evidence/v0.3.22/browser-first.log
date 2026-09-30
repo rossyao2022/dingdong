@@ -1,0 +1,37 @@
+
+Running 3 tests using 1 worker
+
+(node:77772) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/prototype-closed-loop.spec.js:27:1 › 真实同一机器人第二儿童占用不误导刷新，原家长解除后可新绑 (6.4s)
+  ✘  2 tests/prototype-closed-loop.spec.js:58:1 › 真实儿童资料revision冲突仍能载入最新并重新保存 (3.3s)
+(node:77967) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 tests/prototype-closed-loop.spec.js:79:1 › 普通新用户无设备无预置输入，真实22题经Worker生成CA报告 (23.8s)
+
+
+  1) tests/prototype-closed-loop.spec.js:58:1 › 真实儿童资料revision冲突仍能载入最新并重新保存 ────────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "REVISION_CONFLICT"
+    Received: "EDIT_CONFLICT"
+
+      67 |   const conflict=await pending;
+      68 |   expect(conflict.status()).toBe(409);
+    > 69 |   expect((await conflict.json()).code).toBe('REVISION_CONFLICT');
+         |                                        ^
+      70 |   await expect(page.locator('#child-conflict')).toBeVisible();
+      71 |   await page.locator('[data-action=child-conflict-load]').click();
+      72 |   await page.locator('[data-action=child-conflict-load-confirm]').click();
+        at /Users/yihu/Documents/ChatGPT/叮咚/frontend/tests/prototype-closed-loop.spec.js:69:40
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../deploy/evidence/v0.3.22/browser-closed-loop/prototype-closed-loop-真实儿童资料revision冲突仍能载入最新并重新保存/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../deploy/evidence/v0.3.22/browser-closed-loop/prototype-closed-loop-真实儿童资料revision冲突仍能载入最新并重新保存/error-context.md
+
+  1 failed
+    tests/prototype-closed-loop.spec.js:58:1 › 真实儿童资料revision冲突仍能载入最新并重新保存 ─────────────────────────
+  2 passed (39.3s)

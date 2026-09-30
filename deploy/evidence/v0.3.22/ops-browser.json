@@ -1,0 +1,10 @@
+{
+  "scope": "isolated local staff session, real DB synthetic signed webhook",
+  "authorized_status": 200,
+  "anonymous_status": 302,
+  "content_status": 403,
+  "page_errors": [],
+  "actual_sms": 0,
+  "supplier_requests": 0,
+  "production_writes": 0
+}

@@ -5,6 +5,7 @@ import "../exploration-v4.css";
 import "../talents.css";
 import "../readability.css";
 import "../client.css";
+import "../dingdong-report.css";
 
 export default {
   parameters: {

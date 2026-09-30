@@ -1,0 +1,206 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+____ test_invalid_or_unsupported_push_is_retained_without_projection[huge] _____
+
+client = <rest_framework.test.APIClient object at 0x10576b8c0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x1056f6d70>
+case = 'huge'
+
+    @override_settings(**DEMO_SETTINGS, DINGDONG_PUSH_SECRET="synthetic-only-signing-secret")
+    @pytest.mark.parametrize(
+        "case",
+        ["unknown_event", "wrong_source", "mode", "dimensions", "nan", "curve_order", "curve_number", "huge"],
+    )
+    def test_invalid_or_unsupported_push_is_retained_without_projection(client, monkeypatch, case):
+        from dingdong_ca.core.models import DingDongPushEvent, PrototypeReportSnapshot
+    
+        child, account, grant = prepare_bound(client, monkeypatch)
+        data = sample_report()
+        event_type = "dingdong.prototype.companion_milestone"
+        if case == "unknown_event":
+            event_type = "unexpected.created"
+        if case == "wrong_source":
+            data["ca_account_id"] = "ca_someone_else"
+        if case == "mode":
+            data["mode"] = "production"
+        if case == "dimensions":
+            data["assessment"]["baseline_scores"].pop("bodily")
+        if case == "huge":
+            data["growth"]["current"]["dimensions"]["logical"] = 10**1000
+        if case == "nan":
+            data["growth"]["current"]["dimensions"]["logical"] = float("nan")
+        if case == "curve_order":
+            data["growth"]["curve"].reverse()
+        if case == "curve_number":
+            data["growth"]["curve"][0]["dimensions"]["logical"] = True
+>       response = push(client, data, event_type=event_type)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_prototype_closed_loop.py:216: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_prototype_closed_loop.py:126: in push
+    return client.post(
+.venv/lib/python3.14/site-packages/rest_framework/test.py:283: in post
+    response = super().post(
+.venv/lib/python3.14/site-packages/rest_framework/test.py:197: in post
+    return self.generic('POST', path, data, content_type, **extra)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/rest_framework/test.py:221: in generic
+    return super().generic(
+.venv/lib/python3.14/site-packages/django/test/client.py:671: in generic
+    return self.request(**r)
+           ^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/rest_framework/test.py:273: in request
+    return super().request(**kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/rest_framework/test.py:225: in request
+    request = super().request(**kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/test/client.py:1090: in request
+    self.check_exception(response)
+.venv/lib/python3.14/site-packages/django/test/client.py:805: in check_exception
+    raise exc_value
+.venv/lib/python3.14/site-packages/django/core/handlers/exception.py:55: in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/core/handlers/base.py:198: in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/views/decorators/csrf.py:65: in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/views/generic/base.py:106: in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/rest_framework/views.py:515: in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/rest_framework/views.py:475: in handle_exception
+    self.raise_uncaught_exception(exc)
+.venv/lib/python3.14/site-packages/rest_framework/views.py:486: in raise_uncaught_exception
+    raise exc
+.venv/lib/python3.14/site-packages/rest_framework/views.py:512: in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/rest_framework/decorators.py:50: in handler
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+dingdong_ca/core/api/common.py:91: in wrapped
+    response = fn(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+dingdong_ca/core/api/dingdong_push.py:50: in prototype_events
+    return receive_event(request)
+           ^^^^^^^^^^^^^^^^^^^^^^
+dingdong_ca/core/api/dingdong_push.py:106: in receive_event
+    process_event(event.pk)
+dingdong_ca/core/services/prototype_reports.py:191: in process_event
+    view = report_view(event.payload.get("data"))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+dingdong_ca/core/services/prototype_reports.py:129: in report_view
+    "dimensions": scores(current.get("dimensions")),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+dingdong_ca/core/services/prototype_reports.py:67: in scores
+    return {key: number(data[key], 100) for key in DIMENSIONS}
+                 ^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = 100000000000000000...0000000000000000000, maximum = 100, integer = False
+
+    def number(value, maximum=None, *, integer=False):
+        if (
+            type(value) not in (int, float)
+>           or not isfinite(value)
+                   ^^^^^^^^^^^^^^^
+            or value < 0
+            or (maximum is not None and value > maximum)
+        ):
+E       OverflowError: int too large to convert to float
+
+dingdong_ca/core/services/prototype_reports.py:39: OverflowError
+----------------------------- Captured stderr call -----------------------------
+Internal Server Error: /api/dingdong/prototype/events
+Traceback (most recent call last):
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/core/handlers/base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/views/generic/base.py", line 106, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/views.py", line 515, in dispatch
+    response = self.handle_exception(exc)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/views.py", line 475, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/views.py", line 486, in raise_uncaught_exception
+    raise exc
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/views.py", line 512, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/decorators.py", line 50, in handler
+    return func(*args, **kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/api/common.py", line 91, in wrapped
+    response = fn(request, *args, **kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/api/dingdong_push.py", line 50, in prototype_events
+    return receive_event(request)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/api/dingdong_push.py", line 106, in receive_event
+    process_event(event.pk)
+    ~~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/services/prototype_reports.py", line 191, in process_event
+    view = report_view(event.payload.get("data"))
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/services/prototype_reports.py", line 129, in report_view
+    "dimensions": scores(current.get("dimensions")),
+                  ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/services/prototype_reports.py", line 67, in scores
+    return {key: number(data[key], 100) for key in DIMENSIONS}
+                 ~~~~~~^^^^^^^^^^^^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/services/prototype_reports.py", line 39, in number
+    or not isfinite(value)
+           ~~~~~~~~^^^^^^^
+OverflowError: int too large to convert to float
+------------------------------ Captured log call -------------------------------
+ERROR    django.request:log.py:249 Internal Server Error: /api/dingdong/prototype/events
+Traceback (most recent call last):
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/core/handlers/base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/django/views/generic/base.py", line 106, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/views.py", line 515, in dispatch
+    response = self.handle_exception(exc)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/views.py", line 475, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/views.py", line 486, in raise_uncaught_exception
+    raise exc
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/views.py", line 512, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/.venv/lib/python3.14/site-packages/rest_framework/decorators.py", line 50, in handler
+    return func(*args, **kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/api/common.py", line 91, in wrapped
+    response = fn(request, *args, **kwargs)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/api/dingdong_push.py", line 50, in prototype_events
+    return receive_event(request)
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/api/dingdong_push.py", line 106, in receive_event
+    process_event(event.pk)
+    ~~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/services/prototype_reports.py", line 191, in process_event
+    view = report_view(event.payload.get("data"))
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/services/prototype_reports.py", line 129, in report_view
+    "dimensions": scores(current.get("dimensions")),
+                  ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/services/prototype_reports.py", line 67, in scores
+    return {key: number(data[key], 100) for key in DIMENSIONS}
+                 ~~~~~~^^^^^^^^^^^^^^^^
+  File "/Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/core/services/prototype_reports.py", line 39, in number
+    or not isfinite(value)
+           ~~~~~~~~^^^^^^^
+OverflowError: int too large to convert to float
+=========================== short test summary info ============================
+FAILED tests/test_prototype_closed_loop.py::test_invalid_or_unsupported_push_is_retained_without_projection[huge]
+1 failed in 1.35s

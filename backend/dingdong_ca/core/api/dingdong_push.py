@@ -25,6 +25,7 @@ from django.db import IntegrityError, transaction
 from rest_framework.response import Response
 
 from dingdong_ca.core.integration_models import DingDongPushEvent
+from dingdong_ca.core.services.prototype_reports import event_log, process_event, push_log
 
 from .common import ApiError, endpoint
 
@@ -45,6 +46,14 @@ def _extract(payload, key, max_length):
 
 @endpoint(["POST"], anonymous=True)
 def prototype_events(request):
+    try:
+        return receive_event(request)
+    except ApiError as exc:
+        push_log(request.headers.get("X-Dingdong-Event-ID", ""), "rejected", exc.code)
+        raise
+
+
+def receive_event(request):
     secret = settings.DINGDONG_PUSH_SECRET
     if not secret:
         # 双方还没约定 CA_PUSH_SECRET：如实拒绝，不伪造通过。
@@ -54,6 +63,8 @@ def prototype_events(request):
     event_id = request.headers.get("X-Dingdong-Event-ID")
     if not (signature and timestamp and event_id):
         raise ApiError("PUSH_HEADERS_MISSING", 400, "缺少推送请求头")
+    if not timestamp.isascii() or not timestamp.isdecimal() or len(timestamp) > 20:
+        raise ApiError("PUSH_TIMESTAMP_INVALID", 400, "时间戳不合法")
     try:
         ts = int(timestamp)
     except ValueError:
@@ -65,18 +76,20 @@ def prototype_events(request):
     raw_body = request.body
     _verify_signature(secret, timestamp, raw_body, signature)
     try:
-        payload = json.loads(raw_body.decode("utf-8"))
-    except UnicodeDecodeError, ValueError:
+        payload = json.loads(raw_body.decode("utf-8"), parse_constant=lambda value: value)
+    except (UnicodeDecodeError, ValueError):
         raise ApiError("INVALID_JSON", 400, "请求体不是合法 JSON") from None
     if not isinstance(payload, dict):
         raise ApiError("PUSH_PAYLOAD_INVALID", 400, "请求体必须是 JSON 对象")
     data = payload.get("data")
     data = data if isinstance(data, dict) else {}
     event_type = request.headers.get("X-Dingdong-Event-Type") or payload.get("event_type") or ""
+    if len(event_id) > 64:
+        raise ApiError("PUSH_HEADERS_INVALID", 400, "事件标识过长")
     try:
         # savepoint 隔离：唯一键冲突只回滚到 savepoint，不弄坏外层事务。
         with transaction.atomic():
-            DingDongPushEvent.objects.create(
+            event = DingDongPushEvent.objects.create(
                 event_id=event_id[:64],
                 event_type=str(event_type)[:64],
                 ca_account_id=_extract(data, "ca_account_id", 64),
@@ -85,5 +98,10 @@ def prototype_events(request):
             )
     except IntegrityError:
         # 同一 event_id 因对方网络重试再次到达：幂等回 2xx 止住补偿投递。
+        event = DingDongPushEvent.objects.get(event_id=event_id)
+        if event.processing_status == "received":
+            process_event(event.pk)
+        event_log(event, "duplicate")
         return Response({"code": 0, "duplicate": True}, status=200)
+    process_event(event.pk)
     return Response({"code": 0, "duplicate": False}, status=201)

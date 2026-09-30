@@ -81,8 +81,13 @@ def prototype_demo_enabled():
     return settings.APP_ENV == "demo" and settings.DINGDONG_PROTOTYPE_DEMO_ENABLED
 
 
-def is_protected_prototype_account(account):
-    return prototype_demo_enabled() and account.ca_account_id == PROTOTYPE_ACCOUNT_ID
+def source_account_id(account):
+    """Local exhibition lifetimes are distinct; supplier has one fixed mock source."""
+    if account.prototype_demo and not prototype_demo_enabled():
+        from .dingdong_client import DingDongNotConfigured
+
+        raise DingDongNotConfigured()
+    return PROTOTYPE_ACCOUNT_ID if account.prototype_demo else account.ca_account_id
 
 
 def is_prototype_token(token):
@@ -114,17 +119,15 @@ def issue_account(*, child, user, request_id, nfc_token, robot_ref=None):
         if previous is not None:
             if previous.create_payload != payload:
                 raise ApiError("IDEMPOTENCY_CONFLICT", 409, "同一 request_id 的请求内容不一致")
+            if previous.status == "retired":
+                raise ApiError(
+                    "CA_ACCOUNT_RETIRED", 409, "原绑定已经解除，请重新碰标签开始新的绑定"
+                )
             account, created = previous, False
         else:
             current = CaAccount.objects.filter(child=child, status="active").first()
             if current is not None:
                 if current.nfc_token_hash != digest:
-                    if is_protected_prototype_account(current):
-                        raise ApiError(
-                            "PROTOTYPE_ACCOUNT_PROTECTED",
-                            409,
-                            "会展演示账号不能换机或停用，请使用原标签连接",
-                        )
                     raise ApiError(
                         "ACCOUNT_REPLACEMENT_REQUIRED",
                         409,
@@ -135,15 +138,27 @@ def issue_account(*, child, user, request_id, nfc_token, robot_ref=None):
             else:
                 if (
                     fixed_demo
-                    and CaAccount.objects.filter(ca_account_id=PROTOTYPE_ACCOUNT_ID).exists()
+                    and CaAccount.objects.filter(prototype_demo=True, status="active").exists()
                 ):
-                    raise ApiError("PROTOTYPE_ACCOUNT_OCCUPIED", 409, "演示账号已由另一档案使用")
+                    raise ApiError(
+                        "PROTOTYPE_ACCOUNT_OCCUPIED",
+                        409,
+                        "演示机器人正在使用，请让原绑定家长先解绑",
+                    )
                 for _ in range(_ISSUE_ATTEMPTS):
-                    identifier = PROTOTYPE_ACCOUNT_ID if fixed_demo else new_ca_account_id()
+                    identifier = (
+                        PROTOTYPE_ACCOUNT_ID
+                        if fixed_demo
+                        and not CaAccount.objects.filter(
+                            ca_account_id=PROTOTYPE_ACCOUNT_ID
+                        ).exists()
+                        else new_ca_account_id()
+                    )
                     try:
                         with transaction.atomic():
                             account = CaAccount.objects.create(
                                 ca_account_id=identifier,
+                                prototype_demo=fixed_demo,
                                 robot_ref=robot_ref,
                                 nfc_token_hash=digest,
                                 family=child.family,
@@ -157,7 +172,9 @@ def issue_account(*, child, user, request_id, nfc_token, robot_ref=None):
                     except IntegrityError:
                         if fixed_demo:
                             raise ApiError(
-                                "PROTOTYPE_ACCOUNT_OCCUPIED", 409, "演示账号已由另一档案使用"
+                                "PROTOTYPE_ACCOUNT_OCCUPIED",
+                                409,
+                                "演示机器人正在使用，请让原绑定家长先解绑",
                             ) from None
                         if not CaAccount.objects.filter(ca_account_id=identifier).exists():
                             # 不是号码撞车，而是并发下同一台机器人/同一个孩子已被占用。
@@ -171,7 +188,7 @@ def issue_account(*, child, user, request_id, nfc_token, robot_ref=None):
                 audit(user, "ca_account.create", account)
     # 网络调用放在事务外：不要为了绑一次机器人把行锁和事务一起拖住。
     # 绑定失败不回滚建号——号码仍然有效，界面按 bind_state 显示"待接通"。
-    if account.bind_state == "unbound":
+    if account.status == "active" and account.bind_state == "unbound":
         attempt_bind(account, nfc_token)
     return account, created
 
@@ -180,13 +197,17 @@ def attempt_bind(account, nfc_token):
     """配置齐全时真的调对方的绑定接口；未配置就返回 None，状态留在 `unbound`。"""
     from .dingdong_client import DingDongError, call, is_configured
 
-    if not is_configured():
+    if (
+        not is_configured()
+        or (account.prototype_demo and not prototype_demo_enabled())
+        or not CaAccount.objects.filter(pk=account.pk, status="active").exists()
+    ):
         return None
     try:
         result = call(
             "POST",
             "/api/v1/ca/account/bind",
-            payload={"ca_account_id": account.ca_account_id, "nfc_token": nfc_token},
+            payload={"ca_account_id": source_account_id(account), "nfc_token": nfc_token},
             request_id=str(account.create_request_key),
         )
     except DingDongError as exc:
@@ -198,8 +219,11 @@ def attempt_bind(account, nfc_token):
         )
         return None
     # 绑定接口成功才改状态；对方没确认成功之前不许显示"已绑定"。
-    account.bind_state = "bound"
-    account.save(update_fields=["bind_state", "updated_at"])
+    # A late response must never revive an association retired during transport.
+    CaAccount.objects.filter(pk=account.pk, status="active", bind_state="unbound").update(
+        bind_state="bound", updated_at=timezone.now()
+    )
+    account.refresh_from_db()
     return result
 
 
@@ -226,13 +250,11 @@ def retire_account(account, user):
     账户页的关联区块、成长观察、三个展示面都按关联/活跃账户取数，只改账户状态
     会让同一页出现「还没有机器人账户号」与「已核验 · 同步已启用」并存。
     """
-    if is_protected_prototype_account(account):
-        raise ApiError(
-            "PROTOTYPE_ACCOUNT_PROTECTED", 409, "会展演示账号不能换机或停用，请使用原标签连接"
-        )
-    if account.status == "retired":
-        return account
     with transaction.atomic():
+        Child.objects.select_for_update().get(pk=account.child_id)
+        account.refresh_from_db()
+        if account.status == "retired":
+            return account
         account.status = "retired"
         account.unbound_at = timezone.now()
         account.save(update_fields=["status", "unbound_at", "updated_at"])

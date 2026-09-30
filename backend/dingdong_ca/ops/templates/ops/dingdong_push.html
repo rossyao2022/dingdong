@@ -1,0 +1,10 @@
+{% extends "ops/base.html" %}
+{% block title %}推送接收与报告快照{% endblock %}
+{% block page_title %}推送接收与报告快照{% endblock %}
+{% block crumb %}技术只读 · 有效签名事件与已验证的演示伙伴数据{% endblock %}
+{% block content %}
+<div class="alert alert-info" role="note"><div><h4 class="alert-heading">接收成功和业务处理是两步</h4><p class="mb-0">只有固定演示源的完整陪伴里程碑数据会形成报告快照。未知事件与不合法数据保留接收记录，不更新报告。当前是双方共用的模拟成长数据，不能用作正式测评结论。本页不展示密钥、签名或完整请求内容。</p></div></div>
+<section class="card mb-3"><div class="card-header"><h2 class="card-title">各周频率的最新已验证快照</h2></div><div class="table-responsive"><table class="table table-vcenter"><thead><tr><th>每周对话</th><th>源更新时间</th><th>取得方式</th><th>陪伴值</th><th>人设</th></tr></thead><tbody>{% for row in snapshots %}<tr><td>{{ row.weekly_turns }}次</td><td>{{ row.source_updated_at|date:"Y-m-d H:i:s" }}</td><td>{% if row.sync_source == 'push' %}主动推送{% else %}主动拉取{% endif %}</td><td>{{ row.view.companion_value }}</td><td>{{ row.view.persona_name|default:"尚未选择" }}</td></tr>{% empty %}<tr><td colspan="5">尚无已验证报告快照。</td></tr>{% endfor %}</tbody></table></div></section>
+<section class="card"><div class="card-header"><h2 class="card-title">接收记录</h2></div><div class="table-responsive"><table class="table table-vcenter"><thead><tr><th>收到时间</th><th>事件摘要</th><th>类型</th><th>处理状态</th><th>错误码</th></tr></thead><tbody>{% for row in items %}<tr><td>{{ row.created_at|date:"Y-m-d H:i:s" }}</td><td>{{ row.event_hash }}</td><td>{{ row.event_type|default:"未提供" }}</td><td>{% if row.processing_status == 'processed' %}已形成快照{% elif row.processing_status == 'invalid' %}数据不合法{% elif row.processing_status == 'ignored' %}不支持的事件{% else %}收到，尚未处理{% endif %}</td><td>{{ row.processing_error|default:"—" }}</td></tr>{% empty %}<tr><td colspan="5">尚未收到推送事件。</td></tr>{% endfor %}</tbody></table></div></section>
+{% include "ops/_pagination.html" %}
+{% endblock %}

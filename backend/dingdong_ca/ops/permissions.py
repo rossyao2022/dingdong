@@ -45,6 +45,7 @@ PERMISSIONS = {
     "job.view": {"technical", "account_admin"},
     "association.manage": {"technical", "account_admin"},
     "ca_account.view": {"operations", "technical", "account_admin"},
+    "push.view": {"technical", "account_admin"},
     "service.view": {"operations", "technical", "account_admin"},
     "service.handle": {"operations", "technical", "account_admin"},
     "service.delete": {"technical", "account_admin"},
@@ -64,6 +65,7 @@ NAVIGATION = [
     ("生成任务", "job.view", "ops:jobs", "技术", "ti-refresh-dot"),
     # 与生成任务同组，regroup 依赖列表按组有序，插在别的组里会重复出现组标题
     ("CA 账户", "ca_account.view", "ops:ca_accounts", "技术", "ti-robot"),
+    ("推送接收", "push.view", "ops:dingdong_push", "技术", "ti-cloud-download"),
     ("账号与权限", "account.manage", "ops:accounts", "管理", "ti-shield-lock"),
     ("操作审计", "audit.view", "ops:audit", "管理", "ti-history"),
 ]

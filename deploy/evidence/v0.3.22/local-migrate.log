@@ -1,0 +1,4 @@
+Operations to perform:
+  Apply all migrations: admin, auth, contenttypes, core, sessions, testsupport, users
+Running migrations:
+  Applying core.0016_prototypereportsnapshot_caaccount_prototype_demo_and_more... OK

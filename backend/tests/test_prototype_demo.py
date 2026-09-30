@@ -83,13 +83,12 @@ def test_insights_requires_owner_and_consent_and_returns_live_values(client, mon
         calls.append(path)
         if path.endswith("account/bind"):
             return {"bind_status": "active"}
-        return {
-            "ca_account_id": "ca_dingdong",
-            "mode": "prototype_mock",
-            "assessment": {"talent_type": "science"},
-            "persona": {"character_name": "Nova", "persona_type": "science", "match_score": 82},
-            "companion": {"value": 6, "effective_turns": 6},
-        }
+        from test_prototype_closed_loop import sample_report
+
+        data = sample_report()
+        data["persona"]["match_score"] = 82
+        data["companion"].update(value=6, effective_turns=6)
+        return data
 
     monkeypatch.setattr(dingdong_client, "call", fake_call)
     call_command("seed_base", stdout=StringIO())
@@ -109,7 +108,19 @@ def test_insights_requires_owner_and_consent_and_returns_live_values(client, mon
     assert granted.status_code == 201
     data = client.get(url).json()
     assert_schema("PrototypeDemoView", data)
-    assert data == {
+    assert {
+        key: data[key]
+        for key in [
+            "availability",
+            "assessment_type",
+            "persona_name",
+            "persona_type",
+            "match_score",
+            "companion_value",
+            "effective_turns",
+            "prototype_url",
+        ]
+    } == {
         "availability": "ready",
         "assessment_type": "science",
         "persona_name": "Nova",
@@ -137,7 +148,7 @@ def test_fixed_account_is_disabled_outside_demo(client):
 
 
 @override_settings(**DEMO_SETTINGS)
-def test_demo_cannot_be_retired_or_replaced(client, monkeypatch):
+def test_demo_can_be_retired_but_cannot_change_robot_without_retirement(client, monkeypatch):
     from dingdong_ca.core.ca_models import CaAccount
     from dingdong_ca.core.services import dingdong_client
 
@@ -145,14 +156,16 @@ def test_demo_cannot_be_retired_or_replaced(client, monkeypatch):
     sign_in(client)
     child = create_child(client)
     assert issue(client, child, DEMO_TOKEN).status_code == 201
+    assert (
+        issue(client, child, "different-robot-token").json()["code"]
+        == "ACCOUNT_REPLACEMENT_REQUIRED"
+    )
     retired = client.post("/api/v1/ca-accounts/ca_dingdong/retire", {}, format="json")
-    assert retired.status_code == 409
-    assert retired.json()["code"] == "PROTOTYPE_ACCOUNT_PROTECTED"
-    replaced = issue(client, child, "different-robot-token")
-    assert replaced.status_code == 409
-    assert replaced.json()["code"] == "PROTOTYPE_ACCOUNT_PROTECTED"
-    assert CaAccount.objects.get(ca_account_id="ca_dingdong").status == "active"
-    assert issue(client, child, DEMO_TOKEN).status_code == 200
+    assert retired.status_code == 200
+    assert CaAccount.objects.get(ca_account_id="ca_dingdong").status == "retired"
+    new = issue(client, child, DEMO_TOKEN)
+    assert new.status_code == 201 and new.json()["ca_account_id"] != "ca_dingdong"
+    assert new.json()["is_prototype_demo"] is True
 
 
 @override_settings(**DEMO_SETTINGS)

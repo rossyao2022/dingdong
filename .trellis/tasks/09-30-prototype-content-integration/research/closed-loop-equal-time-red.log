@@ -1,0 +1,32 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+__________ test_equal_timestamp_prefers_fresh_pull_for_persona_change __________
+
+client = <rest_framework.test.APIClient object at 0x10540ea50>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x1056d7100>
+
+    @override_settings(**DEMO_SETTINGS, DINGDONG_PUSH_SECRET="synthetic-only-signing-secret")
+    def test_equal_timestamp_prefers_fresh_pull_for_persona_change(client, monkeypatch):
+        from dingdong_ca.core.services import dingdong_client
+    
+        child, account, grant = prepare_bound(client, monkeypatch)
+        assert push(client, sample_report()).status_code == 201
+        fresh = sample_report()
+        fresh["persona"]["character_name"] = "Current selection"
+        monkeypatch.setattr(dingdong_client, "call", lambda *args, **kw: fresh)
+        response = client.get(f"/api/v1/children/{child['id']}/prototype-demo")
+        assert response.status_code == 200
+>       assert response.json()["sync_source"] == "pull"
+E       AssertionError: assert 'push' == 'pull'
+E         
+E         - pull
+E         + push
+
+tests/test_prototype_closed_loop.py:389: AssertionError
+----------------------------- Captured stderr call -----------------------------
+push state=processed code=OK event_hash=e3550fa5b10d
+------------------------------ Captured log call -------------------------------
+INFO     dingdong_ca.push:prototype_reports.py:175 push state=processed code=OK event_hash=e3550fa5b10d
+=========================== short test summary info ============================
+FAILED tests/test_prototype_closed_loop.py::test_equal_timestamp_prefers_fresh_pull_for_persona_change
+1 failed in 1.45s

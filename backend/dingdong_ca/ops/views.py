@@ -20,7 +20,9 @@ from dingdong_ca.core.models import (
     CaAccount,
     Child,
     DataRequest,
+    DingDongPushEvent,
     Family,
+    PrototypeReportSnapshot,
     QuestionnaireVersion,
     ReportVersion,
 )
@@ -901,6 +903,33 @@ def ca_accounts(request):
             counts=counts,
             unbound=CaAccount.objects.filter(status="active", bind_state="unbound").count(),
             empty_hint="没有匹配的 CA 账户。家长用机器人 NFC 绑定时才会生成账户号。",
+        ),
+    )
+
+
+@ops_page("push.view")
+def dingdong_push(request):
+    import hashlib
+
+    page_obj = paginate(request, DingDongPushEvent.objects.order_by("-created_at", "-id"))
+    for row in page_obj.object_list:
+        row.event_hash = hashlib.sha256(row.event_id.encode()).hexdigest()[:12]
+    snapshots = [
+        PrototypeReportSnapshot.objects.filter(weekly_turns=weekly)
+        .order_by("-source_updated_at", "-created_at", "-id")
+        .first()
+        for weekly in [3, 7, 14, 21]
+    ]
+    return render(
+        request,
+        "ops/dingdong_push.html",
+        base_context(
+            request,
+            "dingdong_push",
+            items=page_obj.object_list,
+            page=page_links(request, page_obj),
+            pages=window(page_obj),
+            snapshots=[row for row in snapshots if row],
         ),
     )
 

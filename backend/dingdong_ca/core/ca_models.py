@@ -25,6 +25,7 @@ from .models import Entity
 
 class CaAccount(Entity):
     ca_account_id = models.CharField(max_length=64, unique=True)
+    prototype_demo = models.BooleanField(default=False)
     robot_ref = models.CharField(max_length=64, null=True, blank=True)
     # 只存 HMAC 摘要：NFC token 是设备凭据，明文不落库（与"真实指纹不留存"同源）。
     nfc_token_hash = models.CharField(max_length=64)
@@ -44,6 +45,11 @@ class CaAccount(Entity):
         # 不设会显示 Django 自动生成的英文 "ca account"。
         verbose_name = verbose_name_plural = "CA 账户"
         constraints = [
+            models.UniqueConstraint(
+                fields=["prototype_demo"],
+                condition=Q(prototype_demo=True, status="active"),
+                name="ca_account_one_active_demo",
+            ),
             models.UniqueConstraint(
                 fields=["bound_by", "create_request_key"], name="ca_account_create_unique"
             ),

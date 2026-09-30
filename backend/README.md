@@ -111,7 +111,7 @@ seed_base 创建固定角色，不创建默认管理员。seed_mock 注入两组
 
 ## M3 同步与阶段规则
 
-先同意 dingdong_sync 用途，再注入 sync_success 并调用 associations/verify。Worker 从数据库测试数据源读取，Beat 每分钟扫描到期关联（成功后 5 分钟到期）；没有新增 DingDong 调用 CA 的入口，也不向 DingDong 推送画像/配置。
+先同意 dingdong_sync 用途，再注入 sync_success 并调用 associations/verify。Worker 从数据库测试数据源读取，Beat 每分钟扫描到期关联（成功后 5 分钟到期）；这套合成同步不消费 Prototype webhook，也不向 DingDong 推送画像/配置。
 
 fixture 只支持完整固定窗口的 test_observation/count，规则 test-count-v1 仅做合成倍数计算。唯一关联、一次性票据、修订冲突、失败不推进游标、撤回/暂停检查以及 Worker 执行令牌共同保证结果的一致性。真实主体标识、窗口/游标、维度与评分语义仍待 DingDong 确认。
 
@@ -192,3 +192,14 @@ uv run python manage.py prepare_prototype_demo_report --apply
 - `GET /api/v1/children/{child_id}/export` 返回`schema_version:ca-child-export-v1`，只导出当前儿童基本信息、真实探索答卷（版本、题目、答案、结果）、活动与网页偏好。无手机号、登录凭据、机器人账户/NFC、指纹图片、其他儿童数据，也不包含专业合成测评。
 - 儿童关联任何机器人账户或受保护历史事件时，实际删除返回409 `CA_ACCOUNT_CONFLICT`，在任何写入前停止；儿童资料、活动、偏好、审计与删除申请均不改变。保留账户ID和历史关联，不能把这种拒绝显示成删除成功。
 - 运营维护当前会展题库应从默认题库复制新版本；新建独立题库不会自动替换首页入口。后台预览完整18题兴趣库，但家长选择3岛后只答9题；八维24题每方向3题累计3–15分。
+
+## 无机器人报告与演示交接（v0.3.22）
+
+- `CA_DEMO_REPORTS_ENABLED`默认关闭；显式开启且为demo/database_fixture时，原合成初始22题问卷可在没有预置输入时生成演示报告。不依赖机器人账户；仍需家长授权、真实保存问卷、合成图片提交与Worker生成。仅缺失输入才回退“专业测评结果暂无数据”，不覆盖故障或已有fixture、不提供正式算法分数。
+- `CaAccount.prototype_demo`区分本地演示关联与固定供应商源。迁移0016标记既有`ca_dingdong`行。家长解绑只归档当前行及关联，旧号和原儿童/家庭映射永久保留；同一原标签后续发新ULID本地号并标记`is_prototype_demo:true`，对外调用统一映射`ca_dingdong`。最多一个活跃演示关联，原家长先解绑后下一位才能绑定，其他家庭不能代操作。旧request_id重放409，不恢复旧行。
+- `GET /children/{id}/prototype-demo?weekly_turns=3|7|14|21`返回原摘要加八维起点、当前成长代理指标、供应商0/7/15/30/60/90/180日模拟曲线、更新时间与`sync_source`。严格检查当前家庭/active儿童、active且bound演示账户、dingdong_sync授权；关闭演示开关时不会把固定mock源发送到正式调用路径。
+- 已签名的`dingdong.prototype.companion_milestone`请求经完整数据验证后生成不可变快照：固定源、mock模式、每周频率、有限0–100的8维、合法曲线日序，以及每3次里程碑与有效对话数相符。无效/未知事件保存状态和错误码，不生成报告快照。原始验签失败不落库。
+- 拉取优先；若已验证推送的源时间更新则使用推送，防止乱序回退。拉取失败只回读同周频率的最新已验证推送，不能把7次周频的曲线当14次周频，也不在服务端或浏览器伪造曲线。
+- `/ops/dingdong-push/`仅技术运维和管理员可查看接收/处理状态及各周频率最新快照。事件只显示哈希摘要，不显示完整body/密钥/签名；`dingdong_ca.push`日志仅状态、错误码和事件摘要。报告仍是双方共享的Prototype模拟数据，不冒充正式15/30日成长报告。
+
+本地HTTP测试只注入传输层或显式合成输入，不能据此声称供应商已真实推送。公网callback配置及实际供应商投递另行验收。

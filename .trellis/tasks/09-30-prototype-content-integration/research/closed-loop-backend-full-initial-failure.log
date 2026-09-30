@@ -1,0 +1,32 @@
+........................................................................ [ 16%]
+........................................................................ [ 32%]
+.F...................................................................... [ 48%]
+........................................................................ [ 64%]
+........................................................................ [ 80%]
+........................................................................ [ 97%]
+.............                                                            [100%]
+=================================== FAILURES ===================================
+______ test_demo_fallback_only_accepts_original_synthetic_assessment_bank ______
+
+client = <rest_framework.test.APIClient object at 0x10b77dbd0>
+
+    @override_settings(APP_ENV="demo", CA_DEMO_REPORTS_ENABLED=True)
+    def test_demo_fallback_only_accepts_original_synthetic_assessment_bank(client):
+        child, _ = fresh_assessment(client)
+        Questionnaire = apps.get_model("core", "QuestionnaireVersion")
+        from dingdong_ca.testsupport.adapter import FixtureFailure, initial_result
+    
+        other = Questionnaire.objects.filter(purpose="interest", status="published").first()
+>       assert other is not None
+E       assert None is not None
+
+tests/test_demo_reports.py:132: AssertionError
+=============================== warnings summary ===============================
+dingdong_ca/testsupport/models.py:6
+  /Users/yihu/Documents/ChatGPT/叮咚/backend/dingdong_ca/testsupport/models.py:6: PytestCollectionWarning: cannot collect test class 'TestFixture' because it has a __init__ constructor (from: tests/test_ca_display.py)
+    class TestFixture(models.Model):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_demo_reports.py::test_demo_fallback_only_accepts_original_synthetic_assessment_bank
+1 failed, 444 passed, 1 warning in 14.79s

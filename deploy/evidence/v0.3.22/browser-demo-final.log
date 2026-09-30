@@ -1,0 +1,8 @@
+
+Running 1 test using 1 worker
+
+(node:85851) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/prototype-closed-loop.spec.js:227:1 › 会展A真实解绑保留CA记录→B新号待接通→合成bound与验签推送投影→完整报告 (46.1s)
+
+  1 passed (47.0s)

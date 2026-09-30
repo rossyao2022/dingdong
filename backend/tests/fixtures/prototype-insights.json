@@ -1,0 +1,167 @@
+{
+  "ca_account_id": "ca_dingdong",
+  "mode": "prototype_mock",
+  "assessment": {
+    "assessment_id": "assessment_prototype_001",
+    "talent_type": "science",
+    "learning_style": "cognitive",
+    "baseline_scores": {
+      "linguistic": 52.0,
+      "logical": 84.0,
+      "musical": 52.0,
+      "spatial": 70.0,
+      "bodily": 52.0,
+      "intrapersonal": 52.0,
+      "interpersonal": 52.0,
+      "naturalistic": 78.0
+    },
+    "source": "mock"
+  },
+  "persona": {
+    "persona_id": "persona_science_01",
+    "variant_id": "nova",
+    "character_name": "Nova",
+    "persona_type": "science",
+    "match_score": 98.22
+  },
+  "companion": {
+    "value": 22,
+    "effective_turns": 22,
+    "updated_at": "2026-09-30T09:36:29.185359+00:00",
+    "source": "web_chat"
+  },
+  "growth": {
+    "algorithm_version": "growth_v1",
+    "current": {
+      "engagement_index": 42.31,
+      "growth_stage": "developing",
+      "stage_progress": 11.53,
+      "dimensions": {
+        "linguistic": 15.02,
+        "logical": 42.31,
+        "musical": 7.51,
+        "spatial": 24.13,
+        "bodily": 7.51,
+        "intrapersonal": 15.02,
+        "interpersonal": 15.02,
+        "naturalistic": 33.13
+      }
+    },
+    "weekly_turns": 7,
+    "curve": [
+      {
+        "day": 0,
+        "companion_value": 22,
+        "engagement_index": 42.31,
+        "growth_stage": "developing",
+        "dimensions": {
+          "linguistic": 15.02,
+          "logical": 42.31,
+          "musical": 7.51,
+          "spatial": 24.13,
+          "bodily": 7.51,
+          "intrapersonal": 15.02,
+          "interpersonal": 15.02,
+          "naturalistic": 33.13
+        }
+      },
+      {
+        "day": 7,
+        "companion_value": 29,
+        "engagement_index": 51.57,
+        "growth_stage": "developing",
+        "dimensions": {
+          "linguistic": 18.3,
+          "logical": 51.57,
+          "musical": 9.15,
+          "spatial": 29.42,
+          "bodily": 9.15,
+          "intrapersonal": 18.3,
+          "interpersonal": 18.3,
+          "naturalistic": 40.38
+        }
+      },
+      {
+        "day": 15,
+        "companion_value": 37,
+        "engagement_index": 60.35,
+        "growth_stage": "deep",
+        "dimensions": {
+          "linguistic": 21.42,
+          "logical": 60.35,
+          "musical": 10.71,
+          "spatial": 34.42,
+          "bodily": 10.71,
+          "intrapersonal": 21.42,
+          "interpersonal": 21.42,
+          "naturalistic": 47.26
+        }
+      },
+      {
+        "day": 30,
+        "companion_value": 52,
+        "engagement_index": 72.75,
+        "growth_stage": "deep",
+        "dimensions": {
+          "linguistic": 25.82,
+          "logical": 72.75,
+          "musical": 12.91,
+          "spatial": 41.5,
+          "bodily": 12.91,
+          "intrapersonal": 25.82,
+          "interpersonal": 25.82,
+          "naturalistic": 56.97
+        }
+      },
+      {
+        "day": 60,
+        "companion_value": 82,
+        "engagement_index": 87.13,
+        "growth_stage": "co_creation",
+        "dimensions": {
+          "linguistic": 30.92,
+          "logical": 87.13,
+          "musical": 15.46,
+          "spatial": 49.7,
+          "bodily": 15.46,
+          "intrapersonal": 30.92,
+          "interpersonal": 30.92,
+          "naturalistic": 68.23
+        }
+      },
+      {
+        "day": 90,
+        "companion_value": 112,
+        "engagement_index": 93.92,
+        "growth_stage": "co_creation",
+        "dimensions": {
+          "linguistic": 33.33,
+          "logical": 93.92,
+          "musical": 16.67,
+          "spatial": 53.57,
+          "bodily": 16.67,
+          "intrapersonal": 33.33,
+          "interpersonal": 33.33,
+          "naturalistic": 73.55
+        }
+      },
+      {
+        "day": 180,
+        "companion_value": 202,
+        "engagement_index": 99.36,
+        "growth_stage": "co_creation",
+        "dimensions": {
+          "linguistic": 35.27,
+          "logical": 99.36,
+          "musical": 17.63,
+          "spatial": 56.68,
+          "bodily": 17.63,
+          "intrapersonal": 35.27,
+          "interpersonal": 35.27,
+          "naturalistic": 77.81
+        }
+      }
+    ],
+    "source": "simulation"
+  }
+}

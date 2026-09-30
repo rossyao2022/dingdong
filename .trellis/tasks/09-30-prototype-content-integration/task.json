@@ -12,7 +12,7 @@
   "assignee": "yihu",
   "createdAt": "2026-09-30",
   "completedAt": null,
-  "branch": "codex/release-v0.3.21",
+  "branch": "codex/release-v0.3.22",
   "base_branch": "main",
   "worktree_path": null,
   "commit": "68ce418d318f3a6cb5c47487626c759d0e4e6bbc",
@@ -25,6 +25,6 @@
   ],
   "parent": null,
   "relatedFiles": [],
-  "notes": "本地v0.3.21修复/后端421/前端94/部署12/业务Chrome16+旧URL1/两份33及17页PDF完成，功能提交68ce418及发布包就绪。生产仍v0.3.20；推送合并部署等待本次放行。原手机NFC/相机彩排及有关联CA资料彻底去标识规则保留尾项。",
+  "notes": "用户已批准四项机器人与报告闭环本地实施v0.3.22；包含v0.3.21未发布修复。保留原CA历史，固定Mock演示源与家长绑定分离，允许解绑后新手机号新号绑定。生产仍v0.3.20，真实供应商推送/真机彩排未验收，远端部署另gate。",
   "meta": {}
 }
