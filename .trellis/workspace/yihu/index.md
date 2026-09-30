@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 32
-- **Last Active**: 2026-09-30
+- **Total Sessions**: 33
+- **Last Active**: 2026-10-01
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~812 | Active |
+| `journal-1.md` | ~835 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 33 | 2026-10-01 | v0.3.23旧缓存启动故障生产恢复 | `d8527dd`, `181fee5f3e22c59b5fc39391e7ddbb6f289fefb0` | `codex/release-v0.3.23` |
 | 32 | 2026-09-30 | v0.3.22完整版本生产发布验收 | `5b89d0b`, `5abe45526e3e2546b49220b28b1ebdbd037a209f` | `codex/release-v0.3.22` |
 | 31 | 2026-09-30 | v0.3.22 会展报告、推送投影与换家长绑定本地闭环 | `62e7721`, `dbe5165`, `d132ede` | `codex/release-v0.3.22` |
 | 30 | 2026-09-30 | v0.3.21原型审计修复与本地发布准备 | `68ce418`, `f126ffa` | `codex/release-v0.3.21` |

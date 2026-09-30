@@ -810,3 +810,26 @@ User explicitly authorized上线. Atomic push of release/main; verified producti
 ### Status
 
 [OK] **Completed**
+
+
+## Session 33: v0.3.23旧缓存启动故障生产恢复
+<!-- trellis-session: v=2 fp=2a40d18136d0f448 -->
+
+**Date**: 2026-10-01
+**Task**: v0.3.23旧缓存启动故障生产恢复
+**Branch**: `codex/release-v0.3.23`
+
+### Summary
+
+实际用户Chrome新旧模块混用缺export，完整版本图/no-store/独立HTML与bootstrap手动失败兜底修复，107unit/13deploy/5真实HTTP旧缓存浏览器回归通过。用户已放行的完整上线持续纠错：备份、四应用、无新迁移、原CA历史保留；生产23和29模块/no-store/27素材/六宽度/七旧入口通过。原受影响用户Chrome普通reload已恢复已登录探索首页及原选择，无新短信/业务写。供应商实发/实体NFC仍为父任务尾项，原auditJSON保留。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `d8527dd` | [T-prototype-content-integration] Fix cached module upgrade and startup recovery v0.3.23 |
+| `181fee5f3e22c59b5fc39391e7ddbb6f289fefb0` | [T-prototype-content-integration] Verify v0.3.23 production and affected browser recovery |
+
+### Status
+
+[OK] **Completed**
