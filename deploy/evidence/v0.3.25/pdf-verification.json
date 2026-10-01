@@ -1,0 +1,20 @@
+{
+  "parent": {
+    "pages": 25,
+    "approved_credentials_preserved": true,
+    "credential_field_count": 0,
+    "approved_phone_preserved": true,
+    "pending_release_explicit": true,
+    "image_pages": 25,
+    "mode": "0o600"
+  },
+  "ops": {
+    "pages": 16,
+    "approved_credentials_preserved": true,
+    "credential_field_count": 2,
+    "approved_phone_preserved": null,
+    "pending_release_explicit": true,
+    "image_pages": 16,
+    "mode": "0o600"
+  }
+}

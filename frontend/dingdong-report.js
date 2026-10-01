@@ -1,6 +1,6 @@
 /** Render only the supplied DingDong snapshot; never calculate projected scores here. */
-import { esc } from "./ui-components.js?v=0.3.24";
-import { boundAccount, safeChatUrl } from "./ca-link.js?v=0.3.24";
+import { esc } from "./ui-components.js?v=0.3.25";
+import { boundAccount, safeChatUrl } from "./ca-link.js?v=0.3.25";
 
 export function renderRobotEntry(accounts, childId, runtime = {}) {
   const bound = boundAccount(accounts, childId);
@@ -162,7 +162,7 @@ export function renderDingDongReport(data, options = {}) {
         : options.status === "error"
           ? "暂时无法读取陪伴成长记录，请稍后再试。"
           : "还没有陪伴成长记录。与伙伴一起体验后，再来看看吧。";
-    return `<section class="dd-report" aria-label="DingDong 陪伴成长报告">${title}<div class="panel dd-report-empty" ${options.status === "loading" ? 'role="status"' : ""}><p>${text}</p>${options.status === "error" ? '<button type="button" class="button secondary" data-action="dingdong-report-refresh">重新读取</button>' : ""}</div></section>`;
+    return `<section class="dd-report" aria-label="DingDong 陪伴成长报告">${title}<div class="panel dd-report-empty" ${options.status === "loading" ? 'role="status"' : ""}><p>${text}</p>${options.status !== "loading" ? '<button type="button" class="button secondary" data-action="dingdong-report-refresh">读取陪伴记录</button>' : ""}</div></section>`;
   }
   const weeklyTurns =
     view.weeklyTurns ??
@@ -179,6 +179,6 @@ export function renderDingDongReport(data, options = {}) {
   const frequency = `<section class="panel dd-report-frequency"><h2>预计每周聊几次？</h2><p>选择不同频率，体验模拟趋势，不会修改机器人设置。</p><div class="dd-report-frequency-actions" role="group" aria-label="预计每周对话次数">${WEEKLY_TURNS.map((value) => `<button type="button" class="button secondary" data-action="dingdong-weekly-turns" data-value="${value}" aria-pressed="${weeklyTurns === value}">${value} 次</button>`).join("")}</div></section>`;
   const chart = `<section class="panel dd-report-trend"><h2>好奇心，一点一点积累</h2><p class="dd-report-simulation">模拟趋势参考：根据陪伴情况估算，未来可能与这里不同，不代表孩子的能力或正式测评结果。</p>${curveSvg(view)}</section>`;
   const comparison = `<section class="panel dd-report-comparison"><h2>从起点，看看未来的可能</h2><p>这里只作趋势参考，缺少记录的地方保持空白。</p><div class="dd-report-table" role="table" aria-label="八个方面的起点、目前和180天参考"><div class="dd-report-row dd-report-table-head" role="row"><span role="columnheader">观察方向</span><span role="columnheader">起点</span><span role="columnheader">目前</span><span role="columnheader">180 天参考</span></div>${view.dimensions.map((d) => `<div class="dd-report-row" role="row"><span role="rowheader">${esc(d.label)}</span><span role="cell">${esc(display(d.baseline))}</span><span role="cell">${esc(display(d.current))}</span><span role="cell">${esc(display(d.future))}</span></div>`).join("")}</div></section>`;
-  const footer = `<div class="dd-report-footer">${updated ? `<p>最近更新：${esc(updated)}</p>` : ""}<button type="button" class="button secondary" data-action="dingdong-report-refresh">刷新陪伴变化</button></div>`;
+  const footer = `<div class="dd-report-footer">${data.availability === "stale" ? '<p class="notice">暂时没能更新，先显示已保存的记录。</p>' : ""}${updated ? `<p>最近更新：${esc(updated)}</p>` : ""}<button type="button" class="button secondary" data-action="dingdong-report-refresh">刷新陪伴变化</button></div>`;
   return `<section class="dd-report" aria-label="DingDong 陪伴成长报告">${title}${summary}${frequency}${chart}${comparison}${footer}</section>`;
 }

@@ -256,6 +256,10 @@ ERROR_ACTION = {
 }
 
 AUDIT_ACTION = {
+    "assessment_form.preview": "预览测评表单",
+    "assessment_form.copy": "复制测评表单",
+    "assessment_form.json": "下载测评表单 JSON",
+    "assessment_form.csv": "下载测评表单 CSV",
     "exhibition.followup": "更新展会跟进记录",
     "companion_preference.update": "更新网页陪伴方式",
     "prototype_content.import": "导入原型内容草稿",

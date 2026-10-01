@@ -162,7 +162,10 @@ def test_verified_push_projection_and_frequency_specific_outage_fallback(client,
     )
     fallback = client.get(url)
     assert fallback.status_code == 200 and fallback.json()["sync_source"] == "push"
-    assert client.get(url, {"weekly_turns": 14}).status_code == 502
+    cached_pull = client.get(url, {"weekly_turns": 14})
+    assert cached_pull.status_code == 200
+    assert cached_pull.json()["sync_source"] == "pull"
+    assert cached_pull.json()["availability"] == "stale"
     assert client.get(url, {"weekly_turns": 6}).status_code == 422
     assert (
         client.post(

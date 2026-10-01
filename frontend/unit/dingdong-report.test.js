@@ -183,3 +183,18 @@ test("robot entry keeps bound chat independent of report read failures and prese
     ),
   );
 });
+
+test("stale snapshots show saved time and a refresh action; empty cache remains actionable", () => {
+  const html = renderDingDongReport({
+    availability: "stale",
+    updated_at: "2026-10-01T01:30:00Z",
+    weekly_turns: 7,
+  });
+  assert.match(html, /暂时没能更新，先显示已保存的记录/);
+  assert.match(html, /最近更新/);
+  assert.match(html, /data-action="dingdong-report-refresh"/);
+  assert.match(
+    renderDingDongReport({ availability: "no_data" }),
+    /data-action="dingdong-report-refresh"/,
+  );
+});

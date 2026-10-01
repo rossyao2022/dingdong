@@ -5,7 +5,7 @@ import { shell } from "./support.js";
 const base = process.env.E2E_BASE_URL || "http://127.0.0.1:4176";
 const backend = process.env.E2E_BACKEND_URL || "http://127.0.0.1:8024";
 const shots =
-  "../.trellis/tasks/10-01-parent-robot-experience/research/screenshots";
+  "../.trellis/.runtime/parent-robot-experience/screenshots";
 
 async function api(page, path, options = {}) {
   return page.evaluate(

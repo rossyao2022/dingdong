@@ -89,7 +89,8 @@ def serialize_session(session):
             }
             for q in session.questionnaire_version.questions
         ]
-        if session.status == "completed" and session.questionnaire_version.purpose == "exploration"
+        if session.status == "completed"
+        and session.questionnaire_version.purpose in ["exploration", "assessment"]
         else [],
         "answers": [{"question_code": k, "option_codes": v} for k, v in session.answers.items()],
         "missing_question_codes": missing_questions(session),

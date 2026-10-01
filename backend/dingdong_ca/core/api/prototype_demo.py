@@ -15,6 +15,7 @@ from .inputs import StrictSerializer
 
 class WeeklyInput(StrictSerializer):
     weekly_turns = serializers.ChoiceField(choices=WEEKLY_TURNS, default=7)
+    cached = serializers.BooleanField(default=False)
 
 
 def authorized_account(request, child_id):
@@ -36,9 +37,11 @@ def insights(request, child_id):
     if not ca_account.prototype_demo_enabled():
         raise ApiError("NOT_FOUND", 404, "演示未开启")
     account = authorized_account(request, child_id)
-    weekly = validate(WeeklyInput, request.query_params)["weekly_turns"]
-    snapshot = shared_snapshot(weekly)
+    query = validate(WeeklyInput, request.query_params)
+    snapshot = shared_snapshot(query["weekly_turns"], cached=query["cached"])
     # Unbinding/revocation while transport was running must not expose stale access.
+    if not ca_account.prototype_demo_enabled():
+        raise ApiError("NOT_FOUND", 404, "演示未开启")
     current = authorized_account(request, child_id)
     if current.pk != account.pk:
         raise ApiError("STATE_CONFLICT", 409, "机器人绑定已经改变，请刷新后查看")

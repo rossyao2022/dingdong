@@ -47,7 +47,11 @@ for (const purpose of ["interest", "talent"])
     // Prepare a completed result through real answer/complete APIs, never by inserting a result or fulfilling requests.
     await page.evaluate(
       async ({ original, purpose }) => {
-        const API = await import("./api.js");
+        const API = await import(
+          "./api.js" +
+            new URL(document.querySelector('script[src*="bootstrap.js"]').src)
+              .search
+        );
         const saved = await API.request(`/assessments/${original.id}/answers`, {
           method: "PATCH",
           body: {
@@ -73,7 +77,11 @@ for (const purpose of ["interest", "talent"])
     } else await expect(page.locator(".talent-result-card")).toHaveCount(8);
     if (purpose === "talent")
       await page.evaluate(async (child) => {
-        const API = await import("./api.js");
+        const API = await import(
+          "./api.js" +
+            new URL(document.querySelector('script[src*="bootstrap.js"]').src)
+              .search
+        );
         const grants = await API.all(`/children/${child}/consents`);
         const grant = grants.find(
           (row) => row.purpose === "assessment_processing" && !row.revoked_at,

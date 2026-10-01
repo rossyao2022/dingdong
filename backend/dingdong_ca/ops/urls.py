@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import api, captcha, exhibition, views
+from . import api, assessment_forms, captcha, exhibition, views
 
 app_name = "ops"
 
@@ -16,6 +16,29 @@ urlpatterns = [
     path("families/", views.families, name="families"),
     path("families/<uuid:family_id>/", views.family_detail, name="family_detail"),
     path("children/<uuid:child_id>/", views.child_detail, name="child_detail"),
+    path(
+        "children/<uuid:child_id>/assessment-form/",
+        assessment_forms.preview,
+        name="assessment_form",
+    ),
+    path(
+        "children/<uuid:child_id>/assessment-form/json/",
+        assessment_forms.download,
+        {"format_name": "json"},
+        name="assessment_form_json",
+    ),
+    path(
+        "children/<uuid:child_id>/assessment-form/csv/",
+        assessment_forms.download,
+        {"format_name": "csv"},
+        name="assessment_form_csv",
+    ),
+    path(
+        "children/<uuid:child_id>/assessment-form/copy/",
+        assessment_forms.download,
+        {"format_name": "copy"},
+        name="assessment_form_copy",
+    ),
     # 题库
     path("questionnaires/", views.questionnaires, name="questionnaires"),
     path("questionnaires/new/", views.questionnaire_new, name="questionnaire_new"),

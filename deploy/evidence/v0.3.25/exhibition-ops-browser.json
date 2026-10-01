@@ -1,0 +1,60 @@
+{
+  "boundary": "isolated synthetic DB, fixed SMS code, no real supplier outbound, no production writes",
+  "checks": [
+    "login->child creation->CA island exploration unchanged",
+    "shared signed input displayed through real authenticated report HTTP; all contents expanded, CA personal history unchanged",
+    "existing phone telemetry rendered for authorized ops; CSRF HTML form saves state/note+audit; stale revision409 preserves existing followup",
+    "content403, anonymous302; no extra phone form or purchase-intent classification"
+  ],
+  "layouts": [
+    {
+      "label": "exhibition",
+      "width": 320,
+      "client": 320,
+      "scroll": 320
+    },
+    {
+      "label": "exhibition",
+      "width": 390,
+      "client": 390,
+      "scroll": 390
+    },
+    {
+      "label": "exhibition",
+      "width": 430,
+      "client": 430,
+      "scroll": 430
+    },
+    {
+      "label": "exhibition",
+      "width": 768,
+      "client": 768,
+      "scroll": 768
+    },
+    {
+      "label": "exhibition",
+      "width": 1280,
+      "client": 1280,
+      "scroll": 1280
+    },
+    {
+      "label": "ops-followup",
+      "width": 390,
+      "client": 390,
+      "scroll": 375
+    },
+    {
+      "label": "ops-followup",
+      "width": 768,
+      "client": 768,
+      "scroll": 753
+    },
+    {
+      "label": "ops-followup",
+      "width": 1280,
+      "client": 1280,
+      "scroll": 1265
+    }
+  ],
+  "pageErrors": []
+}

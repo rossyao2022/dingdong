@@ -10968,7 +10968,7 @@
           "CA 对接"
         ],
         "summary": "当前儿童关联的演示伙伴完整报告",
-        "description": "显式demo开关；家庭、儿童active、当前demo账户active/bound和dingdong_sync授权检查。优先真实GET；更晚有效push优先，失联仅回读同weekly_turns已验证推送。结果保留原8字段并新增八维起点、当前指标、7个模拟曲线点、更新时间和来源。测试Key不发送浏览器。",
+        "description": "显式demo开关；家庭、儿童active、当前demo账户active/bound和dingdong_sync授权检查。同weekly_turns按供应商更新时间及观察先后选择已验证pull/push；显式刷新失败保留最近有效快照。结果保留原8字段并新增八维起点、当前指标、7个模拟曲线点、更新时间和来源。测试Key不发送浏览器。 cached=1仅读取同频次已验证的pull或push快照，无出站；默认真实GET刷新，失败保留同频次最近有效快照并标stale，已有归属和绑定保护不变。",
         "security": [
           {
             "bearerAuth": []
@@ -11003,6 +11003,16 @@
               "default": 7
             },
             "description": "每周预计有效对话次数，只用于供应商模拟曲线"
+          },
+          {
+            "name": "cached",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "description": "true或1只读已保存报告；无缓存时404；false显式刷新"
           }
         ],
         "responses": {
@@ -11667,7 +11677,7 @@
           "展会体验"
         ],
         "summary": "登录家长预览共享演示报告",
-        "description": "独立展会共享演示预览；须家长登录、显式demo开关，不建立设备绑定，不写个人报告；前端保留儿童建档流程。",
+        "description": "独立展会共享演示预览；须家长登录、显式demo开关，不建立设备绑定，不写个人报告；前端保留儿童建档流程。 cached=1仅读取同频次已验证的pull或push快照，无出站；默认真实GET刷新，失败保留同频次最近有效快照并标stale，已有归属和绑定保护不变。",
         "security": [
           {
             "bearerAuth": []
@@ -11689,6 +11699,16 @@
               "default": 7
             },
             "description": "每周预计有效对话次数，只用于供应商模拟曲线"
+          },
+          {
+            "name": "cached",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "description": "true或1只读已保存报告；无缓存时404；false显式刷新"
           }
         ],
         "responses": {
@@ -17079,7 +17099,8 @@
           "availability": {
             "type": "string",
             "enum": [
-              "ready"
+              "ready",
+              "stale"
             ]
           },
           "assessment_type": {

@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-01",
+  "version": "0.3.25",
+  "scope": "local isolated PostgreSQL schema + Redis queue + actual HTTP API/worker and Chrome; fixed SMS synthetic input; no real provider writes/SMS/production deployment",
+  "backend_tests": 492,
+  "frontend_unit_tests": 119,
+  "deploy_tests": 13,
+  "chrome_e2e_tests": 27,
+  "storybook_build": "passed",
+  "document_audit": "passed errors=[]",
+  "slow_supplier_checks": 4,
+  "ops_browser_checks": 4,
+  "preexisting_audit_sha256": "8b1461ec9c9b38c785a8febf272fe9f67e701d1745d8b3fd95e75be822a869cb",
+  "limitations": [
+    "physical NFC/phone/SMS production rehearsal pending",
+    "real DingDong webhook delivery not proven",
+    "CA upward sending not part of exhibition release; per-child raw form available independently"
+  ],
+  "screenshot_recheck": "7 overlapping E2E passed; screenshots fast-forward CSS entry animations and hide transient toast",
+  "preexisting_audit_handling": "not staged; changed during concurrent authorized dual-repo documentation work, latest external state retained"
+}

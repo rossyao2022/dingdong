@@ -21,6 +21,7 @@ const files = new Set([
   "api.js",
   "ca-link.js",
   "dingdong-report.js",
+  "experience-flow.js",
   "dingdong-report.css",
   "companion.js",
   "growth-cycle.js",

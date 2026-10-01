@@ -3,6 +3,7 @@
 import hashlib
 import json
 import logging
+from datetime import timedelta
 from math import isfinite
 
 from django.db import transaction
@@ -138,7 +139,11 @@ def report_view(payload, requested_weekly=None):
     }
 
 
-def save_snapshot(view, sync_source, event=None):
+def save_snapshot(view, sync_source, event=None, *, pull_started_at=None):
+    # Each pull is a new observation, even when the source's companion timestamp
+    # or content repeats after a persona/assessment change. Snapshots stay immutable.
+    if sync_source == "pull":
+        view = {**view, "_pull_started_at": (pull_started_at or timezone.now()).isoformat()}
     digest = hashlib.sha256(
         json.dumps(view, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()
     ).hexdigest()
@@ -161,14 +166,85 @@ def save_snapshot(view, sync_source, event=None):
     return PrototypeReportSnapshot.objects.create(event=event, **fields)
 
 
-def latest_push(weekly):
-    return (
-        PrototypeReportSnapshot.objects.filter(
-            source_account_id=PROTOTYPE_ACCOUNT_ID, weekly_turns=weekly, sync_source="push"
-        )
-        .order_by("-source_updated_at", "-created_at", "-id")
-        .first()
+def snapshot_view(snapshot, weekly):
+    """Revalidate old projections before exposing them; private metadata stays local."""
+    if snapshot.source_account_id != PROTOTYPE_ACCOUNT_ID or snapshot.weekly_turns != weekly:
+        raise InvalidPrototypeReport("INVALID_SOURCE")
+    view = object_value(snapshot.view)
+    growth = object_value(view.get("growth"))
+    projected = report_view(
+        {
+            "ca_account_id": snapshot.source_account_id,
+            "mode": "prototype_mock",
+            "assessment": {
+                **object_value(view.get("assessment")),
+                "talent_type": view.get("assessment_type"),
+                "source": "mock",
+            },
+            "persona": {
+                "character_name": view.get("persona_name"),
+                "persona_type": view.get("persona_type"),
+                "match_score": view.get("match_score"),
+            },
+            "companion": {
+                "value": view.get("companion_value"),
+                "effective_turns": view.get("effective_turns"),
+                "updated_at": view.get("updated_at"),
+            },
+            "growth": growth,
+        },
+        weekly,
     )
+    if snapshot.source_updated_at != parse_datetime(projected["updated_at"]):
+        raise InvalidPrototypeReport("INVALID_UPDATED_AT")
+    if view.get("weekly_turns") != weekly:
+        raise InvalidPrototypeReport("INVALID_WEEKLY_TURNS")
+    return projected
+
+
+def observation_time(snapshot):
+    if snapshot.sync_source == "pull" and "_pull_started_at" in snapshot.view:
+        try:
+            observed = parse_datetime(snapshot.view["_pull_started_at"])
+        except (TypeError, ValueError):
+            observed = None
+        if observed is None or timezone.is_naive(observed) or observed > snapshot.created_at:
+            raise InvalidPrototypeReport("INVALID_OBSERVATION_TIME")
+        return observed
+    return snapshot.created_at
+
+
+def latest_snapshot(weekly):
+    """Source time wins; equal source times use when the observation began.
+
+    A delayed old response cannot beat a later request or a webhook observed
+    during its transport. Existing snapshots without observation metadata work.
+    """
+    best = None
+    best_key = None
+    candidates = PrototypeReportSnapshot.objects.filter(
+        source_account_id=PROTOTYPE_ACCOUNT_ID, weekly_turns=weekly
+    ).order_by("-source_updated_at", "-created_at", "-id")
+    for snapshot in candidates.iterator():
+        # Once all equal-source candidates are inspected, older source data loses.
+        if best is not None and snapshot.source_updated_at < best.source_updated_at:
+            break
+        try:
+            snapshot_view(snapshot, weekly)
+            key = (snapshot.source_updated_at, observation_time(snapshot), snapshot.created_at)
+        except InvalidPrototypeReport:
+            continue
+        if best_key is None or key > best_key:
+            best, best_key = snapshot, key
+    return best
+
+
+def response_snapshot(snapshot, *, stale=False):
+    view = snapshot_view(snapshot, snapshot.weekly_turns)
+    view["availability"] = "stale" if stale else "ready"
+    # Ephemeral projection only; never update the saved immutable JSON.
+    snapshot.view = view
+    return snapshot
 
 
 def push_log(event_id, state, error=""):
@@ -209,34 +285,43 @@ def process_event(event_id):
         return event
 
 
-def shared_snapshot(weekly):
+def shared_snapshot(weekly, *, cached=False, require_live=False):
     from dingdong_ca.core.api.common import ApiError
 
-    from . import dingdong_client
+    from . import ca_account, dingdong_client
     from .dingdong_client import DingDongError
 
-    snapshot = latest_push(weekly)
+    if not ca_account.prototype_demo_enabled():
+        raise ApiError("NOT_FOUND", 404, "展会体验未开启")
+    if weekly not in WEEKLY_TURNS:
+        raise ApiError("VALIDATION_ERROR", 422, "请选择有效的报告周期")
+    if cached:
+        snapshot = latest_snapshot(weekly)
+        if snapshot is None:
+            raise ApiError("NOT_FOUND", 404, "还没有保存机器人记录，请刷新查看")
+        return response_snapshot(
+            snapshot, stale=snapshot.created_at < timezone.now() - timedelta(hours=24)
+        )
     failure = None
+    started_at = timezone.now()
     try:
         if not dingdong_client.is_configured():
-            raise ApiError("DINGDONG_NOT_CONFIGURED", 503, "伙伴数据暂不可用")
+            raise ApiError("DINGDONG_NOT_CONFIGURED", 503, "机器人记录暂时无法更新")
         data = dingdong_client.call(
             "GET",
             "/api/v1/ca/prototype/insights",
             query={"ca_account_id": PROTOTYPE_ACCOUNT_ID, "weekly_turns": weekly},
         )
         view = report_view(data, weekly)
-        pulled = save_snapshot(view, "pull")
-        # A slower response can overlap a newer webhook; compare after receiving pull.
-        snapshot = latest_push(weekly)
-        if snapshot is None or snapshot.source_updated_at <= parse_datetime(view["updated_at"]):
-            snapshot = pulled
+        save_snapshot(view, "pull", pull_started_at=started_at)
     except DingDongError:
-        failure = ApiError("DINGDONG_UNAVAILABLE", 502, "伙伴数据暂不可用")
+        failure = ApiError("DINGDONG_UNAVAILABLE", 502, "机器人记录暂时无法更新，请稍后重试")
     except InvalidPrototypeReport:
-        failure = ApiError("DINGDONG_RESPONSE_INVALID", 502, "伙伴数据暂不可用")
+        failure = ApiError("DINGDONG_RESPONSE_INVALID", 502, "机器人记录暂时无法更新，请稍后重试")
     except ApiError as exc:
         failure = exc
-    if failure and snapshot is None:
+    # Check after the transport, so newer pushes or pulls cannot be overwritten.
+    snapshot = latest_snapshot(weekly)
+    if failure and (snapshot is None or require_live):
         raise failure
-    return snapshot
+    return response_snapshot(snapshot, stale=failure is not None)

@@ -1,0 +1,11 @@
+{
+  "boundary": "isolated synthetic local HTTP supplier, fixed SMS, same local DB; no business interception, no real supplier or production writes",
+  "checks": [
+    "initial cached=1 renders validated prior snapshot with zero supplier calls",
+    "8-second live refresh allows immediate child switch; late response cannot patch CA page",
+    "HTTP503 refresh retains validated full prior pull/push report with stale notice",
+    "frequency switch reads its own weekly cache without an extra supplier call"
+  ],
+  "errors": [],
+  "navigationMs": 1519
+}

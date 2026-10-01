@@ -1,0 +1,5 @@
+{"file": ".trellis/spec/backend/index.md", "reason": "后台边界"}
+{"file": ".trellis/spec/frontend/index.md", "reason": "家长端"}
+{"file": ".trellis/spec/backend/prototype-report-and-handover.md", "reason": "报告绑定保护"}
+{"file": ".trellis/spec/frontend/parent-robot-and-exhibition.md", "reason": "移动慢报告"}
+{"file": ".trellis/spec/guides/ca-local-authority.md", "reason": "本地功能优先"}

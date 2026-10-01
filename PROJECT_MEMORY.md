@@ -4,6 +4,8 @@
 
 ## 当前结论与最近工作
 
+**最新：v0.3.25展会CA独立体验已完成本地实施与验收（2026-10-01，未推送/部署）。** 用户批准Implement the plan：10月3日CA功能不等DingDong新接口或业务映射，后续接口异步适配。保留登录建档、全部模块和紫色视觉；真实进度主动作活动→未完成探索→首次兴趣→下一活动，直接续题，活动结束有下一步。统一带时间/题名/状态体验记录，答卷与关联报告合一；22题回看真实答案，不新造综合专业报告。未绑CA独立可用，已绑完整DingDong报告/聊天/管理保留。后台每儿童原始测评表单可复制/JSON/CSV及历史选取，固定签名快照/权限/审计，不自动外发、不自己映射。两个报告首读cached=1，显式局部刷新不锁导航/切儿童；失败回退同weekly验证pull/push并stale，403/404/409清旧内容；预热命令默认dry-run、apply真实只读。无迁移，现有家庭和绑定保护不改。后端492、前端119、部署13、真实Chrome27、Storybook与文档审计通过；慢刷新8秒时约1.5秒切儿童可用，迟到不覆盖，503保留报告。两份私密截图PDF家长25/运营16页待发布版，批准凭据保留、不入git。生产现状仍v0.3.24（最近上线快照）；本轮没有生产写入/实发短信/真实供应商写入。实体NFC/真手机与真实自动推送仍待彩排或外部证据。详见[本地交付](deploy/EXHIBITION_CA_READY_20261001_V0325.md)、[验收](deploy/evidence/v0.3.25/local-verification.json)。发布准备沿用用户确认双仓库顺序：origin先、upstream ca-main后，禁止覆盖upstream main或强推；推送/CA main/部署仍按具体发布门禁。
+
 **最新（2026-10-01）：双仓库同步方案已确认并完成首轮执行。** 用户确认目标为 fork（`origin` = `ivesyi/dingdong-ca`，私有）与 upstream（`rossyao2022/dingdong`，用户持有写权限）两远程都保持最新。因本地与 upstream 历史无共同祖先，采用新分支方案，同步顺序固定为：① `git push origin <分支>`（fork 先行）；② `git push upstream <分支>:refs/heads/ca-main`（upstream 走 `ca-main` 新分支，保留其原历史，**禁止强推覆盖 upstream 任何已有分支**）；③ upstream 的 `main` 更新不直接推送，由用户在 GitHub 开 PR（`ca-main` → `main`，入口 https://github.com/rossyao2022/dingdong/pull/new/ca-main ）。首轮已执行：`origin/codex/release-v0.3.24` = `4be147e` 已推送并设追踪；upstream 新分支 `ca-main` = `4be147e` 已创建（含本地 main 全部历史）；upstream 原 `main`（`3b8723e`）未动。后续所有会话的远程同步均按此规程执行，详见 [双仓库同步操作规程](.trellis/spec/guides/ca-local-authority.md) 与 [AGENTS.md](AGENTS.md)。
 
 **用户补充决定（2026-10-01）：CA→DingDong 功能贯通优先。** 用户明确早期“不发送给机器人”是技术未具备时的说明；能用于机器人的测评结果就接通发送，不新增家长独立上传授权步骤，不将过时文案作为实施门槛。已修订主线与交接方案：已绑定后自动同步可接字段，不等全部字段补齐；协议/回执/失败重试由后台处理，家长只见必要动作。当前仍未实现画像上行，Prototype 接口路径和字段语义差异仍是真实技术待办；不宣称已发送或已部署，不取消登录、家庭隔离、绑定归属保护。

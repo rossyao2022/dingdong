@@ -17,7 +17,7 @@
 - `CA_DEMO_REPORTS_ENABLED`基础默认false；会展compose默认true，且仅`APP_ENV=demo`、`INTEGRATION_DATA_SOURCE=database_fixture`、原`initial-assessment` synthetic题库允许补输入。现存fixture或fault优先。专业分数为null，不生成假分。
 - `is_prototype_demo`供前端识别后续新ULID；首行固定号与已归档行永久保留。旧request_id重放不复活归档绑定。当前所有者解除后，新家长获得新本地号；向供应商仍发固定Mock来源。
 - 报告保留原摘要字段，扩展`assessment.baseline_scores`、`growth.current.dimensions`、`growth.curve`、`growth.weekly_turns`、`weekly_turns/updated_at/sync_source`。八维code严格为linguistic/logical/musical/spatial/bodily/intrapersonal/interpersonal/naturalistic。曲线天数0/7/15/30/60/90/180；周频次3/7/14/21。
-- 拉取和推送使用实测shape验证；只接受固定账号、prototype_mock与simulation来源。仅有效事件可投影；重试不重复投影；旧时间不覆盖新结果；网络失败仅回退同周频次有效推送。更换账号/撤权时再次检查访问权限。
+- 拉取和推送使用实测shape验证；只接受固定账号、prototype_mock与simulation来源。仅有效事件可投影；重试不重复投影；旧时间不覆盖新结果；网络失败回退同周频次有效pull或push并标记stale。更换账号/撤权时再次检查访问权限。
 - HTTP仅开放精确回调路径；家长和运营其他路径沿用现状。`nginx-push-log.conf`须先在http块加载，再引用双server的location配置。仅记录时间、方法、无查询路径、状态和耗时；应用logger `dingdong_ca.push` INFO只记事件摘要/状态/错误码。
 
 ## 4. Validation & Error Matrix
@@ -66,3 +66,9 @@ Correct：新儿童输入为空时开始实际流程，测评报告由真实subm
 
 
 生产验证基线须在宿主机私密目录保存：容器内/opt路径未必挂载。若补充比较脚本失败，用已验证的部署前pg_dump恢复只读比较基线，不以部署后状态冒充部署前；pg_restore导出SQL需显式--file=-。COPY数据仅在服务器内解析，证据只输出数量与一致性布尔。Worker探针沿Compose实际-A config，不猜模块名。
+
+## 2026-10-01 v0.3.25：缓存与原始表单
+
+两个报告GET支持cached=1，仅读库且重新验证快照。默认GET真实刷新；失败保留同weekly最近有效pull/push，无快照返回局部空态。供应商时间优先，相同时间按观察开始时间，防迟到响应；pull内部_pull_started_at参与哈希避免A→B→A去重误读，永不公开。旧快照无元信息兼容，24小时快照为stale。warm_prototype_reports默认dry-run；--apply仅4次供应商GET并逐份校验，部分失败非零退出。归属/授权/绑定前后双检不变。
+
+ops child.view+report.view提供当前儿童测评表单：每purpose最新completed或指定历史，题目选项回答/原结果/范围/版本/时间/缺值，无独立专业算法，无自动发送。预览、中文复制、JSON/CSV统一签名固定IDs+digest快照，8小时过期；记录/偏好变化409重开，篡改/过期422。每次重验权限；审计只保存摘要/数量。CSV防公式，私有no-store。完整22题真实choice_summary供家长回看。

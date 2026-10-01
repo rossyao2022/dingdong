@@ -1,4 +1,4 @@
-import * as API from "./api.js?v=0.3.24";
+import * as API from "./api.js?v=0.3.25";
 import {
   ACCOUNT_STATUS,
   BIND_STATE,
@@ -13,23 +13,23 @@ import {
   replaceFlowNeeded,
   retiredAccounts,
   stripBindingParams,
-} from "./ca-link.js?v=0.3.24";
+} from "./ca-link.js?v=0.3.25";
 import {
   HEALTH_FOOTER,
   STALE_NOTICE,
   healthSection,
   personaSection,
-} from "./companion.js?v=0.3.24";
+} from "./companion.js?v=0.3.25";
 import {
   DIMENSION_MISSING,
   PERIODS,
   PROXY_NOTE,
   growthCycleSection,
-} from "./growth-cycle.js?v=0.3.24";
+} from "./growth-cycle.js?v=0.3.25";
 import {
   WRITE_FAILED_TEXT,
   reassessmentSection,
-} from "./reassessment.js?v=0.3.24";
+} from "./reassessment.js?v=0.3.25";
 import {
   actions,
   button,
@@ -37,24 +37,31 @@ import {
   esc,
   pageHead,
   panel,
-} from "./ui-components.js?v=0.3.24";
+} from "./ui-components.js?v=0.3.25";
 import {
   explorerState,
   continuedExplorerHash,
   sameSelection,
   resumableSession,
-} from "./exploration-session.js?v=0.3.24";
+} from "./exploration-session.js?v=0.3.25";
 import {
   GUIDE_MODES,
   greeting,
   guideText,
   renderGuidanceSummary,
-} from "./guide-preference.js?v=0.3.24";
+} from "./guide-preference.js?v=0.3.25";
 import {
   renderDingDongReport,
   renderRobotEntry,
-} from "./dingdong-report.js?v=0.3.24";
+} from "./dingdong-report.js?v=0.3.25";
+import {
+  nextExperience,
+  experienceRecords,
+  renderExperienceTask,
+  renderExperienceRecords,
+} from "./experience-flow.js?v=0.3.25";
 const $ = (s) => document.querySelector(s);
+let robotReadEpoch = 0;
 const state = {
   user: null,
   children: [],
@@ -588,6 +595,11 @@ function sessionView(s) {
   return submissionView(s);
 }
 function submissionView(s) {
+  if (s.purpose === "assessment" && s.status === "completed")
+    return (
+      head(s.title || "问卷体验", "回看这次留下的回答。") +
+      `<section class="panel question">${testTag()}${s.completed_at ? `<p class="note">完成于 ${date(s.completed_at)}</p>` : ""}${(s.choice_summary || []).map((row) => `<div class="report-section"><h3>${esc(row.question)}</h3><p>${row.choices.length ? row.choices.map(esc).join("、") : "本题未选择"}</p></div>`).join("")}<div class="actions"><a class="button" href="#home">选一个小活动</a><a class="button secondary" href="#reports">返回体验记录</a></div></section>`
+    );
   if (s.purpose === "exploration")
     return (
       head(s.title, s.description) +
@@ -595,7 +607,7 @@ function submissionView(s) {
     );
   return (
     head("本次测评", statusNames[s.status] || s.status) +
-    `<section class="panel question">${testTag()}${["ready", "needs_recapture"].includes(s.status) ? `<h2>查看演示报告</h2><p>这一步使用演示图片，不需要上传孩子的照片。</p><div class="actions">${button("submit-samples", "生成演示报告")}${button("review-answers", "查看问卷", "", true)}</div>` : s.status === "completed" ? `<h2>本次测评已处理完成</h2><p>${s.report_status === "ready" ? "报告已经生成，可以查看。" : s.report_status === "failed" ? "报告生成失败，请提交服务事项，由工作人员处理。" : "报告正在生成，页面会自动更新。"}</p>${s.report_id ? button("report", "查看初始报告", `data-id="${s.report_id}"`) : button("refresh", "刷新处理状态", "", true)}` : s.status === "result_unknown" ? `<h2>处理结果待确认</h2><p>本次请求未取得确定结果。请先查询最新状态，或取消本次测评后重新开始。</p>${button("refresh", "查询最新状态")}` : ["cancelled", "expired"].includes(s.status) ? `<h2>${esc(statusNames[s.status])}</h2>${button("begin-assessment", "重新开始测评")}` : `<h2>正在处理本次测评</h2><p>请稍候，页面会自动查询处理状态。</p>${button("refresh", "查询最新状态", "", true)}`}<div class="form-error" role="alert"></div><div class="actions">${!["completed", "cancelled", "expired"].includes(s.status) ? button("cancel-assessment", "取消本次测评", "", true) : ""}<a class="text-button" href="#reports">返回测评与报告</a></div></section>`
+    `<section class="panel question">${testTag()}${["ready", "needs_recapture"].includes(s.status) ? `<h2>确认这次回答</h2><p>完成后可以在体验记录中回看，也可以先返回修改。</p><div class="actions">${button("submit-samples", "完成并保存")}${button("review-answers", "查看问卷", "", true)}</div>` : s.status === "completed" ? `<h2>本次测评已处理完成</h2><p>${s.report_status === "ready" ? "报告已经生成，可以查看。" : s.report_status === "failed" ? "报告生成失败，请提交服务事项，由工作人员处理。" : "报告正在生成，页面会自动更新。"}</p>${s.report_id ? button("report", "回看这次记录", `data-id="${s.report_id}"`) : button("refresh", "刷新处理状态", "", true)}` : s.status === "result_unknown" ? `<h2>处理结果待确认</h2><p>本次请求未取得确定结果。请先查询最新状态，或取消本次测评后重新开始。</p>${button("refresh", "查询最新状态")}` : ["cancelled", "expired"].includes(s.status) ? `<h2>${esc(statusNames[s.status])}</h2>${button("begin-assessment", "重新开始测评")}` : `<h2>正在处理本次测评</h2><p>请稍候，页面会自动查询处理状态。</p>${button("refresh", "查询最新状态", "", true)}`}<div class="form-error" role="alert"></div><div class="actions">${!["completed", "cancelled", "expired"].includes(s.status) ? button("cancel-assessment", "取消本次测评", "", true) : ""}<a class="text-button" href="#reports">返回测评与报告</a></div></section>`
   );
 }
 function metrics(rows) {
@@ -770,11 +782,6 @@ function windowForm() {
 function queryWindow() {
   return "?" + new URLSearchParams(state.window);
 }
-function reportCards(rows) {
-  return rows.length
-    ? `<div class="grid">${rows.map((r) => `<article class="card"><div class="card-heading"><h3>${r.kind === "initial" ? "初始" : "阶段"}报告</h3>${testTag()}</div><p class="note">生成于 ${date(r.generated_at)}</p>${r.window ? `<p>${date(r.window.start)} — ${date(r.window.end)}</p>` : ""}${button("report", r.kind === "initial" ? "查看初始报告" : "查看阶段报告", `data-id="${r.id}"`)}</article>`).join("")}</div>`
-    : empty("还没有报告", "有新报告时，会显示在这里。");
-}
 function sectionFailure(error) {
   if (error.status === 401) throw error;
   return { error };
@@ -856,9 +863,19 @@ async function render() {
         window.IslandExplorer.render() +
         `<div class="actions">${button("show-interest-result", "查看这次兴趣组合")}</div>`;
     } else if (route === "explore") {
+      const [sessions, records] = await Promise.all([
+        API.all(`/children/${child}/assessments`).catch(sectionFailure),
+        API.all(`/children/${child}/activity-records`).catch(sectionFailure),
+      ]);
+      if (tick !== viewEpoch || state.child?.id !== child) return;
+      const task =
+        sessions.error || records.error
+          ? sectionError("上次进度暂时读不到")
+          : renderExperienceTask(nextExperience(sessions, records, child));
       html =
+        `<div id="experience-task-slot">${task}</div>` +
         window.PlayWorld.render() +
-        `<div class="grid extra-links"><section class="card"><h2>从一个小行动开始</h2><p>选一个适合此刻心情的活动，和孩子一起试试看。</p><a class="button" href="#home">今日陪伴</a></section><section class="card"><h2>把观察慢慢积累下来</h2><p>查看测评进度和成长报告。</p><a class="button secondary" href="#reports">测评与报告</a></section></div>`;
+        `<div class="grid extra-links"><section class="card"><h2>从一个小行动开始</h2><p>选一个适合此刻心情的活动，和孩子一起试试看。</p><a class="button" href="#home">今日陪伴</a></section><section class="card"><h2>把观察慢慢积累下来</h2><p>回看每次探索和活动留下的记录。</p><a class="button secondary" href="#reports">测评与报告</a></section></div>`;
     } else if (route === "home") {
       const [activities, records] = await Promise.all([
         API.all("/activities"),
@@ -895,11 +912,16 @@ async function render() {
           : head("活动记录") +
             `<section class="panel"><h2>${esc(record.activity.title)}</h2><p>${record.status === "completed" ? "已完成" : "已跳过"} · ${date(record.finished_at)}</p><p>${esc(record.note)}</p><a href="#journey" class="button">查看成长旅程</a></section>`;
     } else if (route === "journey") {
-      const result = await API.request(journeyPath(child));
+      const [result, sessions, records] = await Promise.all([
+        API.request(journeyPath(child)),
+        API.all(`/children/${child}/assessments`).catch(sectionFailure),
+        API.all(`/children/${child}/activity-records`).catch(sectionFailure),
+      ]);
       if (tick !== viewEpoch || state.child?.id !== child) return;
       nextCursor = result.next_cursor;
       html =
         head("成长旅程", "把每次的小发现，慢慢积累起来。", exportButton()) +
+        `<div id="experience-task-slot">${sessions.error || records.error ? '<section class="panel"><h2>下一次，想一起做什么？</h2><a class="button" href="#home">选一个小活动</a></section>' : renderExperienceTask(nextExperience(sessions, records, child))}</div>` +
         `<div class="actions" role="group" aria-label="活动记录筛选">${[
           ["", "全部"],
           ["completed", "已完成"],
@@ -938,28 +960,38 @@ async function render() {
       )
         schedulePoll(tick, 2500);
     } else if (route === "report" && id) {
-      const r = await API.request("/reports/" + id);
-      if (r.child_id !== child) throw new Error("请先切换到对应的儿童档案。");
-      html =
-        head(
-          r.kind === "initial" ? "初始报告" : "阶段报告",
-          "看看孩子这一阶段的观察与建议。",
-          '<a href="#reports" class="button secondary">返回报告列表</a>',
-        ) +
-        `<article class="panel">${testTag()}<p class="note">生成于 ${date(r.generated_at)}</p>${r.window ? `<p>记录时间：${date(r.window.start)} — ${date(r.window.end)}</p>` : ""}${r.sections.map((s) => `<section class="report-section"><h2>${esc(s.title)}</h2>${s.paragraphs.map((p) => `<p>${esc(p)}</p>`).join("")}</section>`).join("")}</article>`;
-    } else if (route === "reports") {
-      const [reports, sessions, catalog, accounts] = await Promise.all([
-        API.all(`/children/${child}/reports`).catch(sectionFailure),
-        API.all(`/children/${child}/assessments`).catch(sectionFailure),
-        API.request("/assessment-config").catch(sectionFailure),
-        API.all(`/children/${child}/ca-accounts`).catch(sectionFailure),
+      const [r, sessions] = await Promise.all([
+        API.request("/reports/" + id),
+        API.all(`/children/${child}/assessments`),
       ]);
       if (tick !== viewEpoch || state.child?.id !== child) return;
+      if (r.child_id !== child) throw new Error("请先切换到对应的儿童档案。");
+      const session = sessions.find((row) => row.report_id === r.id);
+      if (session && r.kind === "initial") html = submissionView(session);
+      else
+        html =
+          head(
+            "历史体验记录",
+            "回看已保存的记录。",
+            '<a href="#reports" class="button secondary">返回体验记录</a>',
+          ) +
+          `<article class="panel">${testTag()}<p class="note">保存于 ${date(r.generated_at)}</p>${r.sections.map((section) => `<section class="report-section"><h2>${esc(section.title)}</h2>${section.paragraphs.map((text) => `<p>${esc(text)}</p>`).join("")}</section>`).join("")}</article>`;
+    } else if (route === "reports") {
+      const [reports, sessions, catalog, accounts, activities] =
+        await Promise.all([
+          API.all(`/children/${child}/reports`).catch(sectionFailure),
+          API.all(`/children/${child}/assessments`).catch(sectionFailure),
+          API.request("/assessment-config").catch(sectionFailure),
+          API.all(`/children/${child}/ca-accounts`).catch(sectionFailure),
+          API.all(`/children/${child}/activity-records`).catch(sectionFailure),
+        ]);
+      if (tick !== viewEpoch || state.child?.id !== child) return;
       const bound = accounts.error ? null : boundAccount(accounts, child);
+      const reportTicket = ++robotReadEpoch;
       const reportRead =
         bound && isPrototypeDemo(bound)
           ? API.request(
-              `/children/${child}/prototype-demo?weekly_turns=${state.dingdongWeeklyTurns}`,
+              `/children/${child}/prototype-demo?cached=1&weekly_turns=${state.dingdongWeeklyTurns}`,
             ).catch(sectionFailure)
           : null;
       hints.accounts = accounts.error ? [] : accounts;
@@ -1003,28 +1035,22 @@ async function render() {
             `<div class="actions">${unfinished.map((s) => button("continue-assessment", `${esc(s.title)} · 继续`, `data-id="${esc(s.id)}"`, true)).join("")}</div>`,
           )
         : "";
-      const savedExplorations = assessmentRows.filter(
-        (s) =>
-          ["interest", "talent"].includes(s.purpose) &&
-          s.status === "completed",
-      );
-      const explorationHistory = savedExplorations.length
-        ? panel(
-            "兴趣与八维探索记录",
-            `<div class="exploration-history">${savedExplorations.map((s) => `<a class="button secondary" href="#${s.purpose === "interest" ? "interest" : "talents"}/${esc(s.id)}">${esc(s.title)} · 回看</a>`).join("")}</div>`,
-          )
-        : "";
-      const history = assessmentRows.filter(
-        (s) => s.purpose === "exploration" && s.status === "completed",
+      const history = renderExperienceRecords(
+        experienceRecords(
+          assessmentRows,
+          reports.error ? [] : reports,
+          activities.error ? [] : activities,
+          child,
+        ),
       );
       const exhibition =
         !bound && state.runtime?.exhibition_enabled ? exhibitionEntry() : "";
       const quickLinks = bound
-        ? `<nav class="actions report-jumps" aria-label="报告页内导航">${button("report-jump", "机器人报告", 'data-target="dingdong-growth-report"', true)}${button("report-jump", "我的测评", 'data-target="personal-assessments"', true)}</nav>`
+        ? `<nav class="actions report-jumps" aria-label="报告页内导航">${button("report-jump", "机器人报告", 'data-target="dingdong-growth-report"', true)}${button("report-jump", "体验记录", 'data-target="personal-assessments"', true)}</nav>`
         : "";
       html =
         head("测评与报告", "回看孩子的探索与测评结果。", exportButton()) +
-        `<div class="report-flow">${quickLinks}${robotReport}${accounts.error ? sectionError("机器人连接暂时读不到") : ""}<section id="personal-assessments" class="report-flow"><h2 class="report-section-title">我的测评</h2>${reports.error ? sectionError("测评报告暂时读不到") : reportCards([...reports].reverse())}${sessions.error ? sectionError("测评记录暂时读不到") : ""}${explorationHistory}${history.length ? panel("已完成的探索体验", `<div class="actions">${history.map((r) => button("continue-assessment", esc(r.title) + " · 查看选择", `data-id="${esc(r.id)}"`, true)).join("")}</div>`) : ""}${resumes}<details class="panel assessment-start"><summary>开始测评</summary><div class="grid">${catalog.error ? sectionError("测评列表暂时读不到") : questionnaireCards || "<p>暂时没有可开始的问卷，请稍后再来看看。</p>"}</div></details></section>${exhibition}</div>`;
+        `<div class="report-flow">${quickLinks}${robotReport}<section id="personal-assessments" class="report-flow"><h2 class="report-section-title">体验记录</h2>${sessions.error ? sectionError("探索记录暂时读不到") : ""}${activities.error ? sectionError("活动记录暂时读不到") : ""}${history}${resumes}<details class="panel assessment-start"><summary>开始测评</summary><div class="grid">${catalog.error ? sectionError("测评列表暂时读不到") : questionnaireCards || "<p>暂时没有可开始的问卷，请稍后再来看看。</p>"}</div></details></section>${exhibition}</div>`;
       if (reportRead) {
         // CA results are already usable while the independent robot request is pending.
         page(html);
@@ -1036,7 +1062,12 @@ async function render() {
         // The first page has taken over startup. A slow supplier must not hold appReady.
         reportRead
           .then((result) => {
-            if (tick !== viewEpoch || state.child?.id !== child) return;
+            if (
+              tick !== viewEpoch ||
+              state.child?.id !== child ||
+              reportTicket !== robotReadEpoch
+            )
+              return;
             const slot = document.getElementById("dingdong-growth-report");
             if (slot)
               slot.outerHTML = dingdongReportPanel(
@@ -1045,7 +1076,12 @@ async function render() {
               );
           })
           .catch((error) => {
-            if (tick !== viewEpoch || state.child?.id !== child) return;
+            if (
+              tick !== viewEpoch ||
+              state.child?.id !== child ||
+              reportTicket !== robotReadEpoch
+            )
+              return;
             if (error.status === 401) {
               forget();
               loginPage();
@@ -1069,7 +1105,7 @@ async function render() {
         );
       } else {
         const result = await API.request(
-          `/exhibition/report?weekly_turns=${state.dingdongWeeklyTurns}`,
+          `/exhibition/report?cached=1&weekly_turns=${state.dingdongWeeklyTurns}`,
         ).catch(sectionFailure);
         if (tick !== viewEpoch || state.child?.id !== child) return;
         hints.exhibitionRendered =
@@ -1081,7 +1117,7 @@ async function render() {
             "这里使用演示内容，供你和孩子一起体验。",
             '<a class="button secondary" href="#companion">返回我的 DingDong</a>',
           ) +
-          `<div class="report-flow"><section class="panel"><p>演示报告不代表孩子的测评结果。以后绑定自己的机器人，就能查看专属陪伴记录。</p><div class="actions">${chat ? `<a class="button" href="${esc(chat)}" target="_blank" rel="noopener noreferrer">和 DingDong 对话 ↗</a>` : ""}${button("bind-robot", "绑定自己的机器人", "", true)}</div><p class="note">多人共享这次演示，伙伴和内容可能随体验变化。</p></section>${renderDingDongReport(result.error ? null : result, { status: result.error ? "error" : undefined, demonstration: true })}</div>`;
+          `<div class="report-flow"><section class="panel"><p>演示报告不代表孩子的测评结果。以后绑定自己的机器人，就能查看专属陪伴记录。</p><div class="actions">${chat ? `<a class="button" href="${esc(chat)}" target="_blank" rel="noopener noreferrer">和 DingDong 对话 ↗</a>` : ""}${button("bind-robot", "绑定自己的机器人", "", true)}</div><p class="note">多人共享这次演示，伙伴和内容可能随体验变化。</p></section>${dingdongReportPanel(result, true)}</div>`;
       }
     } else if (route === "settings") {
       const [consents, associations, receipts, accounts] = await Promise.all([
@@ -1267,11 +1303,73 @@ function robotPanel(rows, companion = null) {
   return `<section class="panel"><div class="card-heading"><h2>我的机器人</h2>${testTag()}</div>${nfcRecoveryNotice()}${detected}${current}${companionLine}${history}</section>`;
 }
 function dingdongReportPanel(result, demonstration = false) {
+  if (result?.error?.code === "STATE_CONFLICT")
+    return `<section class="panel" id="dingdong-growth-report"><h2>DingDong 陪伴成长报告</h2><p>机器人绑定已改变，请重新查看当前连接。</p><a href="#settings" class="button secondary">查看机器人连接</a></section>`;
   if (result?.error?.status === 403)
     return `<section class="panel" id="dingdong-growth-report"><h2>DingDong 陪伴成长报告</h2><p>同意查看机器人记录后，就能查看伙伴的成长变化。</p>${button("prototype-consent", "同意并查看")}</section>`;
   if (result?.error?.code === "DINGDONG_BIND_PENDING")
     return `<section class="panel" id="dingdong-growth-report"><h2>DingDong 陪伴成长报告</h2><p>机器人正在等待连接。请到“账户与关联”重新碰原标签连接。</p><a href="#settings" class="button secondary">查看机器人连接</a></section>`;
   return `<section class="panel" id="dingdong-growth-report">${result?.error ? renderDingDongReport(null, { status: "error", demonstration }) : renderDingDongReport(result?.loading ? null : result, { status: result?.loading ? "loading" : undefined, demonstration })}</section>`;
+}
+async function refreshRobotReport({ cached = false } = {}) {
+  const tick = viewEpoch,
+    child = state.child?.id,
+    route = location.hash.slice(1).split("/")[0];
+  if (!["reports", "exhibition"].includes(route) || !child) return;
+  const exhibition = route === "exhibition";
+  const bound = exhibition ? null : boundAccount(hints.accounts || [], child);
+  if (!exhibition && (!bound || !isPrototypeDemo(bound))) return;
+  const ticket = ++robotReadEpoch;
+  const slot = document.getElementById("dingdong-growth-report");
+  if (!slot) return;
+  slot.querySelector(".robot-refresh-status")?.remove();
+  slot.insertAdjacentHTML(
+    "afterbegin",
+    '<p class="note robot-refresh-status" role="status">正在更新陪伴记录，其他内容可以继续查看。</p>',
+  );
+  const path = exhibition
+    ? "/exhibition/report"
+    : `/children/${child}/prototype-demo`;
+  try {
+    const result = await API.request(
+      `${path}?weekly_turns=${state.dingdongWeeklyTurns}${cached ? "&cached=1" : ""}`,
+    );
+    if (
+      tick !== viewEpoch ||
+      state.child?.id !== child ||
+      ticket !== robotReadEpoch
+    )
+      return;
+    slot.outerHTML = dingdongReportPanel(
+      result,
+      exhibition || isPrototypeDemo(bound),
+    );
+    if (exhibition && ["ready", "stale"].includes(result.availability))
+      void recordExhibitionVisit("report_viewed", tick, child);
+  } catch (error) {
+    if (
+      tick !== viewEpoch ||
+      state.child?.id !== child ||
+      ticket !== robotReadEpoch
+    )
+      return;
+    if (error.status === 401) {
+      forget();
+      loginPage();
+      return;
+    }
+    if (
+      slot.querySelector(".dd-report-summary") &&
+      ![403, 404, 409].includes(error.status)
+    ) {
+      slot.querySelector(".robot-refresh-status").textContent =
+        "暂时没能更新，先看看已保存的记录。";
+    } else
+      slot.outerHTML = dingdongReportPanel(
+        { error },
+        exhibition || isPrototypeDemo(bound),
+      );
+  }
 }
 async function prototypeConsent() {
   const policy = await API.request("/policies/current?purpose=dingdong_sync", {
@@ -1463,7 +1561,7 @@ async function beginAssessment(purpose = "assessment", versionId = "") {
   hints.policy = policy;
   showDialog(
     "本次测评用途",
-    `<div class="policy-body">${esc(policy.body)}</div><div class="notice"><b>处理目的</b><p>根据孩子的回答生成报告，供你查看。</p><b>数据范围</b><p>本次回答及完成时间。</p><b>数据去向</b><p>报告保存在你的账户中，不会发送给机器人。</p><b>保留与撤回</b><p>可在「账户与关联」撤回授权；已保存的报告不会自动删除，需要删除时可提交申请。</p></div><label class="checkline"><input id="consent-check" type="checkbox">我已阅读并同意本次测评用途</label><div class="actions">${button("agree-assessment", "同意并开始")}</div>`,
+    `<div class="policy-body">${esc(policy.body)}</div><div class="notice"><b>处理目的</b><p>根据孩子的回答生成报告，供你查看。</p><b>数据范围</b><p>本次回答及完成时间。</p><b>数据去向</b><p>本次回答和记录保存在你的账户中。</p><b>保留与撤回</b><p>可在「账户与关联」撤回授权；已保存的报告不会自动删除，需要删除时可提交申请。</p></div><label class="checkline"><input id="consent-check" type="checkbox">我已阅读并同意本次测评用途</label><div class="actions">${button("agree-assessment", "同意并开始")}</div>`,
   );
 }
 async function createAssessment(grant) {
@@ -1941,13 +2039,52 @@ async function handleAction(action, el) {
           .getElementById(el.dataset.target)
           ?.scrollIntoView({ block: "start", behavior: "smooth" });
       break;
+    case "journey-interest":
+      if (location.hash !== "#explore") {
+        leaveContext();
+        history.replaceState(history.state, "", "#explore");
+        await render();
+      }
+      window.IslandExplorer.goToIslands();
+      break;
+    case "journey-resume": {
+      const token = explorationToken(),
+        child = state.child.id;
+      const session = await API.request(
+        "/assessments/" + encodeURIComponent(id),
+      );
+      if (!explorerCurrent(token)) return;
+      if (session.child_id !== child || session.purpose !== el.dataset.purpose)
+        throw new Error("请重新打开当前孩子的探索记录。");
+      if (!["interest", "talent"].includes(session.purpose)) {
+        state.session = null;
+        hints.showSubmission = undefined;
+        to("assessment/" + session.id);
+        break;
+      }
+      const target = `#${session.purpose === "interest" ? "interest" : "talents"}/${session.id}`;
+      leaveContext();
+      hints.explorerSessions ||= {};
+      hints.explorerSessions[session.purpose] = session;
+      hints.explorerRecord = session.id;
+      explorerModule(session.purpose).setState(explorerState(session));
+      history.replaceState(history.state, "", target);
+      await render();
+      if (
+        state.child?.id === child &&
+        location.hash === target &&
+        ["draft", "ready"].includes(session.status)
+      )
+        await explorerModule(session.purpose).start();
+      break;
+    }
     case "dingdong-weekly-turns":
       if (![3, 7, 14, 21].includes(Number(el.dataset.value))) return;
       state.dingdongWeeklyTurns = Number(el.dataset.value);
-      await render();
+      await refreshRobotReport({ cached: true });
       break;
     case "dingdong-report-refresh":
-      await render();
+      await refreshRobotReport();
       break;
     case "prototype-consent":
       await prototypeConsent();
@@ -2412,6 +2549,21 @@ document.addEventListener("click", (e) => {
   const el = e.target.closest("[data-action]");
   if (!el) return;
   e.preventDefault();
+  if (
+    ["dingdong-report-refresh", "dingdong-weekly-turns"].includes(
+      el.dataset.action,
+    )
+  ) {
+    // These reads affect the robot slot only; CA navigation and child selection stay usable.
+    if (busy || el.disabled) return;
+    el.disabled = true;
+    void handleAction(el.dataset.action, el)
+      .catch(() => toast("暂时没能更新陪伴记录，可以继续其他体验。"))
+      .finally(() => {
+        el.disabled = false;
+      });
+    return;
+  }
   act(() => handleAction(el.dataset.action, el), el);
 });
 window.addEventListener("hashchange", () => {
@@ -2426,6 +2578,8 @@ window.addEventListener("hashchange", () => {
 // 对话框关闭后补上被挂起的那次轮询。推迟一个任务：换路由引起的关闭会紧接着重渲染
 // 一次（那时 pollPending 已清），只有「用完对话框还留在同一页」才需要在这里补。
 $("#dialog").addEventListener("close", () => {
+  if (state.child && ["#explore", "#journey"].includes(location.hash))
+    void updateExperienceTask(state.child.id, explorationToken());
   if (!pollPending) return;
   setTimeout(() => {
     if (pollPending) render();
@@ -2528,7 +2682,7 @@ async function ensureExplorer(purpose, selected = [], fresh = false) {
     hints.pendingExplorer = { child, purpose, selected, policy, fresh };
     showDialog(
       "保存这次探索",
-      `<p>回答会保存在当前儿童档案中，方便下次继续和回看。不会发送给机器人。</p><details class="policy-details"><summary>查看使用说明</summary><div class="policy-body">${esc(policy.body)}</div></details><label class="checkline"><input id="explorer-consent" type="checkbox">我已阅读并同意保存本次回答</label>${actions(button("agree-explorer", "同意并开始"), button("close", "稍后再说", "", true))}`,
+      `<p>回答会保存在当前儿童档案中，方便下次继续和回看。</p><details class="policy-details"><summary>查看使用说明</summary><div class="policy-body">${esc(policy.body)}</div></details><label class="checkline"><input id="explorer-consent" type="checkbox">我已阅读并同意保存本次回答</label>${actions(button("agree-explorer", "同意并开始"), button("close", "稍后再说", "", true))}`,
     );
     return null;
   }
@@ -2548,6 +2702,23 @@ async function ensureExplorer(purpose, selected = [], fresh = false) {
   hints.explorerSessions[purpose] = session;
   if (expired) toast("上次探索已结束，这次从第一题开始。");
   return explorerState(session);
+}
+async function updateExperienceTask(child, token) {
+  if (!document.getElementById("experience-task-slot")) return;
+  try {
+    const [sessions, records] = await Promise.all([
+      API.all(`/children/${child}/assessments`),
+      API.all(`/children/${child}/activity-records`),
+    ]);
+    if (!explorerCurrent(token) || state.child?.id !== child) return;
+    const slot = document.getElementById("experience-task-slot");
+    if (slot)
+      slot.innerHTML = renderExperienceTask(
+        nextExperience(sessions, records, child),
+      );
+  } catch {
+    // Completion succeeded. A failed progress refresh must not undo its result.
+  }
 }
 const explorationBridge = {
   context: explorationToken,
@@ -2615,6 +2786,7 @@ const explorationBridge = {
     );
     if (!explorerCurrent(token)) return null;
     hints.explorerSessions[purpose] = completed;
+    void updateExperienceTask(state.child.id, token);
     return explorerState(completed);
   },
   async restart(purpose) {

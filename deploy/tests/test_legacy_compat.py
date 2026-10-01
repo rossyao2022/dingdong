@@ -5,7 +5,7 @@ import re
 ROOT = Path(__file__).resolve().parents[2]
 BRIDGES = ["daily", "test", "result", "thumb", "island", "blindbox", "report"]
 RESOURCES = ["guide-preference.js", "legacy.js", *[f"{name}.html" for name in BRIDGES]]
-RESOURCES.extend(["dingdong-report.js", "bootstrap.js"])
+RESOURCES.extend(["dingdong-report.js", "bootstrap.js", "experience-flow.js"])
 
 
 def test_legacy_resources_in_every_web_image():

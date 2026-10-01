@@ -1,0 +1,39 @@
+{% extends "ops/base.html" %}
+{% load static %}
+{% block title %}测评表单{% endblock %}
+{% block page_title %}{{ child.name }} · 测评表单{% endblock %}
+{% block crumb %}<a href="{% url 'ops:child_detail' child.pk %}" data-nav>返回儿童详情</a>{% endblock %}
+{% block content %}
+<section class="card">
+  <div class="card-header"><h2 class="card-title">选择记录</h2></div>
+  <div class="card-body">
+    <form method="get" class="row g-3 align-items-end">
+      <div class="col-12 col-md-9"><label for="form-session" class="form-label">测评记录</label>
+        <select id="form-session" class="form-select" name="session_id">
+          <option value="">每类最近一次已完成测评</option>
+          {% for session in history %}<option value="{{ session.pk }}" {% if selected_session == session.pk|stringformat:"s" %}selected{% endif %}>{{ session.questionnaire_version.title }} · {{ session.completed_at|date:"Y-m-d H:i" }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-12 col-md-3"><button class="btn btn-primary w-100" type="submit">查看表单</button></div>
+    </form>
+    <p class="text-secondary mt-3 mb-0">只包含已完成测评的题目、回答和原始结果。未提供的结果保持为空。</p>
+  </div>
+</section>
+<section class="card">
+  <div class="card-header flex-wrap gap-3">
+    <h2 class="card-title">表单内容（{{ document.assessments|length }} 份）</h2>
+    <div class="btn-list ms-auto">
+      <button type="button" class="btn btn-primary" id="assessment-form-copy" data-copy-url="{% url 'ops:assessment_form_copy' child.pk %}?snapshot={{ snapshot|urlencode }}">复制中文表单</button>
+      <a class="btn" href="{% url 'ops:assessment_form_json' child.pk %}?snapshot={{ snapshot|urlencode }}">下载 JSON</a>
+      <a class="btn" href="{% url 'ops:assessment_form_csv' child.pk %}?snapshot={{ snapshot|urlencode }}">下载 CSV</a>
+    </div>
+  </div>
+  <div class="card-body">
+    <p id="assessment-copy-status" role="status" aria-live="polite" class="text-secondary"></p>
+    {% if not document.assessments %}{% include "ops/_empty.html" with title="还没有已完成的测评" %}{% endif %}
+    <label class="form-label" for="assessment-form-text">中文表单预览</label>
+    <textarea class="form-control font-monospace" id="assessment-form-text" rows="22" readonly>{{ copy_text }}</textarea>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{% static 'ops/assessment_form.js' %}?v={{ ops_asset_version }}" defer></script>{% endblock %}

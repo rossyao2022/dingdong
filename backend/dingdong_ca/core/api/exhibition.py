@@ -19,8 +19,8 @@ def require_enabled():
 @endpoint(["GET"])
 def report(request):
     require_enabled()
-    weekly = validate(WeeklyInput, request.query_params)["weekly_turns"]
-    snapshot = shared_snapshot(weekly)
+    query = validate(WeeklyInput, request.query_params)
+    snapshot = shared_snapshot(query["weekly_turns"], cached=query["cached"])
     require_enabled()
     return Response(
         {

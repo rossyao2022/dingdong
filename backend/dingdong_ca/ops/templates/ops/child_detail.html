@@ -8,6 +8,7 @@
 {% endblock %}
 
 {% block topbar_actions %}
+  {% if can_view_reports %}<a class="btn btn-sm btn-primary" href="{% url 'ops:assessment_form' child.pk %}" data-nav>测评表单</a>{% endif %}
   {% if can_edit_child %}
     <button type="button" class="btn btn-sm btn-primary" id="edit-profile-open">
       <i class="ti ti-pencil" aria-hidden="true"></i>更正档案

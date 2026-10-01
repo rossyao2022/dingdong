@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { readFileSync } from "node:fs";
 const base = process.env.E2E_BASE_URL || "http://127.0.0.1:4173";
-const shots = "../deploy/evidence/v0.3.21/shots";
+const shots = "../deploy/evidence/v0.3.25/shots";
 async function login(page) {
   await page.goto(base);
   expect(
@@ -25,7 +25,11 @@ async function login(page) {
 async function api(page, path, options = {}) {
   return page.evaluate(
     async ({ path, options }) => {
-      const API = await import("./api.js");
+      const API = await import(
+        "./api.js" +
+          new URL(document.querySelector('script[src*="bootstrap.js"]').src)
+            .search
+      );
       return API.request(path, options);
     },
     { path, options },
@@ -298,7 +302,7 @@ test("伙伴四情境、服务端分布、重做保留旧结果与家长支持",
   );
   await page.goto(base + "/#reports");
   await expect(
-    page.getByRole("heading", { name: "已完成的探索体验", exact: true }),
+    page.getByRole("heading", { name: "体验记录", exact: true }),
   ).toBeVisible();
   await page.goto(base + "/#services");
   await page.locator("[data-action=parent-reflection]").click();

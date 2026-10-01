@@ -1,0 +1,7 @@
+{% extends "ops/base.html" %}
+{% block title %}请重新打开表单{% endblock %}
+{% block page_title %}测评表单{% endblock %}
+{% block content %}<section class="card"><div class="card-body">
+  <p role="alert">{{ message }}</p>
+  <a class="btn btn-primary" href="{% url 'ops:assessment_form' child.pk %}" data-nav>重新打开测评表单</a>
+</div></section>{% endblock %}

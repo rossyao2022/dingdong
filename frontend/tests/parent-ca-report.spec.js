@@ -1,4 +1,6 @@
 import { test, expect } from "@playwright/test";
+import { randomUUID } from "node:crypto";
+import { shell } from "./support.js";
 const base = process.env.E2E_BASE_URL || "http://127.0.0.1:4176";
 async function api(page, path) {
   return page.evaluate(async (path) => {
@@ -9,8 +11,9 @@ async function api(page, path) {
   }, path);
 }
 
-test("未绑定从统一问卷入口完成22题，经真实Worker生成并回看自己的CA报告", async ({
+test("未绑定完成22题，经真实Worker保存，体验记录去重并回看原回答", async ({
   page,
+  browser,
 }) => {
   test.setTimeout(180000);
   await page.setViewportSize({ width: 390, height: 844 });
@@ -63,14 +66,17 @@ test("未绑定从统一问卷入口完成22题，经真实Worker生成并回看
       })
       .click();
   }
-  await page.getByRole("button", { name: "生成演示报告", exact: true }).click();
+  await page.getByRole("button", { name: "完成并保存", exact: true }).click();
   await expect(
-    page.getByRole("button", { name: "查看初始报告", exact: true }),
+    page.getByRole("heading", { name: initial.title, exact: true }),
   ).toBeVisible({ timeout: 90000 });
-  await page.getByRole("button", { name: "查看初始报告", exact: true }).click();
-  await expect(
-    page.getByRole("heading", { name: "初始报告", exact: true }),
-  ).toBeVisible();
+  await expect(page.locator(".question .report-section")).toHaveCount(22);
+  await expect
+    .poll(
+      async () => (await api(page, `/children/${child}/reports`)).items.length,
+      { timeout: 90000 },
+    )
+    .toBe(1);
   const reports = await api(page, `/children/${child}/reports`);
   expect(reports.items.length).toBe(1);
   const generated = await api(page, "/reports/" + reports.items[0].id);
@@ -83,17 +89,99 @@ test("未绑定从统一问卷入口完成22题，经真实Worker生成并回看
     .locator("#toast.show")
     .waitFor({ state: "hidden", timeout: 10000 });
   await page.screenshot({
-    path: "../deploy/evidence/v0.3.24/shots/ux-ca-report-detail-390.png",
+    path: "../deploy/evidence/v0.3.25/shots/ux-ca-record-detail-390.png",
     animations: "disabled",
   });
   await page.goto(base + "/#reports");
   await expect(page.locator("#personal-assessments")).toBeVisible();
   await expect(page.locator("#dingdong-growth-report")).toHaveCount(0);
   await expect(
-    page.locator("#personal-assessments [data-action=report]"),
+    page.locator("#personal-assessments .experience-records li"),
   ).toHaveCount(1);
+  await expect(page.locator(".experience-records time")).toHaveCount(1);
+  await expect(page.locator(".experience-records li")).toContainText(
+    initial.title,
+  );
+  await expect(page.locator("#personal-assessments")).not.toContainText(
+    "初始报告",
+  );
+  await page.locator(".experience-records a").click();
+  await expect(
+    page.getByRole("heading", { name: initial.title, exact: true }),
+  ).toBeVisible();
+  await expect(page.locator(".question .report-section")).toHaveCount(22);
+  await page.goto(base + "/#reports");
   await page.screenshot({
-    path: "../deploy/evidence/v0.3.24/shots/ux-ca-report-list-390.png",
+    path: "../deploy/evidence/v0.3.25/shots/ux-ca-record-list-390.png",
     animations: "disabled",
   });
+  const backend = process.env.E2E_BACKEND_URL || "http://127.0.0.1:8025";
+  const cookie = shell(
+    `from django.contrib.auth import get_user_model; from django.contrib.auth.models import Group; from django.test import Client; u=get_user_model().objects.create_user(username='forms-e2e-${randomUUID()}',password='synthetic-local-only',account_kind='staff',is_staff=True,name='合成表单运营');u.groups.set(Group.objects.filter(name='operations'));c=Client();c.force_login(u);print(c.cookies['sessionid'].value)`,
+  )
+    .trim()
+    .split("\n")
+    .at(-1);
+  const opsContext = await browser.newContext({
+    viewport: { width: 1280, height: 900 },
+    permissions: ["clipboard-read", "clipboard-write"],
+  });
+  await opsContext.addCookies([
+    {
+      name: "sessionid",
+      value: cookie,
+      url: backend,
+      httpOnly: true,
+      sameSite: "Lax",
+    },
+  ]);
+  const ops = await opsContext.newPage();
+  const errors = [];
+  ops.on("pageerror", (e) => errors.push(e.message));
+  await ops.goto(backend + "/ops/children/" + child + "/");
+  await ops.getByRole("link", { name: "测评表单", exact: true }).click();
+  await expect(ops.locator("#assessment-form-text")).toContainText(
+    initial.title,
+  );
+  const preview = await ops.locator("#assessment-form-text").inputValue();
+  await ops.locator("#assessment-form-copy").click();
+  await expect(ops.locator("#assessment-copy-status")).toContainText("已复制");
+  expect(await ops.evaluate(() => navigator.clipboard.readText())).toBe(
+    preview,
+  );
+  const jsonLink = await ops
+    .getByRole("link", { name: "下载 JSON", exact: true })
+    .getAttribute("href");
+  const csvLink = await ops
+    .getByRole("link", { name: "下载 CSV", exact: true })
+    .getAttribute("href");
+  const document = await (await ops.request.get(backend + jsonLink)).json();
+  expect(document.schema_version).toBe("ca-assessment-form-v1");
+  expect(document.assessments).toHaveLength(1);
+  expect(document.assessments[0].questions).toHaveLength(22);
+  expect(document.assessments[0].title).toBe(initial.title);
+  expect(
+    document.assessments[0].questions.every(
+      (q) => q.selected_option_codes.length === 1,
+    ),
+  ).toBe(true);
+  expect(JSON.stringify(document)).not.toContain("phone");
+  const csv = await ops.request.get(backend + csvLink);
+  expect(csv.status()).toBe(200);
+  expect(await csv.text()).toContain(document.snapshot_digest);
+  await ops.screenshot({
+    path: "../deploy/evidence/v0.3.25/shots/ops-assessment-form-1280.png",
+    fullPage: true,
+  });
+  await ops.setViewportSize({ width: 390, height: 844 });
+  await ops.reload();
+  expect(
+    await ops.evaluate(() => document.documentElement.scrollWidth - innerWidth),
+  ).toBeLessThanOrEqual(1);
+  await ops.screenshot({
+    path: "../deploy/evidence/v0.3.25/shots/ops-assessment-form-390.png",
+    fullPage: true,
+  });
+  expect(errors).toEqual([]);
+  await opsContext.close();
 });

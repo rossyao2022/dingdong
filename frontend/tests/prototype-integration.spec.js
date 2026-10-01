@@ -140,15 +140,17 @@ test("六岛完整、选三顺序、九题真实保存、刷新恢复与儿童�
     .locator(".six-islands")
     .evaluate((el) => el.scrollIntoView({ block: "start" }));
   await page.screenshot({
-    path: `${screenshotDir}/home-islands-390.png`,
+    animations: "disabled",
     style: "#toast { display: none !important; }",
+    path: `${screenshotDir}/home-islands-390.png`,
   });
   await page
     .locator(".selection-station")
     .evaluate((el) => el.scrollIntoView({ block: "start" }));
   await page.screenshot({
-    path: `${screenshotDir}/home-selection-390.png`,
+    animations: "disabled",
     style: "#toast { display: none !important; }",
+    path: `${screenshotDir}/home-selection-390.png`,
   });
   await startWithConsent(page, "[data-interest-action='start']");
   await expect(page.locator(".interest-question-meta")).toContainText(
@@ -170,6 +172,8 @@ test("六岛完整、选三顺序、九题真实保存、刷新恢复与儿童�
       ).toBeGreaterThanOrEqual(14);
     }
     await page.screenshot({
+      animations: "disabled",
+      style: "#toast { display: none !important; }",
       path: `${screenshotDir}/interest-question-${width}.png`,
     });
   }
@@ -209,7 +213,11 @@ test("六岛完整、选三顺序、九题真实保存、刷新恢复与儿童�
       .first(),
   ).toBeVisible();
   await layout(page);
-  await page.screenshot({ path: `${screenshotDir}/interest-result-390.png` });
+  await page.screenshot({
+    animations: "disabled",
+    style: "#toast { display: none !important; }",
+    path: `${screenshotDir}/interest-result-390.png`,
+  });
   await page.locator("[data-interest-action='task'][data-id='E']").click();
   await expect(page.locator("#dialog-title")).toHaveText("家庭小舞台");
   await page.locator("[data-action='start-activity']").click();
@@ -262,6 +270,8 @@ test("24题八维观察真实作答、断点恢复、最低分相同不强排前
     await page.setViewportSize({ width, height: 844 });
     await layout(page);
     await page.screenshot({
+      animations: "disabled",
+      style: "#toast { display: none !important; }",
       path: `${screenshotDir}/talent-question-${width}.png`,
     });
   }
@@ -295,7 +305,11 @@ test("24题八维观察真实作答、断点恢复、最低分相同不强排前
   await page.reload();
   await expect(page.locator(".talent-result-card")).toHaveCount(8);
   await layout(page);
-  await page.screenshot({ path: `${screenshotDir}/talent-report-390.png` });
+  await page.screenshot({
+    animations: "disabled",
+    style: "#toast { display: none !important; }",
+    path: `${screenshotDir}/talent-report-390.png`,
+  });
   await noSensitiveStorage(page);
   expect(errors).toEqual([]);
 });
@@ -432,23 +446,26 @@ test("指纹四类完整指南、示例及临时预览不上传，离开释放�
         .locator("#fp-guide-report")
         .evaluate((el) => el.scrollIntoView({ block: "start" }));
       await page.screenshot({
-        path: `${screenshotDir}/guide-whorl-390.png`,
+        animations: "disabled",
         style: "#toast { display: none !important; }",
+        path: `${screenshotDir}/guide-whorl-390.png`,
       });
       await page
         .locator(".fp-guide-columns > article")
         .nth(1)
         .evaluate((el) => el.scrollIntoView({ block: "start" }));
       await page.screenshot({
-        path: `${screenshotDir}/guide-learning-390.png`,
+        animations: "disabled",
         style: "#toast { display: none !important; }",
+        path: `${screenshotDir}/guide-learning-390.png`,
       });
       await page
         .locator(".fp-guide-activity")
         .evaluate((el) => el.scrollIntoView({ block: "start" }));
       await page.screenshot({
-        path: `${screenshotDir}/guide-activity-390.png`,
+        animations: "disabled",
         style: "#toast { display: none !important; }",
+        path: `${screenshotDir}/guide-activity-390.png`,
       });
     }
     await page
@@ -481,6 +498,8 @@ test("指纹四类完整指南、示例及临时预览不上传，离开释放�
     await page.setViewportSize({ width, height: 844 });
     await layout(page);
     await page.screenshot({
+      animations: "disabled",
+      style: "#toast { display: none !important; }",
       path: `${screenshotDir}/fingerprint-${width}.png`,
     });
   }
@@ -536,9 +555,10 @@ test("四模块和六岛在手机平板桌面无溢出、遮挡或坏图", async
       }
     }
     await page.screenshot({
+      animations: "disabled",
+      style: "#toast { display: none !important; }",
       path: `${screenshotDir}/home-${width}.png`,
       fullPage: true,
-      style: "#toast { display: none !important; }",
     });
     for (const route of [
       "talents",
