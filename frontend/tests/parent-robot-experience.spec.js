@@ -1,11 +1,12 @@
 import { test, expect } from "@playwright/test";
 import { createHmac, randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
-import { shell } from "./support.js";
+import { shell, confirmSyntheticBinding } from "./support.js";
 const base = process.env.E2E_BASE_URL || "http://127.0.0.1:4176";
 const backend = process.env.E2E_BACKEND_URL || "http://127.0.0.1:8024";
 const shots =
-  "../.trellis/.runtime/parent-robot-experience/screenshots";
+  process.env.E2E_SHOTS_DIR ||
+  `../deploy/evidence/v${readFileSync("../VERSION", "utf8").trim()}/shots`;
 
 async function api(page, path, options = {}) {
   return page.evaluate(
@@ -232,7 +233,11 @@ test("已绑定报告授权、聊天不依赖报告、切儿童与解绑立即�
   await page.setViewportSize({ width: 390, height: 844 });
   await shot(page, "bound-full-report-390");
   await page.evaluate(() => scrollTo(0, 0));
-  await page.screenshot({path:"../deploy/evidence/v0.3.25/shots/ux-bound-report-390.png", animations:"disabled", fullPage:false});
+  await page.screenshot({
+    path: `${shots}/ux-bound-report-390.png`,
+    animations: "disabled",
+    fullPage: false,
+  });
   await page.goto(base + "/#settings");
   await page.getByRole("button", { name: "添加儿童档案", exact: true }).click();
   const other = await child(page, "另一合成儿童");
@@ -262,6 +267,7 @@ test("换儿童后重新读取该孩子的机器人，换机不会归档上一�
     method: "POST",
     body: { request_id: randomUUID(), nfc_token: tokenA },
   });
+  confirmSyntheticBinding(accountA);
   await page.goto(base + "/#settings");
   await expect(page.locator(".account-row")).toContainText(
     accountA.ca_account_id,
@@ -272,6 +278,7 @@ test("换儿童后重新读取该孩子的机器人，换机不会归档上一�
     method: "POST",
     body: { request_id: randomUUID(), nfc_token: tokenB },
   });
+  confirmSyntheticBinding(accountB);
   await page.locator("#child-select").selectOption(childA);
   await expect(page.locator(".six-islands")).toBeVisible();
   await page.goto(base + "/#settings");
@@ -282,12 +289,11 @@ test("换儿童后重新读取该孩子的机器人，换机不会归档上一�
   await page.locator("#child-select").selectOption(childB);
   await expect(page.locator(".six-islands")).toBeVisible();
   await page.evaluate(() => {
-    location.hash = "#exhibition";
+    location.hash = "#settings";
   });
-  await page.locator("[data-action=bind-robot]").click();
-  await expect(page.locator("#bind-robot-form")).toBeVisible();
-  await page.getByLabel("机器人凭据").fill(tokenC);
-  await page.getByRole("button", { name: "确认绑定", exact: true }).click();
+  await page.locator("[data-action=replace-robot]").click();
+  await expect(page.locator("#replace-robot-form")).toBeVisible();
+  await page.getByLabel("新机器人的凭据").fill(tokenC);
   await expect(page.locator("#replace-robot-form")).toBeVisible();
   await page.getByRole("button", { name: "确认换机", exact: true }).click();
   await expect(page.locator("#dialog")).not.toBeVisible();

@@ -243,7 +243,7 @@ def resolve_account(ca_account_id):
     return account
 
 
-def retire_account(account, user):
+def retire_account(account, user, *, expected_bind_state=None):
     """归档账户。换机时先调它，旧号保留可查、永不重用。
 
     归档是「这台机器人不再属于这个孩子」，所以要一并结束该儿童的已核验关联：
@@ -252,7 +252,12 @@ def retire_account(account, user):
     """
     with transaction.atomic():
         Child.objects.select_for_update().get(pk=account.child_id)
+        # Supplier confirmation updates this row without taking the child lock.
+        # Keep child -> account lock order, then check the user's pending action.
+        CaAccount.objects.select_for_update().get(pk=account.pk)
         account.refresh_from_db()
+        if expected_bind_state is not None and account.bind_state != expected_bind_state:
+            raise ApiError("STATE_CONFLICT", 409, "机器人连接已改变，请重新读取后再操作。")
         if account.status == "retired":
             return account
         account.status = "retired"

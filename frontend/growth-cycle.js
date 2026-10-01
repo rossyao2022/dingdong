@@ -9,7 +9,7 @@
  * 依据 `.trellis/tasks/T-021/design.md` §1.2 / §3.1 / §3.2。
  */
 
-import { AVAILABILITY_TEXT, STALE_NOTICE } from "./companion.js?v=0.3.25";
+import { AVAILABILITY_TEXT, STALE_NOTICE } from "./companion.js?v=0.3.26";
 
 export { STALE_NOTICE };
 

@@ -1,0 +1,6 @@
+{
+  "scope": "Parent top-level runtime JS/HTML and ops application JS/templates excluding vendors/tests",
+  "files_scanned": 74,
+  "native_dialog_calls": [],
+  "ops_existing_components_retained": true
+}

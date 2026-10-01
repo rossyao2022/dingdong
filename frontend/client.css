@@ -1390,3 +1390,53 @@ dialog::backdrop {
     gap: 5px;
   }
 }
+
+/* Component confirmation sits above an existing exploration dialog when needed. */
+.component-confirm {
+  max-width: 520px;
+  color: var(--ink, #293845);
+  background: var(--paper, #fff);
+}
+.component-confirm #component-confirm-message {
+  margin: 24px 0;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.component-confirm .actions {
+  justify-content: flex-end;
+  gap: 12px;
+}
+.component-confirm .button {
+  min-height: 44px;
+}
+.component-confirm-close {
+  flex-shrink: 0;
+}
+@media (max-width: 430px) {
+  .component-confirm .dialog-wrap {
+    padding: 22px;
+  }
+  .component-confirm .dialog-top {
+    gap: 12px;
+  }
+  .component-confirm .dialog-top h2 {
+    font-size: 21px;
+  }
+  .component-confirm .actions > .button {
+    flex: 1;
+  }
+}
+
+/* Keep robot entry labels readable and tap targets separate on phones. */
+@media (max-width: 760px) {
+  .robot-entry .actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .robot-entry .actions > .button,
+  .robot-entry .actions > .text-button {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+}

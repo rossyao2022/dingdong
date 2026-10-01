@@ -68,3 +68,15 @@ export function cliPolicyVersionId() {
     ),
   );
 }
+
+/** Explicit local synthetic supplier confirmation; never touch a real provider. */
+export function confirmSyntheticBinding(account) {
+  if (
+    !/^ca_[0-9A-Z]+$/.test(account.ca_account_id) ||
+    !/^[0-9a-f-]{36}$/.test(account.child_id)
+  )
+    throw new Error("Invalid synthetic binding fixture");
+  shell(
+    `from django.conf import settings; from dingdong_ca.core.models import CaAccount; assert settings.SMS_MODE == 'fixed_code' and settings.DINGDONG_BASE_URL == ''; row=CaAccount.objects.get(ca_account_id='${account.ca_account_id}',child_id='${account.child_id}',status='active'); row.bind_state='bound'; row.save(update_fields=['bind_state'])`,
+  );
+}

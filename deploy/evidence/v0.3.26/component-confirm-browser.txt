@@ -1,0 +1,10 @@
+
+Running 3 tests using 1 worker
+
+(node:12544) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/component-confirm.spec.js:68:3 › 组件确认 390px：取消/Esc/关闭保留记录，确认组合后才新建探索 (4.4s)
+  ✓  2 tests/component-confirm.spec.js:68:3 › 组件确认 1280px：取消/Esc/关闭保留记录，确认组合后才新建探索 (4.4s)
+  ✓  3 tests/component-confirm.spec.js:153:1 › 组件确认：离页立即取消；重叠探索弹窗支持安全焦点返回和单实例清理 (7.0s)
+
+  3 passed (16.5s)

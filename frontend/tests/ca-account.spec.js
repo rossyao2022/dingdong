@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { confirmSyntheticBinding } from "./support.js";
 
 /**
  * 家长端「我的机器人（CA 账户）」的真实浏览器闭环。
@@ -105,6 +106,7 @@ test("换机：确认弹窗讲清代价，旧号归档可查，新号重新开�
   await child(page, "换机合成儿童");
   const oldToken = token("old");
   const old = await (await tapTag(page, oldToken)).json();
+  confirmSyntheticBinding(old);
   const newToken = token("new");
 
   // 拿另一台机器人的凭据再绑一次：服务端回 409，界面必须自己转成"换机"流程，

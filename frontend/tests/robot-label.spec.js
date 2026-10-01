@@ -1,4 +1,7 @@
 import { test, expect } from "@playwright/test";
+import { confirmSyntheticBinding } from "./support.js";
+import { readFileSync } from "node:fs";
+const shots = `../deploy/evidence/v${readFileSync("../VERSION", "utf8").trim()}/shots`;
 
 /**
  * 账户页给家长看的机器人摘要，叫「机器人标识（前 8 位）」，不叫「指纹」。
@@ -31,9 +34,7 @@ async function child(page, name) {
   return (await (await response).json()).id;
 }
 
-test("账户页默认收起设备编号，需要时可展开查看", async ({
-  page,
-}) => {
+test("账户页默认收起设备编号，需要时可展开查看", async ({ page }) => {
   await login(page);
   await child(page, "标识合成儿童");
   const mine = token("label");
@@ -67,14 +68,14 @@ test("账户页默认收起设备编号，需要时可展开查看", async ({
     timeout: 10000,
   });
   await page.screenshot({
-    path: "../.trellis/tasks/T-012/shots/account-row-desktop.png",
+    path: `${shots}/account-row-desktop.png`,
   });
 
   // 文案变长了，窄屏要确认没把卡片撑出横向滚动条。
   await page.setViewportSize({ width: 390, height: 844 });
   await row.scrollIntoViewIfNeeded();
   await page.screenshot({
-    path: "../.trellis/tasks/T-012/shots/account-row-mobile.png",
+    path: `${shots}/account-row-mobile.png`,
   });
   expect(
     await page.evaluate(
@@ -83,6 +84,8 @@ test("账户页默认收起设备编号，需要时可展开查看", async ({
   ).toBeLessThanOrEqual(1);
   await page.setViewportSize({ width: 1280, height: 720 });
 
+  // Only an explicitly confirmed synthetic bound robot permits replacement.
+  confirmSyntheticBinding(created);
   // 换机弹窗只说操作后果，不再展示识别码。
   await page.goto(`/?nfc_token=${token("label-new")}#settings`);
   await expect(
@@ -95,6 +98,6 @@ test("账户页默认收起设备编号，需要时可展开查看", async ({
   await expect(dialog).not.toContainText(summary);
   await expect(dialog).not.toContainText("指纹");
   await page.screenshot({
-    path: "../.trellis/tasks/T-012/shots/replace-dialog-desktop.png",
+    path: `${shots}/replace-dialog-desktop.png`,
   });
 });

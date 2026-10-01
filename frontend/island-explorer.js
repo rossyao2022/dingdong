@@ -138,41 +138,37 @@
   async function change(id, action) {
     const previous = exportData();
     const ticket = token();
+    const selected = [...state.selected];
     if (!item(id)) return;
-    const index = state.selected.indexOf(id);
+    const index = selected.indexOf(id);
     if (action === "earlier") {
       if (index < 1) return;
-      [state.selected[index - 1], state.selected[index]] = [
-        state.selected[index],
-        state.selected[index - 1],
+      [selected[index - 1], selected[index]] = [
+        selected[index],
+        selected[index - 1],
       ];
-    } else if (index >= 0) state.selected.splice(index, 1);
+    } else if (index >= 0) selected.splice(index, 1);
     else if (action === "select") {
-      if (state.selected.length === 3) {
+      if (selected.length === 3) {
         update("通行证已经装满三座岛啦！先取消一座，再选择新的小岛。");
         return;
       }
-      state.selected.push(id);
+      selected.push(id);
     } else return;
-    state.answers = {};
-    state.index = 0;
-    state.completed = false;
-    state.result = null;
+    const candidate = {
+      selected,
+      answers: {},
+      index: 0,
+      completed: false,
+      result: null,
+    };
+    // Keep the existing answers and map intact while the parent decides.
+    const data = bridge.selection
+      ? await bridge.selection(selected, previous)
+      : candidate;
+    if (!current(ticket)) return;
+    setState(data || previous);
     update();
-    try {
-      if (bridge.selection) {
-        const data = await bridge.selection([...state.selected], previous);
-        if (!current(ticket)) return;
-        setState(data || previous);
-        update();
-      }
-    } catch (error) {
-      if (current(ticket)) {
-        setState(previous);
-        update();
-      }
-      throw error;
-    }
     if (action !== "select")
       document.querySelector(`[data-world-id="${id}"]`)?.focus();
   }

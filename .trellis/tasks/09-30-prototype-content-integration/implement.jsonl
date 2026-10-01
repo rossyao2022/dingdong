@@ -1,2 +1,4 @@
 {"file": "需求/原型完整整合计划_20260930.md", "reason": "整合清单、接口方向与实施顺序"}
 {"file": ".trellis/spec/guides/ca-local-authority.md", "reason": "本地功能完整性优先"}
+{"file": ".trellis/spec/frontend/index.md", "reason": "家长端展示规则"}
+{"file": ".trellis/spec/frontend/parent-robot-and-exhibition.md", "reason": "机器人与展会边界"}

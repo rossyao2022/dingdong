@@ -200,3 +200,33 @@ test("chat destination never propagates credentials, parameters or executable UR
   ])
     assert.equal(safeChatUrl(value), null);
 });
+
+test("binding visibility is based on current-child active state only, with explicit unknown", async () => {
+  const { robotVisibility } = await import("../ca-link.js");
+  const bound = { status: "active", bind_state: "bound", child_id: "a" };
+  const pending = { ...bound, bind_state: "unbound" };
+  assert.equal(robotVisibility([bound], "a").state, "bound");
+  assert.equal(robotVisibility([pending], "a").state, "pending");
+  for (const rows of [
+    [],
+    [{ ...bound, status: "retired" }],
+    [{ ...bound, child_id: "b" }],
+  ]) {
+    const view = robotVisibility(rows, "a");
+    assert.equal(view.state, "unbound");
+    assert.equal(view.canManage, false);
+    assert.equal(view.canExhibit, true);
+  }
+  for (const rows of [
+    undefined,
+    null,
+    { error: true },
+    [{ ...bound, bind_state: "unknown" }],
+  ]) {
+    const view = robotVisibility(rows, "a");
+    assert.equal(view.state, "unknown");
+    assert.equal(view.canManage, false);
+    assert.equal(view.canExhibit, false);
+  }
+  assert.equal(robotVisibility([bound], "a").canExhibit, false);
+});

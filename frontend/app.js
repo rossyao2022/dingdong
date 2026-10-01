@@ -1,9 +1,10 @@
-import * as API from "./api.js?v=0.3.25";
+import * as API from "./api.js?v=0.3.26";
 import {
   ACCOUNT_STATUS,
   BIND_STATE,
   activeAccount,
   boundAccount,
+  robotVisibility,
   safeChatUrl,
   robotConflictMessage,
   conflictNeedsRefresh,
@@ -13,53 +14,55 @@ import {
   replaceFlowNeeded,
   retiredAccounts,
   stripBindingParams,
-} from "./ca-link.js?v=0.3.25";
+} from "./ca-link.js?v=0.3.26";
 import {
   HEALTH_FOOTER,
   STALE_NOTICE,
   healthSection,
   personaSection,
-} from "./companion.js?v=0.3.25";
+} from "./companion.js?v=0.3.26";
 import {
   DIMENSION_MISSING,
   PERIODS,
   PROXY_NOTE,
   growthCycleSection,
-} from "./growth-cycle.js?v=0.3.25";
+} from "./growth-cycle.js?v=0.3.26";
 import {
   WRITE_FAILED_TEXT,
   reassessmentSection,
-} from "./reassessment.js?v=0.3.25";
+} from "./reassessment.js?v=0.3.26";
 import {
   actions,
   button,
+  cancelConfirmDialogs,
+  confirmDialog,
   emptyState,
   esc,
   pageHead,
   panel,
-} from "./ui-components.js?v=0.3.25";
+} from "./ui-components.js?v=0.3.26";
 import {
   explorerState,
   continuedExplorerHash,
   sameSelection,
   resumableSession,
-} from "./exploration-session.js?v=0.3.25";
+} from "./exploration-session.js?v=0.3.26";
 import {
   GUIDE_MODES,
   greeting,
   guideText,
   renderGuidanceSummary,
-} from "./guide-preference.js?v=0.3.25";
+} from "./guide-preference.js?v=0.3.26";
 import {
   renderDingDongReport,
   renderRobotEntry,
-} from "./dingdong-report.js?v=0.3.25";
+} from "./dingdong-report.js?v=0.3.26";
 import {
   nextExperience,
   experienceRecords,
   renderExperienceTask,
   renderExperienceRecords,
-} from "./experience-flow.js?v=0.3.25";
+} from "./experience-flow.js?v=0.3.26";
 const $ = (s) => document.querySelector(s);
 let robotReadEpoch = 0;
 const state = {
@@ -125,6 +128,7 @@ const channel =
  * （T-040 的 P-16：复测「开始复测」的同意对话框只闪现约 1.7 秒）。
  */
 function leaveContext({ disposePage = true } = {}) {
+  cancelConfirmDialogs();
   if (disposePage) {
     explorationEpoch++;
     window.FingerprintLab?.cleanup();
@@ -625,11 +629,11 @@ function observationBlock(obs) {
     error: "暂时无法更新机器人记录",
     ready: "机器人互动记录",
   };
-  return `<section class="panel"><div class="card-heading"><h2>${titles[obs.availability] || "机器人记录"}</h2>${testTag()}</div>${["stale", "error"].includes(obs.availability) ? '<div class="notice error">暂时没有新记录，以下是上次的内容。</div>' : ""}${obs.metrics.length ? metrics(obs.metrics) : ""}${obs.availability === "unbound" || obs.availability === "no_consent" ? '<a class="button secondary" href="#settings">管理机器人</a>' : ""}</section>`;
+  return `<section class="panel"><div class="card-heading"><h2>${titles[obs.availability] || "机器人记录"}</h2>${testTag()}</div>${["stale", "error"].includes(obs.availability) ? '<div class="notice error">暂时没有新记录，以下是上次的内容。</div>' : ""}${obs.metrics.length ? metrics(obs.metrics) : ""}${["unbound", "no_consent"].includes(obs.availability) && robotVisibility(hints.accounts, state.child?.id).canManage ? '<a class="button secondary" href="#settings">管理机器人</a>' : ""}</section>`;
 }
 /** 面一 + 面三的空态/错误态正文：一句状态 + 可选的去向。 */
 function faceEmpty(view) {
-  return `<p class="companion-state"><b>${esc(view.title)}</b></p>${view.note ? `<p>${esc(view.note)}</p>` : ""}${view.settings ? '<a class="button secondary" href="#settings">管理机器人</a>' : ""}`;
+  return `<p class="companion-state"><b>${esc(view.title)}</b></p>${view.note ? `<p>${esc(view.note)}</p>` : ""}${view.settings && robotVisibility(hints.accounts, state.child?.id).canManage ? '<a class="button secondary" href="#settings">管理机器人</a>' : ""}`;
 }
 function staleNotice(view) {
   return view.stale ? `<div class="notice">${esc(STALE_NOTICE)}</div>` : "";
@@ -986,7 +990,8 @@ async function render() {
           API.all(`/children/${child}/activity-records`).catch(sectionFailure),
         ]);
       if (tick !== viewEpoch || state.child?.id !== child) return;
-      const bound = accounts.error ? null : boundAccount(accounts, child);
+      const visibility = robotVisibility(accounts, child);
+      const bound = visibility.canManage ? visibility.account : null;
       const reportTicket = ++robotReadEpoch;
       const reportRead =
         bound && isPrototypeDemo(bound)
@@ -994,7 +999,7 @@ async function render() {
               `/children/${child}/prototype-demo?cached=1&weekly_turns=${state.dingdongWeeklyTurns}`,
             ).catch(sectionFailure)
           : null;
-      hints.accounts = accounts.error ? [] : accounts;
+      hints.accounts = accounts;
       const chat = safeChatUrl(bound?.chat_url);
       const chatAction = chat
         ? `<div class="actions"><a class="button" href="${esc(chat)}" target="_blank" rel="noopener noreferrer">和 DingDong 对话 ↗</a></div>`
@@ -1044,13 +1049,15 @@ async function render() {
         ),
       );
       const exhibition =
-        !bound && state.runtime?.exhibition_enabled ? exhibitionEntry() : "";
+        visibility.canExhibit && state.runtime?.exhibition_enabled
+          ? exhibitionEntry()
+          : "";
       const quickLinks = bound
         ? `<nav class="actions report-jumps" aria-label="报告页内导航">${button("report-jump", "机器人报告", 'data-target="dingdong-growth-report"', true)}${button("report-jump", "体验记录", 'data-target="personal-assessments"', true)}</nav>`
         : "";
       html =
         head("测评与报告", "回看孩子的探索与测评结果。", exportButton()) +
-        `<div class="report-flow">${quickLinks}${robotReport}<section id="personal-assessments" class="report-flow"><h2 class="report-section-title">体验记录</h2>${sessions.error ? sectionError("探索记录暂时读不到") : ""}${activities.error ? sectionError("活动记录暂时读不到") : ""}${history}${resumes}<details class="panel assessment-start"><summary>开始测评</summary><div class="grid">${catalog.error ? sectionError("测评列表暂时读不到") : questionnaireCards || "<p>暂时没有可开始的问卷，请稍后再来看看。</p>"}</div></details></section>${exhibition}</div>`;
+        `<div class="report-flow">${quickLinks}${visibility.state === "unknown" ? sectionError("机器人连接暂时读不到") : robotReport}<section id="personal-assessments" class="report-flow"><h2 class="report-section-title">体验记录</h2>${sessions.error ? sectionError("探索记录暂时读不到") : ""}${activities.error ? sectionError("活动记录暂时读不到") : ""}${history}${resumes}<details class="panel assessment-start"><summary>开始测评</summary><div class="grid">${catalog.error ? sectionError("测评列表暂时读不到") : questionnaireCards || "<p>暂时没有可开始的问卷，请稍后再来看看。</p>"}</div></details></section>${exhibition}</div>`;
       if (reportRead) {
         // CA results are already usable while the independent robot request is pending.
         page(html);
@@ -1097,6 +1104,20 @@ async function render() {
         return;
       }
     } else if (route === "exhibition") {
+      const accounts = await API.all(`/children/${child}/ca-accounts`).catch(
+        sectionFailure,
+      );
+      if (tick !== viewEpoch || state.child?.id !== child) return;
+      hints.accounts = accounts;
+      const visibility = robotVisibility(accounts, child);
+      if (visibility.canManage) {
+        to("reports");
+        return;
+      }
+      if (visibility.state === "unknown") {
+        page(sectionError("机器人连接暂时读不到"));
+        return;
+      }
       if (!state.runtime?.exhibition_enabled) {
         html = empty(
           "展会体验已结束",
@@ -1166,7 +1187,7 @@ async function render() {
         API.all(`/children/${child}/ca-accounts`).catch(sectionFailure),
       ]);
       if (!pref || tick !== viewEpoch || state.child?.id !== child) return;
-      hints.accounts = accounts.error ? [] : accounts;
+      hints.accounts = accounts;
       const guidance = pref.error
         ? sectionError("亲子引导暂时读不到")
         : `<div class="grid"><section class="panel"><img class="figure-robot" src="assets/dingdong/robot-front.webp" alt="DingDong 伙伴"><h2>你好呀，我在这里。</h2><p>${esc(greeting(pref.guide_mode))}</p>${button("greeting", "听伙伴打个招呼", "", true)}</section><section class="panel"><h2>你喜欢怎样一起探索？</h2><p>选一种舒服的方式，开始今天的小行动。</p><div class="stack">${button("companion-exploration", "用 4 个小情境了解引导偏好")}<div class="stack">${Object.entries(
@@ -1276,8 +1297,11 @@ function accountRow(a) {
   return `<div class="account-row${fresh ? " is-new" : ""}"><span class="account-role">${active ? "当前机器人" : "上一台机器人"}</span><div class="account-body">${fresh ? '<span class="tag fresh">刚添加</span>' : ""}${tags}<p class="note">${active ? "添加于" : "停用于"} ${date(active ? a.created_at : a.unbound_at)}</p><details><summary>查看设备信息</summary><code class="inline-code">${esc(a.ca_account_id)}</code><p class="note">识别码 ${esc(a.nfc_token_fingerprint)}${a.robot_ref ? " · " + esc(a.robot_ref) : ""}</p></details></div></div>`;
 }
 function robotPanel(rows, companion = null) {
-  const active = activeAccount(rows);
-  const retired = retiredAccounts(rows);
+  if (robotVisibility(rows, state.child?.id).state === "unknown")
+    return sectionError("机器人连接暂时读不到");
+  const ownRows = rows.filter((row) => row.child_id === state.child?.id);
+  const active = activeAccount(ownRows);
+  const retired = retiredAccounts(ownRows);
   // 只读人设行：人设由机器人服务下发，家长端不提供修改入口，取不到就不显示这一行。
   const persona = personaSection(companion);
   const companionLine = persona.showData
@@ -1288,14 +1312,14 @@ function robotPanel(rows, companion = null) {
     : "";
   const reconnect =
     active?.bind_state === "unbound" && hints.nfcToken
-      ? button("bind-robot", "重新连接")
+      ? button("bind-robot", "继续连接")
       : "";
   const current = active
     ? accountRow(active) +
       (active.bind_state === "bound"
         ? `<div class="actions"><a class="button" href="#reports">查看机器人报告</a>${safeChatUrl(active.chat_url) ? `<a class="button secondary" href="${esc(safeChatUrl(active.chat_url))}" target="_blank" rel="noopener noreferrer">和 DingDong 对话 ↗</a>` : ""}</div>`
         : `<p class="notice">${esc(ROBOT_JOIN_NOTE)}</p>`) +
-      `<div class="actions">${reconnect}${button("replace-robot", "换一台机器人", `data-id="${esc(active.ca_account_id)}"`)}${button("retire-account", "解绑机器人", `data-id="${esc(active.ca_account_id)}"`, true)}</div>`
+      `<div class="actions">${active.bind_state === "bound" ? `${button("replace-robot", "换一台机器人", `data-id="${esc(active.ca_account_id)}"`)}${button("retire-account", "解绑机器人", `data-id="${esc(active.ca_account_id)}"`, true)}` : `${reconnect || button("bind-robot", "继续连接")}${button("cancel-robot-connection", "取消连接", `data-id="${esc(active.ca_account_id)}"`, true)}`}</div>`
     : `<p>还没有为 <b>${esc(state.child.name)}</b> 绑定机器人。</p>${button("bind-robot", "绑定机器人")}`;
   const history = retired.length
     ? `<h3 style="margin-top:26px">以前的机器人</h3>${retired.map(accountRow).join("")}`
@@ -1317,7 +1341,9 @@ async function refreshRobotReport({ cached = false } = {}) {
     route = location.hash.slice(1).split("/")[0];
   if (!["reports", "exhibition"].includes(route) || !child) return;
   const exhibition = route === "exhibition";
-  const bound = exhibition ? null : boundAccount(hints.accounts || [], child);
+  const visibility = robotVisibility(hints.accounts, child);
+  if (exhibition && !visibility.canExhibit) return;
+  const bound = exhibition ? null : boundAccount(hints.accounts, child);
   if (!exhibition && (!bound || !isPrototypeDemo(bound))) return;
   const ticket = ++robotReadEpoch;
   const slot = document.getElementById("dingdong-growth-report");
@@ -1449,6 +1475,10 @@ async function openReplacement(child, token) {
     );
   if (child === state.child?.id) hints.accounts = rows;
   hints.replaceChild = child;
+  if (account.bind_state !== "bound")
+    throw new Error(
+      "这个孩子还有未完成的机器人连接，请先到“账户与关联”取消连接，再绑定另一台机器人。",
+    );
   replaceRobotDialog(account, token);
 }
 function replaceRobotDialog(account, token = "") {
@@ -1466,7 +1496,12 @@ async function submitRobotReplacement(form) {
   const token = formData(form).nfc_token;
   const child = hints.replaceChild || state.child.id;
   const account = hints.replaceAccount;
-  if (!account || account.child_id !== child || account.status !== "active")
+  if (
+    !account ||
+    account.child_id !== child ||
+    account.status !== "active" ||
+    account.bind_state !== "bound"
+  )
     throw new Error("机器人信息已变化，请重新打开绑定页面。");
   const key = "ca-replace:" + child + ":" + token;
   // 第一步不可回退：先归档旧号。归档成功之后即使发号失败，也要如实说清
@@ -1501,6 +1536,12 @@ async function submitRobotReplacement(form) {
         " 请用同一个凭据再试一次。",
     );
   }
+}
+function cancelRobotConnectionDialog(account) {
+  showDialog(
+    "取消连接",
+    `<p>取消这次未完成的机器人连接，孩子的探索、活动和测评记录会保留。以后可以重新绑定。</p><div class="actions">${button("confirm-cancel-connection", "确认取消", `data-id="${esc(account.ca_account_id)}"`)}${button("close", "继续等待", "", true)}</div>`,
+  );
 }
 function retireAccountDialog(account) {
   showDialog(
@@ -2440,6 +2481,7 @@ async function handleAction(action, el) {
       break;
     case "drop-nfc":
       hints.nfcToken = "";
+      hints.nfcRobotRef = "";
       markNfcPending(false);
       hints.nfcPrompted = true;
       toast("已取消绑定。");
@@ -2447,26 +2489,50 @@ async function handleAction(action, el) {
       break;
     case "replace-robot": {
       const target = (hints.accounts || []).find((a) => a.ca_account_id === id);
-      if (!target) throw new Error("找不到这台机器人，请刷新后重试。");
+      if (!target || target !== boundAccount(hints.accounts, state.child?.id))
+        throw new Error("机器人连接已改变，请重新读取后再操作。");
       hints.replaceChild = state.child.id;
       replaceRobotDialog(target);
       break;
     }
     case "retire-account": {
       const target = (hints.accounts || []).find((a) => a.ca_account_id === id);
-      if (!target) throw new Error("找不到这台机器人，请刷新后重试。");
+      if (!target || target !== boundAccount(hints.accounts, state.child?.id))
+        throw new Error("机器人连接已改变，请重新读取后再操作。");
       retireAccountDialog(target);
       break;
     }
-    case "confirm-retire":
+    case "cancel-robot-connection": {
+      const view = robotVisibility(hints.accounts, state.child?.id);
+      if (view.state !== "pending" || view.account.ca_account_id !== id)
+        throw new Error("机器人连接已改变，请重新读取后再操作。");
+      cancelRobotConnectionDialog(view.account);
+      break;
+    }
+    case "confirm-cancel-connection":
+    case "confirm-retire": {
+      const view = robotVisibility(hints.accounts, state.child?.id);
+      const cancelling = action === "confirm-cancel-connection";
+      if (
+        view.state !== (cancelling ? "pending" : "bound") ||
+        view.account.ca_account_id !== id
+      )
+        throw new Error("机器人连接已改变，请重新读取后再操作。");
       await API.request(`/ca-accounts/${encodeURIComponent(id)}/retire`, {
         method: "POST",
-        body: {},
+        body: cancelling ? { expected_bind_state: "unbound" } : {},
       });
       closeDialog();
-      toast("机器人关联已解除。");
+      hints.nfcToken = "";
+      hints.nfcRobotRef = "";
+      delete hints.replaceAccount;
+      delete hints.replaceChild;
+      markNfcPending(false);
+      hints.nfcPrompted = true;
+      toast(cancelling ? "已取消连接。" : "机器人关联已解除。");
       await render();
       break;
+    }
     case "revoke-consent":
       await API.request("/consents/" + id + "/revoke", {
         method: "POST",
@@ -2738,17 +2804,22 @@ const explorationBridge = {
         : null;
   },
   async selection(selected, previous) {
+    const token = explorationToken();
+    const session = hints.explorerSessions?.interest;
     if (
       previous &&
       (previous.completed || Object.keys(previous.answers || {}).length)
     ) {
-      if (
-        !window.confirm(
-          "调整组合会开始一次新的探索。原来的回答和结果仍会保留，继续吗？",
-        )
-      )
-        return previous;
+      const accepted = await confirmDialog({
+        title: "调整兴趣组合？",
+        message: "调整组合会开始一次新的探索。原来的回答和结果仍会保留。",
+        confirmLabel: "调整组合",
+        cancelLabel: "保留原组合",
+      });
+      if (!accepted) return previous;
     }
+    if (!explorerCurrent(token) || hints.explorerSessions?.interest !== session)
+      return previous;
     if (hints.explorerSessions) hints.explorerSessions.interest = null;
     return { selected, answers: {}, completed: false, result: null, index: 0 };
   },

@@ -1,0 +1,78 @@
+✔ 凭据能从查询串里读出来 (0.830166ms)
+✔ 凭据能从 hash 参数里读出来（NFC 标签常这么写） (0.086291ms)
+✔ 查询串优先于 hash，两者都有时取查询串 (0.051792ms)
+✔ 裸 + 不当空格：token 是不透明字符串，不能改写它的字节 (0.054583ms)
+✔ 没有凭据就是空串，不猜也不报错 (0.427625ms)
+✔ 同名参数取第一个 (0.084875ms)
+✔ 机器人标识是独立参数，不影响取凭据 (0.078125ms)
+✔ 摘掉凭据后，hash 路由与其他参数都还在 (0.168916ms)
+✔ 摘掉机器人标识，凭据一并不留 (0.069709ms)
+✔ 没有凭据时，地址原样不动（幂等） (0.079459ms)
+✔ 换机信号只认服务端那一个错误码 (0.06325ms)
+✔ 账户拆分：活跃唯一，归档可多条 (0.704334ms)
+✔ 状态词与运营后台用同一套说法，且两个维度分开 (0.039375ms)
+✔ 机器人占用指引说清先解绑，409不误导刷新 (0.0705ms)
+✔ 会展标记兼容固定旧号与新ULID (0.046625ms)
+✔ bound account is active and belongs to the current child; pending/retired/another child never grant report access (0.166417ms)
+✔ chat destination never propagates credentials, parameters or executable URLs (0.110958ms)
+✖ binding visibility is based on current-child active state only, with explicit unknown (0.199792ms)
+✔ report uses source baseline/current/180-day curve and preserves zero and companion values over 100 (15.577541ms)
+✔ canonical curve order ignores unknown days, leaves missing/duplicate days blank and never invents values (1.296916ms)
+✔ numeric boundaries reject strings, booleans, infinities, negative and over-100 dimensions (0.979916ms)
+✔ whitelisted report data and rendered HTML never carry credentials or injectable markup (1.32775ms)
+✔ absent report, loading/error and partial data produce readable states without fabricated curves (0.171ms)
+✔ simulation curve uses real day spacing and does not change robot settings (1.314875ms)
+✖ robot entry keeps bound chat independent of report read failures and preserves unbound CA experience (5.200583ms)
+✔ stale snapshots show saved time and a refresh action; empty cache remains actionable (0.128833ms)
+✖ robot entry pending and unreadable binding never expose management or misleading bind state (0.823083ms)
+ℹ tests 27
+ℹ suites 0
+ℹ pass 24
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 98.026875
+
+✖ failing tests:
+
+test at frontend/unit/ca-link.test.js:205:1
+✖ binding visibility is based on current-child active state only, with explicit unknown (0.199792ms)
+  TypeError: robotVisibility is not a function
+      at TestContext.<anonymous> (file:///Users/yihu/Documents/ChatGPT/%E5%8F%AE%E5%92%9A/frontend/unit/ca-link.test.js:209:16)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7)
+
+test at frontend/unit/dingdong-report.test.js:163:1
+✖ robot entry keeps bound chat independent of report read failures and preserves unbound CA experience (5.200583ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(!bound.includes("展会"))
+  
+      at TestContext.<anonymous> (file:///Users/yihu/Documents/ChatGPT/%E5%8F%AE%E5%92%9A/frontend/unit/dingdong-report.test.js:175:10)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at frontend/unit/dingdong-report.test.js:203:1
+✖ robot entry pending and unreadable binding never expose management or misleading bind state (0.823083ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /正在等待连接/. Input:
+  
+  '<section class="panel robot-entry"><h2>我的机器人</h2><p>还没有绑定机器人。可以继续探索和测评，也可以绑定机器人查看陪伴记录。</p><div class="actions"><button class="button" type="button" data-action="bind-robot">绑定机器人</button><a class="button secondary" href="#exhibition">展会体验</a></div></section>'
+  
+      at TestContext.<anonymous> (file:///Users/yihu/Documents/ChatGPT/%E5%8F%AE%E5%92%9A/frontend/unit/dingdong-report.test.js:207:10)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '<section class="panel robot-entry"><h2>我的机器人</h2><p>还没有绑定机器人。可以继续探索和测评，也可以绑定机器人查看陪伴记录。</p><div class="actions"><button class="button" type="button" data-action="bind-robot">绑定机器人</button><a class="button secondary" href="#exhibition">展会体验</a></div></section>',
+    expected: /正在等待连接/,
+    operator: 'match',
+    diff: 'simple'
+  }

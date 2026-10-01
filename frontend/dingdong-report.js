@@ -1,14 +1,27 @@
 /** Render only the supplied DingDong snapshot; never calculate projected scores here. */
-import { esc } from "./ui-components.js?v=0.3.25";
-import { boundAccount, safeChatUrl } from "./ca-link.js?v=0.3.25";
+import { esc } from "./ui-components.js?v=0.3.26";
+import { robotVisibility, safeChatUrl } from "./ca-link.js?v=0.3.26";
 
 export function renderRobotEntry(accounts, childId, runtime = {}) {
-  const bound = boundAccount(accounts, childId);
+  const view = robotVisibility(accounts, childId);
+  if (view.state === "unknown")
+    return '<section class="panel robot-entry"><h2>我的机器人</h2><p>机器人连接暂时读不到，请重新读取。</p><button class="button secondary" type="button" data-action="refresh">重新读取</button></section>';
+  const bound = view.canManage ? view.account : null;
   const chat = safeChatUrl(bound?.chat_url);
-  const exhibition = runtime?.exhibition_enabled
-    ? '<a class="button secondary" href="#exhibition">展会体验</a>'
-    : "";
-  return `<section class="panel robot-entry"><h2>我的机器人</h2><p>${bound ? "机器人已绑定，来看看陪伴记录，或和 DingDong 聊聊。" : "还没有绑定机器人。可以继续探索和测评，也可以绑定机器人查看陪伴记录。"}</p><div class="actions">${bound ? `${chat ? `<a class="button" href="${esc(chat)}" target="_blank" rel="noopener noreferrer">和 DingDong 对话 ↗</a>` : ""}<a class="button secondary" href="#reports">查看机器人报告</a><a class="text-button" href="#settings">管理机器人</a>` : '<button class="button" type="button" data-action="bind-robot">绑定机器人</button>'}${exhibition}</div></section>`;
+  const exhibition =
+    view.canExhibit && runtime?.exhibition_enabled
+      ? '<a class="button secondary" href="#exhibition">展会体验</a>'
+      : "";
+  const message = bound
+    ? "机器人已绑定，来看看陪伴记录，或和 DingDong 聊聊。"
+    : view.state === "pending"
+      ? "机器人正在等待连接。可以继续连接，也可以先探索和测评。"
+      : "还没有绑定机器人。可以继续探索和测评，也可以绑定机器人查看陪伴记录。";
+  const connect =
+    view.state === "pending"
+      ? '<a class="button" href="#settings">继续连接</a>'
+      : '<button class="button" type="button" data-action="bind-robot">绑定机器人</button>';
+  return `<section class="panel robot-entry"><h2>我的机器人</h2><p>${message}</p><div class="actions">${bound ? `${chat ? `<a class="button" href="${esc(chat)}" target="_blank" rel="noopener noreferrer">和 DingDong 对话 ↗</a>` : ""}<a class="button secondary" href="#reports">查看机器人报告</a><a class="text-button" href="#settings">管理机器人</a>` : connect}${exhibition}</div></section>`;
 }
 
 export const DIMENSION_KEYS = Object.freeze([

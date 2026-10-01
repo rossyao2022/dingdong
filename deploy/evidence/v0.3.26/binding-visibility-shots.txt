@@ -1,0 +1,9 @@
+
+Running 2 tests using 1 worker
+
+(node:9470) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/binding-visibility.spec.js:73:3 › 390px：未绑→待接通→取消→绑定→切儿童→解绑的可见性闭环 (11.4s)
+  ✓  2 tests/binding-visibility.spec.js:73:3 › 1280px：未绑→待接通→取消→绑定→切儿童→解绑的可见性闭环 (11.0s)
+
+  2 passed (23.2s)

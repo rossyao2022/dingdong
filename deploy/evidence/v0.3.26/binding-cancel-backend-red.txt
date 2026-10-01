@@ -1,0 +1,82 @@
+.FFFF                                                                    [100%]
+=================================== FAILURES ===================================
+___________ test_stale_cancel_does_not_unbind_newly_connected_robot ____________
+
+client = <rest_framework.test.APIClient object at 0x10b699450>
+
+    def test_stale_cancel_does_not_unbind_newly_connected_robot(client):
+        from dingdong_ca.core.models import AuditEvent, CaAccount
+    
+        child = setup_child(client)
+        account = issue(client, child).json()
+        row = CaAccount.objects.get(ca_account_id=account["ca_account_id"])
+        row.bind_state = "bound"
+        row.save(update_fields=["bind_state"])
+        before = AuditEvent.objects.count()
+        response = client.post(
+            ACCOUNT + account["ca_account_id"] + "/retire",
+            {"expected_bind_state": "unbound"},
+            format="json",
+        )
+>       assert response.status_code == 409
+E       assert 200 == 409
+E        +  where 200 = <Response status_code=200, "application/json">.status_code
+
+backend/tests/test_ca_accounts.py:443: AssertionError
+_______ test_cancel_rejects_invalid_expectation_without_retiring[body0] ________
+
+client = <rest_framework.test.APIClient object at 0x10b698550>
+body = {'expected_bind_state': 'ready'}
+
+    @pytest.mark.parametrize("body", [{"expected_bind_state": "ready"}, {"expected_bind_state": None}, {"unexpected": "unbound"}])
+    def test_cancel_rejects_invalid_expectation_without_retiring(client, body):
+        child = setup_child(client)
+        account = issue(client, child).json()
+        path = ACCOUNT + account["ca_account_id"]
+>       assert client.post(path + "/retire", body, format="json").status_code == 422
+E       assert 200 == 422
+E        +  where 200 = <Response status_code=200, "application/json">.status_code
+E        +    where <Response status_code=200, "application/json"> = post(('/api/v1/ca-accounts/ca_01M3TYYJCD4XMHA88M8718Z2SK' + '/retire'), {'expected_bind_state': 'ready'}, format='json')
+E        +      where post = <rest_framework.test.APIClient object at 0x10b698550>.post
+
+backend/tests/test_ca_accounts.py:464: AssertionError
+_______ test_cancel_rejects_invalid_expectation_without_retiring[body1] ________
+
+client = <rest_framework.test.APIClient object at 0x10b7d2520>
+body = {'expected_bind_state': None}
+
+    @pytest.mark.parametrize("body", [{"expected_bind_state": "ready"}, {"expected_bind_state": None}, {"unexpected": "unbound"}])
+    def test_cancel_rejects_invalid_expectation_without_retiring(client, body):
+        child = setup_child(client)
+        account = issue(client, child).json()
+        path = ACCOUNT + account["ca_account_id"]
+>       assert client.post(path + "/retire", body, format="json").status_code == 422
+E       assert 200 == 422
+E        +  where 200 = <Response status_code=200, "application/json">.status_code
+E        +    where <Response status_code=200, "application/json"> = post(('/api/v1/ca-accounts/ca_01M3TYYJD1A00ZSWBMCYCMRJMQ' + '/retire'), {'expected_bind_state': None}, format='json')
+E        +      where post = <rest_framework.test.APIClient object at 0x10b7d2520>.post
+
+backend/tests/test_ca_accounts.py:464: AssertionError
+_______ test_cancel_rejects_invalid_expectation_without_retiring[body2] ________
+
+client = <rest_framework.test.APIClient object at 0x10b7d3360>
+body = {'unexpected': 'unbound'}
+
+    @pytest.mark.parametrize("body", [{"expected_bind_state": "ready"}, {"expected_bind_state": None}, {"unexpected": "unbound"}])
+    def test_cancel_rejects_invalid_expectation_without_retiring(client, body):
+        child = setup_child(client)
+        account = issue(client, child).json()
+        path = ACCOUNT + account["ca_account_id"]
+>       assert client.post(path + "/retire", body, format="json").status_code == 422
+E       assert 200 == 422
+E        +  where 200 = <Response status_code=200, "application/json">.status_code
+E        +    where <Response status_code=200, "application/json"> = post(('/api/v1/ca-accounts/ca_01M3TYYJDMGMCKNG9Q1354H9MY' + '/retire'), {'unexpected': 'unbound'}, format='json')
+E        +      where post = <rest_framework.test.APIClient object at 0x10b7d3360>.post
+
+backend/tests/test_ca_accounts.py:464: AssertionError
+=========================== short test summary info ============================
+FAILED backend/tests/test_ca_accounts.py::test_stale_cancel_does_not_unbind_newly_connected_robot
+FAILED backend/tests/test_ca_accounts.py::test_cancel_rejects_invalid_expectation_without_retiring[body0]
+FAILED backend/tests/test_ca_accounts.py::test_cancel_rejects_invalid_expectation_without_retiring[body1]
+FAILED backend/tests/test_ca_accounts.py::test_cancel_rejects_invalid_expectation_without_retiring[body2]
+4 failed, 1 passed, 29 deselected in 1.44s

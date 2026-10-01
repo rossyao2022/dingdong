@@ -102,3 +102,24 @@ export const Exhibition = {
   render: () =>
     `<section class="panel"><h2>展会体验</h2><p>演示报告不代表孩子的测评结果。多人共享这次演示，伙伴和内容可能随体验变化。</p></section>${renderDingDongReport(snapshot, { demonstration: true })}`,
 };
+
+export const PendingRobot = {
+  name: "待接通：继续连接，不显示管理",
+  render: () =>
+    renderRobotEntry(
+      [
+        {
+          child_id: "synthetic-child",
+          status: "active",
+          bind_state: "unbound",
+        },
+      ],
+      "synthetic-child",
+      { exhibition_enabled: true },
+    ),
+};
+export const UnknownRobot = {
+  name: "连接读取失败：不猜测未绑定",
+  render: () =>
+    renderRobotEntry(null, "synthetic-child", { exhibition_enabled: true }),
+};

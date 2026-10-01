@@ -1,0 +1,10 @@
+✔ 确认组件使用安全焦点与独立动作，不借用全局忙碌动作 (0.724125ms)
+✔ 确认组件转义全部外部文案并保留无障碍关联 (0.10275ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 67.873625

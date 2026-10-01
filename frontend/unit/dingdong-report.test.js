@@ -172,7 +172,7 @@ test("robot entry keeps bound chat independent of report read failures and prese
   assert.match(bound, /和 DingDong 对话/);
   assert.match(bound, /href="#reports"/);
   assert.match(bound, /href="#settings"/);
-  assert.ok(!bound.includes("展会机器人"));
+  assert.ok(!bound.includes("展会"));
   const own = renderRobotEntry([account], "b", { exhibition_enabled: true });
   assert.match(own, /绑定机器人/);
   assert.match(own, /href="#exhibition"/);
@@ -197,4 +197,22 @@ test("stale snapshots show saved time and a refresh action; empty cache remains 
     renderDingDongReport({ availability: "no_data" }),
     /data-action="dingdong-report-refresh"/,
   );
+});
+
+test("robot entry pending and unreadable binding never expose management or misleading bind state", async () => {
+  const { renderRobotEntry } = await import("../dingdong-report.js");
+  const pending = { status: "active", bind_state: "unbound", child_id: "a" };
+  const html = renderRobotEntry([pending], "a", { exhibition_enabled: true });
+  assert.match(html, /正在等待连接/);
+  assert.match(html, /继续连接/);
+  assert.match(html, /#exhibition/);
+  assert.ok(!html.includes("管理机器人"));
+  assert.ok(!html.includes("换一台"));
+  assert.ok(!html.includes("解绑"));
+  const unknown = renderRobotEntry({ error: new Error("synthetic") }, "a", {
+    exhibition_enabled: true,
+  });
+  for (const text of ["#exhibition", "管理机器人", 'data-action="bind-robot"'])
+    assert.ok(!unknown.includes(text));
+  assert.match(unknown, /暂时读不到/);
 });

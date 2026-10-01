@@ -24,6 +24,10 @@ class IssueInput(StrictSerializer):
     robot_ref = StrictString(max_length=64, required=False)
 
 
+class RetireInput(StrictSerializer):
+    expected_bind_state = serializers.ChoiceField(choices=["unbound", "bound"], required=False)
+
+
 def serialize_account(row):
     return {
         "ca_account_id": row.ca_account_id,
@@ -82,5 +86,6 @@ def account_retire(request, ca_account_id):
     row = get_object_or_404(
         CaAccount.objects.filter(family=family_for(request.user)), ca_account_id=ca_account_id
     )
-    service.retire_account(row, request.user)
+    data = validate(RetireInput, request.data)
+    service.retire_account(row, request.user, expected_bind_state=data.get("expected_bind_state"))
     return Response(serialize_account(row))

@@ -104,12 +104,34 @@ export const activeAccount = (rows) =>
   (rows || []).find((a) => a.status === "active") || null;
 
 export const boundAccount = (rows, childId) =>
-  (rows || []).find(
+  (Array.isArray(rows) ? rows : []).find(
     (a) =>
       a.status === "active" &&
       a.bind_state === "bound" &&
       a.child_id === childId,
   ) || null;
+
+/** Binding visibility never comes from report data, consent, or another child's account. */
+export function robotVisibility(rows, childId) {
+  const active = Array.isArray(rows)
+    ? rows.find((row) => row.status === "active" && row.child_id === childId)
+    : null;
+  const state = !Array.isArray(rows)
+    ? "unknown"
+    : !active
+      ? "unbound"
+      : active.bind_state === "bound"
+        ? "bound"
+        : active.bind_state === "unbound"
+          ? "pending"
+          : "unknown";
+  return {
+    state,
+    account: active || null,
+    canManage: state === "bound",
+    canExhibit: ["unbound", "pending"].includes(state),
+  };
+}
 
 /** Only the configured destination; never carry binding/authentication parameters. */
 export function safeChatUrl(value) {

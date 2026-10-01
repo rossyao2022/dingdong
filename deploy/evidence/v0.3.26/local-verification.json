@@ -1,0 +1,27 @@
+{
+  "version": "0.3.26",
+  "state": "local_verified_not_pushed_or_deployed",
+  "backend_tests": 498,
+  "frontend_unit_tests": 123,
+  "deploy_tests": 13,
+  "distinct_real_chrome_tests": 10,
+  "browser_scope": {
+    "binding_visibility_and_race": 4,
+    "existing_replacement_and_child_isolation": 3,
+    "component_confirmation": 3
+  },
+  "repeat_screenshots_not_added_to_test_count": true,
+  "storybook_build_passed": true,
+  "mobile_entry_layout_verified": true,
+  "native_dialog_calls": 0,
+  "no_real_sms_or_supplier_write": true,
+  "business_response_interception": false,
+  "production_version_unchanged": "0.3.25",
+  "warnings": [
+    "Existing TestFixture PytestCollectionWarning; no collection failure"
+  ],
+  "limitations": [
+    "Binding confirmations in E2E are explicit local synthetic fixtures",
+    "No physical NFC or production signed-in rehearsal this release"
+  ]
+}

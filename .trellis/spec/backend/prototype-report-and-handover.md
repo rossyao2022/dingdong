@@ -72,3 +72,7 @@ Correct：新儿童输入为空时开始实际流程，测评报告由真实subm
 两个报告GET支持cached=1，仅读库且重新验证快照。默认GET真实刷新；失败保留同weekly最近有效pull/push，无快照返回局部空态。供应商时间优先，相同时间按观察开始时间，防迟到响应；pull内部_pull_started_at参与哈希避免A→B→A去重误读，永不公开。旧快照无元信息兼容，24小时快照为stale。warm_prototype_reports默认dry-run；--apply仅4次供应商GET并逐份校验，部分失败非零退出。归属/授权/绑定前后双检不变。
 
 ops child.view+report.view提供当前儿童测评表单：每purpose最新completed或指定历史，题目选项回答/原结果/范围/版本/时间/缺值，无独立专业算法，无自动发送。预览、中文复制、JSON/CSV统一签名固定IDs+digest快照，8小时过期；记录/偏好变化409重开，篡改/过期422。每次重验权限；审计只保存摘要/数量。CSV防公式，私有no-store。完整22题真实choice_summary供家长回看。
+
+## 2026-10-01：取消待接通状态前提
+
+POST /ca-accounts/{id}/retire兼容空JSON普通解绑，并支持可选expected_bind_state枚举unbound/bound。取消未完成连接传unbound。retire_account沿用child→account锁顺序，在账户行锁内重新读取并检查前提，检查早于归档幂等返回与所有写入/审计；不匹配返回409 STATE_CONFLICT，不能让迟到的“取消连接”归档已接通机器人。家庭归属保护保持。前端成功取消/解绑清除NFC token/robot_ref及换机临时状态。

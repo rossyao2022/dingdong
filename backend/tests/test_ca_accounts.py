@@ -409,3 +409,78 @@ def test_bind_failure_keeps_account_and_stays_unbound(client, transport):
     assert r.status_code == 201
     assert r.json()["bind_state"] == "unbound"
     assert CaAccount.objects.count() == 1
+
+
+def test_cancel_pending_connection_is_guarded_and_idempotent(client):
+    from dingdong_ca.core.models import AuditEvent
+
+    child = setup_child(client)
+    account = issue(client, child).json()
+    path = ACCOUNT + account["ca_account_id"] + "/retire"
+    before = AuditEvent.objects.filter(action="ca_account.retire").count()
+    first = client.post(path, {"expected_bind_state": "unbound"}, format="json")
+    again = client.post(path, {"expected_bind_state": "unbound"}, format="json")
+    assert first.status_code == again.status_code == 200
+    assert first.json()["status"] == "retired"
+    assert first.json()["unbound_at"] == again.json()["unbound_at"]
+    assert AuditEvent.objects.filter(action="ca_account.retire").count() == before + 1
+
+
+def test_stale_cancel_does_not_unbind_newly_connected_robot(client):
+    from dingdong_ca.core.models import AuditEvent, CaAccount
+
+    child = setup_child(client)
+    account = issue(client, child).json()
+    row = CaAccount.objects.get(ca_account_id=account["ca_account_id"])
+    row.bind_state = "bound"
+    row.save(update_fields=["bind_state"])
+    before = AuditEvent.objects.count()
+    response = client.post(
+        ACCOUNT + account["ca_account_id"] + "/retire",
+        {"expected_bind_state": "unbound"},
+        format="json",
+    )
+    assert response.status_code == 409
+    assert response.json()["code"] == "STATE_CONFLICT"
+    row.refresh_from_db()
+    assert row.status == "active" and row.bind_state == "bound"
+    assert row.unbound_at is None
+    assert AuditEvent.objects.count() == before
+    # Existing explicit unbind requests remain compatible.
+    retired = client.post(ACCOUNT + account["ca_account_id"] + "/retire", {}, format="json")
+    assert retired.status_code == 200 and retired.json()["status"] == "retired"
+    # State expectation also precedes an already-retired idempotent response.
+    assert (
+        client.post(
+            ACCOUNT + account["ca_account_id"] + "/retire",
+            {"expected_bind_state": "unbound"},
+            format="json",
+        ).status_code
+        == 409
+    )
+
+
+@pytest.mark.parametrize(
+    "body",
+    [{"expected_bind_state": "ready"}, {"expected_bind_state": None}, {"unexpected": "unbound"}],
+)
+def test_cancel_rejects_invalid_expectation_without_retiring(client, body):
+    child = setup_child(client)
+    account = issue(client, child).json()
+    path = ACCOUNT + account["ca_account_id"]
+    assert client.post(path + "/retire", body, format="json").status_code == 422
+    assert client.get(path).json()["status"] == "active"
+
+
+def test_explicit_bound_expectation_can_unbind(client):
+    from dingdong_ca.core.models import CaAccount
+
+    child = setup_child(client)
+    account = issue(client, child).json()
+    CaAccount.objects.filter(ca_account_id=account["ca_account_id"]).update(bind_state="bound")
+    response = client.post(
+        ACCOUNT + account["ca_account_id"] + "/retire",
+        {"expected_bind_state": "bound"},
+        format="json",
+    )
+    assert response.status_code == 200 and response.json()["status"] == "retired"

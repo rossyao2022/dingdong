@@ -1,0 +1,10 @@
+
+Running 3 tests using 1 worker
+
+(node:9822) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ca-account.spec.js:104:1 › 换机：确认弹窗讲清代价，旧号归档可查，新号重新开始 (3.1s)
+  ✓  2 tests/parent-robot-experience.spec.js:258:1 › 换儿童后重新读取该孩子的机器人，换机不会归档上一儿童的机器人 (5.7s)
+  ✓  3 tests/robot-label.spec.js:37:1 › 账户页默认收起设备编号，需要时可展开查看 (8.2s)
+
+  3 passed (17.9s)
