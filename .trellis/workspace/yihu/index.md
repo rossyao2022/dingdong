@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 39
+- **Total Sessions**: 40
 - **Last Active**: 2026-10-01
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~988 | Active |
+| `journal-1.md` | ~1010 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 40 | 2026-10-01 | 绑定入口区分与组件确认弹窗 | `e82401e` | `codex/release-v0.3.26` |
 | 39 | 2026-10-01 | v0.3.25双仓同步与生产上线验收 | `6922680` | `codex/release-v0.3.25` |
 | 38 | 2026-10-01 | v0.3.25 CA独立展会体验本地交付 | `074015f`, `b935c30`, `4a6ca95`, `9bcb002` | `codex/release-v0.3.25` |
 | 37 | 2026-10-01 | 确认CA机器人上行的产品边界 | `a7d559f` | `codex/release-v0.3.24` |

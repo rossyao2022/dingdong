@@ -986,3 +986,25 @@ User explicitly authorized上线. Atomic push of release/main; verified producti
 ### Status
 
 [OK] **Completed**
+
+
+## Session 40: 绑定入口区分与组件确认弹窗
+<!-- trellis-session: v=2 fp=479d81602f5a11ae -->
+
+**Date**: 2026-10-01
+**Task**: 绑定入口区分与组件确认弹窗
+**Branch**: `codex/release-v0.3.26`
+
+### Summary
+
+按用户纠正统一current-child绑定入口：bound隐藏展会、unbound隐藏管理，pending只继续/取消，unknown不猜；取消expectedstate事务行锁409防迟到接通误归档，清旧NFC/ref。原生confirm替换共享组件，候选组合先确认/context/session核验再应用，旧答卷保留；运营已有组件保留，Storybook与手机入口单列。后端498/前端123/部署13/不同真实Chrome10通过，独立复核无剩余缺陷；重复截图不计新增。已本地提交打包，生产仍v0.3.25，未推送部署/真短信/供应商写入；父任务现场NFC/自动push仍待，未归档。两份外部审计输出保留未提交。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `e82401e` | [T-prototype-content-integration] Distinguish bound robot actions and use component confirmations |
+
+### Status
+
+[OK] **Completed**
