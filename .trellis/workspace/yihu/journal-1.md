@@ -964,3 +964,25 @@ User explicitly authorized上线. Atomic push of release/main; verified producti
 ### Status
 
 [OK] **Completed**
+
+
+## Session 39: v0.3.25双仓同步与生产上线验收
+<!-- trellis-session: v=2 fp=4a0f7c1c3cd93654 -->
+
+**Date**: 2026-10-01
+**Task**: v0.3.25双仓同步与生产上线验收
+**Branch**: `codex/release-v0.3.25`
+
+### Summary
+
+用户放行后先origin发布分支/CA main，再upstream ca-main；未强推，upstream main未动。生产私密备份后离线部署v0.3.25，无新迁移，四应用及六服务/Worker健康；原1报告/21测评每行字段与绑定保留。四周期真实GET预热及cached零调用，生产原始表单只读生成；公网Chrome30模块、27图片、六宽度、七旧入口与ops保护通过，无短信。私密已上线截图PDF25/16页批准凭据保留。独立复核无阻塞；父任务保留实体手机NFC彩排、真实push事件0、上行适配尾项，未归档。两份外部审计输出保留未提交。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `6922680` | [T-exhibition-ca-ready] Verify v0.3.25 production release and published manuals |
+
+### Status
+
+[OK] **Completed**
