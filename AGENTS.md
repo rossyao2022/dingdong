@@ -5,7 +5,7 @@
 - **我方是 CA 侧第一技术负责方；当前本地仓库已完成的功能及完整性是同步、合并和发布的主基线。所有远程提交、线上版本与外部参考内容均须让渡于这一基线。**
 - 远端改动先核对差异，再由我方决定是否吸收；提交时间更晚或已在线运行不能自动取得优先权。
 - 冲突时保留本地已完成的功能、交互、数据链路与测试保障；有用的远端新增内容经适配和验证后纳入本地，再由本地形成发布版本。
-- **CA 远程仓库为 `origin`（`ivesyi/dingdong-ca`），默认主干为 `main`；`upstream` 是原始视觉参考仓库。** 后续每次同步、合并和发布均按此模式执行。具体操作规则见 [本地优先与远程整合](.trellis/spec/guides/ca-local-authority.md)。
+- **CA 远程仓库为 `origin`（`ivesyi/dingdong-ca`），默认主干为 `main`；`upstream` 是原始视觉参考仓库（我方有写权限）。** 后续每次同步、合并和发布均按此模式执行。**双仓库同步顺序固定：先 `git push origin <分支>`（fork 先行），再 `git push upstream <分支>:refs/heads/ca-main`（upstream 走 `ca-main` 新分支，保留其原历史，禁止强推；其 `main` 更新由用户在 GitHub 开 PR）。** 具体操作规则见 [本地优先与远程整合](.trellis/spec/guides/ca-local-authority.md)。
 
 ## TRELLIS 约束（2026-09-17 起，先读这段）
 

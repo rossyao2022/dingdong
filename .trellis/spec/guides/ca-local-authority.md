@@ -17,3 +17,15 @@
 ## 验证与报告
 
 报告本地保留了哪些功能、吸收了哪些远端内容、是否有未解决差异，以及测试和部署的实际状态。不得为了完成合并牺牲本地已经做好的功能，也不得将未实现的能力写成已完成。
+
+## 双仓库同步操作规程（2026-10-01 用户确认）
+
+目标：fork（`origin` = `ivesyi/dingdong-ca`，私有）与 upstream（`rossyao2022/dingdong`，用户持有写权限）两远程都拿到本地最新基线。事实：本地与 upstream 历史无共同祖先，upstream 原 `main`（`3b8723e`）保留不动。
+
+每次同步按固定顺序执行，两步缺一不可：
+
+1. **fork 先行**：`git push origin <分支>`。fork 是发布主基线的远程镜像，永远第一个同步。
+2. **upstream 走 ca-main 新分支**：`git push upstream <分支>:refs/heads/ca-main`。以新分支携带最新内容，保留 upstream 原有历史；**禁止强推（force push）覆盖 upstream 任何已有分支**。
+3. **upstream 的 main 更新**：不直接推送，由用户在 GitHub 开 PR（`ca-main` → `main`，merge commit 方式合并，入口 https://github.com/rossyao2022/dingdong/pull/new/ca-main ），是否合并、何时合并由用户决定。
+
+首轮执行记录（2026-10-01）：`origin/codex/release-v0.3.24` = `4be147e` 已推送并设追踪；upstream 新分支 `ca-main` = `4be147e` 已创建（含本地 main 全部历史）；upstream 原 `main` 未动。
