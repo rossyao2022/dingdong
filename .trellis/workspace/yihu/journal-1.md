@@ -913,3 +913,29 @@ User explicitly authorized上线. Atomic push of release/main; verified producti
 ### Next Steps
 
 - 评审方案后实施本地产品主线和后台复制导出，双方核对映射与鉴权后再接有限演示上行。
+
+
+## Session 37: 确认CA机器人上行的产品边界
+<!-- trellis-session: v=2 fp=6bd5cbf074524d2b -->
+
+**Date**: 2026-10-01
+**Task**: 确认CA机器人上行的产品边界
+**Branch**: `codex/release-v0.3.24`
+
+### Summary
+
+用户明确能发送就接通，不新增家长上传授权步骤；修订建议方案和记忆，保留真实接口与字段技术缺口，未声称已实现、写供应商或部署。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `a7d559f` | [T-prototype-content-integration] docs: prioritize working CA robot sync without extra parent steps |
+
+### Testing
+
+- [OK] 文档审计errors为空；diff check通过；原有校验结果JSON保持不变。
+
+### Status
+
+[OK] **Completed**
