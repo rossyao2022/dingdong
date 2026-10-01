@@ -1,0 +1,8 @@
+{
+  "version": "0.3.25",
+  "source_commit": "b935c30505351ecf241f5cf7d4b3e121d91aa7f9",
+  "matching_committed_files": 458,
+  "sha256": "29e91cff35df56905d8549b2a2b52e4535cd05a08eecb368e72e513dd14c3c23",
+  "private_docs_or_credentials": false,
+  "new_runtime_modules_present": true
+}
