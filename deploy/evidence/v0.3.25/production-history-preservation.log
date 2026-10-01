@@ -1,0 +1,15 @@
+{"baseline_source": "verified pre-deployment pg_dump", "baseline_only_on_server": true, "original_accounts": 1, "original_reports": 1, "original_assessments": 21}
+{
+  "verification": "Original row IDs and all COPY field values versus pre-release backup",
+  "business_rows_only_on_server": true,
+  "tables": {
+    "report_version": {
+      "original_rows": 1,
+      "original_ids_and_every_field_unchanged": true
+    },
+    "assessment_session": {
+      "original_rows": 21,
+      "original_ids_and_every_field_unchanged": true
+    }
+  }
+}

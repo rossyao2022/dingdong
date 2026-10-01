@@ -1,0 +1,8 @@
+dry-run weekly_turns=3 cached=True
+dry-run weekly_turns=7 cached=True
+dry-run weekly_turns=14 cached=True
+dry-run weekly_turns=21 cached=True
+weekly_turns=3 ready
+weekly_turns=7 ready
+weekly_turns=14 ready
+weekly_turns=21 ready
