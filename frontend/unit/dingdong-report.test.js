@@ -166,22 +166,50 @@ test("robot entry keeps bound chat independent of report read failures and prese
     status: "active",
     bind_state: "bound",
     child_id: "a",
-    chat_url: "http://122.51.108.225",
+    chat_url: "https://www.dingdongrobo.top/dingdong/companion/main",
   };
   const bound = renderRobotEntry([account], "a", { exhibition_enabled: true });
-  assert.match(bound, /和 DingDong 对话/);
+  assert.match(bound, /进入 DINGDONG 天赋陪伴空间/);
+  assert.match(
+    bound,
+    /href="https:\/\/www\.dingdongrobo\.top\/dingdong\/companion\/main" target="_blank" rel="noopener noreferrer"/,
+  );
+  assert.ok(!bound.includes("<iframe"));
   assert.match(bound, /href="#reports"/);
   assert.match(bound, /href="#settings"/);
   assert.ok(!bound.includes("展会"));
   const own = renderRobotEntry([account], "b", { exhibition_enabled: true });
   assert.match(own, /绑定机器人/);
   assert.match(own, /href="#exhibition"/);
-  assert.ok(!own.includes("http://122.51"));
+  assert.ok(!own.includes("dingdongrobo.top"));
   assert.ok(
     !renderRobotEntry([], "a", { exhibition_enabled: false }).includes(
       "#exhibition",
     ),
   );
+});
+
+test("companion entry refuses credential-bearing URLs without changing bound report or management actions", async () => {
+  const { renderRobotEntry } = await import("../dingdong-report.js");
+  const url = "https://www.dingdongrobo.top/dingdong/companion/main";
+  for (const chat_url of [
+    `${url}?phone=synthetic-phone`,
+    `${url}?nfc_token=synthetic-nfc`,
+    `${url}?launch_code=synthetic-launch`,
+    `${url}#access_token=synthetic-jwt`,
+    "https://synthetic-user:synthetic-password@www.dingdongrobo.top/dingdong/companion/main",
+  ]) {
+    const html = renderRobotEntry(
+      [{ status: "active", bind_state: "bound", child_id: "a", chat_url }],
+      "a",
+      { exhibition_enabled: true },
+    );
+    assert.ok(!html.includes("进入 DINGDONG 天赋陪伴空间"));
+    assert.ok(!html.includes("synthetic-"));
+    assert.match(html, /查看机器人报告/);
+    assert.match(html, /管理机器人/);
+    assert.ok(!html.includes("#exhibition"));
+  }
 });
 
 test("stale snapshots show saved time and a refresh action; empty cache remains actionable", () => {

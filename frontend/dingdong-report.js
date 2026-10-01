@@ -1,6 +1,8 @@
 /** Render only the supplied DingDong snapshot; never calculate projected scores here. */
-import { esc } from "./ui-components.js?v=0.3.26";
-import { robotVisibility, safeChatUrl } from "./ca-link.js?v=0.3.26";
+import { esc } from "./ui-components.js?v=0.3.27";
+import { robotVisibility, safeChatUrl } from "./ca-link.js?v=0.3.27";
+
+export const COMPANION_ENTRY_LABEL = "进入 DINGDONG 天赋陪伴空间";
 
 export function renderRobotEntry(accounts, childId, runtime = {}) {
   const view = robotVisibility(accounts, childId);
@@ -21,7 +23,7 @@ export function renderRobotEntry(accounts, childId, runtime = {}) {
     view.state === "pending"
       ? '<a class="button" href="#settings">继续连接</a>'
       : '<button class="button" type="button" data-action="bind-robot">绑定机器人</button>';
-  return `<section class="panel robot-entry"><h2>我的机器人</h2><p>${message}</p><div class="actions">${bound ? `${chat ? `<a class="button" href="${esc(chat)}" target="_blank" rel="noopener noreferrer">和 DingDong 对话 ↗</a>` : ""}<a class="button secondary" href="#reports">查看机器人报告</a><a class="text-button" href="#settings">管理机器人</a>` : connect}${exhibition}</div></section>`;
+  return `<section class="panel robot-entry"><h2>我的机器人</h2><p>${message}</p><div class="actions">${bound ? `${chat ? `<a class="button" href="${esc(chat)}" target="_blank" rel="noopener noreferrer">${COMPANION_ENTRY_LABEL}</a>` : ""}<a class="button secondary" href="#reports">查看机器人报告</a><a class="text-button" href="#settings">管理机器人</a>` : connect}${exhibition}</div></section>`;
 }
 
 export const DIMENSION_KEYS = Object.freeze([

@@ -50,7 +50,7 @@ test("主线真实保存：首次探索→中断续题→行动→记录→下�
   await page.screenshot({
     animations: "disabled",
     style: "#toast { display: none !important; }",
-    path: "../deploy/evidence/v0.3.25/shots/flow-first-390.png",
+    path: `${process.env.E2E_SHOTS_DIR || "../deploy/evidence/v0.3.25/shots"}/flow-first-390.png`,
   });
   await page.locator(".experience-task [data-action=journey-interest]").click();
   for (const id of ["R", "I", "A"])
@@ -93,7 +93,7 @@ test("主线真实保存：首次探索→中断续题→行动→记录→下�
   await page.screenshot({
     animations: "disabled",
     style: "#toast { display: none !important; }",
-    path: "../deploy/evidence/v0.3.25/shots/flow-resume-390.png",
+    path: `${process.env.E2E_SHOTS_DIR || "../deploy/evidence/v0.3.25/shots"}/flow-resume-390.png`,
   });
   await page.locator(".experience-task a").first().click();
   await expect(page.locator(".step-title")).toBeVisible();
@@ -115,7 +115,7 @@ test("主线真实保存：首次探索→中断续题→行动→记录→下�
   await page.screenshot({
     animations: "disabled",
     style: "#toast { display: none !important; }",
-    path: "../deploy/evidence/v0.3.25/shots/flow-next-390.png",
+    path: `${process.env.E2E_SHOTS_DIR || "../deploy/evidence/v0.3.25/shots"}/flow-next-390.png`,
   });
   await page.goto(base + "/#reports");
   await expect(page.locator(".experience-records li")).toHaveCount(2);
@@ -124,7 +124,7 @@ test("主线真实保存：首次探索→中断续题→行动→记录→下�
   await page.screenshot({
     animations: "disabled",
     style: "#toast { display: none !important; }",
-    path: "../deploy/evidence/v0.3.25/shots/flow-records-390.png",
+    path: `${process.env.E2E_SHOTS_DIR || "../deploy/evidence/v0.3.25/shots"}/flow-records-390.png`,
     fullPage: true,
   });
   for (const width of [320, 390, 430]) {

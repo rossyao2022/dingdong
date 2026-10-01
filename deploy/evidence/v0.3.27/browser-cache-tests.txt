@@ -1,0 +1,14 @@
+
+> dingdong-parent@0.3.27 test
+> playwright test tests/parent-robot-experience.spec.js --grep 独立展会全量报告 --output=../.trellis/.runtime/ca-companion-entry/cache-browser
+
+
+Running 1 test using 1 worker
+
+(node:47833) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Companion navigation verified: unbound-exhibition https://www.dingdongrobo.top/dingdong/companion/main
+Report cache first-read, 3/7/14/21 and explicit refresh verified
+  ✓  1 tests/parent-robot-experience.spec.js:171:1 › 独立展会全量报告、共享聊天、频率与成功访问记录，无个人绑定 (5.1s)
+
+  1 passed (5.9s)

@@ -1,0 +1,10 @@
+/dingdong-prod-trial-api-1 dingdong-backend:0.3.26 sha256:eb4cf0fefc43ee80116e82074f041be307b14af326accb19512fe3389d2ae9ba
+/dingdong-prod-trial-web-1 dingdong-web:0.3.26 sha256:9610a07b97e9ca58d7b6107ce096fd041c3b68a226f9e16d76d7692f22e7a4d5
+/dingdong-prod-trial-postgres-1 postgres:17-alpine sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73
+/dingdong-prod-trial-redis-1 redis:7-alpine sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf
+/remote-desktop-commander dingdong-rdc:0.2.52 sha256:5c16939139516f92ae3483894faf5d6db6b29c9fb43a0ea93904cd015cda8d77
+http://122.51.108.225/
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/vda2        59G   19G   39G  33% /
+sha256:eb4cf0fefc43ee80116e82074f041be307b14af326accb19512fe3389d2ae9ba ["dingdong-backend:0.3.26"]
+sha256:9610a07b97e9ca58d7b6107ce096fd041c3b68a226f9e16d76d7692f22e7a4d5 ["dingdong-web:0.3.26"]

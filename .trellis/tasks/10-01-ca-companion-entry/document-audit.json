@@ -1,0 +1,7 @@
+{
+  "command": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/audit_documents.py",
+  "status": "blocked",
+  "exit_code": 1,
+  "reason": "FileNotFoundError: 材料/原始数据/归档校验.json (ignored historical input absent from this checkout)",
+  "passed": false
+}

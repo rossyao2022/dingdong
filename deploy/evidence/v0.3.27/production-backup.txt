@@ -1,0 +1,11 @@
+sha256:eb4cf0fefc43ee80116e82074f041be307b14af326accb19512fe3389d2ae9ba ["dingdong-backend:0.3.26"]
+sha256:9610a07b97e9ca58d7b6107ce096fd041c3b68a226f9e16d76d7692f22e7a4d5 ["dingdong-web:0.3.26"]
+63c075aaf7b8cacba5f8afeead7ecf9e2604da3447a1f4236aa820dda6e0dbff  /opt/dingdong/backups/pre-v0.3.27-20261001.dump
+BACKUP_BYTES=200307 MODE=600
+BACKUP_LIST_CONFIG_AND_ROLLBACK_IMAGES_VERIFIED
+{"baseline_source": "verified pre-deployment pg_dump", "baseline_only_on_server": true, "original_accounts": 2, "original_reports": 1, "original_assessments": 22}
+Traceback (most recent call last):
+  File "/opt/dingdong/releases/check-backup27.py", line 13, in <module>
+    raise RuntimeError('No COPY data for '+table)
+RuntimeError: No COPY data for consent_receipt
+{"baseline_source": "verified pre-deployment pg_dump", "baseline_only_on_server": true, "original_accounts": 2, "original_reports": 1, "original_assessments": 22}

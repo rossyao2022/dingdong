@@ -130,7 +130,7 @@ for (const width of [390, 1280]) {
       timeout: 10000,
     });
     await page.screenshot({
-      path: `../deploy/evidence/v0.3.26/shots/bound-companion-${width}.png`,
+      path: `${process.env.E2E_SHOTS_DIR || "../deploy/evidence/v0.3.26/shots"}/bound-companion-${width}.png`,
       animations: "disabled",
       fullPage: true,
     });
@@ -144,7 +144,7 @@ for (const width of [390, 1280]) {
       timeout: 10000,
     });
     await page.screenshot({
-      path: `../deploy/evidence/v0.3.26/shots/bound-reports-${width}.png`,
+      path: `${process.env.E2E_SHOTS_DIR || "../deploy/evidence/v0.3.26/shots"}/bound-reports-${width}.png`,
       animations: "disabled",
       fullPage: true,
     });
@@ -168,7 +168,7 @@ for (const width of [390, 1280]) {
       page.getByRole("link", { name: "进入展会体验", exact: true }),
     ).toBeVisible();
     await page.screenshot({
-      path: `../deploy/evidence/v0.3.26/shots/unbound-reports-${width}.png`,
+      path: `${process.env.E2E_SHOTS_DIR || "../deploy/evidence/v0.3.26/shots"}/unbound-reports-${width}.png`,
       animations: "disabled",
       fullPage: true,
     });

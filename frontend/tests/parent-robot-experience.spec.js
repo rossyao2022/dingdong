@@ -41,6 +41,25 @@ async function child(page, name = "家长体验合成儿童") {
   await expect(page.locator(".six-islands")).toBeVisible();
   return page.locator("#child-select").inputValue();
 }
+const companionURL = "https://www.dingdongrobo.top/dingdong/companion/main";
+async function companionEntry(page, position) {
+  const link = page.getByRole("link", {
+    name: "进入 DINGDONG 天赋陪伴空间",
+    exact: true,
+  });
+  await expect(link).toHaveAttribute("href", companionURL);
+  await expect(link).toHaveAttribute("target", "_blank");
+  await expect(link).toHaveAttribute("rel", "noopener noreferrer");
+  const popupPromise = page.waitForEvent("popup");
+  await link.click();
+  const popup = await popupPromise;
+  await expect(popup).toHaveURL(companionURL, { timeout: 30000 });
+  expect(await popup.evaluate(() => window.opener === null)).toBe(true);
+  expect(new URL(popup.url()).search).toBe("");
+  expect(new URL(popup.url()).hash).toBe("");
+  console.log("Companion navigation verified:", position, popup.url());
+  await popup.close();
+}
 async function shot(page, name) {
   await page.screenshot({
     path: `${shots}/${name}.png`,
@@ -159,7 +178,13 @@ test("独立展会全量报告、共享聊天、频率与成功访问记录，�
   const id = await child(page);
   await push(page, 7);
   await push(page, 3);
+  await push(page, 14);
+  await push(page, 21);
   const visited = [];
+  const reportRequests = [];
+  page.on("request", (r) => {
+    if (r.url().includes("/exhibition/report?")) reportRequests.push(r.url());
+  });
   page.on("response", (r) => {
     if (r.url().endsWith("/exhibition/visits") && r.status() < 300)
       visited.push(r);
@@ -168,8 +193,10 @@ test("独立展会全量报告、共享聊天、频率与成功访问记录，�
   await expect(page.locator(".dd-report-comparison")).toBeVisible();
   await expect(page.locator(".dd-report")).toContainText("演示内容");
   await expect(
-    page.getByRole("link", { name: "和 DingDong 对话 ↗", exact: true }),
+    page.getByRole("link", { name: "进入 DINGDONG 天赋陪伴空间", exact: true }),
   ).toBeVisible();
+  expect(new URL(reportRequests[0]).searchParams.get("cached")).toBe("1");
+  await companionEntry(page, "unbound-exhibition");
   await expect(page.locator(".dd-report-row")).toHaveCount(9);
   await expect.poll(() => visited.length).toBeGreaterThanOrEqual(2);
   expect((await api(page, `/children/${id}/ca-accounts`)).items).toHaveLength(
@@ -184,6 +211,28 @@ test("独立展会全量报告、共享聊天、频率与成功访问记录，�
   ).toHaveAttribute("aria-pressed", "true");
   await expect(page.locator(".dd-report-frequency")).toContainText(
     "不会修改机器人设置",
+  );
+  for (const weekly of [7, 14, 21]) {
+    await page
+      .locator(`[data-action=dingdong-weekly-turns][data-value="${weekly}"]`)
+      .click();
+    await expect(
+      page.locator(
+        `[data-action=dingdong-weekly-turns][data-value="${weekly}"]`,
+      ),
+    ).toHaveAttribute("aria-pressed", "true");
+    await expect(page.locator(".dd-report-comparison")).toBeVisible();
+  }
+  const refreshed = page.waitForResponse(
+    (r) =>
+      r.url().includes("/exhibition/report?") &&
+      !new URL(r.url()).searchParams.has("cached"),
+  );
+  await page.locator("[data-action=dingdong-report-refresh]").click();
+  expect((await refreshed).status()).toBe(200);
+  await expect(page.locator(".dd-report-comparison")).toBeVisible();
+  console.log(
+    "Report cache first-read, 3/7/14/21 and explicit refresh verified",
   );
   for (const width of [320, 390, 768, 1280]) {
     await page.setViewportSize({ width, height: 844 });
@@ -206,16 +255,20 @@ test("已绑定报告授权、聊天不依赖报告、切儿童与解绑立即�
   await page.reload();
   await expect(page.locator(".account-row")).toContainText("已绑定");
   await expect(
-    page.getByRole("link", { name: "和 DingDong 对话 ↗", exact: true }),
+    page.getByRole("link", { name: "进入 DINGDONG 天赋陪伴空间", exact: true }),
   ).toBeVisible();
+  await companionEntry(page, "bound-settings");
   await page.goto(base + "/#reports");
   await expect(page.locator("#dingdong-growth-report")).toContainText(
     "同意查看机器人记录",
   );
   await expect(page.locator("#personal-assessments")).toBeVisible();
   await expect(
-    page.getByRole("link", { name: "和 DingDong 对话 ↗", exact: true }),
+    page.getByRole("link", { name: "进入 DINGDONG 天赋陪伴空间", exact: true }),
   ).toBeVisible();
+  await companionEntry(page, "bound-reports");
+  await page.goto(base + "/#companion");
+  await companionEntry(page, "bound-companion");
   const policy = await api(page, "/policies/current?purpose=dingdong_sync", {
     auth: false,
   });
@@ -223,6 +276,7 @@ test("已绑定报告授权、聊天不依赖报告、切儿童与解绑立即�
     method: "POST",
     body: { request_id: randomUUID(), policy_version_id: policy.id },
   });
+  await page.goto(base + "/#reports");
   await page.reload();
   await expect(
     page.locator("#dingdong-growth-report .dd-report-comparison"),

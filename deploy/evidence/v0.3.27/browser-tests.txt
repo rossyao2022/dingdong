@@ -1,0 +1,24 @@
+
+> dingdong-parent@0.3.27 test
+> playwright test tests/parent-robot-experience.spec.js tests/binding-visibility.spec.js tests/exhibition-ready.spec.js --output=../.trellis/.runtime/ca-companion-entry/browser-results
+
+
+Running 9 tests using 1 worker
+
+(node:46786) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/binding-visibility.spec.js:73:3 › 390px：未绑→待接通→取消→绑定→切儿童→解绑的可见性闭环 (11.5s)
+  ✓  2 tests/binding-visibility.spec.js:73:3 › 1280px：未绑→待接通→取消→绑定→切儿童→解绑的可见性闭环 (11.0s)
+  ✓  3 tests/binding-visibility.spec.js:193:1 › 连接读取失败不能猜成未绑：个人记录仍可看、展会直达不加载 (2.3s)
+  ✓  4 tests/binding-visibility.spec.js:223:1 › 取消弹窗打开后机器人接通：旧取消动作不能解绑新连接 (3.5s)
+  ✓  5 tests/exhibition-ready.spec.js:36:1 › 主线真实保存：首次探索→中断续题→行动→记录→下一次，切儿童隔离 (13.8s)
+  ✓  6 tests/parent-robot-experience.spec.js:132:1 › 展会不能绕过登录建档，导航和CA默认探索保持 (3.3s)
+Companion navigation verified: unbound-exhibition https://www.dingdongrobo.top/dingdong/companion/main
+  ✓  7 tests/parent-robot-experience.spec.js:171:1 › 独立展会全量报告、共享聊天、频率与成功访问记录，无个人绑定 (5.0s)
+Companion navigation verified: bound-settings https://www.dingdongrobo.top/dingdong/companion/main
+Companion navigation verified: bound-reports https://www.dingdongrobo.top/dingdong/companion/main
+Companion navigation verified: bound-companion https://www.dingdongrobo.top/dingdong/companion/main
+  ✓  8 tests/parent-robot-experience.spec.js:223:1 › 已绑定报告授权、聊天不依赖报告、切儿童与解绑立即恢复个人结果 (8.7s)
+  ✓  9 tests/parent-robot-experience.spec.js:287:1 › 换儿童后重新读取该孩子的机器人，换机不会归档上一儿童的机器人 (5.9s)
+
+  9 passed (1.1m)

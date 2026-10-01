@@ -90,7 +90,7 @@ export const BoundRobot = {
           child_id: "synthetic-child",
           status: "active",
           bind_state: "bound",
-          chat_url: "http://122.51.108.225",
+          chat_url: "https://www.dingdongrobo.top/dingdong/companion/main",
         },
       ],
       "synthetic-child",
