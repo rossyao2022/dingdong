@@ -21,6 +21,6 @@
   "children": [],
   "parent": null,
   "relatedFiles": [],
-  "notes": "Mac original environment end-to-end authorization; current acceptance and deployment pending.",
+  "notes": "Mac完整后端499/前端124/部署17/正常文档审计/真实Chrome9+缓存1完成；以本地Commander为主合并bb360a0。发布源码880cd46833dc3242578c1e288930415014afdb40已按origin发布分支/main→upstream ca-main推送并生产上线0.3.27；备份/回滚验证/公网和原数据逐字段验收通过，无需回滚。剩余真手机NFC、画像上行及供应商实发属于既有父任务。dot验证文件保留为历史快照。",
   "meta": {}
 }

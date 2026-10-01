@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-01",
+  "source_commit": "880cd46833dc3242578c1e288930415014afdb40",
+  "backend_passed": 499,
+  "frontend_passed": 124,
+  "deployment_passed": 17,
+  "chrome_passed": 9,
+  "chrome_cache_additional_passed": 1,
+  "document_errors": [],
+  "production_version": "0.3.27",
+  "production_deployed": true,
+  "public_chrome_passed": true,
+  "business_rows_preserved": true,
+  "rollback_verified_not_executed": true,
+  "scope_limits": [
+    "No production SMS login or physical NFC",
+    "Anonymous deployed-component input explicitly synthetic; actual supplier navigation HTTP200",
+    "No supplier automatic push or profile uplink claim"
+  ]
+}
