@@ -1,0 +1,24 @@
+[Unit]
+Description=Export restricted host process metadata for Remote Desktop Commander
+
+[Service]
+Type=oneshot
+User=rdc-status
+Group=rdc-status
+ExecStart=/usr/bin/python3 /opt/remote-desktop-commander/install/host-status.py
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+RestrictAddressFamilies=AF_UNIX
+ReadWritePaths=/opt/remote-desktop-commander/host-status
+InaccessiblePaths=/opt/dingdong /root /var/run/docker.sock
+MemoryMax=64M
+CPUQuota=10%
+UMask=0022

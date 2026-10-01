@@ -1,0 +1,46 @@
+{
+  "service_active": "active",
+  "autostart": "enabled",
+  "host_status_timer": "enabled",
+  "container_image": "sha256:5c16939139516f92ae3483894faf5d6db6b29c9fb43a0ea93904cd015cda8d77",
+  "container_running": true,
+  "user": "10001:10001",
+  "readonly_root": true,
+  "privileged": false,
+  "cap_drop": [
+    "ALL"
+  ],
+  "no_new_privileges": [
+    "no-new-privileges=true"
+  ],
+  "network_mode": "bridge",
+  "pid_mode": "",
+  "published_ports": {},
+  "memory": 536870912,
+  "cpus": 0.5,
+  "pids_limit": 128,
+  "mounts": [
+    {
+      "source": "/opt/remote-desktop-commander/workspace",
+      "target": "/workspace",
+      "writable": true
+    },
+    {
+      "source": "/opt/remote-desktop-commander/state",
+      "target": "/state",
+      "writable": true
+    },
+    {
+      "source": "/opt/remote-desktop-commander/host-status",
+      "target": "/host-status",
+      "writable": false
+    }
+  ],
+  "private_state_permissions": "0700",
+  "saved_device_credentials_present": false,
+  "existing_business_containers_unchanged": true,
+  "nginx": "active",
+  "ssh": "active",
+  "firewall_status": "Status: active\n\nTo                         Action      From\n--                         ------      ----\n443/tcp                    ALLOW       Anywhere                  \n22/tcp                     ALLOW       Anywhere                  \n4431/tcp                   ALLOW       Anywhere                  \n80/tcp                     ALLOW       Anywhere                  \n443/tcp (v6)               ALLOW       Anywhere (v6)             \n22/tcp (v6)                ALLOW       Anywhere (v6)             \n4431/tcp (v6)              ALLOW       Anywhere (v6)             \n80/tcp (v6)                ALLOW       Anywhere (v6)",
+  "public_version": "0.3.26"
+}

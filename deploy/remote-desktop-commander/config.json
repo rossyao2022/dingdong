@@ -1,0 +1,30 @@
+{
+  "allowedDirectories": [
+    "/workspace",
+    "/host-status"
+  ],
+  "blockedCommands": [
+    "sudo",
+    "su",
+    "mount",
+    "umount",
+    "mkfs",
+    "fdisk",
+    "dd",
+    "shutdown",
+    "reboot",
+    "poweroff",
+    "systemctl",
+    "docker",
+    "chown",
+    "chmod",
+    "useradd",
+    "usermod"
+  ],
+  "defaultShell": "/bin/sh",
+  "telemetryEnabled": false,
+  "pendingWelcomeOnboarding": false,
+  "welcomeOnboardingEligible": false,
+  "fileWriteLineLimit": 200,
+  "fileReadLineLimit": 1000
+}

@@ -1,0 +1,20 @@
+[Unit]
+Description=Remote Desktop Commander restricted device
+Requires=docker.service
+After=docker.service network-online.target rdc-host-status.service
+Wants=network-online.target rdc-host-status.timer
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/docker start -a remote-desktop-commander
+ExecStop=/usr/bin/docker stop --time 20 remote-desktop-commander
+Restart=on-failure
+RestartSec=30
+TimeoutStopSec=35
+UMask=0077
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

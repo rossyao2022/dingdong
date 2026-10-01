@@ -1,0 +1,11 @@
+[Unit]
+Description=Refresh restricted host process metadata
+
+[Timer]
+OnBootSec=30
+OnUnitActiveSec=60
+AccuracySec=5
+Unit=rdc-host-status.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,17 @@
+{
+  "transport": "local stdio on production container, not paired ChatGPT remote E2E",
+  "checks": {
+    "file_create": true,
+    "file_read": true,
+    "file_modify": true,
+    "nonroot_terminal": true,
+    "container_process_list": true,
+    "host_process_summary": true,
+    "real_search": true,
+    "file_allowlist_denies_system_path": true,
+    "host_and_rootfs_boundaries": true,
+    "telemetry_off": true
+  },
+  "tools_available": 26,
+  "success": true
+}
