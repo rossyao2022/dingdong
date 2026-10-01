@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 42
+- **Total Sessions**: 43
 - **Last Active**: 2026-10-01
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~1054 | Active |
+| `journal-1.md` | ~1080 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 43 | 2026-10-01 | Remote Desktop Commander installed; user authorization pending | `b6a6ea5` | `codex/release-v0.3.26` |
 | 42 | 2026-10-01 | v0.3.26 production deployment and public acceptance | `17727ac` | `codex/release-v0.3.26` |
 | 41 | 2026-10-01 | v0.3.26双仓推送与CA主干同步 | `481cd00` | `codex/release-v0.3.26` |
 | 40 | 2026-10-01 | 绑定入口区分与组件确认弹窗 | `e82401e` | `codex/release-v0.3.26` |

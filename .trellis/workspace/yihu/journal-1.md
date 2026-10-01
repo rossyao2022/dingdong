@@ -1052,3 +1052,29 @@ User authorized production deployment. Verified private server backup, updated f
 ### Status
 
 [OK] **Completed**
+
+
+## Session 43: Remote Desktop Commander installed; user authorization pending
+<!-- trellis-session: v=2 fp=d5194a166aed4a60 -->
+
+**Date**: 2026-10-01
+**Task**: Remote Desktop Commander installed; user authorization pending
+**Branch**: `codex/release-v0.3.26`
+
+### Summary
+
+Installed official 0.2.52 agent on 1.15.23.152 with isolated non-root Docker runtime, systemd autostart and read-only host process summary. Ten real server-local MCP checks passed and independent runtime review passed; existing six business containers preserved. Device pairing, ChatGPT OAuth and remote E2E/restart persistence remain pending, so task remains in progress.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `b6a6ea5` | [T-remote-desktop-commander] Install isolated production agent and record pending authorization |
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- User completes device pairing and ChatGPT app OAuth with same account; then verify remote file/terminal/process calls and agent restart persistence.
