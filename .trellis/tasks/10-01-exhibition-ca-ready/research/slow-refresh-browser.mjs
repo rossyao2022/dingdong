@@ -1,7 +1,9 @@
-import {chromium} from '../../../../frontend/node_modules/playwright-core/index.mjs';
+import {pathToFileURL} from 'node:url';
+import {resolve} from 'node:path';
 import {readFileSync,writeFileSync} from 'node:fs';
 import {randomUUID} from 'node:crypto';
 import assert from 'node:assert/strict';
+const {chromium}=await import(pathToFileURL(resolve('frontend/node_modules/playwright-core/index.mjs')).href);
 const base='http://127.0.0.1:4178',state='.trellis/.runtime/exhibition-ca/supplier.json';
 const version=readFileSync('VERSION','utf8').trim();
 const browser=await chromium.launch({channel:'chrome',headless:true});

@@ -1,10 +1,11 @@
-import { chromium } from '../../../../frontend/node_modules/playwright-core/index.mjs';
+import {pathToFileURL} from 'node:url';
 import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { resolve } from 'node:path';
 import { randomUUID, createHmac } from 'node:crypto';
 import assert from 'node:assert/strict';
 
+const {chromium}=await import(pathToFileURL(resolve('frontend/node_modules/playwright-core/index.mjs')).href);
 const base = 'http://127.0.0.1:4177', backend = 'http://127.0.0.1:8025';
 const shots = 'deploy/evidence/v0.3.25/shots';
 mkdirSync(shots, { recursive: true });
