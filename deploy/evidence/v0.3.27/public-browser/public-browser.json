@@ -627,5 +627,5 @@
     "scope": "Real deployed module, explicitly synthetic bound component in anonymous page; actual public supplier navigation, no production binding or SMS login",
     "supplier_http_status": 200
   },
-  "scope_limit": "No production signed-in exploration/NFC/result write, SMS send, supplier or physical device interaction"
+  "scope_limit": "No production SMS login, signed-in family/NFC/result writes, supplier chat submission or physical device interaction. Supplier companion page was actually opened; its own shared-session initialization is supplier-owned. The deployed CA component check uses explicitly synthetic bound input on an anonymous page."
 }

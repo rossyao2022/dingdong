@@ -1,0 +1,11 @@
+dingdong-prod-trial-web-1 dingdong-web:0.3.27 Up 5 minutes
+dingdong-prod-trial-beat-1 dingdong-backend:0.3.27 Up 5 minutes
+dingdong-prod-trial-worker-1 dingdong-backend:0.3.27 Up 5 minutes
+dingdong-prod-trial-api-1 dingdong-backend:0.3.27 Up 5 minutes (healthy)
+dingdong-prod-trial-redis-1 redis:7-alpine Up 3 days (healthy)
+dingdong-prod-trial-postgres-1 postgres:17-alpine Up 3 days (healthy)
+{
+  "version": "0.3.27",
+  "branch": "codex/release-v0.3.27",
+  "commit": "880cd46833dc3242578c1e288930415014afdb40"
+}0.3.27
