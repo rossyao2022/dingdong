@@ -1,0 +1,80 @@
+cebb7b239cce5edefdf7a28cd24730950237000ca3432c490f0d326c9f135119  /opt/dingdong/backups/pre-v0.3.26-20261001.dump
+BACKUP_BYTES=198212 MODE=600
+BACKUP_LIST_VERIFIED
+dingdong-v0.3.26.tar.gz: OK
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  7.545MB
+Step 1/5 : FROM dingdong-backend:0.3.20
+ ---> 3410b564a9db
+Step 2/5 : USER root
+ ---> Using cache
+ ---> 18a9407f1d29
+Step 3/5 : COPY --chown=app:app backend/ /app/
+ ---> a8c7f33799cc
+Step 4/5 : RUN DJANGO_SETTINGS_MODULE=config.settings.base .venv/bin/python manage.py collectstatic --noinput
+ ---> Running in cf4aa0355b30
+
+2 static files copied to '/app/staticfiles', 171 unmodified.
+ ---> Removed intermediate container cf4aa0355b30
+ ---> c1f007de0f18
+Step 5/5 : USER app
+ ---> Running in e6b3aa6e8ade
+ ---> Removed intermediate container e6b3aa6e8ade
+ ---> eb4cf0fefc43
+Successfully built eb4cf0fefc43
+Successfully tagged dingdong-backend:0.3.26
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  7.545MB
+Step 1/7 : FROM dingdong-web:0.3.20
+ ---> a66800a4c917
+Step 2/7 : COPY deploy/nginx.conf.template /etc/nginx/templates/default.conf.template
+ ---> Using cache
+ ---> e0d1d0b8467c
+Step 3/7 : COPY frontend/index.html frontend/*.css frontend/app.js frontend/bootstrap.js frontend/api.js frontend/playworld.js frontend/companion.js frontend/reassessment.js frontend/growth-cycle.js frontend/ca-link.js frontend/dingdong-report.js frontend/experience-flow.js frontend/ui-components.js frontend/talent-data.js frontend/talent-explorer.js frontend/career-data.js frontend/career-explorer.js frontend/riasec.js frontend/island-explorer.js frontend/fingerprint-guide.js frontend/fingerprint.js frontend/exploration-session.js frontend/guide-preference.js frontend/legacy.js /usr/share/nginx/html/
+ ---> 7ad6a2b2f80b
+Step 4/7 : COPY frontend/daily.html frontend/test.html frontend/result.html frontend/thumb.html frontend/island.html frontend/blindbox.html frontend/report.html /usr/share/nginx/html/
+ ---> f7a332d8da68
+Step 5/7 : COPY frontend/assets /usr/share/nginx/html/assets
+ ---> cf35922ecc1b
+Step 6/7 : COPY VERSION /usr/share/nginx/html/version.txt
+ ---> af11190fbd73
+Step 7/7 : RUN find /usr/share/nginx/html -type d -exec chmod 755 {} +     && find /usr/share/nginx/html -type f -exec chmod 644 {} +
+ ---> Running in 18f0230cfce9
+ ---> Removed intermediate container 18f0230cfce9
+ ---> 9610a07b97e9
+Successfully built 9610a07b97e9
+Successfully tagged dingdong-web:0.3.26
+System check identified no issues (0 silenced).
+Operations to perform:
+  Apply all migrations: admin, auth, contenttypes, core, sessions, testsupport, users
+Running migrations:
+  No migrations to apply.
+ Container dingdong-prod-trial-api-1  Recreate
+ Container dingdong-prod-trial-api-1  Recreated
+ Container dingdong-prod-trial-beat-1  Recreate
+ Container dingdong-prod-trial-web-1  Recreate
+ Container dingdong-prod-trial-worker-1  Recreate
+ Container dingdong-prod-trial-web-1  Recreated
+ Container dingdong-prod-trial-beat-1  Recreated
+ Container dingdong-prod-trial-worker-1  Recreated
+ Container dingdong-prod-trial-api-1  Starting
+ Container dingdong-prod-trial-api-1  Started
+ Container dingdong-prod-trial-api-1  Waiting
+ Container dingdong-prod-trial-api-1  Waiting
+ Container dingdong-prod-trial-api-1  Waiting
+ Container dingdong-prod-trial-api-1  Healthy
+ Container dingdong-prod-trial-worker-1  Starting
+ Container dingdong-prod-trial-api-1  Healthy
+ Container dingdong-prod-trial-beat-1  Starting
+ Container dingdong-prod-trial-api-1  Healthy
+ Container dingdong-prod-trial-web-1  Starting
+ Container dingdong-prod-trial-worker-1  Started
+ Container dingdong-prod-trial-beat-1  Started
+ Container dingdong-prod-trial-web-1  Started
+DEPLOY_V0326_FINISHED

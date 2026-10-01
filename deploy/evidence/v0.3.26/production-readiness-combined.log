@@ -1,0 +1,132 @@
+{
+  "verification": "Original row IDs and all COPY field values versus pre-release backup",
+  "business_rows_only_on_server": true,
+  "tables": {
+    "report_version": {
+      "original_rows": 1,
+      "original_ids_and_every_field_unchanged": true
+    },
+    "assessment_session": {
+      "original_rows": 21,
+      "original_ids_and_every_field_unchanged": true
+    }
+  }
+}
+{
+  "version": "0.3.26",
+  "migrations_0015_0016_0017_applied": true,
+  "original_account_mapping_and_token_hash_preserved": true,
+  "original_account_states_unchanged": true,
+  "original_ca_histories_preserved": true,
+  "published_content_matches_source": true,
+  "no_content_reimport_or_publication": true,
+  "published_content": [
+    {
+      "code": "prototype-interest",
+      "version": "v1",
+      "status": "published"
+    },
+    {
+      "code": "prototype-talent",
+      "version": "v1",
+      "status": "published"
+    },
+    {
+      "code": "paper-bridge",
+      "version": "prototype-v1",
+      "status": "published"
+    },
+    {
+      "code": "leaf-look",
+      "version": "prototype-v1",
+      "status": "published"
+    },
+    {
+      "code": "cloud-story",
+      "version": "prototype-v1",
+      "status": "published"
+    },
+    {
+      "code": "team-help",
+      "version": "prototype-v1",
+      "status": "published"
+    },
+    {
+      "code": "family-show",
+      "version": "prototype-v1",
+      "status": "published"
+    },
+    {
+      "code": "sort-desk",
+      "version": "prototype-v1",
+      "status": "published"
+    },
+    {
+      "code": "prototype-paper-bridge",
+      "version": "prototype-v1",
+      "status": "published"
+    },
+    {
+      "code": "prototype-building",
+      "version": "prototype-v1",
+      "status": "published"
+    },
+    {
+      "code": "prototype-story-route",
+      "version": "prototype-v1",
+      "status": "published"
+    },
+    {
+      "code": "prototype-two-plays",
+      "version": "prototype-v1",
+      "status": "published"
+    }
+  ],
+  "fixed_account_status": "retired",
+  "fixed_account_bind_state": "bound",
+  "original_nfc_matches": true,
+  "prototype_enabled": true,
+  "ca_demo_reports_enabled": true,
+  "sms_mode": "aliyun_verify",
+  "push_secret_configured": true,
+  "events": 0,
+  "snapshots": 8,
+  "production_form_readonly": {
+    "schema_valid": true,
+    "latest_purposes": 4,
+    "json_csv_copy_generated": true,
+    "answers_not_logged": true,
+    "no_audit_or_business_write": true
+  },
+  "cached_reports": [
+    {
+      "weekly_turns": 3,
+      "dimensions": 8,
+      "curve_points": 7,
+      "cached": true,
+      "no_supplier_call": true
+    },
+    {
+      "weekly_turns": 7,
+      "dimensions": 8,
+      "curve_points": 7,
+      "cached": true,
+      "no_supplier_call": true
+    },
+    {
+      "weekly_turns": 14,
+      "dimensions": 8,
+      "curve_points": 7,
+      "cached": true,
+      "no_supplier_call": true
+    },
+    {
+      "weekly_turns": 21,
+      "dimensions": 8,
+      "curve_points": 7,
+      "cached": true,
+      "no_supplier_call": true
+    }
+  ],
+  "no_sms_or_supplier_write": true
+}
