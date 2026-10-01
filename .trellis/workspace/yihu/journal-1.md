@@ -878,3 +878,38 @@ User explicitly authorized上线. Atomic push of release/main; verified producti
 ### Status
 
 [OK] **Completed**
+
+
+## Session 36: 家长体验主线与CA报告字段交接调查
+<!-- trellis-session: v=2 fp=2f29fe127772856d -->
+
+**Date**: 2026-10-01
+**Task**: 家长体验主线与CA报告字段交接调查
+**Branch**: `codex/release-v0.3.24`
+
+### Summary
+
+核对现有CA输出、DingDong对接文档与线上OpenAPI；形成家长主线、报告用途及后台交接方案和合成数据样例。仅调查与方案，无功能修改、供应商提交、push或部署；父任务保留未完成尾项。
+
+### Main Changes
+
+- 建议保留登录建档及现有模块，贯通探索、真实活动、感受记录，并将报告改为发现与下一步优先。
+- 查明CA没有实现profile上行；记录当前学习方式枚举与旧code表冲突、评分语义和既有授权限制。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `bce1cb8` | [T-prototype-content-integration] docs: plan parent journey and CA report data handoff |
+
+### Testing
+
+- [OK] 文档审计errors为空；git diff --check通过；合成结果由当前计分代码计算并核对。
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- 评审方案后实施本地产品主线和后台复制导出，双方核对映射与鉴权后再接有限演示上行。
