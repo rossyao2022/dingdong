@@ -1030,3 +1030,25 @@ User explicitly authorized上线. Atomic push of release/main; verified producti
 ### Status
 
 [OK] **Completed**
+
+
+## Session 42: v0.3.26 production deployment and public acceptance
+<!-- trellis-session: v=2 fp=fcf726f853499365 -->
+
+**Date**: 2026-10-01
+**Task**: v0.3.26 production deployment and public acceptance
+**Branch**: `codex/release-v0.3.26`
+
+### Summary
+
+User authorized production deployment. Verified private server backup, updated four application services without migrations, preserved account states and every original report/assessment field. Six services and Worker healthy; four cached report periods and readonly form export passed. Public Chrome verified 30 runtime files, 27 assets, six login widths, seven legacy entries and real shared confirm component smoke. No SMS, production signed-in writes or physical NFC test. Original fixed account was already retired and remains unchanged; webhook events still zero. Release evidence synchronized using origin first then upstream ca-main; upstream main preserved.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `17727ac` | [T-prototype-content-integration] Record v0.3.26 production deployment and acceptance |
+
+### Status
+
+[OK] **Completed**
