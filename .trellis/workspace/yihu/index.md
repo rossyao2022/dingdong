@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 37
+- **Total Sessions**: 38
 - **Last Active**: 2026-10-01
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~941 | Active |
+| `journal-1.md` | ~966 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 38 | 2026-10-01 | v0.3.25 CA独立展会体验本地交付 | `074015f`, `b935c30`, `4a6ca95`, `9bcb002` | `codex/release-v0.3.25` |
 | 37 | 2026-10-01 | 确认CA机器人上行的产品边界 | `a7d559f` | `codex/release-v0.3.24` |
 | 36 | 2026-10-01 | 家长体验主线与CA报告字段交接调查 | `bce1cb8` | `codex/release-v0.3.24` |
 | 35 | 2026-10-01 | v0.3.24生产部署与已上线截图手册 | `4376a9d`, `6459ac0` | `codex/release-v0.3.24` |

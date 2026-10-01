@@ -939,3 +939,28 @@ User explicitly authorized上线. Atomic push of release/main; verified producti
 ### Status
 
 [OK] **Completed**
+
+
+## Session 38: v0.3.25 CA独立展会体验本地交付
+<!-- trellis-session: v=2 fp=0c75014cfbc257b5 -->
+
+**Date**: 2026-10-01
+**Task**: v0.3.25 CA独立展会体验本地交付
+**Branch**: `codex/release-v0.3.25`
+
+### Summary
+
+完成真实主线/时间记录/22题原回答/运营固定快照表单/验证pull-push缓存和局部刷新；后端492前端119部署13Chrome27及慢HTTP4通过，Storybook和文档审计通过。私密截图PDF25/16批准凭据保留；包source b935c30，458文件一致。无生产写入或实发。双仓顺序已知悉；本次发布具体门禁已请求仍待回复。父任务保留真NFC/真手机与真实供应商投递尾项。既有两个审计JSON留给外部文档工作，不纳入本轮提交。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `074015f` | [T-exhibition-ca-ready] Deliver independent CA exhibition journey, records, forms and report cache |
+| `b935c30` | [T-exhibition-ca-ready] Finalize readable report screenshots and release evidence |
+| `4a6ca95` | [T-exhibition-ca-ready] Record verified v0.3.25 release artifact |
+| `9bcb002` | [T-exhibition-ca-ready] Keep browser evidence runners usable after task archive |
+
+### Status
+
+[OK] **Completed**
