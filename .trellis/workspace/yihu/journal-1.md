@@ -855,3 +855,26 @@ User explicitly authorized上线. Atomic push of release/main; verified producti
 ### Status
 
 [OK] **Completed**
+
+
+## Session 35: v0.3.24生产部署与已上线截图手册
+<!-- trellis-session: v=2 fp=232f5c2f9b347780 -->
+
+**Date**: 2026-10-01
+**Task**: v0.3.24生产部署与已上线截图手册
+**Branch**: `codex/release-v0.3.24`
+
+### Summary
+
+用户go放行，origin无新增冲突，以本地优先原子快进main/release24，生产先备份验证、离线构建、0017仅加表更新四应用。历史与原绑定保留、六服务Worker/四weekly真只读、公网29模块/no-store/27素材/六宽度/旧入口/展会匿名权限通过。私密PDF38/21已上线版、批准凭据保留。事件0，4快照均pull；未发短信或新增生产登录。父任务保留真实自动推送和实体NFC彩排，尚未完成故不归档；原脏审计JSON不变。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `4376a9d` | [T-prototype-content-integration] Verify v0.3.24 production release and screenshot guides |
+| `6459ac0` | [T-parent-robot-experience] chore: archive local delivery and record verification |
+
+### Status
+
+[OK] **Completed**

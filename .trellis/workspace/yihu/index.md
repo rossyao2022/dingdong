@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 34
+- **Total Sessions**: 35
 - **Last Active**: 2026-10-01
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~857 | Active |
+| `journal-1.md` | ~880 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 35 | 2026-10-01 | v0.3.24生产部署与已上线截图手册 | `4376a9d`, `6459ac0` | `codex/release-v0.3.24` |
 | 34 | 2026-10-01 | v0.3.24家长机器人和展会体验本地交付 | `da70469` | `codex/release-v0.3.24` |
 | 33 | 2026-10-01 | v0.3.23旧缓存启动故障生产恢复 | `d8527dd`, `181fee5f3e22c59b5fc39391e7ddbb6f289fefb0` | `codex/release-v0.3.23` |
 | 32 | 2026-09-30 | v0.3.22完整版本生产发布验收 | `5b89d0b`, `5abe45526e3e2546b49220b28b1ebdbd037a209f` | `codex/release-v0.3.22` |
