@@ -29,6 +29,7 @@ try{
  writeFileSync(state,JSON.stringify({delay:1,fail:true,calls:0}));
  await page.locator('[data-action=dingdong-report-refresh]').click();await page.locator('#dingdong-growth-report').getByText('暂时没能更新，先显示已保存的记录。',{exact:true}).waitFor();
  assert.equal(await page.locator('.dd-report-summary').count(),1);await page.screenshot({path:'deploy/evidence/v0.3.25/shots/ux-stale-report-390.png',fullPage:true});
+ await page.locator('.dd-report-footer').scrollIntoViewIfNeeded();await page.screenshot({path:'deploy/evidence/v0.3.25/shots/ux-stale-detail-390.png',animations:'disabled'});
  evidence.checks.push('HTTP503 refresh retains validated full prior pull/push report with stale notice');
  await page.locator('[data-action=dingdong-weekly-turns][data-value="14"]').click();await page.locator('.dd-report-summary').waitFor();assert.equal(JSON.parse(readFileSync(state)).calls,1);
  evidence.checks.push('frequency switch reads its own weekly cache without an extra supplier call');

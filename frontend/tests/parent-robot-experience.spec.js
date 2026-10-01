@@ -231,6 +231,8 @@ test("已绑定报告授权、聊天不依赖报告、切儿童与解绑立即�
   ).toBeVisible();
   await page.setViewportSize({ width: 390, height: 844 });
   await shot(page, "bound-full-report-390");
+  await page.evaluate(() => scrollTo(0, 0));
+  await page.screenshot({path:"../deploy/evidence/v0.3.25/shots/ux-bound-report-390.png", animations:"disabled", fullPage:false});
   await page.goto(base + "/#settings");
   await page.getByRole("button", { name: "添加儿童档案", exact: true }).click();
   const other = await child(page, "另一合成儿童");
