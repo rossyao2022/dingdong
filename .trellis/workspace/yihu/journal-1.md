@@ -1008,3 +1008,25 @@ User explicitly authorized上线. Atomic push of release/main; verified producti
 ### Status
 
 [OK] **Completed**
+
+
+## Session 41: v0.3.26双仓推送与CA主干同步
+<!-- trellis-session: v=2 fp=bd1789048ebf43ba -->
+
+**Date**: 2026-10-01
+**Task**: v0.3.26双仓推送与CA主干同步
+**Branch**: `codex/release-v0.3.26`
+
+### Summary
+
+用户放行推送：origin release26/CA main先同步481cd00，upstream ca-main后同步；正常快进、不强推，upstream main保留3b8723e。源码e82401e与验证包功能未变，原本498/123/13及10个Chrome证据已同步。仅代码推送，未生产部署/发短信；生产仍v0.3.25。父任务现场NFC/自动push仍待，不归档；两外部审计输出保持未提交。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `481cd00` | [T-prototype-content-integration] Record binding and dialog verification journal |
+
+### Status
+
+[OK] **Completed**
