@@ -16,6 +16,8 @@
 
 生产Web nginx对可变资源返回Cache-Control: no-store, max-age=0，保留既有安全头与全部Django代理前缀，不改外部CDN、存储或账号配置。HTML的独立守卫覆盖bootstrap本身无法加载；bootstrap守卫覆盖app/module导入或启动失败。正常app接管后取消入口计时，避免成功页面被兜底覆盖。新增bootstrap须进入server白名单、check和全部正式/离线Web Docker COPY清单。NFC参数只由原app boot读取清理，不为缓存修复存凭据或先丢URL。
 
+发布成功须以容器实际镜像/APP_VERSION、迁移状态、公网version.txt和模块摘要为证据，不能仅凭部署脚本的完成文案。复制旧脚本后如保留旧版本日志标记，记录并解释该差异，保留原始日志，使用上述独立检查确认实际版本；不为修正文案重复迁移或重启已健康的服务。
+
 ## 4. Validation & Error Matrix
 
 | 场景 | 预期 |

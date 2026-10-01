@@ -1,0 +1,17 @@
+{
+  "package": "dist/dingdong-v0.3.24.tar.gz",
+  "release": {
+    "version": "0.3.24",
+    "branch": "codex/release-v0.3.24",
+    "commit": "6459ac0e5ded46d421d730b9c2a8c57e662c4988"
+  },
+  "tracked_runtime_files": 444,
+  "exact_git_bytes": true,
+  "mismatches": [],
+  "unsafe_paths": [],
+  "sha256": "74401b9a610130435456afef25d4bdc3a3bc8b44390b4a66c7f7e0c024e446bf",
+  "checksum_matches": true,
+  "migration0017": "2 CreateModel + 4 AddConstraint only; no existing-table or data operations",
+  "status": "published and deployed; actual production version0.3.24/public graph/readonly readiness verified 2026-10-01",
+  "allowed_example": "backend/.env.example: local-only dummy credentials and empty Aliyun key fields"
+}

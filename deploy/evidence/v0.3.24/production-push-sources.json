@@ -1,0 +1,10 @@
+{
+  "events": 0,
+  "snapshot_sources": [
+    {
+      "sync_source": "pull",
+      "count": 4
+    }
+  ],
+  "automatic_supplier_push_proven": false
+}

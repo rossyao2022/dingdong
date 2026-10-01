@@ -1,0 +1,10 @@
+dingdong-prod-trial-beat-1 dingdong-backend:0.3.24 Up 27 seconds
+dingdong-prod-trial-worker-1 dingdong-backend:0.3.24 Up 27 seconds
+dingdong-prod-trial-web-1 dingdong-web:0.3.24 Up 27 seconds
+dingdong-prod-trial-api-1 dingdong-backend:0.3.24 Up 38 seconds (healthy)
+dingdong-prod-trial-redis-1 redis:7-alpine Up 2 days (healthy)
+dingdong-prod-trial-postgres-1 postgres:17-alpine Up 2 days (healthy)
+->  celery@068c293f68ce: OK
+        pong
+
+1 node online.
