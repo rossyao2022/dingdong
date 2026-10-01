@@ -1078,3 +1078,25 @@ Installed official 0.2.52 agent on 1.15.23.152 with isolated non-root Docker run
 ### Next Steps
 
 - User completes device pairing and ChatGPT app OAuth with same account; then verify remote file/terminal/process calls and agent restart persistence.
+
+
+## Session 44: v0.3.27 CA陪伴入口端到端发布
+<!-- trellis-session: v=2 fp=38f5382b59b89de1 -->
+
+**Date**: 2026-10-01
+**Task**: v0.3.27 CA陪伴入口端到端发布
+**Branch**: `codex/release-v0.3.27`
+
+### Summary
+
+保留本地Commander/原审计JSON/原材料；合并bb360a0，499后端/124前端/17部署/文档门禁及Chrome9+1通过；双仓同序推送、生产备份更新四应用、新URL与公网验收通过，原业务数据保留，回滚验证且未执行。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `880cd46833dc3242578c1e288930415014afdb40` | [T-ca-companion-entry] Merge verified companion entry and release v0.3.27 |
+
+### Status
+
+[OK] **Completed**
