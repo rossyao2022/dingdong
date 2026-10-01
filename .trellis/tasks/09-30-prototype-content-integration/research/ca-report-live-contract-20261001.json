@@ -1,0 +1,260 @@
+{
+  "date": "2026-10-01",
+  "source": "http://122.51.108.225/openapi.json",
+  "read_only": true,
+  "paths": {
+    "/api/v1/ca/profile": {
+      "schema": {
+        "properties": {
+          "profile_id": {
+            "type": "string",
+            "maxLength": 64,
+            "title": "Profile Id"
+          },
+          "ca_account_id": {
+            "type": "string",
+            "maxLength": 64,
+            "title": "Ca Account Id"
+          },
+          "assessment_id": {
+            "type": "string",
+            "maxLength": 64,
+            "title": "Assessment Id"
+          },
+          "assessment_time": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Assessment Time"
+          },
+          "learning_style": {
+            "$ref": "#/components/schemas/LearningStyle"
+          },
+          "interest_primary": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 32
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Interest Primary"
+          },
+          "interest_secondary": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 32
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Interest Secondary"
+          },
+          "linguistic_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Linguistic Score"
+          },
+          "logical_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Logical Score"
+          },
+          "musical_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Musical Score"
+          },
+          "spatial_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spatial Score"
+          },
+          "bodily_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bodily Score"
+          },
+          "intrapersonal_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Intrapersonal Score"
+          },
+          "interpersonal_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Interpersonal Score"
+          },
+          "naturalistic_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Naturalistic Score"
+          },
+          "profile_version": {
+            "type": "string",
+            "title": "Profile Version",
+            "default": "v1"
+          }
+        },
+        "type": "object",
+        "required": [
+          "profile_id",
+          "ca_account_id",
+          "assessment_id",
+          "assessment_time",
+          "learning_style"
+        ],
+        "title": "ProfileCreate"
+      },
+      "security": null,
+      "parameters": [
+        {
+          "name": "X-API-Key",
+          "in": "header",
+          "required": false,
+          "schema": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "X-Api-Key"
+          }
+        }
+      ]
+    },
+    "/api/v1/app/companion/prototype/assessment": {
+      "schema": {
+        "properties": {
+          "interest_primary": {
+            "type": "string",
+            "title": "Interest Primary"
+          },
+          "learning_style": {
+            "$ref": "#/components/schemas/LearningStyle",
+            "default": "open"
+          },
+          "personality_preference": {
+            "type": "string",
+            "title": "Personality Preference",
+            "default": "either"
+          }
+        },
+        "type": "object",
+        "required": [
+          "interest_primary"
+        ],
+        "title": "PrototypeAssessmentInput"
+      },
+      "security": null,
+      "parameters": [
+        {
+          "name": "dingdong_ca_session",
+          "in": "cookie",
+          "required": false,
+          "schema": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dingdong Ca Session"
+          }
+        }
+      ]
+    }
+  },
+  "referenced_enums": {
+    "LearningStyle": {
+      "type": "string",
+      "enum": [
+        "cognitive",
+        "imitation",
+        "reverse",
+        "open"
+      ],
+      "title": "LearningStyle"
+    }
+  }
+}

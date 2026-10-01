@@ -1,0 +1,261 @@
+{
+  "schema_version": "ca-report-handoff-draft-v1",
+  "document_status": "proposal_for_field_review_not_an_existing_api",
+  "sample_only": true,
+  "contains_real_parent_or_child_data": false,
+  "report_id": "sample-report-bundle-001",
+  "report_nature": "answer_derived_exploration_observation_not_professional_assessment",
+  "assessments": [
+    {
+      "assessment_id": "sample-interest-001",
+      "title": "六岛兴趣探索",
+      "completed_at": "2026-10-01T09:00:00+08:00",
+      "questionnaire_code": "prototype-interest",
+      "questionnaire_version": "v1",
+      "answers_origin": "synthetic_for_contract_review",
+      "answered_count": 9,
+      "raw_answers": {
+        "R-0": [
+          "4"
+        ],
+        "R-1": [
+          "3"
+        ],
+        "R-2": [
+          "4"
+        ],
+        "I-0": [
+          "3"
+        ],
+        "I-1": [
+          "4"
+        ],
+        "I-2": [
+          "3"
+        ],
+        "A-0": [
+          "2"
+        ],
+        "A-1": [
+          "3"
+        ],
+        "A-2": [
+          "2"
+        ]
+      },
+      "result": {
+        "purpose": "interest",
+        "questionnaire_version_id": "sample-questionnaire-interest",
+        "content_version": "v1",
+        "scoring_version": "interest-mean-v1",
+        "source_commit": "3b8723e0089b411c19c41e13e4361cb90e6b7c71",
+        "selected_islands": [
+          "R",
+          "I",
+          "A"
+        ],
+        "profiles": [
+          {
+            "id": "R",
+            "label": "自然原始岛",
+            "score": 3.6667,
+            "total": 11,
+            "answered_count": 3
+          },
+          {
+            "id": "I",
+            "label": "深思冥想岛",
+            "score": 3.3333,
+            "total": 10,
+            "answered_count": 3
+          },
+          {
+            "id": "A",
+            "label": "美丽浪漫岛",
+            "score": 2.3333,
+            "total": 7,
+            "answered_count": 3
+          }
+        ],
+        "dimensions": []
+      }
+    },
+    {
+      "assessment_id": "sample-talent-001",
+      "title": "八维日常观察",
+      "completed_at": "2026-10-01T09:10:00+08:00",
+      "questionnaire_code": "prototype-talent",
+      "questionnaire_version": "v1",
+      "answers_origin": "synthetic_for_contract_review",
+      "answered_count": 24,
+      "raw_answers": {
+        "1": [
+          "4"
+        ],
+        "2": [
+          "5"
+        ],
+        "3": [
+          "4"
+        ],
+        "4": [
+          "3"
+        ],
+        "5": [
+          "4"
+        ],
+        "6": [
+          "3"
+        ],
+        "7": [
+          "4"
+        ],
+        "8": [
+          "4"
+        ],
+        "9": [
+          "5"
+        ],
+        "10": [
+          "4"
+        ],
+        "11": [
+          "3"
+        ],
+        "12": [
+          "4"
+        ],
+        "13": [
+          "4"
+        ],
+        "14": [
+          "3"
+        ],
+        "15": [
+          "4"
+        ],
+        "16": [
+          "3"
+        ],
+        "17": [
+          "3"
+        ],
+        "18": [
+          "4"
+        ],
+        "19": [
+          "4"
+        ],
+        "20": [
+          "4"
+        ],
+        "21": [
+          "3"
+        ],
+        "22": [
+          "4"
+        ],
+        "23": [
+          "5"
+        ],
+        "24": [
+          "4"
+        ]
+      },
+      "result": {
+        "purpose": "talent",
+        "questionnaire_version_id": "sample-questionnaire-talent",
+        "content_version": "v1",
+        "scoring_version": "talent-sum-v1",
+        "source_commit": "3b8723e0089b411c19c41e13e4361cb90e6b7c71",
+        "selected_islands": [],
+        "profiles": [],
+        "dimensions": [
+          {
+            "id": "word",
+            "label": "语言智能",
+            "score": 13,
+            "total": 13,
+            "answered_count": 3
+          },
+          {
+            "id": "music",
+            "label": "音乐智能",
+            "score": 10,
+            "total": 10,
+            "answered_count": 3
+          },
+          {
+            "id": "logic",
+            "label": "逻辑数学",
+            "score": 13,
+            "total": 13,
+            "answered_count": 3
+          },
+          {
+            "id": "space",
+            "label": "空间智能",
+            "score": 11,
+            "total": 11,
+            "answered_count": 3
+          },
+          {
+            "id": "body",
+            "label": "身体动觉",
+            "score": 11,
+            "total": 11,
+            "answered_count": 3
+          },
+          {
+            "id": "self",
+            "label": "内省智能",
+            "score": 10,
+            "total": 10,
+            "answered_count": 3
+          },
+          {
+            "id": "social",
+            "label": "人际智能",
+            "score": 11,
+            "total": 11,
+            "answered_count": 3
+          },
+          {
+            "id": "nature",
+            "label": "自然观察",
+            "score": 13,
+            "total": 13,
+            "answered_count": 3
+          }
+        ]
+      }
+    }
+  ],
+  "other_existing_data": {
+    "four_question_guidance": "Four choice counts available per completed exploration; not automatically a validated DingDong learning_style",
+    "initial_22_question_report": "Answer review available; professional metrics not supplied"
+  },
+  "dingdong_mapping_review": {
+    "status": "blocked_pending_joint_contract_and_business_rules",
+    "formal_profile_request_built": false,
+    "interest_primary": null,
+    "interest_secondary": null,
+    "learning_style": null,
+    "personality_preference": null,
+    "linguistic_score": null,
+    "logical_score": null,
+    "musical_score": null,
+    "spatial_score": null,
+    "bodily_score": null,
+    "intrapersonal_score": null,
+    "interpersonal_score": null,
+    "naturalistic_score": null,
+    "reasons": [
+      "RIASEC interest categories are not the six DingDong type codes; only selected three categories were answered",
+      "3-15 observational sums are not 0-100 professional scores",
+      "CA uses imitative, while live OpenAPI enum is cognitive/imitation/reverse/open; older code table differs; require canonical enum and business mapping confirmation",
+      "Existing consent explicitly excludes sending reports to robots",
+      "Prototype requires a separate session endpoint and shared-state mutation agreement"
+    ]
+  }
+}
