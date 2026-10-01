@@ -1,0 +1,8 @@
+{
+  "version": "0.3.27",
+  "source_commit": "880cd46833dc3242578c1e288930415014afdb40",
+  "sha256": "f5766da28d406abe4ea9f803d48818a17d07fc6f0256353117f5bf52256cd922",
+  "verified_committed_files": 469,
+  "commander_files_excluded": true,
+  "all_files_match_commit": true
+}
