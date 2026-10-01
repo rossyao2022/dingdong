@@ -168,7 +168,7 @@ test("独立展会全量报告、共享聊天、频率与成功访问记录，�
   await expect(page.locator(".dd-report-comparison")).toBeVisible();
   await expect(page.locator(".dd-report")).toContainText("演示内容");
   await expect(
-    page.getByRole("link", { name: "和 DingDong 对话 ↗", exact: true }),
+    page.getByRole("link", { name: "进入 DINGDONG 天赋陪伴空间", exact: true }),
   ).toBeVisible();
   await expect(page.locator(".dd-report-row")).toHaveCount(9);
   await expect.poll(() => visited.length).toBeGreaterThanOrEqual(2);
@@ -206,7 +206,7 @@ test("已绑定报告授权、聊天不依赖报告、切儿童与解绑立即�
   await page.reload();
   await expect(page.locator(".account-row")).toContainText("已绑定");
   await expect(
-    page.getByRole("link", { name: "和 DingDong 对话 ↗", exact: true }),
+    page.getByRole("link", { name: "进入 DINGDONG 天赋陪伴空间", exact: true }),
   ).toBeVisible();
   await page.goto(base + "/#reports");
   await expect(page.locator("#dingdong-growth-report")).toContainText(
@@ -214,7 +214,7 @@ test("已绑定报告授权、聊天不依赖报告、切儿童与解绑立即�
   );
   await expect(page.locator("#personal-assessments")).toBeVisible();
   await expect(
-    page.getByRole("link", { name: "和 DingDong 对话 ↗", exact: true }),
+    page.getByRole("link", { name: "进入 DINGDONG 天赋陪伴空间", exact: true }),
   ).toBeVisible();
   const policy = await api(page, "/policies/current?purpose=dingdong_sync", {
     auth: false,

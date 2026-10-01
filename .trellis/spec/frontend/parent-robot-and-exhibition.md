@@ -86,3 +86,13 @@ Correct：首屏完成就resolve，独立Promise只替换当前儿童机器人sl
 家长应用确认使用ui-components.confirmDialog，不调用浏览器window.confirm/alert/prompt；运营Ops.confirm/alert/prompt本身是现有dialog组件。确认默认焦点在取消，关闭/Esc/离页/换儿童/退出一律取消；Promise单次收尾、清节点和事件，按钮用局部data-confirm-choice，不能受全局busy分发阻塞。
 
 组合调整先生成候选值，接受且context/session仍相同才应用；取消期间原地图/回答不提前清空。开始新探索才建新session，历史结果保留。Chrome真实API验证取消/Esc/确认、切上下文、嵌套弹窗和焦点；原生dialog事件为0。窄屏机器人入口单列，完整按钮文案不碎字。
+
+## 2026-10-01：供应商天赋陪伴空间入口
+
+1. **Scope / Trigger**：供应商固定 `ca_dingdong` 原型变更，CA 只适配现有入口与配置，不改产品主线或报告更新策略。
+2. **Signatures**：四处入口共用 `COMPANION_ENTRY_LABEL="进入 DINGDONG 天赋陪伴空间"`；既有 `chat_url` / `exhibition_chat_url` / `prototype_url` 字段不变。
+3. **Contracts**：`DINGDONG_PROTOTYPE_WEB_URL` 默认 `https://www.dingdongrobo.top/dingdong/companion/main`，保留安全显式覆盖与 demo gate。普通新标签、noopener/noreferrer；不传手机号、CA Cookie、JWT、NFC 或 launch code，不用 iframe。供应商负责其共享会话，不能描述成个人 SSO。GET insights 固定号、后台 key、默认7和四频率/cached-first/manual-refresh不改。
+4. **Validation / Error Matrix**：非demo或开关关→不下发入口；带userinfo/query/fragment→拒绝；未绑/pending/unknown→不显示已绑个人入口；报告读取失败不影响合法入口。直接进程显式空URL继续原API-base回退；Compose空值采用默认，显式非空覆盖不被更换。
+5. **Good / Base / Bad**：完整HTTPS companion路径为本次标准；安全自定义覆盖仍可用；旧生产配置不会因默认修改自动更新，不可声称生产完成。
+6. **Tests Required**：确切标签/路径/target/rel与状态矩阵；默认/空/显式覆盖；实际传输GET、两个query、X-API-Key且无Cookie/Authorization/body；390px长标签与报告回归。源码检查、组件浏览器、认证全栈和供应商测试分别报告。
+7. **Wrong vs Correct**：错误是把API根地址、launch code或家庭字段拼入入口；正确是直接使用服务端允许的完整公开URL，仅后台请求携带约定API key。

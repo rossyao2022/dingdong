@@ -52,7 +52,11 @@ DINGDONG_PUSH_TIMESTAMP_WINDOW_SECONDS = env.float(
 # 普通家长凭据继续走 ULID；正式账号体系不使用此开关。
 DINGDONG_PROTOTYPE_DEMO_ENABLED = env.bool("DINGDONG_PROTOTYPE_DEMO_ENABLED", default=False)
 DINGDONG_PROTOTYPE_NFC_TOKEN = env("DINGDONG_PROTOTYPE_NFC_TOKEN", default="")
-DINGDONG_PROTOTYPE_WEB_URL = env("DINGDONG_PROTOTYPE_WEB_URL", default="")
+# Public shared companion entry; demo gating and explicit environment overrides remain unchanged.
+DINGDONG_PROTOTYPE_WEB_URL = env(
+    "DINGDONG_PROTOTYPE_WEB_URL",
+    default="https://www.dingdongrobo.top/dingdong/companion/main",
+)
 # 四个展示面（人设 / 周期成长报告 / 健康度 / 复测）的数据源，见
 # `.trellis/tasks/T-021/design.md` §2。与 INTEGRATION_DATA_SOURCE 分开：
 # 那个管测评与观察的 fixture 闸门，语义不同，不共用值域。

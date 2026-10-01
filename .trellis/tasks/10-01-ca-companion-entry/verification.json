@@ -1,0 +1,86 @@
+{
+  "baseline": "ca-main c688e29 VERSION0.3.26",
+  "scope": "Local CA companion label/config adaptation only; no external vendor session or authenticated request",
+  "checks": [
+    {
+      "command": "npm --prefix frontend run check",
+      "status": "passed",
+      "meaning": "Production JavaScript syntax only"
+    },
+    {
+      "command": "npm --prefix frontend run test:unit",
+      "status": "passed",
+      "passed": 124,
+      "failed": 0
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s deploy/tests -p test_companion_entry_config.py -v",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "meaning": "Source config expressions and isolated actual pure URL helpers, no Django import"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 - <<'PY'\nimport runpy\nfor name in ['test_nginx_routes.py','test_legacy_compat.py','test_production_trial_gate.py']:\n    for test, fn in runpy.run_path('deploy/tests/'+name).items():\n        if test.startswith('test_') and callable(fn):\n            fn()\nPY",
+      "status": "passed",
+      "passed": 6,
+      "meaning": "Direct execution of existing source checks; not full pytest deployment suite"
+    },
+    {
+      "command": "node --check frontend/tests/parent-robot-experience.spec.js && node --check frontend/stories/dingdong-report.stories.js",
+      "status": "passed"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 - <<'PY'\nimport ast\nfrom pathlib import Path\nfor filename in ['backend/config/settings/base.py','backend/tests/test_companion_entry_contract.py','deploy/tests/test_companion_entry_config.py','.trellis/tasks/10-01-ca-companion-entry/check-components.py']:\n    ast.parse(Path(filename).read_text())\nPY",
+      "status": "passed"
+    },
+    {
+      "command": "git diff --check",
+      "status": "passed"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 .trellis/tasks/10-01-ca-companion-entry/check-components.py",
+      "status": "blocked",
+      "attempts": 2,
+      "passed": 0,
+      "reason": "Chromium socket() Operation not permitted; exact require_escalated retry also failed at startup. No browser acceptance or screenshot."
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/audit_documents.py",
+      "status": "blocked",
+      "reason": "Missing ignored historical input 材料/原始数据/归档校验.json"
+    },
+    {
+      "command": "uv run --directory backend pytest tests/test_companion_entry_contract.py tests/test_exhibition.py tests/test_prototype_demo.py tests/test_prototype_report_cache.py tests/test_prototype_closed_loop.py tests/test_ca_accounts.py -q",
+      "status": "not_run",
+      "reason": "Python3.14/backend dependencies/PostgreSQL/Redis unavailable"
+    },
+    {
+      "command": "cd frontend && npx playwright test tests/parent-robot-experience.spec.js tests/binding-visibility.spec.js --reporter=list",
+      "status": "not_run",
+      "reason": "Full backend environment and @playwright/test not installed"
+    },
+    {
+      "command": "ruff; Django check and makemigrations --check --dry-run; Storybook build",
+      "status": "not_run",
+      "reason": "Required development environment unavailable"
+    }
+  ],
+  "git_commits": false,
+  "push_merge_deploy": false,
+  "acceptance_complete": false,
+  "record_scope": "Pre-publication verification snapshot; later remote SHA verification reported separately",
+  "publication": {
+    "authorized": true,
+    "repository": "ivesyi/dingdong-ca",
+    "branch": "codex/ca-companion-entry-20261001",
+    "no_merge_or_deploy": true
+  },
+  "one_time_doc_audit_waiver": {
+    "approved": true,
+    "scope": "Only missing historical materials preventing scripts/audit_documents.py in this task",
+    "audit_status": "blocked, not passed",
+    "remaining_gates": "Sensitive-path scan, task-ID commit message, existing passed code tests preserved",
+    "permanent_hook_change": false
+  }
+}

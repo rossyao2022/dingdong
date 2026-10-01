@@ -54,6 +54,7 @@ import {
   renderGuidanceSummary,
 } from "./guide-preference.js?v=0.3.26";
 import {
+  COMPANION_ENTRY_LABEL,
   renderDingDongReport,
   renderRobotEntry,
 } from "./dingdong-report.js?v=0.3.26";
@@ -1002,7 +1003,7 @@ async function render() {
       hints.accounts = accounts;
       const chat = safeChatUrl(bound?.chat_url);
       const chatAction = chat
-        ? `<div class="actions"><a class="button" href="${esc(chat)}" target="_blank" rel="noopener noreferrer">和 DingDong 对话 ↗</a></div>`
+        ? `<div class="actions"><a class="button" href="${esc(chat)}" target="_blank" rel="noopener noreferrer">${COMPANION_ENTRY_LABEL}</a></div>`
         : "";
       const robotReport = bound
         ? chatAction +
@@ -1138,7 +1139,7 @@ async function render() {
             "这里使用演示内容，供你和孩子一起体验。",
             '<a class="button secondary" href="#companion">返回我的 DingDong</a>',
           ) +
-          `<div class="report-flow"><section class="panel"><p>演示报告不代表孩子的测评结果。以后绑定自己的机器人，就能查看专属陪伴记录。</p><div class="actions">${chat ? `<a class="button" href="${esc(chat)}" target="_blank" rel="noopener noreferrer">和 DingDong 对话 ↗</a>` : ""}${button("bind-robot", "绑定自己的机器人", "", true)}</div><p class="note">多人共享这次演示，伙伴和内容可能随体验变化。</p></section>${dingdongReportPanel(result, true)}</div>`;
+          `<div class="report-flow"><section class="panel"><p>演示报告不代表孩子的测评结果。以后绑定自己的机器人，就能查看专属陪伴记录。</p><div class="actions">${chat ? `<a class="button" href="${esc(chat)}" target="_blank" rel="noopener noreferrer">${COMPANION_ENTRY_LABEL}</a>` : ""}${button("bind-robot", "绑定自己的机器人", "", true)}</div><p class="note">多人共享这次演示，伙伴和内容可能随体验变化。</p></section>${dingdongReportPanel(result, true)}</div>`;
       }
     } else if (route === "settings") {
       const [consents, associations, receipts, accounts] = await Promise.all([
@@ -1317,7 +1318,7 @@ function robotPanel(rows, companion = null) {
   const current = active
     ? accountRow(active) +
       (active.bind_state === "bound"
-        ? `<div class="actions"><a class="button" href="#reports">查看机器人报告</a>${safeChatUrl(active.chat_url) ? `<a class="button secondary" href="${esc(safeChatUrl(active.chat_url))}" target="_blank" rel="noopener noreferrer">和 DingDong 对话 ↗</a>` : ""}</div>`
+        ? `<div class="actions"><a class="button" href="#reports">查看机器人报告</a>${safeChatUrl(active.chat_url) ? `<a class="button secondary" href="${esc(safeChatUrl(active.chat_url))}" target="_blank" rel="noopener noreferrer">${COMPANION_ENTRY_LABEL}</a>` : ""}</div>`
         : `<p class="notice">${esc(ROBOT_JOIN_NOTE)}</p>`) +
       `<div class="actions">${active.bind_state === "bound" ? `${button("replace-robot", "换一台机器人", `data-id="${esc(active.ca_account_id)}"`)}${button("retire-account", "解绑机器人", `data-id="${esc(active.ca_account_id)}"`, true)}` : `${reconnect || button("bind-robot", "继续连接")}${button("cancel-robot-connection", "取消连接", `data-id="${esc(active.ca_account_id)}"`, true)}`}</div>`
     : `<p>还没有为 <b>${esc(state.child.name)}</b> 绑定机器人。</p>${button("bind-robot", "绑定机器人")}`;
