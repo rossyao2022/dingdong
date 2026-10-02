@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 46
+- **Total Sessions**: 47
 - **Last Active**: 2026-10-02
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~1154 | Active |
+| `journal-1.md` | ~1177 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 47 | 2026-10-02 | v0.3.28界面精简上线，用户人工验收 | `6b30b2f`, `6e6a99e` | `codex/release-v0.3.28` |
 | 46 | 2026-10-02 | 全界面文字精简与重点修复 v0.3.28 | `def354d` | `codex/release-v0.3.27` |
 | 45 | 2026-10-02 | 页面文字密度与主动作审查 | `78413b7` | `codex/release-v0.3.27` |
 | 44 | 2026-10-01 | v0.3.27 CA陪伴入口端到端发布 | `880cd46833dc3242578c1e288930415014afdb40` | `codex/release-v0.3.27` |

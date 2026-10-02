@@ -1152,3 +1152,26 @@ Installed official 0.2.52 agent on 1.15.23.152 with isolated non-root Docker run
 ### Status
 
 [OK] **Completed**
+
+
+## Session 47: v0.3.28界面精简上线，用户人工验收
+<!-- trellis-session: v=2 fp=8f8c97898bf65165 -->
+
+**Date**: 2026-10-02
+**Task**: v0.3.28界面精简上线，用户人工验收
+**Branch**: `codex/release-v0.3.28`
+
+### Summary
+
+用户授权直接上线且不需要额外测试。先origin发布分支/main，再upstream ca-main同步；474文件精确包已生产备份后离线更新四应用，公开版本200/0.3.28、API healthy其余running，DB/Redis/Commander ID与启动时间保持。env仅Docker消费未读改，无迁移/播种/登录/短信/供应商请求，生产数据保留；未跑功能测试，人工验收待用户。发布报告与记忆完成，原脏审计JSON保留。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `6b30b2f` | [T-ui-text-release] chore: 记录 v0.3.28 人工验收发布计划 |
+| `6e6a99e` | [T-ui-text-release] docs: 记录 v0.3.28 已上线与人工验收安排 |
+
+### Status
+
+[OK] **Completed**
