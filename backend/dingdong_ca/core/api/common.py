@@ -36,7 +36,7 @@ def authenticate_parent(request):
         raise ApiError("AUTH_REQUIRED", 401, "登录已失效") from None
     if (
         grant.revoked_at
-        or grant.expires_at <= timezone.now()
+        or (grant.expires_at is not None and grant.expires_at <= timezone.now())
         or not grant.user.is_active
         or grant.user.account_kind != "parent"
     ):

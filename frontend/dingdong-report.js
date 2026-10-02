@@ -1,6 +1,6 @@
 /** Render only the supplied DingDong snapshot; never calculate projected scores here. */
-import { esc } from "./ui-components.js?v=0.3.28";
-import { robotVisibility, safeChatUrl } from "./ca-link.js?v=0.3.28";
+import { esc } from "./ui-components.js?v=0.3.29";
+import { robotVisibility, safeChatUrl } from "./ca-link.js?v=0.3.29";
 
 export const COMPANION_ENTRY_LABEL = "进入 DINGDONG 天赋陪伴空间";
 

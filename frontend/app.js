@@ -1,4 +1,4 @@
-import * as API from "./api.js?v=0.3.28";
+import * as API from "./api.js?v=0.3.29";
 import {
   ACCOUNT_STATUS,
   BIND_STATE,
@@ -14,23 +14,23 @@ import {
   replaceFlowNeeded,
   retiredAccounts,
   stripBindingParams,
-} from "./ca-link.js?v=0.3.28";
+} from "./ca-link.js?v=0.3.29";
 import {
   HEALTH_FOOTER,
   STALE_NOTICE,
   healthSection,
   personaSection,
-} from "./companion.js?v=0.3.28";
+} from "./companion.js?v=0.3.29";
 import {
   DIMENSION_MISSING,
   PERIODS,
   PROXY_NOTE,
   growthCycleSection,
-} from "./growth-cycle.js?v=0.3.28";
+} from "./growth-cycle.js?v=0.3.29";
 import {
   WRITE_FAILED_TEXT,
   reassessmentSection,
-} from "./reassessment.js?v=0.3.28";
+} from "./reassessment.js?v=0.3.29";
 import {
   actions,
   button,
@@ -41,30 +41,30 @@ import {
   pageHead,
   panel,
   renderGuidePreference,
-} from "./ui-components.js?v=0.3.28";
+} from "./ui-components.js?v=0.3.29";
 import {
   explorerState,
   continuedExplorerHash,
   sameSelection,
   resumableSession,
-} from "./exploration-session.js?v=0.3.28";
+} from "./exploration-session.js?v=0.3.29";
 import {
   GUIDE_MODES,
   greeting,
   guideText,
   renderGuidanceSummary,
-} from "./guide-preference.js?v=0.3.28";
+} from "./guide-preference.js?v=0.3.29";
 import {
   COMPANION_ENTRY_LABEL,
   renderDingDongReport,
   renderRobotEntry,
-} from "./dingdong-report.js?v=0.3.28";
+} from "./dingdong-report.js?v=0.3.29";
 import {
   nextExperience,
   experienceRecords,
   renderExperienceTask,
   renderExperienceRecords,
-} from "./experience-flow.js?v=0.3.28";
+} from "./experience-flow.js?v=0.3.29";
 const $ = (s) => document.querySelector(s);
 let robotReadEpoch = 0;
 const state = {
@@ -242,6 +242,7 @@ function showDialog(title, html) {
   if (!$("#dialog").open) $("#dialog").showModal();
 }
 function showError(e) {
+  if (e.code === "AUTH_STATE_CHANGED") return;
   if (e.status === 401) {
     forget();
     loginPage();
@@ -441,6 +442,7 @@ function loginPage() {
       await loadChildren();
       render();
     } catch (err) {
+      if (err.code === "AUTH_STATE_CHANGED") return;
       $(".form-error").textContent = errorMessage(err);
     } finally {
       restore();
@@ -789,7 +791,7 @@ function queryWindow() {
   return "?" + new URLSearchParams(state.window);
 }
 function sectionFailure(error) {
-  if (error.status === 401) throw error;
+  if (error.status === 401 || error.code === "AUTH_STATE_CHANGED") throw error;
   return { error };
 }
 function sectionError(title) {
@@ -1240,6 +1242,7 @@ async function render() {
     }
   } catch (e) {
     if (tick !== viewEpoch) return;
+    if (e.code === "AUTH_STATE_CHANGED") return;
     if (e.status === 401) {
       forget();
       loginPage();
@@ -2935,6 +2938,7 @@ async function boot() {
     }
     await render();
   } catch (e) {
+    if (e.code === "AUTH_STATE_CHANGED") return;
     $("#environment").hidden = true;
     page(
       empty(

@@ -1,5 +1,5 @@
 /** The journey uses persisted CA records only; it never infers a child's ability. */
-import { esc } from "./ui-components.js?v=0.3.28";
+import { esc } from "./ui-components.js?v=0.3.29";
 const owned = (rows, child) =>
   (rows || []).filter((row) => row.child_id === child);
 const timestamp = (row) =>

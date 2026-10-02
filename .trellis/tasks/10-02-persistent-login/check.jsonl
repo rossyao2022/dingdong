@@ -1,0 +1,7 @@
+{"file": ".trellis/spec/backend/index.md", "reason": "登录认证与跨端契约/验证规范"}
+{"file": ".trellis/spec/backend/api-conventions.md", "reason": "登录认证与跨端契约/验证规范"}
+{"file": ".trellis/spec/backend/models-and-migrations.md", "reason": "登录认证与跨端契约/验证规范"}
+{"file": ".trellis/spec/backend/testing.md", "reason": "登录认证与跨端契约/验证规范"}
+{"file": ".trellis/spec/frontend/index.md", "reason": "登录认证与跨端契约/验证规范"}
+{"file": ".trellis/spec/frontend/api-conventions.md", "reason": "登录认证与跨端契约/验证规范"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "登录认证与跨端契约/验证规范"}

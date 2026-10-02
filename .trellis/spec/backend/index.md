@@ -16,6 +16,7 @@
 | [external-integrations.md](./external-integrations.md) | 不许 mock 业务 API / 不许伪造成功；fixture 数据源、DingDong 出站客户端、上传与留存边界 |
 | [companion-preferences-and-export.md](./companion-preferences-and-export.md) | 网页四种引导、儿童级偏好与记录导出、CA关联删除保护 |
 | [prototype-report-and-handover.md](./prototype-report-and-handover.md) | 会展独立CA报告、共享Mock报告、安全推送与跨家庭解绑重绑 |
+| [persistent-parent-auth.md](./persistent-parent-auth.md) | 家长长期授权、滚动cookie、跨页刷新与撤销边界 |
 | [testing.md](./testing.md) | pytest 配置、为什么必须 PostgreSQL、`conftest.py` 与 `ops_helpers.py`、并发用例写法、命令与禁止项 |
 | [quality-guidelines.md](./quality-guidelines.md) | ruff 配置与 py314 格式化坑、注释与文案风格、日志与敏感数据、禁止模式、提交门禁、文档同步 |
 

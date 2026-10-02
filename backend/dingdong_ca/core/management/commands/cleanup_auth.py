@@ -2,13 +2,14 @@ from datetime import timedelta
 
 from django.core.management.base import BaseCommand
 from django.db import transaction
+from django.db.models import Q
 from django.utils import timezone
 
 from dingdong_ca.core.models import LoginGrant, SmsChallenge
 
 
 class Command(BaseCommand):
-    help = "清理超过24小时的验证码挑战（含短期IP限频数据）与过期登录授权。"
+    help = "清理超过24小时的验证码挑战（含短期IP限频数据）与过期、已撤销登录授权。"
 
     @transaction.atomic
     def handle(self, *args, **options):
@@ -19,5 +20,8 @@ class Command(BaseCommand):
         challenges = SmsChallenge.objects.filter(created_at__lt=now - timedelta(hours=24)).delete()[
             0
         ]
-        grants = LoginGrant.objects.filter(expires_at__lt=now - timedelta(days=1)).delete()[0]
+        cutoff = now - timedelta(days=1)
+        grants = LoginGrant.objects.filter(
+            Q(expires_at__lt=cutoff) | Q(revoked_at__lt=cutoff)
+        ).delete()[0]
         self.stdout.write(f"challenges={challenges}, grants={grants}")

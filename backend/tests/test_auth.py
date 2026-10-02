@@ -1,12 +1,17 @@
 import json
 import re
 from datetime import timedelta
+from io import StringIO
 
 import pytest
 from conftest import assert_schema, csrf, sign_in
 from django.apps import apps
+from django.core.management import call_command
 from django.utils import timezone
 from rest_framework.test import APIClient
+from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
+
+from dingdong_ca.core.api.accounts import token_pair
 
 pytestmark = pytest.mark.django_db
 
@@ -114,11 +119,107 @@ def test_challenge_consumed_and_expired(client):
     assert r.json()["code"] == "SMS_CHALLENGE_EXPIRED"
 
 
-def test_refresh_rotation_fixed_deadline_and_logout(client):
+def test_persistent_login_keeps_short_access_and_durable_cookie(client):
+    data = sign_in(client)
+    grant = apps.get_model("core", "LoginGrant").objects.get(user_id=data["user"]["id"])
+    assert grant.expires_at is None
+    assert data["expires_in"] == 600
+    access = AccessToken(data["access_token"])
+    refresh = RefreshToken(client.cookies["refresh_token"].value)
+    assert 599 <= access["exp"] - access["iat"] <= 600
+    assert 400 * 24 * 60 * 60 - 1 <= refresh["exp"] - refresh["iat"] <= 400 * 24 * 60 * 60
+    assert int(client.cookies["refresh_token"]["max-age"]) == 400 * 24 * 60 * 60
+    assert client.cookies["refresh_token"]["samesite"] == "Lax"
+
+
+def test_persistent_refresh_survives_original_seven_days_and_extends_cookie(client, monkeypatch):
+    data = sign_in(client)
+    old_refresh = RefreshToken(client.cookies["refresh_token"].value)
+    later = timezone.now() + timedelta(days=8)
+    monkeypatch.setattr(timezone, "now", lambda: later)
+    r = client.post("/api/v1/auth/refresh", {}, format="json")
+    assert r.status_code == 200
+    new_refresh = RefreshToken(client.cookies["refresh_token"].value)
+    assert new_refresh["exp"] > old_refresh["exp"] + 7 * 24 * 60 * 60
+    assert int(client.cookies["refresh_token"]["max-age"]) == 400 * 24 * 60 * 60
+    client.credentials(HTTP_AUTHORIZATION="Bearer " + r.json()["access_token"])
+    assert client.get("/api/v1/me").status_code == 200
+    grant = apps.get_model("core", "LoginGrant").objects.get(user_id=data["user"]["id"])
+    assert grant.expires_at is None
+
+
+def test_saved_cookie_restores_login_without_saved_access_token(client):
+    data = sign_in(client)
+    reopened = APIClient(enforce_csrf_checks=True)
+    reopened.cookies["refresh_token"] = client.cookies["refresh_token"].value
+    assert reopened.get("/api/v1/me").status_code == 401
+    csrf(reopened)
+    r = reopened.post("/api/v1/auth/refresh", {}, format="json")
+    assert r.status_code == 200
+    reopened.credentials(HTTP_AUTHORIZATION="Bearer " + r.json()["access_token"])
+    assert reopened.get("/api/v1/me").json()["id"] == data["user"]["id"]
+
+
+def test_valid_legacy_login_upgrades_on_refresh(client):
+    data = sign_in(client)
+    grant = apps.get_model("core", "LoginGrant").objects.get(user_id=data["user"]["id"])
+    grant.expires_at = timezone.now() + timedelta(days=2)
+    grant.save(update_fields=["expires_at"])
+    _, legacy_refresh = token_pair(grant)
+    client.cookies["refresh_token"] = legacy_refresh
+    r = client.post("/api/v1/auth/refresh", {}, format="json")
+    assert r.status_code == 200
+    grant.refresh_from_db()
+    assert grant.expires_at is None
+    assert int(client.cookies["refresh_token"]["max-age"]) == 400 * 24 * 60 * 60
+
+
+@pytest.mark.parametrize("invalid", ["expired", "revoked", "disabled"])
+def test_refresh_never_revives_invalid_login(client, invalid):
+    data = sign_in(client)
+    grant = apps.get_model("core", "LoginGrant").objects.get(user_id=data["user"]["id"])
+    if invalid == "expired":
+        grant.expires_at = timezone.now() - timedelta(seconds=1)
+        grant.save(update_fields=["expires_at"])
+    elif invalid == "revoked":
+        grant.revoked_at = timezone.now()
+        grant.save(update_fields=["revoked_at"])
+    else:
+        grant.user.is_active = False
+        grant.user.save(update_fields=["is_active"])
+    old_jti = grant.current_refresh_jti
+    r = client.post("/api/v1/auth/refresh", {}, format="json")
+    assert r.status_code == 401
+    assert "refresh_token" not in r.cookies
+    grant.refresh_from_db()
+    assert grant.current_refresh_jti == old_jti
+    if invalid == "expired":
+        assert grant.expires_at is not None
+
+
+def test_cleanup_preserves_persistent_login_and_removes_old_revoked_grant(client):
     data = sign_in(client)
     Grant = apps.get_model("core", "LoginGrant")
     grant = Grant.objects.get(user_id=data["user"]["id"])
-    deadline = grant.expires_at
+    Grant.objects.filter(pk=grant.pk).update(created_at=timezone.now() - timedelta(days=500))
+    call_command("cleanup_auth", stdout=StringIO())
+    assert Grant.objects.filter(pk=grant.pk).exists()
+    assert client.get("/api/v1/me").status_code == 200
+    grant.revoked_at = timezone.now()
+    grant.save(update_fields=["revoked_at"])
+    call_command("cleanup_auth", stdout=StringIO())
+    assert Grant.objects.filter(pk=grant.pk).exists()
+    grant.revoked_at = timezone.now() - timedelta(days=2)
+    grant.save(update_fields=["revoked_at"])
+    call_command("cleanup_auth", stdout=StringIO())
+    assert not Grant.objects.filter(pk=grant.pk).exists()
+
+
+def test_refresh_rotation_persistent_grant_and_logout(client):
+    data = sign_in(client)
+    Grant = apps.get_model("core", "LoginGrant")
+    grant = Grant.objects.get(user_id=data["user"]["id"])
+    assert grant.expires_at is None
     original_refresh = client.cookies["refresh_token"].value
     old_access = data["access_token"]
     r = client.post("/api/v1/auth/refresh", {}, format="json")
@@ -127,11 +228,14 @@ def test_refresh_rotation_fixed_deadline_and_logout(client):
     new_refresh = client.cookies["refresh_token"].value
     assert new_refresh != original_refresh
     grant.refresh_from_db()
-    assert grant.expires_at == deadline
+    assert grant.expires_at is None
     client.cookies["refresh_token"] = original_refresh
     assert client.post("/api/v1/auth/refresh", {}, format="json").status_code == 401
     client.cookies["refresh_token"] = new_refresh
     assert client.post("/api/v1/auth/logout", {}, format="json").status_code == 204
+    assert client.cookies["refresh_token"]["max-age"] == 0
+    client.cookies["refresh_token"] = new_refresh
+    assert client.post("/api/v1/auth/refresh", {}, format="json").status_code == 401
     client.credentials(HTTP_AUTHORIZATION="Bearer " + old_access)
     assert client.get("/api/v1/me").status_code == 401
 

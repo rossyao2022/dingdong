@@ -26,7 +26,7 @@ export function showStartupFailure(
 }
 
 export async function startApp({
-  load = () => import("./app.js?v=0.3.28"),
+  load = () => import("./app.js?v=0.3.29"),
   onFailure = showStartupFailure,
   setTimer = setTimeout,
   clearTimer = clearTimeout,

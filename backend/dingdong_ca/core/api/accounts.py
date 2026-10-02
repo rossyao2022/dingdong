@@ -21,6 +21,8 @@ from .common import ApiError, audit, endpoint, family_for, validate
 from .inputs import LoginInput, SmsInput
 
 COOKIE_PATH = "/api/v1/auth/"
+ACCESS_LIFETIME = timedelta(minutes=10)
+REFRESH_LIFETIME = timedelta(days=400)
 
 
 def serialize_user(user):
@@ -47,25 +49,38 @@ def digest(challenge_id, phone, code):
     ).hexdigest()
 
 
-def token_pair(grant):
+def token_deadlines(grant, now):
+    access_deadline = now + ACCESS_LIFETIME
+    refresh_deadline = now + REFRESH_LIFETIME
+    if grant.expires_at is not None:
+        access_deadline = min(access_deadline, grant.expires_at)
+        refresh_deadline = min(refresh_deadline, grant.expires_at)
+    return access_deadline, refresh_deadline
+
+
+def token_pair(grant, *, now=None):
+    now = now or timezone.now()
+    access_deadline, refresh_deadline = token_deadlines(grant, now)
     refresh = RefreshToken()
     refresh["user_id"] = str(grant.user_id)
     refresh["grant_id"] = str(grant.pk)
     refresh["jti"] = grant.current_refresh_jti.hex
-    refresh["exp"] = int(grant.expires_at.timestamp())
+    refresh["exp"] = int(refresh_deadline.timestamp())
     access = AccessToken()
     access["user_id"] = str(grant.user_id)
     access["grant_id"] = str(grant.pk)
-    access["exp"] = int(min(timezone.now() + timedelta(minutes=10), grant.expires_at).timestamp())
+    access["exp"] = int(access_deadline.timestamp())
     return str(access), str(refresh)
 
 
 def signed_response(grant, *, user=False):
-    access, refresh = token_pair(grant)
+    now = timezone.now()
+    access_deadline, refresh_deadline = token_deadlines(grant, now)
+    access, refresh = token_pair(grant, now=now)
     data = {
         "access_token": access,
         "token_type": "Bearer",
-        "expires_in": min(600, max(1, int((grant.expires_at - timezone.now()).total_seconds()))),
+        "expires_in": max(1, int((access_deadline - now).total_seconds())),
     }
     if user:
         data["user"] = serialize_user(grant.user)
@@ -73,7 +88,7 @@ def signed_response(grant, *, user=False):
     response.set_cookie(
         "refresh_token",
         refresh,
-        max_age=max(0, int((grant.expires_at - timezone.now()).total_seconds())),
+        max_age=max(0, int((refresh_deadline - now).total_seconds())),
         path=COOKIE_PATH,
         secure=settings.COOKIE_SECURE,
         httponly=True,
@@ -214,7 +229,7 @@ def login(request):
                 row.consumed_at = now
                 row.save(update_fields=["status", "code_digest", "consumed_at", "updated_at"])
                 grant = LoginGrant.objects.create(
-                    user=user, current_refresh_jti=uuid.uuid4(), expires_at=now + timedelta(days=7)
+                    user=user, current_refresh_jti=uuid.uuid4(), expires_at=None
                 )
                 audit(user, "auth.login", grant)
     # Persist failed-attempt counters before returning an error; never raise inside that transaction.
@@ -235,7 +250,7 @@ def cookie_grant(request, lock=False):
             raise ValueError
         if (
             grant.revoked_at
-            or grant.expires_at <= timezone.now()
+            or (grant.expires_at is not None and grant.expires_at <= timezone.now())
             or not grant.user.is_active
             or grant.user.account_kind != "parent"
         ):
@@ -250,8 +265,12 @@ def refresh(request):
     with transaction.atomic():
         grant = cookie_grant(request, lock=True)
         grant.current_refresh_jti = uuid.uuid4()
+        # Validate the old deadline first; expired/revoked sessions must never be revived.
+        grant.expires_at = None
         grant.last_refreshed_at = timezone.now()
-        grant.save(update_fields=["current_refresh_jti", "last_refreshed_at", "updated_at"])
+        grant.save(
+            update_fields=["current_refresh_jti", "expires_at", "last_refreshed_at", "updated_at"]
+        )
         response = signed_response(grant)
     return response
 

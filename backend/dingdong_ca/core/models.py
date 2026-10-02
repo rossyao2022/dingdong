@@ -76,7 +76,8 @@ class SmsChallenge(Entity):
 class LoginGrant(Entity):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     current_refresh_jti = models.UUIDField(unique=True)
-    expires_at = models.DateTimeField()
+    # NULL keeps the device authorized until logout/revocation; legacy deadlines remain valid.
+    expires_at = models.DateTimeField(null=True)
     revoked_at = models.DateTimeField(null=True)
     revoke_reason = models.CharField(max_length=32, blank=True)
     last_refreshed_at = models.DateTimeField(null=True)

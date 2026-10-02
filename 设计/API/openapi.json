@@ -446,7 +446,7 @@
           "登录"
         ],
         "summary": "短信登录",
-        "description": "00000 只匹配有效未消费挑战；消费与建立登录授权同事务。首次登录真实建立 user/family/membership，不返回硬编码用户。",
+        "description": "00000 只匹配有效未消费挑战；消费与建立登录授权同事务。首次登录真实建立 user/family/membership，不返回硬编码用户。 家长登录授权无固定截止；refresh JWT与持久HttpOnly cookie有效期400天，每次成功刷新滚动续期；access仍为10分钟。浏览器删除cookie、超过凭据留存期或授权撤销后须重新登录。",
         "security": [],
         "parameters": [
           {
@@ -481,7 +481,7 @@
                   "type": "string",
                   "description": "刷新 Cookie，路径限制到 auth",
                   "examples": [
-                    "refresh_token=<signed-refresh-jwt>; HttpOnly; Secure; SameSite=Lax; Path=/api/v1/auth/; Max-Age=604800"
+                    "refresh_token=<signed-refresh-jwt>; HttpOnly; Secure; SameSite=Lax; Path=/api/v1/auth/; Max-Age=34560000"
                   ]
                 }
               }
@@ -618,7 +618,7 @@
           "登录"
         ],
         "summary": "刷新 access JWT",
-        "description": "原子轮换 refresh JTI，首次登录后固定 7 天截止，不滑动续期；不返回 refresh JSON。",
+        "description": "原子轮换refresh JTI，不返回refresh JSON。新授权无固定截止，有效旧授权成功刷新后转长期授权；已过期或撤销授权不恢复。refresh JWT与HttpOnly cookie每次成功签发400天，access保持10分钟；账号停用和主动退出立即失效。",
         "security": [
           {
             "refreshCookie": []
@@ -657,7 +657,7 @@
                   "type": "string",
                   "description": "刷新 Cookie，路径限制到 auth",
                   "examples": [
-                    "refresh_token=<signed-refresh-jwt>; HttpOnly; Secure; SameSite=Lax; Path=/api/v1/auth/; Max-Age=604800"
+                    "refresh_token=<signed-refresh-jwt>; HttpOnly; Secure; SameSite=Lax; Path=/api/v1/auth/; Max-Age=34560000"
                   ]
                 }
               }

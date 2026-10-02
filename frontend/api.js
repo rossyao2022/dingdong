@@ -13,6 +13,25 @@ export function createRequestId(source = globalThis.crypto) {
 let access = "";
 let refreshInFlight;
 let epoch = 0;
+let authQueue = Promise.resolve();
+// Cookies are shared by tabs: finish each rotation before another tab reads it.
+// The local queue also protects login/logout on browsers without Web Locks.
+function withAuthLock(operation) {
+  const locks = globalThis.navigator?.locks;
+  if (typeof locks?.request === "function")
+    return locks.request("dingdong-auth-session", operation);
+  const pending = authQueue.then(operation);
+  authQueue = pending.catch(() => {});
+  return pending;
+}
+function requireEpoch(current) {
+  if (current !== epoch)
+    // Cancellation belongs to the old identity; 401 would log the new user out.
+    throw new APIError(0, {
+      code: "AUTH_STATE_CHANGED",
+      message: "登录状态已改变。",
+    });
+}
 // 5xx 一律给这一句：后端出错时回的可能是 HTML 调试页（本地 DEBUG=True），
 // 解析失败会落到「无法识别的响应」这种内部说法，不是给家长看的文案。
 const SERVER_ERROR_MESSAGE = "服务暂时不可用，请稍后再试。";
@@ -47,6 +66,7 @@ export async function request(
   path,
   { method = "GET", body, auth = true, retry = true } = {},
 ) {
+  const current = epoch;
   const headers = {};
   if (access && auth) headers.Authorization = "Bearer " + access;
   if (csrf()) headers["X-CSRFToken"] = csrf();
@@ -83,7 +103,10 @@ export async function request(
           .json()
           .catch(() => ({ message: "服务返回了无法识别的响应。" }));
   if (response.status === 401 && auth && retry) {
+    // A delayed response must not replay the old user's operation after a switch.
+    requireEpoch(current);
     await refresh();
+    requireEpoch(current);
     return request(path, { method, body, auth, retry: false });
   }
   if (response.status >= 500)
@@ -99,39 +122,49 @@ export async function request(
 export async function refresh() {
   if (refreshInFlight) return refreshInFlight;
   const current = epoch;
-  const pending = (async () => {
+  const pending = withAuthLock(async () => {
+    requireEpoch(current);
     if (!csrf()) await request("/auth/csrf", { auth: false });
+    requireEpoch(current);
     const r = await request("/auth/refresh", {
       method: "POST",
       body: {},
       auth: false,
     });
-    if (current !== epoch)
-      throw new APIError(401, { message: "登录状态已改变。" });
+    requireEpoch(current);
     access = r.access_token;
-  })();
+  });
   refreshInFlight = pending;
   try {
     await pending;
   } catch (e) {
-    if (current === epoch) access = "";
+    if (current === epoch && [401, 403].includes(e.status)) access = "";
     throw e;
   } finally {
     if (refreshInFlight === pending) refreshInFlight = undefined;
   }
 }
 export async function login(challenge, code) {
-  const r = await request("/auth/login", {
-    method: "POST",
-    auth: false,
-    body: { challenge_id: challenge, code },
+  clearAuth();
+  const current = epoch;
+  return withAuthLock(async () => {
+    requireEpoch(current);
+    const r = await request("/auth/login", {
+      method: "POST",
+      auth: false,
+      body: { challenge_id: challenge, code },
+    });
+    requireEpoch(current);
+    access = r.access_token;
+    return r.user;
   });
-  access = r.access_token;
-  return r.user;
 }
 export async function logout() {
-  await request("/auth/logout", { method: "POST", auth: false, body: {} });
+  // Invalidate in-memory results now, then revoke the cookie after any rotation.
   clearAuth();
+  await withAuthLock(() =>
+    request("/auth/logout", { method: "POST", auth: false, body: {} }),
+  );
 }
 export async function all(path) {
   const items = [];

@@ -20,8 +20,9 @@
 
 ## 认证与登录态
 
-- `API.refresh()` 用 HttpOnly refresh cookie 换 access；用模块内 `epoch` 防止并发刷新串号，`clearAuth()` 会递增 `epoch`。
+- 家长长期授权与滚动HttpOnly cookie见[持久登录契约](../backend/persistent-parent-auth.md)。`API.refresh()` 用cookie换短access；同源Web Locks串行refresh/login/logout，页内singleflight合并刷新，`epoch`/`clearAuth()`防迟到结果串号。不支持Web Locks时仅保留页内保护。
 - `API.login(challenge, code)` 拿 access 并返回 user；`API.logout()` 调后端后 `clearAuth()`。
+- 身份已改变导致旧请求取消时使用 `status=0/code=AUTH_STATE_CHANGED`，页面catch忽略此取消，不把它当401触发新身份退出；区块catch须传播至受上下文保护的上层。
 - 页面上任何 `401` 都走 `showError()` → `forget()` + 回登录页（`app.js` 的 `showError` 与 `render()` 的 catch 分支都做了这件事）。**不要**在业务分支里自己处理 401。
 
 ## 分页
