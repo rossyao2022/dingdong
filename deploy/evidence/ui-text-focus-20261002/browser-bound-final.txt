@@ -1,0 +1,8 @@
+
+Running 1 test using 1 worker
+
+(node:83700) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui-text-coverage.spec.js:18:1 › synthetic bound report keeps all periods and opens all eight dimensions by keyboard (1.5s)
+
+  1 passed (2.3s)

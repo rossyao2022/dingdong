@@ -157,7 +157,7 @@ test("simulation curve uses real day spacing and does not change robot settings"
   assert.match(html, /不会修改机器人设置/);
   assert.match(html, /演示内容/);
   assert.match(html, /有效互动/);
-  assert.ok(!html.includes("<details"));
+  assert.match(html, /<details class="panel dd-report-comparison"><summary>查看八维明细/);
 });
 
 test("robot entry keeps bound chat independent of report read failures and preserves unbound CA experience", async () => {

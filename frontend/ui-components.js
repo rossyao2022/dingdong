@@ -26,7 +26,22 @@ export function pageHead(
   action = "",
   childName = "DINGDONG",
 ) {
-  return `<div class="page-head"><div><span class="eyebrow">${esc(childName)} · 成长空间</span><h1>${esc(title)}</h1><p>${esc(desc)}</p></div>${action}</div>`;
+  return `<div class="page-head"><div><h1>${esc(title)}</h1>${desc ? `<p>${esc(desc)}</p>` : ""}</div>${action}</div>`;
+}
+
+/** Current preference stays visible; all choices remain keyboard-accessible. */
+export function renderGuidePreference(mode, modes) {
+  const current = modes[mode];
+  return `<p class="guide-current">当前方式：<b>${esc(current?.label || "尚未选择")}</b>${current ? ` · ${esc(current.description)}` : ""}</p><details class="guide-options"><summary>调整引导方式</summary><div class="stack">${Object.entries(
+    modes,
+  )
+    .map(
+      ([key, value]) =>
+        `<button class="chip ${mode === key ? "active" : ""}" data-action="style" data-value="${esc(key)}" aria-pressed="${mode === key}"><strong>${esc(value.label)}</strong><span> · ${esc(value.description)}</span></button>`,
+    )
+    .join(
+      "",
+    )}</div></details><div class="actions">${button("companion-exploration", "用 4 个情境了解偏好", "", true)}<a href="#home" class="button">去做一个小行动</a></div><div class="form-error" role="alert"></div>`;
 }
 
 export function emptyState(title, text, action = "") {

@@ -2,7 +2,7 @@
 {% load ops_labels %}
 {% block title %}题库管理{% endblock %}
 {% block page_title %}题库管理{% endblock %}
-{% block crumb %}维护家长端使用的问卷题目，按版本发布{% endblock %}
+{% block crumb %}{% endblock %}
 
 {% block topbar_actions %}
   {% if can_edit %}
@@ -48,10 +48,10 @@
           </div>
         </div>
       </form>
-      <p class="form-hint mt-3 mb-0">
+      <details class="ops-help mt-3"><summary>版本使用说明</summary><p class="form-hint mb-0">
         “新建题库”每次都会创建一份独立题库，名称相同也是两份内容；要修改已有题库，请用“复制为新版本”。
         已发布和已停用的版本不能原地修改。历史答卷始终绑定创建时的版本。
-      </p>
+      </p></details>
     </div>
   </section>
 
@@ -59,7 +59,6 @@
     <div class="card-header">
       <div>
         <h2 class="card-title">题库版本</h2>
-        <div class="card-subtitle">共 {{ page.total }} 条，每页 20 条。</div>
       </div>
     </div>
 

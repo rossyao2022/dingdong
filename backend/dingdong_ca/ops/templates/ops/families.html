@@ -2,7 +2,7 @@
 {% load ops_labels %}
 {% block title %}家庭与儿童{% endblock %}
 {% block page_title %}家庭与儿童{% endblock %}
-{% block crumb %}按手机号或称呼查找家庭，进入儿童详情{% endblock %}
+{% block crumb %}{% endblock %}
 
 {% block content %}
   <section class="card">
@@ -24,9 +24,9 @@
           </div>
         </div>
       </form>
-      <p class="form-hint mt-3 mb-0">
+      <details class="ops-help mt-3"><summary>查询范围</summary><p class="form-hint mb-0">
         查询范围：家长手机号、家长姓名、登录账号、儿童称呼，均为包含匹配。每页 20 条。
-      </p>
+      </p></details>
     </div>
   </section>
 

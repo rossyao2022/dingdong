@@ -21,9 +21,9 @@
 {% endblock %}
 
 {% block content %}
-  <div class="alert alert-info" role="alert">
+  <details class="ops-help mb-3">
+    <summary>整库规则与发布范围（{{ row.questions|length }} 题）</summary>
     <div>
-    <h4 class="alert-heading">这是运营视角的整库预览</h4>
     <p class="mb-0">
       预览内容与家长端展示一致：题库名称、用途说明、题干、选项与必填规则。
       题目数量：{{ row.questions|length }} 题。
@@ -31,7 +31,7 @@
       {{ publish_notice }}
     </p>
     </div>
-  </div>
+  </details>
 
   <section class="card">
     <div class="card-header">

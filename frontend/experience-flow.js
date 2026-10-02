@@ -1,5 +1,5 @@
 /** The journey uses persisted CA records only; it never infers a child's ability. */
-import { esc } from "./ui-components.js?v=0.3.27";
+import { esc } from "./ui-components.js?v=0.3.28";
 const owned = (rows, child) =>
   (rows || []).filter((row) => row.child_id === child);
 const timestamp = (row) =>
@@ -55,7 +55,7 @@ export function nextExperience(sessions = [], records = [], child) {
       kind: "interest",
       step: 0,
       title: "从孩子喜欢的事开始",
-      text: "选三座心动的小岛，再回答九个小情境。",
+      text: "从下面的小岛开始，看看此刻喜欢什么。",
       label: "开始兴趣探索",
       action: "journey-interest",
     };
@@ -83,7 +83,7 @@ export function renderExperienceTask(task) {
   const action = task.action
     ? `<button class="button" type="button" data-action="${esc(task.action)}"${task.sessionId ? ` data-id="${esc(task.sessionId)}" data-purpose="${esc(task.purpose)}"` : ""}>${esc(task.label)}</button>`
     : `<a class="button" href="${esc(task.href)}">${esc(task.label)}</a>`;
-  return `<section class="panel experience-task" aria-label="体验主线"><span class="eyebrow">这次，一起做什么</span><ol class="experience-steps">${steps.map((label, index) => `<li${index === task.step ? ' aria-current="step" class="current"' : ""}><span aria-hidden="true">${index + 1}</span>${label}</li>`).join("")}</ol><h2>${esc(task.title)}</h2><p>${esc(task.text)}</p><div class="actions">${action}${task.reviewHref ? `<a class="button secondary" href="${esc(task.reviewHref)}">回看这次活动</a>` : ""}</div></section>`;
+  return `<section class="panel experience-task" aria-label="体验主线"><ol class="experience-steps">${steps.map((label, index) => `<li${index === task.step ? ' aria-current="step" class="current"' : ""}><span aria-hidden="true">${index + 1}</span>${label}</li>`).join("")}</ol><h2>${esc(task.title)}</h2><p>${esc(task.text)}</p><div class="actions">${action}${task.reviewHref ? `<a class="button secondary" href="${esc(task.reviewHref)}">回看这次活动</a>` : ""}</div></section>`;
 }
 export function experienceRecords(
   sessions = [],
@@ -138,7 +138,7 @@ export function experienceRecords(
 }
 export function renderExperienceRecords(rows) {
   if (!rows.length)
-    return '<p class="note">完成一次探索或小活动后，就会在这里留下记录。</p>';
+    return '<section class="panel experience-empty"><h2>还没有体验记录</h2><a class="button" href="#explore">开始一次探索</a></section>';
   return `<ol class="experience-records">${rows
     .map((row) => {
       const date = new Date(row.time);

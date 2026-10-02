@@ -3,7 +3,7 @@ import { shell } from "./support.js";
 
 // Run against the real isolated PostgreSQL-backed app. Never fulfil API responses.
 const base = process.env.E2E_BASE_URL || "http://127.0.0.1:4173";
-const screenshotDir = "../.trellis/.runtime/prototype-integration/shots";
+const screenshotDir = process.env.E2E_SHOTS_DIR || "../.trellis/.runtime/prototype-integration/shots";
 const widths = [320, 390, 430];
 
 async function loginAndChild(page, name = "原型整合验收") {
@@ -299,7 +299,7 @@ test("24题八维观察真实作答、断点恢复、最低分相同不强排前
   for (const score of await page.locator(".talent-score").all())
     await expect(score).toContainText("3");
   await expect(page.locator(".talent-report-overview")).toContainText(
-    "一样值得探索",
+    "不强行排前三",
   );
   await expect(page.locator(".talent-radar")).toBeVisible();
   await page.reload();
@@ -333,7 +333,7 @@ test("八维最高分及第四名并列全部呈现，重新探索保留历史�
   for (const score of await page.locator(".talent-score").all())
     await expect(score).toContainText("15");
   await expect(page.locator(".talent-report-overview")).toContainText(
-    "一样值得探索",
+    "不强行排前三",
   );
   await page.locator("[data-talent-action='restart']").click();
   const types = await page.evaluate(() =>
@@ -450,6 +450,8 @@ test("指纹四类完整指南、示例及临时预览不上传，离开释放�
         style: "#toast { display: none !important; }",
         path: `${screenshotDir}/guide-whorl-390.png`,
       });
+      await page.locator(".fp-guide-details > summary").press("Enter");
+      await expect(page.locator(".fp-guide-details")).toHaveAttribute("open", "");
       await page
         .locator(".fp-guide-columns > article")
         .nth(1)

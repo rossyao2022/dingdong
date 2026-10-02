@@ -1,0 +1,136 @@
+
+Running 12 tests using 1 worker
+
+(node:80414) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/legacy-compat.spec.js:4:1 › all seven old page URLs open their current CA page and discard identity, scores and NFC tokens (648ms)
+  ✓   2 tests/mobile-layout.spec.js:63:1 › 登录验证码控件在手机、平板与桌面宽度下对齐且互不遮挡 (662ms)
+  ✓   3 tests/mobile-layout.spec.js:97:1 › 首次建档和无儿童账户页跨屏宽不溢出 (568ms)
+  ✘   4 tests/mobile-layout.spec.js:126:1 › 窄屏切换页面回到页首，帮助入口按钮保持一致 (5.5s)
+(node:80533) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 tests/mobile-layout.spec.js:165:1 › 320px 今日陪伴直接展示筛选和活动，主动作不被宣传图挤走 (756ms)
+  ✘   6 tests/mobile-layout.spec.js:178:1 › 活动和测评详情在手机、平板、桌面可读可操作 (1.0m)
+(node:80989) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   7 tests/mobile-layout.spec.js:237:1 › 报告详情在多档宽度可读（合成视觉样例） (5.5s)
+(node:81055) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   8 tests/mobile-layout.spec.js:276:1 › 手机登录、主要页面、底部导航与表单的布局保持清楚 (1.0m)
+(node:81344) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 tests/prototype-audit-fixes.spec.js:77:1 › 原四类偏好真实保存、刷新恢复、儿童隔离、退出 (7.5s)
+  ✓  10 tests/prototype-audit-fixes.spec.js:127:1 › 活动四种引导实际不同、自主模式、上一步、筛选与真实导出 (38.5s)
+  ✓  11 tests/prototype-audit-fixes.spec.js:265:1 › 伙伴四情境、服务端分布、重做保留旧结果与家长支持 (11.0s)
+  ✓  12 tests/ui-text-parent.spec.js:5:1 › empty reports prioritize exploration; preference details support keyboard and persisted choices (8.5s)
+
+
+  1) tests/mobile-layout.spec.js:126:1 › 窄屏切换页面回到页首，帮助入口按钮保持一致 ─────────────────────────────────────
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 200
+    Received:   77
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      146 |   await expect
+      147 |     .poll(() => page.evaluate(() => window.scrollY))
+    > 148 |     .toBeGreaterThan(200);
+          |      ^
+      149 |   await page.locator("#mobile-nav a[href='#reports']").click();
+      150 |   await expect(heading).toBeInViewport();
+      151 |
+        at frontend/tests/mobile-layout.spec.js:148:6
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../.trellis/.runtime/ui-text-focus/final-browser/mobile-layout-窄屏切换页面回到页首，帮助入口按钮保持一致/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../.trellis/.runtime/ui-text-focus/final-browser/mobile-layout-窄屏切换页面回到页首，帮助入口按钮保持一致/error-context.md
+
+  2) tests/mobile-layout.spec.js:178:1 › 活动和测评详情在手机、平板、桌面可读可操作 ─────────────────────────────────────
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: '开始测评', exact: true })
+
+
+      220 |   await noHorizontalOverflow(page);
+      221 |
+    > 222 |   await page.goto(`${base}/#reports`);
+          |                                       ^
+      223 |   await expect(page.locator("#main[aria-busy='false']")).toBeVisible();
+      224 |   await page.getByRole("button", { name: "开始测评", exact: true }).click();
+      225 |   await expect(page.locator("#dialog")).toBeVisible();
+        at frontend/tests/mobile-layout.spec.js:222:65
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../.trellis/.runtime/ui-text-focus/final-browser/mobile-layout-活动和测评详情在手机、平板、桌面可读可操作/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../.trellis/.runtime/ui-text-focus/final-browser/mobile-layout-活动和测评详情在手机、平板、桌面可读可操作/error-context.md
+
+  3) tests/mobile-layout.spec.js:237:1 › 报告详情在多档宽度可读（合成视觉样例） ───────────────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: '初始报告', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: '初始报告', exact: true }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: '初始报告', exact: true })
+
+
+      263 |   );
+      264 |   await page.goto(`${base}/#report/layout-fixture`);
+    > 265 |   await expect(
+          |     ^
+      266 |     page.getByRole("heading", { name: "初始报告", exact: true }),
+      267 |   ).toBeVisible();
+      268 |   for (const width of [320, 390, 430, 768, 1024, 1280]) {
+        at frontend/tests/mobile-layout.spec.js:265:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../.trellis/.runtime/ui-text-focus/final-browser/mobile-layout-报告详情在多档宽度可读（合成视觉样例）/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../.trellis/.runtime/ui-text-focus/final-browser/mobile-layout-报告详情在多档宽度可读（合成视觉样例）/error-context.md
+
+  4) tests/mobile-layout.spec.js:276:1 › 手机登录、主要页面、底部导航与表单的布局保持清楚 ──────────────────────────────────
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.boundingBox: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for locator('#main .grid').first()
+
+
+       5 |
+       6 | async function box(locator) {
+    >  7 |   const result = await locator.boundingBox();
+         |                                ^
+       8 |   expect(result).not.toBeNull();
+       9 |   return result;
+      10 | }
+        at box (frontend/tests/mobile-layout.spec.js:7:32)
+        at frontend/tests/mobile-layout.spec.js:332:29
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../.trellis/.runtime/ui-text-focus/final-browser/mobile-layout-手机登录、主要页面、底部导航与表单的布局保持清楚/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../.trellis/.runtime/ui-text-focus/final-browser/mobile-layout-手机登录、主要页面、底部导航与表单的布局保持清楚/error-context.md
+
+  4 failed
+    tests/mobile-layout.spec.js:126:1 › 窄屏切换页面回到页首，帮助入口按钮保持一致 ──────────────────────────────────────
+    tests/mobile-layout.spec.js:178:1 › 活动和测评详情在手机、平板、桌面可读可操作 ──────────────────────────────────────
+    tests/mobile-layout.spec.js:237:1 › 报告详情在多档宽度可读（合成视觉样例） ────────────────────────────────────────
+    tests/mobile-layout.spec.js:276:1 › 手机登录、主要页面、底部导航与表单的布局保持清楚 ───────────────────────────────────
+  8 passed (3.4m)

@@ -5,12 +5,10 @@
 
 {% block content %}
   <section class="card mx-auto" style="max-width:760px">
-    <div class="card-header"><h2 class="card-title">第一步：填写题库基本信息</h2></div>
+    <div class="card-header"><h2 class="card-title">题库基本信息</h2></div>
     <div class="card-body">
       <p class="text-secondary small">
-        创建后进入可视化编辑器逐题添加题目。草稿不会出现在家长端。
-        内部编号与版本号由系统自动生成，不需要手工维护。
-        修改展会首页的六岛或八维问卷，请复制当前默认题库为新版本；独立新建并发布不会自动替换当前首页。
+        草稿不会出现在家长端。修改首页六岛或八维问卷须复制当前默认题库；独立新建并发布不会替换首页。
       </p>
 
       <div class="mb-3">
@@ -27,8 +25,7 @@
         <input type="text" class="form-control" id="new-title"
                placeholder="家长看到的问卷名称" maxlength="160" />
         <p class="form-hint">
-          这里每次都会新建一份<strong>独立</strong>题库：即使名称相同，也是两份互不影响的内容。
-          要修改已有题库，请回到题库列表用“复制为新版本”。
+          同名也会新建独立题库；修改已有题库请用“复制为新版本”。
         </p>
       </div>
       <div class="mb-3">

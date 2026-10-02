@@ -2,7 +2,7 @@
 {% load ops_labels %}
 {% block title %}操作审计{% endblock %}
 {% block page_title %}操作审计{% endblock %}
-{% block crumb %}后台关键操作的完整记录{% endblock %}
+{% block crumb %}{% endblock %}
 
 {% block content %}
   {% include "ops/_filter_problems.html" %}
@@ -46,7 +46,7 @@
     <div class="card-header">
       <div>
         <h2 class="card-title">操作记录</h2>
-        <div class="card-subtitle">共 {{ page.total }} 条，每页 20 条。时间按北京时间显示。</div>
+        <div class="card-subtitle">时间按北京时间显示。</div>
       </div>
     </div>
 

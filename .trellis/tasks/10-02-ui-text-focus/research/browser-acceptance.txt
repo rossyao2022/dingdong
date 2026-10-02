@@ -1,0 +1,33 @@
+
+Running 26 tests using 1 worker
+
+(node:88166) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/cache-upgrade.spec.js:142:1 › populated old immutable module cache reproduces the old error; versioned current app then boots and ordinary reload works (858ms)
+  ✓   2 tests/cache-upgrade.spec.js:200:1 › fresh cache boots the full real app (216ms)
+  ✓   3 tests/cache-upgrade.spec.js:215:3 › broken-dependency offers manual recovery, keeps NFC until healthy app boot and never loops (786ms)
+  ✓   4 tests/cache-upgrade.spec.js:215:3 › broken-entry offers manual recovery, keeps NFC until healthy app boot and never loops (674ms)
+  ✓   5 tests/cache-upgrade.spec.js:264:1 › entry fetch stalls: independent HTML watchdog shows recovery once and healthy retry cancels timers (20.8s)
+  ✓   6 tests/exhibition-ready.spec.js:36:1 › 主线真实保存：首次探索→中断续题→行动→记录→下一次，切儿童隔离 (11.8s)
+  ✓   7 tests/legacy-compat.spec.js:4:1 › all seven old page URLs open their current CA page and discard identity, scores and NFC tokens (453ms)
+  ✓   8 tests/mobile-layout.spec.js:63:1 › 登录验证码控件在手机、平板与桌面宽度下对齐且互不遮挡 (757ms)
+  ✓   9 tests/mobile-layout.spec.js:97:1 › 首次建档和无儿童账户页跨屏宽不溢出 (727ms)
+  ✓  10 tests/mobile-layout.spec.js:126:1 › 窄屏切换页面回到页首，帮助入口按钮保持一致 (802ms)
+  ✓  11 tests/mobile-layout.spec.js:167:1 › 320px 今日陪伴直接展示筛选和活动，主动作不被宣传图挤走 (652ms)
+  ✓  12 tests/mobile-layout.spec.js:182:1 › 活动和测评详情在手机、平板、桌面可读可操作 (1.7s)
+  ✓  13 tests/mobile-layout.spec.js:245:1 › 报告详情在多档宽度可读（合成视觉样例） (610ms)
+  ✓  14 tests/mobile-layout.spec.js:284:1 › 手机登录、主要页面、底部导航与表单的布局保持清楚 (2.9s)
+  ✓  15 tests/prototype-audit-fixes.spec.js:77:1 › 原四类偏好真实保存、刷新恢复、儿童隔离、退出 (7.5s)
+  ✓  16 tests/prototype-audit-fixes.spec.js:127:1 › 活动四种引导实际不同、自主模式、上一步、筛选与真实导出 (37.3s)
+  ✓  17 tests/prototype-audit-fixes.spec.js:265:1 › 伙伴四情境、服务端分布、重做保留旧结果与家长支持 (10.0s)
+  ✓  18 tests/prototype-integration.spec.js:116:1 › 六岛完整、选三顺序、九题真实保存、刷新恢复与儿童隔离 (2.8s)
+  ✓  19 tests/prototype-integration.spec.js:260:1 › 24题八维观察真实作答、断点恢复、最低分相同不强排前三 (6.1s)
+  ✓  20 tests/prototype-integration.spec.js:317:1 › 八维最高分及第四名并列全部呈现，重新探索保留历史结果 (8.4s)
+  ✓  21 tests/prototype-integration.spec.js:369:1 › 过期草稿重新打开建立新答卷，原答案保留且选岛不丢 (4.7s)
+  ✓  22 tests/prototype-integration.spec.js:421:1 › 指纹四类完整指南、示例及临时预览不上传，离开释放图片 (8.2s)
+  ✓  23 tests/prototype-integration.spec.js:522:1 › 四模块和六岛在手机平板桌面无溢出、遮挡或坏图 (2.2s)
+  ✓  24 tests/ui-text-coverage.spec.js:36:1 › synthetic bound report keeps all periods and opens all eight dimensions by keyboard (1.5s)
+  ✓  25 tests/ui-text-coverage.spec.js:164:1 › isolated ops fixture: metric details stay on dashboard and reference handbooks remain reachable (1.3s)
+  ✓  26 tests/ui-text-parent.spec.js:15:1 › empty reports prioritize exploration; preference details support keyboard and persisted choices (6.5s)
+
+  26 passed (2.4m)

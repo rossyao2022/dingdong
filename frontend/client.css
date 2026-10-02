@@ -1440,3 +1440,116 @@ dialog::backdrop {
     justify-content: center;
   }
 }
+
+/* Keep optional explanations behind accessible, clearly labelled disclosures. */
+.guide-options > summary,
+.dd-report-comparison > summary,
+.talent-intro-details > summary,
+.talent-method > summary,
+.talent-activity > summary,
+.career-details > summary,
+.fp-guide-details > summary,
+.fp-activity-details > summary {
+  cursor: pointer;
+  padding: 12px 0;
+  min-height: 44px;
+  line-height: 1.5;
+  font-weight: 700;
+  color: var(--ink);
+}
+summary:focus-visible {
+  outline: 3px solid var(--accent, #765492);
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+.guide-options[open] > summary,
+.dd-report-comparison[open] > summary,
+.talent-intro-details[open] > summary,
+.career-details[open] > summary,
+.fp-guide-details[open] > summary {
+  margin-bottom: 12px;
+}
+.guide-current {
+  margin: 16px 0;
+  color: var(--muted);
+}
+.questionnaire-list {
+  display: grid;
+  gap: 12px;
+}
+.questionnaire-list .card {
+  padding: 18px;
+}
+.questionnaire-list .card h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+.questionnaire-list .card .note {
+  margin: 0 0 12px;
+}
+.report-secondary-actions {
+  margin-top: 20px;
+}
+.questionnaire-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.questionnaire-row > div {
+  min-width: 0;
+}
+.dd-report-heading h2 {
+  margin: 0;
+  font-size: clamp(24px, 4vw, 34px);
+  line-height: 1.35;
+  color: #594576;
+}
+.six-world-intro h1 {
+  margin: 0 0 12px;
+  font-size: clamp(24px, 3vw, 32px);
+  line-height: 1.4;
+}
+.fp-heading .fp-intro {
+  margin: 12px 0 0;
+}
+.fp-main-actions {
+  margin-bottom: 16px;
+}
+.fp-guide-details,
+.fp-activity-details,
+.talent-intro-details,
+.career-details {
+  margin: 16px 0;
+}
+@media (max-width: 760px) {
+  .login-scene {
+    min-height: 150px;
+    padding: 22px;
+  }
+  .login-scene h1 {
+    font-size: 24px;
+    max-width: 220px;
+  }
+  .login-scene img {
+    width: 105px;
+    right: 14px;
+    bottom: -3px;
+  }
+  .fp-heading {
+    margin-bottom: 20px;
+  }
+  .fp-heading h1 {
+    font-size: 28px;
+    line-height: 1.35;
+  }
+  .fp-heading .fp-back {
+    margin-bottom: 16px;
+  }
+  .questionnaire-list .card .button {
+    width: 100%;
+  }
+  .questionnaire-row {
+    display: block;
+  }
+}

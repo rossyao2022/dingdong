@@ -32,7 +32,7 @@ test("测评同意框补齐四要素并保留合成测试标注与撤回说明",
   await page.getByLabel("姓名或称呼").fill("同意框文案测试小芽");
   await page.getByRole("button", { name: "保存档案", exact: true }).click();
   await expect(
-    page.getByRole("heading", { name: "发现兴趣，认识独特的你。" }),
+    page.getByRole("heading", { name: "兴趣岛 · 我喜欢做什么" }),
   ).toBeVisible();
 
   await page.locator("#main-nav").getByRole("link", { name: "测评与报告" }).click();

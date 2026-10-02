@@ -36,7 +36,7 @@
             <span class="badge {{ ca_account.bind_state|tone }}">{{ ca_account.bind_state|label:"CA_ACCOUNT_BIND_STATE" }}</span>
             <span class="badge {{ ca_account.status|tone }}">{{ ca_account.status|label:"CA_ACCOUNT_STATUS" }}</span>
             <a href="{% url 'ops:ca_accounts' %}?q={{ ca_account.ca_account_id }}" data-nav>在 CA 账户页查看</a>
-            <div class="text-secondary small">绑定状态说的是与 DingDong 是否已接通；对方端点未开通时会一直是「待接通」，不是故障。</div>
+            <div class="text-secondary small">绑定状态表示与 DingDong 是否接通；对方端点未开通时显示「待接通」，不是故障。</div>
           {% else %}
             还没有机器人账户
             <div class="text-secondary small">
@@ -110,7 +110,6 @@
             </summary>
             <div class="ops-disclosure-body">
               <p class="form-hint">
-                题库版本固定为答卷创建时的版本；之后发布的题库不会改变这份答卷。
                 提交时间 {{ session.submitted_at|date:"Y-m-d H:i"|default:"未提交" }} ·
                 完成时间 {{ session.completed_at|date:"Y-m-d H:i"|default:"未完成" }}
               </p>

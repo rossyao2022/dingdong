@@ -123,20 +123,20 @@
         <div class="card-header"><h2 class="card-title">处理指引</h2></div>
         <div class="card-body">
           <ul class="timeline">
-            <li>
+            {% if row.kind == "support" %}<li>
               <div>家长求助</div>
               <div class="text-secondary small">先联系家长确认问题，处理完成后点“确认已处理”并填写说明。</div>
-            </li>
-            <li>
+            </li>{% endif %}
+            {% if row.kind == "correction" %}<li>
               <div>资料更正申请</div>
               <div class="text-secondary small">在儿童详情页点“更正档案”修改，再回到本页确认已处理。</div>
-            </li>
-            <li>
+            </li>{% endif %}
+            {% if row.kind == "deletion" %}<li>
               <div>数据删除申请</div>
               <div class="text-secondary small">
                 需要技术运维或管理员执行；删除不可撤销，执行前请与家长确认。
               </div>
-            </li>
+            </li>{% endif %}
           </ul>
         </div>
       </section>

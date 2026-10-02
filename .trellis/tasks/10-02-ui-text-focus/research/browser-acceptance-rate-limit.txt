@@ -1,0 +1,157 @@
+
+Running 26 tests using 1 worker
+
+(node:83970) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/cache-upgrade.spec.js:142:1 › populated old immutable module cache reproduces the old error; versioned current app then boots and ordinary reload works (948ms)
+  ✓   2 tests/cache-upgrade.spec.js:200:1 › fresh cache boots the full real app (206ms)
+  ✓   3 tests/cache-upgrade.spec.js:215:3 › broken-dependency offers manual recovery, keeps NFC until healthy app boot and never loops (688ms)
+  ✓   4 tests/cache-upgrade.spec.js:215:3 › broken-entry offers manual recovery, keeps NFC until healthy app boot and never loops (710ms)
+  ✓   5 tests/cache-upgrade.spec.js:264:1 › entry fetch stalls: independent HTML watchdog shows recovery once and healthy retry cancels timers (20.8s)
+  ✓   6 tests/exhibition-ready.spec.js:36:1 › 主线真实保存：首次探索→中断续题→行动→记录→下一次，切儿童隔离 (11.8s)
+  ✓   7 tests/legacy-compat.spec.js:4:1 › all seven old page URLs open their current CA page and discard identity, scores and NFC tokens (386ms)
+  ✓   8 tests/mobile-layout.spec.js:63:1 › 登录验证码控件在手机、平板与桌面宽度下对齐且互不遮挡 (696ms)
+  ✓   9 tests/mobile-layout.spec.js:97:1 › 首次建档和无儿童账户页跨屏宽不溢出 (617ms)
+  ✓  10 tests/mobile-layout.spec.js:126:1 › 窄屏切换页面回到页首，帮助入口按钮保持一致 (784ms)
+  ✓  11 tests/mobile-layout.spec.js:167:1 › 320px 今日陪伴直接展示筛选和活动，主动作不被宣传图挤走 (563ms)
+  ✓  12 tests/mobile-layout.spec.js:182:1 › 活动和测评详情在手机、平板、桌面可读可操作 (1.5s)
+  ✓  13 tests/mobile-layout.spec.js:245:1 › 报告详情在多档宽度可读（合成视觉样例） (527ms)
+  ✓  14 tests/mobile-layout.spec.js:284:1 › 手机登录、主要页面、底部导航与表单的布局保持清楚 (2.7s)
+  ✓  15 tests/prototype-audit-fixes.spec.js:77:1 › 原四类偏好真实保存、刷新恢复、儿童隔离、退出 (7.4s)
+  ✓  16 tests/prototype-audit-fixes.spec.js:127:1 › 活动四种引导实际不同、自主模式、上一步、筛选与真实导出 (38.5s)
+  ✓  17 tests/prototype-audit-fixes.spec.js:265:1 › 伙伴四情境、服务端分布、重做保留旧结果与家长支持 (10.8s)
+  ✓  18 tests/prototype-integration.spec.js:116:1 › 六岛完整、选三顺序、九题真实保存、刷新恢复与儿童隔离 (3.0s)
+  ✓  19 tests/prototype-integration.spec.js:260:1 › 24题八维观察真实作答、断点恢复、最低分相同不强排前三 (6.2s)
+  ✓  20 tests/prototype-integration.spec.js:317:1 › 八维最高分及第四名并列全部呈现，重新探索保留历史结果 (8.6s)
+  ✓  21 tests/prototype-integration.spec.js:369:1 › 过期草稿重新打开建立新答卷，原答案保留且选岛不丢 (4.7s)
+  ✓  22 tests/prototype-integration.spec.js:421:1 › 指纹四类完整指南、示例及临时预览不上传，离开释放图片 (8.3s)
+  ✘  23 tests/prototype-integration.spec.js:522:1 › 四模块和六岛在手机平板桌面无溢出、遮挡或坏图 (2.0m)
+(node:87325) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  24 tests/ui-text-coverage.spec.js:18:1 › synthetic bound report keeps all periods and opens all eight dimensions by keyboard (1.0m)
+(node:87692) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  25 tests/ui-text-coverage.spec.js:146:1 › isolated ops fixture: metric details stay on dashboard and reference handbooks remain reachable (1.4s)
+  ✘  26 tests/ui-text-parent.spec.js:5:1 › empty reports prioritize exploration; preference details support keyboard and persisted choices (1.0m)
+
+
+  1) tests/prototype-integration.spec.js:522:1 › 四模块和六岛在手机平板桌面无溢出、遮挡或坏图 ────────────────────────────
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.click: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: '登录', exact: true })
+        - locator resolved to <button disabled type="submit" class="button primary">登录</button>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+          - waiting 100ms
+        232 × waiting for element to be visible, enabled and stable
+            - element is not enabled
+          - retrying click action
+            - waiting 500ms
+
+
+      19 |   await page.getByRole("button", { name: "获取验证码", exact: true }).click();
+      20 |   await page.getByLabel("验证码", { exact: true }).fill("00000");
+    > 21 |   await page.getByRole("button", { name: "登录", exact: true }).click();
+         |                                                               ^
+      22 |   await expect(
+      23 |     page.getByRole("heading", { name: "建立儿童档案" }),
+      24 |   ).toBeVisible();
+        at loginAndChild (frontend/tests/prototype-integration.spec.js:21:63)
+        at frontend/tests/prototype-integration.spec.js:526:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../.trellis/.runtime/ui-text-focus/acceptance/prototype-integration-四模块和六岛在手机平板桌面无溢出、遮挡或坏图/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../.trellis/.runtime/ui-text-focus/acceptance/prototype-integration-四模块和六岛在手机平板桌面无溢出、遮挡或坏图/error-context.md
+
+  2) tests/ui-text-coverage.spec.js:18:1 › synthetic bound report keeps all periods and opens all eight dimensions by keyboard
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: '登录', exact: true })
+        - locator resolved to <button disabled type="submit" class="button primary">登录</button>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+          - waiting 100ms
+        115 × waiting for element to be visible, enabled and stable
+            - element is not enabled
+          - retrying click action
+            - waiting 500ms
+
+
+      34 | });
+      35 |
+    > 36 | test("synthetic bound report keeps all periods and opens all eight dimensions by keyboard", async ({
+         |                                                               ^
+      37 |   page,
+      38 | }) => {
+      39 |   test.skip(
+        at frontend/tests/ui-text-coverage.spec.js:36:63
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../.trellis/.runtime/ui-text-focus/acceptance/ui-text-coverage-synthetic-7b2ef-ight-dimensions-by-keyboard/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../.trellis/.runtime/ui-text-focus/acceptance/ui-text-coverage-synthetic-7b2ef-ight-dimensions-by-keyboard/error-context.md
+
+  3) tests/ui-text-parent.spec.js:5:1 › empty reports prioritize exploration; preference details support keyboard and persisted choices
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: '登录', exact: true })
+        - locator resolved to <button disabled type="submit" class="button primary">登录</button>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+          - waiting 100ms
+        114 × waiting for element to be visible, enabled and stable
+            - element is not enabled
+          - retrying click action
+            - waiting 500ms
+
+
+      15 | test("empty reports prioritize exploration; preference details support keyboard and persisted choices", async ({
+      16 |   page,
+    > 17 | }) => {
+         |        ^
+      18 |   await page.setViewportSize({ width: 390, height: 844 });
+      19 |   await page.goto("/");
+      20 |   const runtime = await (await page.request.get("/api/v1/runtime")).json();
+        at frontend/tests/ui-text-parent.spec.js:17:63
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../.trellis/.runtime/ui-text-focus/acceptance/ui-text-parent-empty-repor-a317f-board-and-persisted-choices/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../.trellis/.runtime/ui-text-focus/acceptance/ui-text-parent-empty-repor-a317f-board-and-persisted-choices/error-context.md
+
+  3 failed
+    tests/prototype-integration.spec.js:522:1 › 四模块和六岛在手机平板桌面无溢出、遮挡或坏图 ─────────────────────────────
+    tests/ui-text-coverage.spec.js:18:1 › synthetic bound report keeps all periods and opens all eight dimensions by keyboard
+    tests/ui-text-parent.spec.js:5:1 › empty reports prioritize exploration; preference details support keyboard and persisted choices
+  23 passed (6.2m)

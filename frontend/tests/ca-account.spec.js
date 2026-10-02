@@ -215,7 +215,7 @@ test("手填绑定：空凭据就地提示，对话框不关", async ({ page }) 
   await child(page, "手填合成儿童");
   // 建档后应用会落到探索页，等它稳定再点导航，避免和建档后的自动跳转赛跑。
   await expect(
-    page.getByRole("heading", { name: "发现兴趣，认识独特的你。" }),
+    page.getByRole("heading", { name: "兴趣岛 · 我喜欢做什么" }),
   ).toBeVisible();
   await page.locator("nav").getByRole("link", { name: "账户与关联" }).click();
   await expect(page.getByRole("heading", { name: "我的机器人" })).toBeVisible();

@@ -15,14 +15,16 @@
 {% block content %}
   {% if not can_edit %}
     <div class="alert alert-warning" role="alert">
-      <h4 class="alert-heading">该版本不可编辑</h4>
-      <p class="mb-0">
-        {% if row.status == "draft" %}
-          当前角色没有编辑题库的权限，你可以查看和预览。
-        {% else %}
-          已发布或已停用的版本不能原地修改。请使用“复制为新版本”创建可编辑的草稿，历史答卷仍绑定原版本。
-        {% endif %}
-      </p>
+      <div>
+        <h4 class="alert-heading">该版本不可编辑</h4>
+        <p class="mb-0">
+          {% if row.status == "draft" %}
+            当前角色没有编辑题库的权限，你可以查看和预览。
+          {% else %}
+            已发布或已停用的版本不能原地修改。请使用“复制为新版本”创建可编辑的草稿，历史答卷仍绑定原版本。
+          {% endif %}
+        </p>
+      </div>
     </div>
   {% endif %}
 
@@ -53,13 +55,14 @@
             <label class="form-label" for="q-title">题库名称</label>
             <input type="text" class="form-control" id="q-title" value="{{ row.title }}" maxlength="160"
                    {% if not can_edit %}disabled{% endif %} />
-            <p class="form-hint">家长在问卷页看到的名称。</p>
           </div>
           <div class="mb-3">
             <label class="form-label" for="q-description">给家长的用途说明</label>
             <textarea class="form-control" id="q-description" {% if not can_edit %}disabled{% endif %}>{{ row.description }}</textarea>
             <p class="form-hint">说明这份问卷的用途和边界，例如“只记录本次选择，不作能力评价”。</p>
           </div>
+          <details class="ops-help">
+            <summary>查看题库规则与版本信息</summary>
           <dl class="kv">
             <dt>系统编号</dt><dd>{{ row.code }}（自动生成，无需维护）</dd>
             <dt>版本号</dt><dd>{{ row.version }}</dd>
@@ -69,6 +72,7 @@
             <dt>题目数量要求</dt>
             <dd>{% if row.purpose == "exploration" %}1–10 题{% elif row.purpose == "interest" %}18题，每岛3题，家长选3岛后作答9题{% elif row.purpose == "talent" %}24题，每个观察方向3题{% else %}20–30 题{% endif %}（发布时校验）</dd>
           </dl>
+          </details>
         </div>
       </section>
 
@@ -76,7 +80,7 @@
         <div class="card-header">
           <div>
             <h2 class="card-title">题目</h2>
-            <div class="card-subtitle">{% if row.purpose == "interest" or row.purpose == "talent" %}可编辑题干和五档选项文案，观察方向和计分规则固定。{% else %}可调整顺序、题型、必填规则和选项，无需接触任何代码或 JSON。{% endif %}</div>
+            <div class="card-subtitle">{% if row.purpose == "interest" or row.purpose == "talent" %}可编辑题干和五档选项文案，观察方向和计分规则固定。{% else %}可调整顺序、题型、必填规则和选项。{% endif %}</div>
           </div>
           <div class="card-actions">
             {% if can_edit and row.purpose != "interest" and row.purpose != "talent" %}
@@ -129,8 +133,8 @@
           {% endif %}
         </div>
       </section>
-      <section class="card">
-        <div class="card-header"><h2 class="card-title">发布规则</h2></div>
+      <details class="card ops-help">
+        <summary class="card-header">发布规则</summary>
         <div class="card-body">
           <ul class="timeline">
             <li>草稿可以随时保存，未完成的题目不会影响家长端。</li>
@@ -139,7 +143,7 @@
             <li>历史答卷固定使用创建时的题库版本，不会被新版本改写。</li>
           </ul>
         </div>
-      </section>
+      </details>
     </div>
   </div>
 {% endblock %}

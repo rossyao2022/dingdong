@@ -1,0 +1,48 @@
+
+Running 14 tests using 1 worker
+
+(node:82181) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/cache-upgrade.spec.js:142:1 › populated old immutable module cache reproduces the old error; versioned current app then boots and ordinary reload works (927ms)
+  ✓   2 tests/cache-upgrade.spec.js:200:1 › fresh cache boots the full real app (211ms)
+  ✓   3 tests/cache-upgrade.spec.js:215:3 › broken-dependency offers manual recovery, keeps NFC until healthy app boot and never loops (701ms)
+  ✓   4 tests/cache-upgrade.spec.js:215:3 › broken-entry offers manual recovery, keeps NFC until healthy app boot and never loops (705ms)
+  ✓   5 tests/cache-upgrade.spec.js:264:1 › entry fetch stalls: independent HTML watchdog shows recovery once and healthy retry cancels timers (20.7s)
+  ✓   6 tests/mobile-layout.spec.js:63:1 › 登录验证码控件在手机、平板与桌面宽度下对齐且互不遮挡 (761ms)
+  ✓   7 tests/mobile-layout.spec.js:97:1 › 首次建档和无儿童账户页跨屏宽不溢出 (678ms)
+  ✓   8 tests/mobile-layout.spec.js:126:1 › 窄屏切换页面回到页首，帮助入口按钮保持一致 (776ms)
+  ✓   9 tests/mobile-layout.spec.js:167:1 › 320px 今日陪伴直接展示筛选和活动，主动作不被宣传图挤走 (576ms)
+  ✓  10 tests/mobile-layout.spec.js:182:1 › 活动和测评详情在手机、平板、桌面可读可操作 (1.5s)
+  ✓  11 tests/mobile-layout.spec.js:245:1 › 报告详情在多档宽度可读（合成视觉样例） (579ms)
+  ✓  12 tests/mobile-layout.spec.js:284:1 › 手机登录、主要页面、底部导航与表单的布局保持清楚 (2.8s)
+  ✘  13 tests/ui-text-coverage.spec.js:18:1 › synthetic bound report keeps all periods and opens all eight dimensions by keyboard (607ms)
+(node:82769) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  14 tests/ui-text-coverage.spec.js:137:1 › isolated ops fixture: metric details stay on dashboard and reference handbooks remain reachable (1.4s)
+
+
+  1) tests/ui-text-coverage.spec.js:18:1 › synthetic bound report keeps all periods and opens all eight dimensions by keyboard
+
+    Error: Invalid synthetic binding fixture
+
+       at support.js:78
+
+      76 |     !/^[0-9a-f-]{36}$/.test(account.child_id)
+      77 |   )
+    > 78 |     throw new Error("Invalid synthetic binding fixture");
+         |           ^
+      79 |   shell(
+      80 |     `from django.conf import settings; from dingdong_ca.core.models import CaAccount; assert settings.SMS_MODE == 'fixed_code' and settings.DINGDONG_BASE_URL == ''; row=CaAccount.objects.get(ca_account_id='${account.ca_account_id}',child_id='${account.child_id}',status='active'); row.bind_state='bound'; row.save(update_fields=['bind_state'])`,
+      81 |   );
+        at confirmSyntheticBinding (frontend/tests/support.js:78:11)
+        at frontend/tests/ui-text-coverage.spec.js:49:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../.trellis/.runtime/ui-text-focus/coverage-browser/ui-text-coverage-synthetic-7b2ef-ight-dimensions-by-keyboard/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../.trellis/.runtime/ui-text-focus/coverage-browser/ui-text-coverage-synthetic-7b2ef-ight-dimensions-by-keyboard/error-context.md
+
+  1 failed
+    tests/ui-text-coverage.spec.js:18:1 › synthetic bound report keeps all periods and opens all eight dimensions by keyboard
+  13 passed (34.6s)

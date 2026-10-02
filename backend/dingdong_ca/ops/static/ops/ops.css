@@ -497,6 +497,53 @@ a.ops-stat:hover {
 .ops-stat-danger {
   border-left: 3px solid var(--dd-danger);
 }
+.ops-stat-main {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  border-radius: 4px;
+}
+.ops-stat-main:hover {
+  color: var(--dd-brand);
+  text-decoration: none;
+}
+.ops-stat:focus-within {
+  border-color: var(--dd-brand);
+}
+.ops-metric-scope {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--dd-muted);
+}
+.ops-metric-scope > summary,
+.ops-help > summary {
+  min-height: 32px;
+  padding: 6px 0;
+  cursor: pointer;
+}
+.ops-help {
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+.ops-help > summary.card-header {
+  display: list-item;
+  list-style-position: inside;
+  padding: 12px 16px;
+  font-weight: 600;
+}
+.ops-help:not([open]) > summary.card-header {
+  border-bottom: 0;
+}
+.ops-help > p,
+.ops-help > dl {
+  margin-top: 8px;
+}
+.ops-statistics {
+  margin-top: 24px;
+}
+.ops-statistics .ops-stat-value {
+  font-size: 22px;
+}
 
 /* 表格：Tabler 的 .table 负责外观，这里只补运营场景需要的可读性。 */
 .ops-table thead th {

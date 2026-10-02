@@ -2,20 +2,22 @@
 {% load ops_labels %}
 {% block title %}报告管理{% endblock %}
 {% block page_title %}报告管理{% endblock %}
-{% block crumb %}查询已生成的报告，查看内容与生成状态{% endblock %}
+{% block crumb %}{% endblock %}
 
 {% block content %}
   {% include "ops/_filter_problems.html" %}
 
   {% if failed_count %}
     <div class="alert alert-danger" role="alert">
-      <h4 class="alert-heading">有 {{ failed_count }} 个报告生成任务失败</h4>
-      <p class="mb-2">
-        失败任务不会自动重试，需要技术运维在任务详情页确认原因后重试。
-      </p>
-      <a class="btn btn-sm btn-danger" href="{% url 'ops:jobs' %}?kind=report&amp;status=failed" data-nav>
-        查看失败任务
-      </a>
+      <div>
+        <h4 class="alert-heading">有 {{ failed_count }} 个报告生成任务失败</h4>
+        <p class="mb-2">
+          失败任务不会自动重试，需要技术运维在任务详情页确认原因后重试。
+        </p>
+        <a class="btn btn-sm btn-danger" href="{% url 'ops:jobs' %}?kind=report&amp;status=failed" data-nav>
+          查看失败任务
+        </a>
+      </div>
     </div>
   {% endif %}
 
@@ -50,7 +52,6 @@
     <div class="card-header">
       <div>
         <h2 class="card-title">已生成报告</h2>
-        <div class="card-subtitle">共 {{ page.total }} 份，每页 20 条。</div>
       </div>
     </div>
 

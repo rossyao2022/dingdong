@@ -11,7 +11,6 @@
         <div class="card-header">
           <div>
             <h2 class="card-title">家庭信息</h2>
-            <div class="card-subtitle">家庭编号仅供系统内部使用，运营无需记录。</div>
           </div>
           <div class="card-actions">
             {% if can_edit_family %}
@@ -85,8 +84,8 @@
     </div>
 
     <div class="col-12 col-lg-4">
-      <section class="card">
-        <div class="card-header"><h2 class="card-title">可以做什么</h2></div>
+      <details class="card ops-help">
+        <summary class="card-header">操作指引</summary>
         <div class="card-body">
           <ul class="timeline">
             <li>
@@ -107,13 +106,13 @@
             </li>
           </ul>
         </div>
-      </section>
+      </details>
       <section class="card">
         <div class="card-header"><h2 class="card-title">数据边界</h2></div>
         <div class="card-body">
           <p class="text-secondary small mb-0">
-            当前为演示环境：儿童与活动数据来自测试输入，报告由后台任务根据测试模板生成，
-            不包含真实测评结论，也未接入真实短信与外部供应商。
+            演示数据与报告来自测试输入和测试模板，不包含专业测评结论。
+            短信模式：{% if ops_real_sms %}阿里云短信{% else %}固定验证码{% endif %}。
           </p>
         </div>
       </section>

@@ -245,7 +245,7 @@
   function render(id) {
     const g = guides[id];
     if (!g) return "";
-    return `<section class="fp-guide-report" id="fp-guide-report" aria-labelledby="fp-guide-title" style="--guide-color:${g.color}"><div class="fp-guide-section-label"><span>03</span><div><b>我的纹路与陪伴指南</b><p>认识指尖的细节，也为日常互动找到一个新起点。</p></div></div><nav class="fp-guide-switcher" aria-label="切换纹路说明">${Object.entries(
+    return `<section class="fp-guide-report" id="fp-guide-report" aria-labelledby="fp-guide-title" style="--guide-color:${g.color}"><nav class="fp-guide-switcher" aria-label="切换纹路说明">${Object.entries(
       guides,
     )
       .map(
@@ -254,7 +254,7 @@
       )
       .join(
         "",
-      )}</nav><header class="fp-guide-header"><img src="assets/fingerprints/${id}.webp" alt="${g.name}纹路示意图" width="112" height="112"><div><span class="fp-manual-label">纹路观察 · ${g.name}</span><h2 id="fp-guide-title">${g.title}引导 <b>${g.code}</b></h2><p>${g.lead}</p><div class="fp-guide-tags">${g.tags.map((t) => `<span>${t}</span>`).join("")}</div></div><span class="fp-guide-stamp">一起<br>发现</span></header><div class="fp-guide-shape"><b>纹路识别</b><p>${g.shape}</p></div><div class="fp-guide-intro"><h3>从一种舒服的方式，开始陪伴。</h3><p>${g.intro}</p><small>先看看这些情境是否贴近孩子最近的表现，再选择适合的建议。</small></div><div class="fp-guide-columns">${[
+      )}</nav><header class="fp-guide-header"><img src="assets/fingerprints/${id}.webp" alt="${g.name}纹路示意图" width="112" height="112"><div><span class="fp-manual-label">手动观察 · ${g.name}</span><h2 id="fp-guide-title">${g.title}引导 <b>${g.code}</b></h2><p>${g.lead}</p></div></header><p class="fp-guide-footnote">指纹仅用于形态观察，不能据此判断能力、性格或职业。引导方式可自由选择，以孩子的实际表现与感受为准。</p><div class="fp-guide-shape"><b>纹路特点</b><p>${g.shape}</p></div><section class="fp-guide-activity" aria-labelledby="fp-activity-title"><div class="fp-activity-heading"><span>一起试一次</span><h3 id="fp-activity-title">${g.activity.title}</h3><b>约 ${g.activity.time}</b></div><p class="fp-activity-materials">准备：${g.activity.materials}</p><div class="actions"><button type="button" class="button" data-action="exploration-guide-task" data-code="${activityCodes[id]}">开始这个小行动 →</button></div><details class="fp-activity-details"><summary>查看步骤与观察提示</summary><ol>${g.activity.steps.map((step, i) => `<li><span>${i + 1}</span><p>${step}</p></li>`).join("")}</ol><p class="fp-activity-observe"><b>家长观察小提示</b>${g.activity.observe}</p></details></section><details class="fp-guide-details"><summary>查看学习与沟通建议</summary><div class="fp-guide-intro"><p>${g.intro}</p><small>先看看这些情境是否贴近孩子最近的表现，再选择适合的建议。</small><div class="fp-guide-tags">${g.tags.map((t) => `<span>${t}</span>`).join("")}</div></div><div class="fp-guide-columns">${[
       ["01", "看见日常表现", "从具体的小事开始观察", g.angle],
       ["02", "让学习更容易", "把建议变成清楚的步骤", g.learning],
       ["03", "把话说进心里", "让孩子愿意继续表达", g.communication],
@@ -265,7 +265,7 @@
       )
       .join(
         "",
-      )}</div><section class="fp-guide-activity" aria-labelledby="fp-activity-title"><div class="fp-activity-heading"><span>一起试一试</span><h3 id="fp-activity-title">${g.activity.title}</h3><b>约 ${g.activity.time}</b></div><p class="fp-activity-materials">准备：${g.activity.materials}</p><ol>${g.activity.steps.map((s, i) => `<li><span>${i + 1}</span><p>${s}</p></li>`).join("")}</ol><p class="fp-activity-observe"><b>家长观察小提示</b>${g.activity.observe}</p><div class="actions"><button type="button" class="button" data-action="exploration-guide-task" data-code="${activityCodes[id]}">开始这个小行动 →</button></div></section><div class="fp-guide-dialogue"><img src="assets/dingdong/robot-wave.webp" alt="DingDong" width="90" height="90"><div><span>换一种说法，开启一次好对话</span><blockquote>${g.prompt}</blockquote><p class="fp-dialogue-avoid">少一点催促：${g.avoid}</p></div></div><div class="fp-guide-next"><div><b>让 DingDong 陪你一起试</b><p>进入“我的 DingDong”，选择孩子喜欢的陪伴方式，从一个小行动开始。</p></div><a class="button" href="#companion">选择伙伴引导 →</a></div><p class="fp-guide-footnote">使用说明：指纹仅用于形态观察，不能据此判断能力、性格或职业。上述引导方式可自由选择，以孩子的实际表现与感受为准。</p></section>`;
+      )}</div><div class="fp-guide-dialogue"><img src="assets/dingdong/robot-wave.webp" alt="DingDong" width="90" height="90"><div><span>换一种说法</span><blockquote>${g.prompt}</blockquote><p class="fp-dialogue-avoid">少一点催促：${g.avoid}</p></div></div></details><div class="fp-guide-next"><div><b>调整伙伴引导</b><p>按孩子的实际感受选择陪伴方式。</p></div><a class="button" href="#companion">选择伙伴引导 →</a></div></section>`;
   }
   window.FingerprintGuide = { guides, render };
 })();

@@ -55,7 +55,7 @@ async function createParentAndChild(page) {
   await page.getByRole("button", { name: "保存档案", exact: true }).click();
   const childId = (await (await created).json()).id;
   await expect(
-    page.getByRole("heading", { name: "发现兴趣，认识独特的你。" }),
+    page.getByRole("heading", { name: "兴趣岛 · 我喜欢做什么" }),
   ).toBeVisible();
   return childId;
 }
@@ -142,6 +142,8 @@ test("窄屏切换页面回到页首，帮助入口按钮保持一致", async ({
   });
   await expect(heading).toBeInViewport();
   expect(await page.evaluate(() => window.scrollY)).toBeLessThan(20);
+  await page.locator(".assessment-start summary").click();
+  await expect(page.locator(".questionnaire-row")).toHaveCount(2);
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
   await expect
     .poll(() => page.evaluate(() => window.scrollY))
@@ -162,17 +164,19 @@ test("窄屏切换页面回到页首，帮助入口按钮保持一致", async ({
   }
 });
 
-test("320px 今日陪伴页标题和机器人插画各有空间", async ({ page }) => {
+test("320px 今日陪伴直接展示筛选和活动，主动作不被宣传图挤走", async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 320, height: 700 });
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto(base);
   await createParentAndChild(page);
   await page.goto(`${base}/#home`);
   await expect(page.locator("#main[aria-busy='false']")).toBeVisible();
-  const title = await box(page.locator(".hero-panel h2"));
-  const art = await box(page.locator(".hero-panel img"));
-  expect(title.width).toBeGreaterThanOrEqual(220);
-  expect(art.y - (title.y + title.height)).toBeGreaterThanOrEqual(12);
+  await expect(page.locator(".activity-card").first()).toBeVisible();
+  const first = await box(page.locator(".activity-card").first());
+  expect(first.y).toBeLessThan(620);
+  await noHorizontalOverflow(page);
 });
 
 test("活动和测评详情在手机、平板、桌面可读可操作", async ({ page }) => {
@@ -219,7 +223,11 @@ test("活动和测评详情在手机、平板、桌面可读可操作", async ({
 
   await page.goto(`${base}/#reports`);
   await expect(page.locator("#main[aria-busy='false']")).toBeVisible();
-  await page.getByRole("button", { name: "开始测评", exact: true }).click();
+  await page.locator(".assessment-start summary").click();
+  await page
+    .locator(".questionnaire-row [data-action=begin-bank]")
+    .first()
+    .click();
   await expect(page.locator("#dialog")).toBeVisible();
   await page.getByLabel("我已阅读并同意本次测评用途").check();
   await page.getByRole("button", { name: "同意并开始", exact: true }).click();
@@ -261,7 +269,7 @@ test("报告详情在多档宽度可读（合成视觉样例）", async ({ page 
   );
   await page.goto(`${base}/#report/layout-fixture`);
   await expect(
-    page.getByRole("heading", { name: "初始报告", exact: true }),
+    page.getByRole("heading", { name: "历史体验记录", exact: true }),
   ).toBeVisible();
   for (const width of [320, 390, 430, 768, 1024, 1280]) {
     await page.setViewportSize({ width, height: 900 });
@@ -329,30 +337,28 @@ test("手机登录、主要页面、底部导航与表单的布局保持清楚",
         ).toBeGreaterThanOrEqual(48);
       }
       if (route === "reports") {
-        const first = await box(page.locator("#main .grid").first());
-        const companion = await box(page.locator(".companion-panel"));
-        expect(companion.y - (first.y + first.height)).toBeGreaterThanOrEqual(
-          16,
-        );
-        const firstPanel = page.locator("#main .grid .panel").first();
-        const copy = await box(firstPanel.locator("p").last());
-        const action = await box(firstPanel.locator(".button"));
-        expect(action.y - (copy.y + copy.height)).toBeGreaterThanOrEqual(12);
-        const empty = await box(page.locator("#main .empty").first());
-        const growth = await box(page.locator(".growth-panel"));
-        expect(growth.y - (empty.y + empty.height)).toBeGreaterThanOrEqual(16);
-        const form = await box(page.locator("#window-form"));
-        for (const input of await page.locator("#window-form input").all()) {
-          expect((await box(input)).width).toBeGreaterThanOrEqual(
-            form.width * 0.9,
+        const start = page.getByRole("link", {
+          name: "开始一次探索",
+          exact: true,
+        });
+        await expect(start).toBeVisible();
+        const action = await box(start);
+        expect(action.x).toBeGreaterThanOrEqual(0);
+        expect(action.x + action.width).toBeLessThanOrEqual(width + 1);
+        await page.locator(".assessment-start summary").click();
+        await expect(page.locator(".questionnaire-row")).toHaveCount(2);
+        for (const row of await page.locator(".questionnaire-row").all()) {
+          const rowBox = await box(row);
+          const buttonBox = await box(row.locator("button"));
+          expect(buttonBox.x).toBeGreaterThanOrEqual(rowBox.x);
+          expect(buttonBox.x + buttonBox.width).toBeLessThanOrEqual(
+            rowBox.x + rowBox.width + 1,
           );
         }
-        expect(
-          (await box(page.locator("#window-form button"))).width,
-        ).toBeGreaterThanOrEqual(form.width * 0.9);
         if (width === 320) {
           await page
-            .getByRole("button", { name: "开始测评", exact: true })
+            .locator(".questionnaire-row [data-action=begin-bank]")
+            .first()
             .click();
           await expect(page.locator("#dialog")).toBeVisible();
           await page

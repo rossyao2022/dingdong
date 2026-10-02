@@ -22,7 +22,7 @@
       <div class="ops-sidebar-head">
         <a class="ops-brand" href="{% url 'ops:dashboard' %}" data-nav>
           <img src="{% static 'ops/mark.svg' %}" alt="" width="36" height="36" />
-          <span><b>叮咚运营后台</b><small>日常运营与内容管理</small></span>
+          <span><b>叮咚运营后台</b></span>
         </a>
         <button type="button" class="ops-sidebar-close" data-ops-nav-close aria-label="关闭导航">
           <i class="ti ti-x" aria-hidden="true"></i>
@@ -102,7 +102,7 @@
       </main>
 
       <footer class="ops-footer">
-        CA × DingDong 运营后台 · 演示环境，未接入真实短信与专业算法 · 界面版本 {{ ops_app_version }}
+        演示环境 · {% if ops_real_sms %}阿里云短信{% else %}固定验证码{% endif %} · 无专业测评结论 · 界面版本 {{ ops_app_version }}
       </footer>
     </div>
 

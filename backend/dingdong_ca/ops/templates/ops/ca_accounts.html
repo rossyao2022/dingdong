@@ -2,7 +2,7 @@
 {% load ops_labels %}
 {% block title %}CA 账户{% endblock %}
 {% block page_title %}CA 账户{% endblock %}
-{% block crumb %}家长用机器人 NFC 绑定后，我方对外使用的稳定账户号{% endblock %}
+{% block crumb %}机器人绑定账户 · 只读{% endblock %}
 
 {% block content %}
   {% include "ops/_filter_problems.html" %}
@@ -15,44 +15,50 @@
     <div>
       <h4 class="alert-heading">只读页 · 账户号一经生成不修改、不重用</h4>
       <p class="mb-1">
-        账户号由家长在机器人 NFC 绑定时生成。换机器人是家长端的显式两步（先归档旧号，再为新机器人发新号），运营不在这里代操作。
+        账户号由家长 NFC 绑定生成；换机器人须在家长端先归档旧号、再生成新号。
       </p>
       <p class="mb-0">
-        <b>“状态”与“绑定状态”是两件事</b>：状态说的是这个号在我方是否还在用；绑定状态说的是与 DingDong Data Service 是否已接通——对方端点尚未开通时会一直显示“待接通”，这不是故障。
+        <b>状态</b>表示我方是否使用此号；<b>绑定状态</b>表示与 DingDong 是否接通。对方端点未开通时显示“待接通”，不是故障。
       </p>
     </div>
   </div>
 
   <div class="row row-cards" aria-label="账户概览">
     <div class="col-12 col-sm-6 col-lg-4">
-      <a class="ops-stat" href="{% url 'ops:ca_accounts' %}?status=active" data-nav>
-        <span class="ops-stat-head">
-          <i class="ti ti-robot" aria-hidden="true"></i>
-          <span class="ops-stat-label">使用中</span>
-        </span>
-        <b class="ops-stat-value">{{ counts.active }}</b>
-        <span class="ops-stat-note">口径：状态为“使用中”的账户号，每个对应一台正在用的机器人。</span>
-      </a>
+      <div class="ops-stat">
+            <a class="ops-stat-main" href="{% url 'ops:ca_accounts' %}?status=active" data-nav>
+          <span class="ops-stat-head">
+            <i class="ti ti-robot" aria-hidden="true"></i>
+            <span class="ops-stat-label">使用中</span>
+          </span>
+          <b class="ops-stat-value">{{ counts.active }}</b>
+            </a>
+            <details class="ops-metric-scope"><summary>统计口径</summary><span class="ops-stat-note">口径：状态为“使用中”的账户号，每个对应一台正在用的机器人。</span></details>
+      </div>
     </div>
     <div class="col-12 col-sm-6 col-lg-4">
-      <a class="ops-stat ops-stat-accent" href="{% url 'ops:ca_accounts' %}?bind_state=unbound" data-nav>
-        <span class="ops-stat-head">
-          <i class="ti ti-plug-connected-x" aria-hidden="true"></i>
-          <span class="ops-stat-label">待接通</span>
-        </span>
-        <b class="ops-stat-value">{{ unbound }}</b>
-        <span class="ops-stat-note">口径：使用中但尚未与对方完成绑定的账户数；对方端点未开通前会一直是这个数。</span>
-      </a>
+      <div class="ops-stat ops-stat-accent">
+            <a class="ops-stat-main" href="{% url 'ops:ca_accounts' %}?bind_state=unbound" data-nav>
+          <span class="ops-stat-head">
+            <i class="ti ti-plug-connected-x" aria-hidden="true"></i>
+            <span class="ops-stat-label">待接通</span>
+          </span>
+          <b class="ops-stat-value">{{ unbound }}</b>
+            </a>
+            <details class="ops-metric-scope"><summary>统计口径</summary><span class="ops-stat-note">口径：使用中但尚未与对方完成绑定的账户数；对方端点未开通前会一直是这个数。</span></details>
+      </div>
     </div>
     <div class="col-12 col-sm-6 col-lg-4">
-      <a class="ops-stat" href="{% url 'ops:ca_accounts' %}?status=retired" data-nav>
-        <span class="ops-stat-head">
-          <i class="ti ti-archive" aria-hidden="true"></i>
-          <span class="ops-stat-label">已归档</span>
-        </span>
-        <b class="ops-stat-value">{{ counts.retired }}</b>
-        <span class="ops-stat-note">口径：换机器人后归档的旧号，保留可查、不再使用。</span>
-      </a>
+      <div class="ops-stat">
+            <a class="ops-stat-main" href="{% url 'ops:ca_accounts' %}?status=retired" data-nav>
+          <span class="ops-stat-head">
+            <i class="ti ti-archive" aria-hidden="true"></i>
+            <span class="ops-stat-label">已归档</span>
+          </span>
+          <b class="ops-stat-value">{{ counts.retired }}</b>
+            </a>
+            <details class="ops-metric-scope"><summary>统计口径</summary><span class="ops-stat-note">口径：换机器人后归档的旧号，保留可查、不再使用。</span></details>
+      </div>
     </div>
   </div>
 
@@ -96,7 +102,7 @@
     <div class="card-header">
       <div>
         <h2 class="card-title">账户列表</h2>
-        <div class="card-subtitle">共 {{ page.total }} 条，每页 20 条。不展示 NFC token 原文，只有前 8 位摘要。</div>
+        <div class="card-subtitle">NFC 凭据仅显示前 8 位摘要。</div>
       </div>
     </div>
 

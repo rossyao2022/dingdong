@@ -1,0 +1,5 @@
+{"file": "文档/界面文字与重点审查_20261002.md", "reason": "原审查与具体改法"}
+{"file": ".trellis/spec/frontend/ui-conventions.md", "reason": "文案/动作/必要提示"}
+{"file": ".trellis/spec/frontend/state-and-rendering.md", "reason": "上下文和竞态保护"}
+{"file": ".trellis/spec/frontend/testing-and-acceptance.md", "reason": "真实API/browser纪律"}
+{"file": "backend/dingdong_ca/ops/README.md", "reason": "运营组件与资源约束"}

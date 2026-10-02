@@ -41,7 +41,7 @@ async function child(page, name) {
   const id = (await (await response).json()).id;
   // 建档成功后应用会自己跳到探索页：不等它落稳，后面的 hash 导航会被它覆盖。
   await expect(
-    page.getByRole("heading", { name: "发现兴趣，认识独特的你。" }),
+    page.getByRole("heading", { name: "兴趣岛 · 我喜欢做什么" }),
   ).toBeVisible();
   return id;
 }

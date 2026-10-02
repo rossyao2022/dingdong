@@ -1,0 +1,41 @@
+
+Running 1 test using 1 worker
+
+(node:80147) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui-text-parent.spec.js:5:1 › empty reports prioritize exploration; preference details support keyboard and persisted choices (9.3s)
+
+
+  1) tests/ui-text-parent.spec.js:5:1 › empty reports prioritize exploration; preference details support keyboard and persisted choices
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  locator('.guide-options').locator('summary')
+    Expected: focused
+    Received: inactive
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeFocused" locator('.guide-options').locator('summary') with timeout 5000ms
+      - waiting for locator('.guide-options').locator('summary')
+        14 × locator resolved to <summary>调整引导方式</summary>
+           - unexpected value "inactive"
+
+
+      64 |     expect((await saved).ok()).toBe(true);
+      65 |     await expect(page.locator(".guide-current")).toContainText(value.label);
+    > 66 |     await expect(options.locator("summary")).toBeFocused();
+         |                                              ^
+      67 |     await page.reload();
+      68 |     await expect(page.locator(".guide-current")).toContainText(value.label);
+      69 |   }
+        at frontend/tests/ui-text-parent.spec.js:66:46
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../.trellis/.runtime/ui-text-focus/focus-red/ui-text-parent-empty-repor-a317f-board-and-persisted-choices/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../.trellis/.runtime/ui-text-focus/focus-red/ui-text-parent-empty-repor-a317f-board-and-persisted-choices/error-context.md
+
+  1 failed
+    tests/ui-text-parent.spec.js:5:1 › empty reports prioritize exploration; preference details support keyboard and persisted choices

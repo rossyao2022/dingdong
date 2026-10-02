@@ -1,5 +1,5 @@
 /** Original webpage guidance, independent of CA styles and robot configuration. */
-import { esc } from "./ui-components.js?v=0.3.27";
+import { esc } from "./ui-components.js?v=0.3.28";
 
 export const GUIDE_MODES = Object.freeze({
   cognitive: Object.freeze({

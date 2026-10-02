@@ -1,4 +1,4 @@
-import * as API from "./api.js?v=0.3.27";
+import * as API from "./api.js?v=0.3.28";
 import {
   ACCOUNT_STATUS,
   BIND_STATE,
@@ -14,23 +14,23 @@ import {
   replaceFlowNeeded,
   retiredAccounts,
   stripBindingParams,
-} from "./ca-link.js?v=0.3.27";
+} from "./ca-link.js?v=0.3.28";
 import {
   HEALTH_FOOTER,
   STALE_NOTICE,
   healthSection,
   personaSection,
-} from "./companion.js?v=0.3.27";
+} from "./companion.js?v=0.3.28";
 import {
   DIMENSION_MISSING,
   PERIODS,
   PROXY_NOTE,
   growthCycleSection,
-} from "./growth-cycle.js?v=0.3.27";
+} from "./growth-cycle.js?v=0.3.28";
 import {
   WRITE_FAILED_TEXT,
   reassessmentSection,
-} from "./reassessment.js?v=0.3.27";
+} from "./reassessment.js?v=0.3.28";
 import {
   actions,
   button,
@@ -40,30 +40,31 @@ import {
   esc,
   pageHead,
   panel,
-} from "./ui-components.js?v=0.3.27";
+  renderGuidePreference,
+} from "./ui-components.js?v=0.3.28";
 import {
   explorerState,
   continuedExplorerHash,
   sameSelection,
   resumableSession,
-} from "./exploration-session.js?v=0.3.27";
+} from "./exploration-session.js?v=0.3.28";
 import {
   GUIDE_MODES,
   greeting,
   guideText,
   renderGuidanceSummary,
-} from "./guide-preference.js?v=0.3.27";
+} from "./guide-preference.js?v=0.3.28";
 import {
   COMPANION_ENTRY_LABEL,
   renderDingDongReport,
   renderRobotEntry,
-} from "./dingdong-report.js?v=0.3.27";
+} from "./dingdong-report.js?v=0.3.28";
 import {
   nextExperience,
   experienceRecords,
   renderExperienceTask,
   renderExperienceRecords,
-} from "./experience-flow.js?v=0.3.27";
+} from "./experience-flow.js?v=0.3.28";
 const $ = (s) => document.querySelector(s);
 let robotReadEpoch = 0;
 const state = {
@@ -391,7 +392,7 @@ function updateSmsCooldown() {
 }
 function loginPage() {
   page(
-    `<div class="login-layout"><section class="login-scene"><span class="eyebrow">CA × DINGDONG</span><h1>陪孩子探索，<br>把每个发现留下来。</h1><p>从今天的小行动开始，慢慢看见成长。</p><img src="assets/dingdong/robot-front.webp" alt="DingDong 成长伙伴"></section><form id="login-form" class="login-form"><span class="eyebrow">欢迎回到成长空间</span><h2>家长登录</h2>${nfcRecoveryNotice()}<p class="muted">登录后，查看孩子的档案与陪伴记录。</p><label class="field">手机号<input name="phone" type="tel" autocomplete="tel" required placeholder="请输入手机号"></label><div class="inline"><label class="field">验证码<input name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="5" required placeholder="5 位验证码"></label><button type="button" class="button secondary" id="send-code">获取验证码</button></div><div class="form-error" role="alert"></div><button class="button primary" type="submit" disabled>登录</button></form></div>`,
+    `<div class="login-layout"><section class="login-scene"><span class="eyebrow">CA × DINGDONG</span><h1>陪孩子探索，<br>把每个发现留下来。</h1><img src="assets/dingdong/robot-front.webp" alt="DingDong 成长伙伴"></section><form id="login-form" class="login-form"><h2>家长登录</h2>${nfcRecoveryNotice()}<label class="field">手机号<input name="phone" type="tel" autocomplete="tel" required placeholder="请输入手机号"></label><div class="inline"><label class="field">验证码<input name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="5" required placeholder="5 位验证码"></label><button type="button" class="button secondary" id="send-code">获取验证码</button></div><div class="form-error" role="alert"></div><button class="button primary" type="submit" disabled>登录</button></form></div>`,
   );
   updateSmsCooldown();
   $("#login-form").phone.oninput = () => {
@@ -509,7 +510,7 @@ function clearRobotContext() {
 }
 function childForm() {
   page(
-    `<div class="page-head"><div><span class="eyebrow">开始前，先认识一下</span><h1>建立儿童档案</h1><p>姓名或称呼必填，其他信息可以稍后补充。</p></div></div><form id="child-form" class="panel" style="max-width:680px"><label class="field">姓名或称呼<input name="name" maxlength="80" required autocomplete="off"></label><label class="field">性别<select name="gender"><option value="unknown">暂不填写</option><option value="male">男</option><option value="female">女</option></select></label><label class="field">出生日期（选填）<input name="birth_date" type="date" max="${new Date().toISOString().slice(0, 10)}"></label><div class="form-error" role="alert"></div><button class="button" type="submit">保存档案</button></form>`,
+    `<div class="page-head"><div><h1>建立儿童档案</h1><p>姓名或称呼必填，其他信息可以稍后补充。</p></div></div><form id="child-form" class="panel" style="max-width:680px"><label class="field">姓名或称呼<input name="name" maxlength="80" required autocomplete="off"></label><label class="field">性别<select name="gender"><option value="unknown">暂不填写</option><option value="male">男</option><option value="female">女</option></select></label><label class="field">出生日期（选填）<input name="birth_date" type="date" max="${new Date().toISOString().slice(0, 10)}"></label><div class="form-error" role="alert"></div><button class="button" type="submit">保存档案</button></form>`,
   );
   const key = requestKey("child-create");
   $("#child-form").onsubmit = async (e) => {
@@ -583,8 +584,8 @@ function activityCards(rows) {
 function stepView(record) {
   const step = record.activity.steps[record.step_index];
   return (
-    head(record.activity.title, "按自己的节奏，一步一步试试看。") +
-    `<div class="grid"><section class="panel"><span class="tag">第 ${record.step_index + 1} / ${record.activity.steps.length} 步</span><h2 class="step-title">${esc(step.instruction)}</h2><p class="activity-guidance">${esc(guideText(record))}</p>${button("speak", "朗读引导", "", true)}<div class="form-error" role="alert"></div>${record.step_index === record.activity.steps.length - 1 ? `<label class="field">活动感受<select id="feedback"><option value="">暂不填写</option><option value="interesting">很有意思</option><option value="try_again">还想再试试</option><option value="challenging">有一点挑战</option></select></label><label class="field">一句话记录<textarea id="activity-note" maxlength="160" placeholder="记录一个小发现（选填）"></textarea></label>` : ""}<div class="actions">${record.step_index ? button("previous-step", "上一步", "", true) : ""}${button(record.step_index === record.activity.steps.length - 1 ? "finish" : "next-step", record.step_index === record.activity.steps.length - 1 ? "完成活动" : "下一步")}${button("skip", "跳过这次活动", "", true)}</div></section><aside class="panel"><img class="figure-robot" src="assets/dingdong/robot-wave.webp" alt="DingDong 陪你探索"><h2>慢慢来，也很好。</h2><p>不必追求标准答案，和孩子一起观察、尝试就好。</p><p class="note">进度已保存，可以稍后继续。</p></aside></div>`
+    head(record.activity.title) +
+    `<div class="grid"><section class="panel"><span class="tag">第 ${record.step_index + 1} / ${record.activity.steps.length} 步</span><h2 class="step-title">${esc(step.instruction)}</h2><p class="activity-guidance">${esc(guideText(record))}</p>${button("speak", "朗读引导", "", true)}<div class="form-error" role="alert"></div>${record.step_index === record.activity.steps.length - 1 ? `<label class="field">活动感受<select id="feedback"><option value="">暂不填写</option><option value="interesting">很有意思</option><option value="try_again">还想再试试</option><option value="challenging">有一点挑战</option></select></label><label class="field">一句话记录<textarea id="activity-note" maxlength="160" placeholder="记录一个小发现（选填）"></textarea></label>` : ""}<div class="actions">${record.step_index ? button("previous-step", "上一步", "", true) : ""}${button(record.step_index === record.activity.steps.length - 1 ? "finish" : "next-step", record.step_index === record.activity.steps.length - 1 ? "完成活动" : "下一步")}${button("skip", "跳过这次活动", "", true)}</div></section><aside class="panel"><img class="figure-robot" src="assets/dingdong/robot-wave.webp" alt="DingDong 陪你探索"><p class="note">进度已保存，可以稍后继续。</p></aside></div>`
   );
 }
 function sessionView(s) {
@@ -593,8 +594,8 @@ function sessionView(s) {
     const answers =
       s.answers.find((a) => a.question_code === q.code)?.option_codes || [];
     return (
-      head(s.title || "测评问卷", s.description || "可以按自己的节奏完成。") +
-      `<section class="panel question">${testTag()}<p class="note">第 ${state.question + 1} / ${s.questions.length} 题 · ${s.missing_question_codes.length ? "还有 " + s.missing_question_codes.length + " 题未完成" : "已全部作答"}</p><progress value="${state.question + 1}" max="${s.questions.length}" aria-label="问卷进度"></progress><form id="answer-form"><fieldset><legend>${esc(q.title)}</legend><p class="note">${q.required ? "必填" : "选填，可跳过"} · ${q.type === "single_choice" ? "单选" : "最多选 " + q.max_choices + " 项"}</p>${q.options.map((o) => `<label class="answer-option"><input type="${q.type === "single_choice" ? "radio" : "checkbox"}" name="answer" value="${esc(o.code)}" ${answers.includes(o.code) ? "checked" : ""}>${esc(o.label)}</label>`).join("")}</fieldset><div class="form-error" role="alert"></div><div class="actions">${state.question ? button("previous-question", "上一题", "", true) : ""}<button type="submit" class="button">${state.question === s.questions.length - 1 ? "保存并完成" : "保存并下一题"}</button>${button("cancel-assessment", "取消本次测评", "", true)}</div></form></section>`
+      head(s.title || "测评问卷") +
+      `<section class="panel question">${testTag()}${state.question === 0 && s.description ? `<p class="note">${esc(s.description)}</p>` : ""}<p class="note">第 ${state.question + 1} / ${s.questions.length} 题 · ${s.missing_question_codes.length ? "还有 " + s.missing_question_codes.length + " 题未完成" : "已全部作答"}</p><progress value="${state.question + 1}" max="${s.questions.length}" aria-label="问卷进度"></progress><form id="answer-form"><fieldset><legend>${esc(q.title)}</legend><p class="note">${q.required ? "必填" : "选填，可跳过"} · ${q.type === "single_choice" ? "单选" : "最多选 " + q.max_choices + " 项"}</p>${q.options.map((o) => `<label class="answer-option"><input type="${q.type === "single_choice" ? "radio" : "checkbox"}" name="answer" value="${esc(o.code)}" ${answers.includes(o.code) ? "checked" : ""}>${esc(o.label)}</label>`).join("")}</fieldset><div class="form-error" role="alert"></div><div class="actions">${state.question ? button("previous-question", "上一题", "", true) : ""}<button type="submit" class="button">${state.question === s.questions.length - 1 ? "保存并完成" : "保存并下一题"}</button>${button("cancel-assessment", "取消本次测评", "", true)}</div></form></section>`
     );
   }
   return submissionView(s);
@@ -602,12 +603,12 @@ function sessionView(s) {
 function submissionView(s) {
   if (s.purpose === "assessment" && s.status === "completed")
     return (
-      head(s.title || "问卷体验", "回看这次留下的回答。") +
+      head(s.title || "问卷体验") +
       `<section class="panel question">${testTag()}${s.completed_at ? `<p class="note">完成于 ${date(s.completed_at)}</p>` : ""}${(s.choice_summary || []).map((row) => `<div class="report-section"><h3>${esc(row.question)}</h3><p>${row.choices.length ? row.choices.map(esc).join("、") : "本题未选择"}</p></div>`).join("")}<div class="actions"><a class="button" href="#home">选一个小活动</a><a class="button secondary" href="#reports">返回体验记录</a></div></section>`
     );
   if (s.purpose === "exploration")
     return (
-      head(s.title, s.description) +
+      head(s.title) +
       `<section class="panel question">${testTag()}${s.status === "completed" ? `<h2>这次，你这样选择</h2>${renderGuidanceSummary(s.guidance_summary)}<p>这些选择只描述此刻的想法，不代表固定类型、天赋或能力。</p>${s.choice_summary.map((row) => `<div class="report-section"><h3>${esc(row.question)}</h3><p>${row.choices.length ? row.choices.map(esc).join("、") : "本题未选择"}</p></div>`).join("")}` : s.status === "ready" ? `<h2>准备好留下这次选择了吗？</h2><p>提交后会保留本次答案。你也可以先返回修改。</p><div class="actions">${button("complete-exploration", "完成探索体验")}${button("review-answers", "返回修改", "", true)}</div>` : `<h2>${esc(statusNames[s.status] || s.status)}</h2>`}<div class="form-error" role="alert"></div><div class="actions"><a class="button secondary" href="#reports">返回测评与报告</a><a class="text-button" href="#companion">选择伙伴引导</a>${s.status === "completed" ? button("redo-exploration", "再做一次探索体验", "", true) : ""}${exportButton()}</div></section>`
     );
   return (
@@ -880,7 +881,7 @@ async function render() {
       html =
         `<div id="experience-task-slot">${task}</div>` +
         window.PlayWorld.render() +
-        `<div class="grid extra-links"><section class="card"><h2>从一个小行动开始</h2><p>选一个适合此刻心情的活动，和孩子一起试试看。</p><a class="button" href="#home">今日陪伴</a></section><section class="card"><h2>把观察慢慢积累下来</h2><p>回看每次探索和活动留下的记录。</p><a class="button secondary" href="#reports">测评与报告</a></section></div>`;
+        `<div class="actions extra-links"><a class="button secondary" href="#home">今日陪伴</a><a class="button secondary" href="#reports">测评与报告</a></div>`;
     } else if (route === "home") {
       const [activities, records] = await Promise.all([
         API.all("/activities"),
@@ -894,8 +895,7 @@ async function render() {
       );
       hints.activities = activities;
       html =
-        head("今日陪伴", "跟着此刻的心情，开始一个小小的行动。") +
-        `<div class="hero-panel"><div><span class="eyebrow">HELLO, LITTLE EXPLORER</span><h2>${esc(state.child.name)}，<br>今天想发现什么？</h2><p>一点好奇，一点尝试。每一步，都有自己的意义。</p></div><img src="assets/dingdong/robot-wave.webp" alt="DingDong 成长伙伴"></div>` +
+        head("今日陪伴", "选一个此刻想尝试的活动。") +
         (active
           ? `<div class="notice"><b>有一个活动等你继续：${esc(active.activity.title)}</b><div class="actions">${button("resume-activity", "继续活动", `data-id="${active.id}"`)}</div></div>`
           : "") +
@@ -925,7 +925,7 @@ async function render() {
       if (tick !== viewEpoch || state.child?.id !== child) return;
       nextCursor = result.next_cursor;
       html =
-        head("成长旅程", "把每次的小发现，慢慢积累起来。", exportButton()) +
+        head("成长旅程", "", exportButton()) +
         `<div id="experience-task-slot">${sessions.error || records.error ? '<section class="panel"><h2>下一次，想一起做什么？</h2><a class="button" href="#home">选一个小活动</a></section>' : renderExperienceTask(nextExperience(sessions, records, child))}</div>` +
         `<div class="actions" role="group" aria-label="活动记录筛选">${[
           ["", "全部"],
@@ -977,7 +977,7 @@ async function render() {
         html =
           head(
             "历史体验记录",
-            "回看已保存的记录。",
+            "",
             '<a href="#reports" class="button secondary">返回体验记录</a>',
           ) +
           `<article class="panel">${testTag()}<p class="note">保存于 ${date(r.generated_at)}</p>${r.sections.map((section) => `<section class="report-section"><h2>${esc(section.title)}</h2>${section.paragraphs.map((text) => `<p>${esc(text)}</p>`).join("")}</section>`).join("")}</article>`;
@@ -1028,7 +1028,7 @@ async function render() {
           const resume = [...unfinished]
             .reverse()
             .find((s) => s.questionnaire_code === q.code);
-          return `<article class="card"><h3>${esc(q.title)}</h3><p>${esc(q.description)}</p><p class="note">${esc(q.question_count)} 题</p>${resume ? button("continue-assessment", "继续这份问卷", `data-id="${esc(resume.id)}"`) : button("begin-bank", "开始这份问卷", `data-id="${esc(q.id)}" data-purpose="${esc(q.purpose)}"`)}</article>`;
+          return `<article class="card questionnaire-row"><div><h3>${esc(q.title)}</h3><span class="note">${esc(q.question_count)} 题</span></div>${resume ? button("continue-assessment", "继续这份问卷", `data-id="${esc(resume.id)}"`, true) : button("begin-bank", "开始这份问卷", `data-id="${esc(q.id)}" data-purpose="${esc(q.purpose)}"`, true)}</article>`;
         })
         .join("");
       const active = [...unfinished]
@@ -1038,17 +1038,25 @@ async function render() {
       const resumes = unfinished.length
         ? panel(
             "继续测评",
-            `<div class="actions">${unfinished.map((s) => button("continue-assessment", `${esc(s.title)} · 继续`, `data-id="${esc(s.id)}"`, true)).join("")}</div>`,
+            `<div class="actions">${unfinished.map((s, index) => button("continue-assessment", `${esc(s.title)} · 继续`, `data-id="${esc(s.id)}"`, index > 0)).join("")}</div>`,
           )
         : "";
-      const history = renderExperienceRecords(
-        experienceRecords(
-          assessmentRows,
-          reports.error ? [] : reports,
-          activities.error ? [] : activities,
-          child,
-        ),
+      const personalRows = experienceRecords(
+        assessmentRows,
+        reports.error ? [] : reports,
+        activities.error ? [] : activities,
+        child,
       );
+      const history =
+        personalRows.length ||
+        !(
+          unfinished.length ||
+          sessions.error ||
+          reports.error ||
+          activities.error
+        )
+          ? renderExperienceRecords(personalRows)
+          : "";
       const exhibition =
         visibility.canExhibit && state.runtime?.exhibition_enabled
           ? exhibitionEntry()
@@ -1057,8 +1065,8 @@ async function render() {
         ? `<nav class="actions report-jumps" aria-label="报告页内导航">${button("report-jump", "机器人报告", 'data-target="dingdong-growth-report"', true)}${button("report-jump", "体验记录", 'data-target="personal-assessments"', true)}</nav>`
         : "";
       html =
-        head("测评与报告", "回看孩子的探索与测评结果。", exportButton()) +
-        `<div class="report-flow">${quickLinks}${visibility.state === "unknown" ? sectionError("机器人连接暂时读不到") : robotReport}<section id="personal-assessments" class="report-flow"><h2 class="report-section-title">体验记录</h2>${sessions.error ? sectionError("探索记录暂时读不到") : ""}${activities.error ? sectionError("活动记录暂时读不到") : ""}${history}${resumes}<details class="panel assessment-start"><summary>开始测评</summary><div class="grid">${catalog.error ? sectionError("测评列表暂时读不到") : questionnaireCards || "<p>暂时没有可开始的问卷，请稍后再来看看。</p>"}</div></details></section>${exhibition}</div>`;
+        head("测评与报告") +
+        `<div class="report-flow">${quickLinks}${visibility.state === "unknown" ? sectionError("机器人连接暂时读不到") : robotReport}<section id="personal-assessments" class="report-flow">${personalRows.length ? '<h2 class="report-section-title">体验记录</h2>' : ""}${reports.error ? sectionError("历史报告暂时读不到") : ""}${sessions.error ? sectionError("探索记录暂时读不到") : ""}${activities.error ? sectionError("活动记录暂时读不到") : ""}${resumes}${history}<details class="panel assessment-start"><summary>开始测评</summary><p class="note">记录这次选择，不评定天赋或能力。</p><div class="questionnaire-list">${catalog.error ? sectionError("测评列表暂时读不到") : questionnaireCards || "<p>暂时没有可开始的问卷，请稍后再来看看。</p>"}</div></details><div class="actions report-secondary-actions">${exportButton()}</div></section>${exhibition}</div>`;
       if (reportRead) {
         // CA results are already usable while the independent robot request is pending.
         page(html);
@@ -1136,7 +1144,7 @@ async function render() {
         html =
           head(
             "展会体验",
-            "这里使用演示内容，供你和孩子一起体验。",
+            "",
             '<a class="button secondary" href="#companion">返回我的 DingDong</a>',
           ) +
           `<div class="report-flow"><section class="panel"><p>演示报告不代表孩子的测评结果。以后绑定自己的机器人，就能查看专属陪伴记录。</p><div class="actions">${chat ? `<a class="button" href="${esc(chat)}" target="_blank" rel="noopener noreferrer">${COMPANION_ENTRY_LABEL}</a>` : ""}${button("bind-robot", "绑定自己的机器人", "", true)}</div><p class="note">多人共享这次演示，伙伴和内容可能随体验变化。</p></section>${dingdongReportPanel(result, true)}</div>`;
@@ -1154,7 +1162,7 @@ async function render() {
       html =
         head(
           "账户与关联",
-          "管理孩子的资料和机器人。",
+          "",
           '<div class="actions"><a href="#companion" class="button secondary">我的 DingDong</a><a href="#services" class="text-button">家长支持</a></div>',
         ) +
         `<div class="grid"><section class="panel"><h2>儿童档案</h2><p><b>${esc(state.child.name)}</b></p><p>${{ unknown: "性别未填写", male: "男", female: "女" }[state.child.gender]} · ${state.child.birth_date ? "出生于 " + esc(state.child.birth_date) : "出生日期未填写"}</p><div class="actions">${button("edit-child", "编辑档案", "", true)}${button("add-child", "添加儿童档案", "", true)}</div></section><section class="panel"><h2>家长账户</h2><p>${esc(state.user.phone_masked)}</p>${button("logout", "退出登录", "", true)}</section><section class="panel"><h2>用途授权</h2>${[
@@ -1191,26 +1199,17 @@ async function render() {
       hints.accounts = accounts;
       const guidance = pref.error
         ? sectionError("亲子引导暂时读不到")
-        : `<div class="grid"><section class="panel"><img class="figure-robot" src="assets/dingdong/robot-front.webp" alt="DingDong 伙伴"><h2>你好呀，我在这里。</h2><p>${esc(greeting(pref.guide_mode))}</p>${button("greeting", "听伙伴打个招呼", "", true)}</section><section class="panel"><h2>你喜欢怎样一起探索？</h2><p>选一种舒服的方式，开始今天的小行动。</p><div class="stack">${button("companion-exploration", "用 4 个小情境了解引导偏好")}<div class="stack">${Object.entries(
-            GUIDE_MODES,
-          )
-            .map(
-              ([k, v]) =>
-                `<button class="chip ${pref.guide_mode === k ? "active" : ""}" data-action="style" data-value="${k}" aria-pressed="${pref.guide_mode === k}"><strong>${esc(v.label)}</strong><span> · ${esc(v.description)}</span></button>`,
-            )
-            .join(
-              "",
-            )}</div></div><div class="actions"><a href="#home" class="button">去做一个小行动</a></div><div class="form-error" role="alert"></div></section></div>`;
+        : `<div class="grid"><section class="panel"><img class="figure-robot" src="assets/dingdong/robot-front.webp" alt="DingDong 伙伴"><h2>伙伴招呼</h2><p>${esc(greeting(pref.guide_mode))}</p>${button("greeting", "听伙伴打个招呼", "", true)}</section><section class="panel"><h2>亲子引导</h2>${renderGuidePreference(pref.guide_mode, GUIDE_MODES)}</section></div>`;
       html =
-        head("我的 DingDong", "你带着好奇来，我陪你一步一步试。") +
+        head("我的 DingDong") +
         (accounts.error
           ? sectionError("机器人连接暂时读不到")
           : renderRobotEntry(accounts, child, state.runtime)) +
         guidance;
     } else if (route === "services") {
       html =
-        head("家长支持", "先陪孩子多看一眼、多试一次。") +
-        `<div class="grid"><article class="panel"><h2>陪伴时，可以这样做</h2><p>把指令换成邀请：“要不要一起试试看？”</p><p>先听孩子的发现，再说自己的观察。</p><p>允许休息、跳过与重新尝试。</p>${button("parent-reflection", "一起回想今天的小发现")}</article><article class="panel"><h2>看见孩子的变化</h2><p>回顾真实的小事，给下一次探索留一点期待。</p><div class="actions"><a class="button" href="#reports">查看成长记录</a><a class="button secondary" href="https://happykua.com/CareerAcademy.html" target="_blank" rel="noopener noreferrer">了解 Career Academy ↗</a></div></article></div>`;
+        head("家长支持") +
+        `<div class="grid"><article class="panel"><h2>陪伴时，可以这样做</h2><p>把指令换成邀请：“要不要一起试试看？”</p><p>先听孩子的发现，再说自己的观察。</p><p>允许休息、跳过与重新尝试。</p>${button("parent-reflection", "一起回想今天的小发现")}</article><article class="panel"><h2>看见孩子的变化</h2><div class="actions"><a class="button" href="#reports">查看成长记录</a><a class="button secondary" href="https://happykua.com/CareerAcademy.html" target="_blank" rel="noopener noreferrer">了解 Career Academy ↗</a></div></article></div>`;
     } else {
       html = empty(
         "没有找到这个页面",
@@ -1220,7 +1219,7 @@ async function render() {
     }
     if (tick !== viewEpoch || state.child?.id !== child) return;
     if (route === "settings")
-      html += `<section class="panel"><h2>留下探索的小发现</h2><p>下载当前孩子的探索回答、结果与亲子活动记录。</p><div class="actions">${exportButton()}</div></section>`;
+      html += `<section class="panel"><h2>导出成长记录</h2><p>下载当前孩子的探索回答、结果与亲子活动记录。</p><div class="actions">${exportButton()}</div></section>`;
     if (route === "interest" && id)
       html += `<div class="actions">${exportButton()}</div>`;
     page(html);
@@ -2254,6 +2253,7 @@ async function handleAction(action, el) {
       if (!explorerCurrent(token) || saved.child_id !== child) return;
       state.companionPreference = saved;
       await render();
+      if (explorerCurrent(token)) $(".guide-options > summary")?.focus();
       break;
     }
     case "export-child":

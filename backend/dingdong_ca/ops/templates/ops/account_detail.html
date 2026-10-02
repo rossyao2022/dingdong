@@ -7,10 +7,12 @@
 {% block content %}
   {% if not editable %}
     <div class="alert alert-warning" role="alert">
-      <h4 class="alert-heading">该账号不可在此修改</h4>
-      <p class="mb-0">
-        自己、超级管理员和其他管理员账号不能通过业务入口修改角色或状态，避免误操作导致失去管理入口。
-      </p>
+      <div>
+        <h4 class="alert-heading">该账号不可在此修改</h4>
+        <p class="mb-0">
+          自己、超级管理员和其他管理员账号不能通过业务入口修改角色或状态，避免误操作导致失去管理入口。
+        </p>
+      </div>
     </div>
   {% endif %}
 

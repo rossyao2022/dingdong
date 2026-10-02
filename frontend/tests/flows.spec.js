@@ -76,7 +76,7 @@ async function child(page, name = "浏览器合成儿童") {
   await page.getByRole("button", { name: "保存档案", exact: true }).click();
   const id = (await (await response).json()).id;
   await expect(
-    page.getByRole("heading", { name: "发现兴趣，认识独特的你。" }),
+    page.getByRole("heading", { name: "兴趣岛 · 我喜欢做什么" }),
   ).toBeVisible();
   return id;
 }
@@ -363,7 +363,7 @@ test("登录后首页小岛出发与全部菜单可点击", async ({ page }) => 
     ["我的 DingDong", "我的 DingDong"],
     ["账户与关联", "账户与关联"],
     ["家长支持", "家长支持"],
-    ["天赋探索", "发现兴趣，认识独特的你。"],
+    ["天赋探索", "兴趣岛 · 我喜欢做什么"],
   ]) {
     await nav(page, label);
     await expect(

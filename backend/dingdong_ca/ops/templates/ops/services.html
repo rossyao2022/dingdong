@@ -9,44 +9,52 @@
 
   <div class="row row-cards" aria-label="事项概览">
     <div class="col-12 col-sm-6 col-lg-3">
-      <a class="ops-stat" href="{% url 'ops:services' %}?status=open" data-nav>
-        <span class="ops-stat-head">
-          <i class="ti ti-inbox" aria-hidden="true"></i>
-          <span class="ops-stat-label">待处理</span>
-        </span>
-        <b class="ops-stat-value">{{ counts.open }}</b>
-        <span class="ops-stat-note">口径：状态为“待处理”的事项数，需要运营认领并处理。</span>
-      </a>
+      <div class="ops-stat">
+            <a class="ops-stat-main" href="{% url 'ops:services' %}?status=open" data-nav>
+          <span class="ops-stat-head">
+            <i class="ti ti-inbox" aria-hidden="true"></i>
+            <span class="ops-stat-label">待处理</span>
+          </span>
+          <b class="ops-stat-value">{{ counts.open }}</b>
+            </a>
+            <details class="ops-metric-scope"><summary>统计口径</summary><span class="ops-stat-note">口径：状态为“待处理”的事项数，需要运营认领并处理。</span></details>
+      </div>
     </div>
     <div class="col-12 col-sm-6 col-lg-3">
-      <a class="ops-stat ops-stat-accent" href="{% url 'ops:services' %}?status=processing" data-nav>
-        <span class="ops-stat-head">
-          <i class="ti ti-progress" aria-hidden="true"></i>
-          <span class="ops-stat-label">处理中</span>
-        </span>
-        <b class="ops-stat-value">{{ counts.processing }}</b>
-        <span class="ops-stat-note">口径：状态为“处理中”的事项数。</span>
-      </a>
+      <div class="ops-stat ops-stat-accent">
+            <a class="ops-stat-main" href="{% url 'ops:services' %}?status=processing" data-nav>
+          <span class="ops-stat-head">
+            <i class="ti ti-progress" aria-hidden="true"></i>
+            <span class="ops-stat-label">处理中</span>
+          </span>
+          <b class="ops-stat-value">{{ counts.processing }}</b>
+            </a>
+            <details class="ops-metric-scope"><summary>统计口径</summary><span class="ops-stat-note">口径：状态为“处理中”的事项数。</span></details>
+      </div>
     </div>
     <div class="col-12 col-sm-6 col-lg-3">
-      <a class="ops-stat" href="{% url 'ops:services' %}?status=completed" data-nav>
-        <span class="ops-stat-head">
-          <i class="ti ti-circle-check" aria-hidden="true"></i>
-          <span class="ops-stat-label">已完成</span>
-        </span>
-        <b class="ops-stat-value">{{ counts.completed }}</b>
-        <span class="ops-stat-note">口径：状态为“已完成”的事项数，含历史记录。</span>
-      </a>
+      <div class="ops-stat">
+            <a class="ops-stat-main" href="{% url 'ops:services' %}?status=completed" data-nav>
+          <span class="ops-stat-head">
+            <i class="ti ti-circle-check" aria-hidden="true"></i>
+            <span class="ops-stat-label">已完成</span>
+          </span>
+          <b class="ops-stat-value">{{ counts.completed }}</b>
+            </a>
+            <details class="ops-metric-scope"><summary>统计口径</summary><span class="ops-stat-note">口径：状态为“已完成”的事项数，含历史记录。</span></details>
+      </div>
     </div>
     <div class="col-12 col-sm-6 col-lg-3">
-      <a class="ops-stat" href="{% url 'ops:services' %}?status=cancelled" data-nav>
-        <span class="ops-stat-head">
-          <i class="ti ti-ban" aria-hidden="true"></i>
-          <span class="ops-stat-label">已取消</span>
-        </span>
-        <b class="ops-stat-value">{{ counts.cancelled }}</b>
-        <span class="ops-stat-note">口径：状态为“已取消”的事项数。</span>
-      </a>
+      <div class="ops-stat">
+            <a class="ops-stat-main" href="{% url 'ops:services' %}?status=cancelled" data-nav>
+          <span class="ops-stat-head">
+            <i class="ti ti-ban" aria-hidden="true"></i>
+            <span class="ops-stat-label">已取消</span>
+          </span>
+          <b class="ops-stat-value">{{ counts.cancelled }}</b>
+            </a>
+            <details class="ops-metric-scope"><summary>统计口径</summary><span class="ops-stat-note">口径：状态为“已取消”的事项数。</span></details>
+      </div>
     </div>
   </div>
 
@@ -90,7 +98,6 @@
     <div class="card-header">
       <div>
         <h2 class="card-title">事项列表</h2>
-        <div class="card-subtitle">共 {{ page.total }} 条，每页 20 条。</div>
       </div>
     </div>
 

@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { readFileSync } from "node:fs";
 const base = process.env.E2E_BASE_URL || "http://127.0.0.1:4173";
-const shots = "../deploy/evidence/v0.3.25/shots";
+const shots = process.env.E2E_SHOTS_DIR || "../deploy/evidence/v0.3.25/shots";
 async function login(page) {
   await page.goto(base);
   expect(
@@ -79,9 +79,11 @@ test("原四类偏好真实保存、刷新恢复、儿童隔离、退出", async
   await login(page);
   const child = await page.locator("#child-select").inputValue();
   await page.goto(base + "/#companion");
+  await page.locator(".guide-options > summary").click();
   await expect(
     page.locator("[data-action=style][data-value=imitative]"),
   ).toBeVisible();
+  if ((await page.locator(".guide-options").getAttribute("open")) === null) await page.locator(".guide-options > summary").click();
   await page.locator("[data-action=style][data-value=imitative]").click();
   await expect(
     page.locator("[data-value=imitative][data-action=style]"),
@@ -105,6 +107,7 @@ test("原四类偏好真实保存、刷新恢复、儿童隔离、退出", async
   await expect(
     page.locator("[data-value=cognitive][data-action=style]"),
   ).toHaveAttribute("aria-pressed", "true");
+  if ((await page.locator(".guide-options").getAttribute("open")) === null) await page.locator(".guide-options > summary").click();
   await page.locator("[data-value=open][data-action=style]").click();
   await expect(
     page.locator("[data-value=open][data-action=style]"),
@@ -130,6 +133,7 @@ test("活动四种引导实际不同、自主模式、上一步、筛选与真�
   const child = await page.locator("#child-select").inputValue();
   const texts = [];
   await page.goto(base + "/#companion");
+  if ((await page.locator(".guide-options").getAttribute("open")) === null) await page.locator(".guide-options > summary").click();
   await page.locator("[data-action=style][data-value=imitative]").click();
   await expect(
     page.locator("[data-action=style][data-value=imitative]"),
@@ -155,7 +159,8 @@ test("活动四种引导实际不同、自主模式、上一步、筛选与真�
       const id = record.id;
       const before = await page.locator(".activity-guidance").innerText();
       await page.goto(base + "/#companion");
-      await page.locator("[data-action=style][data-value=open]").click();
+      if ((await page.locator(".guide-options").getAttribute("open")) === null) await page.locator(".guide-options > summary").click();
+  await page.locator("[data-action=style][data-value=open]").click();
       await expect(
         page.locator("[data-action=style][data-value=open]"),
       ).toHaveAttribute("aria-pressed", "true");

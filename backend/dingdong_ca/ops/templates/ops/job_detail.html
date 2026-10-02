@@ -30,18 +30,24 @@
         <div class="card-body">
           {% if job.status == "failed" %}
             <div class="alert alert-danger" role="alert">
-              <h4 class="alert-heading">{{ reason }}</h4>
-              <p class="mb-0">{{ advice }}</p>
+              <div>
+                <h4 class="alert-heading">{{ reason }}</h4>
+                <p class="mb-0">{{ advice }}</p>
+              </div>
             </div>
           {% elif job.status == "waiting" %}
             <div class="alert alert-warning" role="alert">
-              <h4 class="alert-heading">{{ reason }}</h4>
-              <p class="mb-0">{{ advice }}</p>
+              <div>
+                <h4 class="alert-heading">{{ reason }}</h4>
+                <p class="mb-0">{{ advice }}</p>
+              </div>
             </div>
           {% elif job.status == "succeeded" %}
             <div class="alert alert-success" role="alert">
-              <h4 class="alert-heading">任务已完成</h4>
-              <p class="mb-0">该任务已成功产出结果，无需人工处理。</p>
+              <div>
+                <h4 class="alert-heading">任务已完成</h4>
+                <p class="mb-0">该任务已成功产出结果，无需人工处理。</p>
+              </div>
             </div>
           {% endif %}
 

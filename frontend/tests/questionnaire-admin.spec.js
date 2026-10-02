@@ -74,7 +74,7 @@ test("后台可视化创建、预览、发布、复制新版本", async ({ page,
     await parent.getByLabel("姓名或称呼").fill("新题库测试小芽");
     await parent.getByRole("button", { name: "保存档案", exact: true }).click();
     await expect(
-      parent.getByRole("heading", { name: "发现兴趣，认识独特的你。" }),
+      parent.getByRole("heading", { name: "兴趣岛 · 我喜欢做什么" }),
     ).toBeVisible();
     await parent.goto("http://127.0.0.1:4173/#reports");
     await parent

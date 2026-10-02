@@ -50,7 +50,7 @@ async function child(page, name) {
   await page.getByRole("button", { name: "保存档案", exact: true }).click();
   const id = (await (await response).json()).id;
   await expect(
-    page.getByRole("heading", { name: "发现兴趣，认识独特的你。" }),
+    page.getByRole("heading", { name: "兴趣岛 · 我喜欢做什么" }),
   ).toBeVisible();
   return id;
 }

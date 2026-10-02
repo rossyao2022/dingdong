@@ -14,14 +14,16 @@
 {% block content %}
   {% if not can_edit %}
     <div class="alert alert-warning" role="alert">
-      <h4 class="alert-heading">该版本不可编辑</h4>
-      <p class="mb-0">
-        {% if row.status == "draft" %}
-          当前角色没有编辑活动的权限，你可以查看和预览。
-        {% else %}
-          已发布或已停用的版本不能原地修改。请使用“复制为新版本”创建可编辑的草稿。
-        {% endif %}
-      </p>
+      <div>
+        <h4 class="alert-heading">该版本不可编辑</h4>
+        <p class="mb-0">
+          {% if row.status == "draft" %}
+            当前角色没有编辑活动的权限，你可以查看和预览。
+          {% else %}
+            已发布或已停用的版本不能原地修改。请使用“复制为新版本”创建可编辑的草稿。
+          {% endif %}
+        </p>
+      </div>
     </div>
   {% endif %}
 
@@ -89,7 +91,7 @@
                 </label>
               {% endfor %}
             </div>
-            <p class="form-hint">家长端会按这些风格标签匹配活动，至少选择一种才能发布。</p>
+            <p class="form-hint">至少选择一种风格才能发布。</p>
           </div>
         </div>
       </section>
@@ -141,7 +143,7 @@
             <dt>历史记录总数</dt><dd>{{ total_records }} 条</dd>
           </dl>
           <p class="form-hint">
-            记录在创建时固定使用当时的活动版本；修改内容请复制为新版本，已开始或已完成的记录不会被破坏。
+            修改请复制为新版本；已开始或完成的记录保留原版本。
           </p>
         </div>
       </section>
