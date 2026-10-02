@@ -1175,3 +1175,26 @@ Installed official 0.2.52 agent on 1.15.23.152 with isolated non-root Docker run
 ### Status
 
 [OK] **Completed**
+
+
+## Session 48: v0.3.29 长期登录修复与上线
+<!-- trellis-session: v=2 fp=1f763d382d5f1522 -->
+
+**Date**: 2026-10-02
+**Task**: v0.3.29 长期登录修复与上线
+**Branch**: `codex/release-v0.3.29`
+
+### Summary
+
+取消家长固定7天截止，400天滚动cookie/短access与撤销保护；有效旧登录升级，多页锁与旧请求取消防串号。后端40/前端149及必要检查通过，修复回滚NULL并发风险，先origin后upstream ca-main，私密备份/0018/四应用上线，版本与源码确认，DBRedisCommander保持，用户人工功能测。原两份脏审计JSON保留。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `9214739` | [T-persistent-login] fix: 保留家长登录并自动续期 |
+| `ca57083` | [T-persistent-login] docs: 记录 v0.3.29 登录修复已上线 |
+
+### Status
+
+[OK] **Completed**
