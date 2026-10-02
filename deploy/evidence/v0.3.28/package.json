@@ -1,0 +1,8 @@
+{
+  "version": "0.3.28",
+  "source_commit": "6b30b2fa0650baf4afff4ffa19b60c626c1b0741",
+  "sha256": "9db4570d6c6f3858ca4bdfee101e8c56dcac53a70f240ea30719247275875305",
+  "committed_runtime_files": 474,
+  "commander_files_excluded": true,
+  "extra_functional_tests": "skipped_per_user_manual_acceptance"
+}

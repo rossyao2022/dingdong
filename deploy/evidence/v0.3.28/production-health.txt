@@ -1,0 +1,12 @@
+Release state confirmation only; no functional tests, browser sessions, production login, SMS or supplier requests.
+/dingdong-prod-trial-api-1|dingdong-backend:0.3.28|running|healthy
+/dingdong-prod-trial-worker-1|dingdong-backend:0.3.28|running|no-healthcheck
+/dingdong-prod-trial-beat-1|dingdong-backend:0.3.28|running|no-healthcheck
+/dingdong-prod-trial-web-1|dingdong-web:0.3.28|running|no-healthcheck
+
+Public version URL=https://1.15.23.152/dingdong/version.txt
+0.3.28
+
+http_status=200
+IP entry uses existing self-signed certificate; -k is not certificate validation.
+Database/Redis/Commander container IDs and started timestamps unchanged.

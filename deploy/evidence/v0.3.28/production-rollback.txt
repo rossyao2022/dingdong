@@ -1,0 +1,1 @@
+Rollback script points to 0.3.27 four applications only; config unchanged; no database restore. Not executed.

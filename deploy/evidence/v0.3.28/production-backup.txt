@@ -1,0 +1,6 @@
+Database backup retained on server only
+path=/opt/dingdong/backups/pre-v0.3.28-20261002.dump bytes=201870 permissions=600
+f7d00cc127ff046b23b0fc67a7bcb555f57dc9281b2dfc82883b3b6a0ebf88cd  /opt/dingdong/backups/pre-v0.3.28-20261002.dump
+[dingdong-backend:0.3.27] sha256:02c89719651ce2abb53464e9231840c5bea7c64b8791f3639cd8572cbde90a47
+[dingdong-web:0.3.27] sha256:b7833a015983d3bd2d0a021b27aeddd28944f282faa20ca3ba88646c6d95cf8a
+Rollback compose retained at /opt/dingdong/releases/dingdong-v0.3.27/deploy/compose.yml

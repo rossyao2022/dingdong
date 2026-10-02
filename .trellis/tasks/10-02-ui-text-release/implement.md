@@ -4,3 +4,7 @@
 2. 建release-v0.3.28分支，提交发布计划，按origin发布分支/main→upstream ca-main同步。
 3. 从精确提交打包，交给部署实现代理备份/传包/离线构建，仅更新四应用并确认健康和版本。
 4. 读日志复核部署事实；人工功能验收由用户完成。更新记忆/索引/发布报告、同步文档提交、归档journal。
+
+## 完成
+
+2026-10-02 16:31已上线，source6b30b2f；公开version.txt=0.3.28，四应用running/API healthy，不动服务元数据一致。发布复核仅read-only文档/日志，未运行额外功能测试，用户人工验收待本人。未出现新模式，沿用既有发布与权限规范，无新增spec规则。证据见deploy/PRODUCTION_RELEASE_20261002_V0328.md及research两份记录。

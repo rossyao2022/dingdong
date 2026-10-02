@@ -1,0 +1,24 @@
+{
+  "captured_at": "2026-10-02T08:32:18.773222+00:00",
+  "services": [
+    {
+      "name": "dingdong-prod-trial-postgres-1",
+      "id": "5e9557920b3f734dbfa63420db117dfaa853979d48e4158ed6431c29393d137f",
+      "started_at": "2026-09-28T03:11:40.993503678Z",
+      "image": "postgres:17-alpine"
+    },
+    {
+      "name": "dingdong-prod-trial-redis-1",
+      "id": "39427c611fe249e309b327e744ff539952ba6bd58bcd8287f56420ed33eaaa76",
+      "started_at": "2026-09-28T03:11:40.994676404Z",
+      "image": "redis:7-alpine"
+    },
+    {
+      "name": "remote-desktop-commander",
+      "id": "ea5ffd644002c84ca19a6950a0d376ab0595acec8297d907f0d175084d4e21f5",
+      "started_at": "2026-10-01T08:46:05.727363066Z",
+      "image": "dingdong-rdc:0.2.52"
+    }
+  ],
+  "unchanged_from_before": true
+}

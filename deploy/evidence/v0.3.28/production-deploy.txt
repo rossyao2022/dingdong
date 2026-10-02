@@ -1,0 +1,90 @@
+package sha256=9db4570d6c6f3858ca4bdfee101e8c56dcac53a70f240ea30719247275875305
+Release source marker
+{
+  "version": "0.3.28",
+  "branch": "codex/release-v0.3.28",
+  "commit": "6b30b2fa0650baf4afff4ffa19b60c626c1b0741"
+}
+Offline backend build
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            BuildKit is currently disabled; enable it by removing the DOCKER_BUILDKIT=0
+            environment-variable.
+
+Sending build context to Docker daemon  7.594MB
+
+Step 1/5 : FROM dingdong-backend:0.3.20
+ ---> 3410b564a9db
+Step 2/5 : USER root
+ ---> Using cache
+ ---> 18a9407f1d29
+Step 3/5 : COPY --chown=app:app backend/ /app/
+ ---> 1060f7dbfe03
+Step 4/5 : RUN DJANGO_SETTINGS_MODULE=config.settings.base .venv/bin/python manage.py collectstatic --noinput
+ ---> Running in 69f5e76397f4
+
+1 static file copied to '/app/staticfiles', 172 unmodified.
+ ---> Removed intermediate container 69f5e76397f4
+ ---> fb254d964b7a
+Step 5/5 : USER app
+ ---> Running in 032a7b990a6f
+ ---> Removed intermediate container 032a7b990a6f
+ ---> 4462f2cbdff8
+Successfully built 4462f2cbdff8
+Successfully tagged dingdong-backend:0.3.28
+
+Offline web build
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            BuildKit is currently disabled; enable it by removing the DOCKER_BUILDKIT=0
+            environment-variable.
+
+Sending build context to Docker daemon  7.594MB
+
+Step 1/7 : FROM dingdong-web:0.3.20
+ ---> a66800a4c917
+Step 2/7 : COPY deploy/nginx.conf.template /etc/nginx/templates/default.conf.template
+ ---> Using cache
+ ---> e0d1d0b8467c
+Step 3/7 : COPY frontend/index.html frontend/*.css frontend/app.js frontend/bootstrap.js frontend/api.js frontend/playworld.js frontend/companion.js frontend/reassessment.js frontend/growth-cycle.js frontend/ca-link.js frontend/dingdong-report.js frontend/experience-flow.js frontend/ui-components.js frontend/talent-data.js frontend/talent-explorer.js frontend/career-data.js frontend/career-explorer.js frontend/riasec.js frontend/island-explorer.js frontend/fingerprint-guide.js frontend/fingerprint.js frontend/exploration-session.js frontend/guide-preference.js frontend/legacy.js /usr/share/nginx/html/
+ ---> a57a102d1f8b
+Step 4/7 : COPY frontend/daily.html frontend/test.html frontend/result.html frontend/thumb.html frontend/island.html frontend/blindbox.html frontend/report.html /usr/share/nginx/html/
+ ---> 663311570892
+Step 5/7 : COPY frontend/assets /usr/share/nginx/html/assets
+ ---> da5dbbde513a
+Step 6/7 : COPY VERSION /usr/share/nginx/html/version.txt
+ ---> d80fc1b7949d
+Step 7/7 : RUN find /usr/share/nginx/html -type d -exec chmod 755 {} +     && find /usr/share/nginx/html -type f -exec chmod 644 {} +
+ ---> Running in c9d62cf7ad60
+ ---> Removed intermediate container c9d62cf7ad60
+ ---> 997f773e2525
+Successfully built 997f773e2525
+Successfully tagged dingdong-web:0.3.28
+
+Update only api/worker/beat/web; no init, migration, or seed
+ Container dingdong-prod-trial-api-1  Recreate
+ Container dingdong-prod-trial-api-1  Recreated
+ Container dingdong-prod-trial-worker-1  Recreate
+ Container dingdong-prod-trial-beat-1  Recreate
+ Container dingdong-prod-trial-web-1  Recreate
+ Container dingdong-prod-trial-web-1  Recreated
+ Container dingdong-prod-trial-beat-1  Recreated
+ Container dingdong-prod-trial-worker-1  Recreated
+ Container dingdong-prod-trial-api-1  Starting
+ Container dingdong-prod-trial-api-1  Started
+ Container dingdong-prod-trial-api-1  Waiting
+ Container dingdong-prod-trial-api-1  Waiting
+ Container dingdong-prod-trial-api-1  Waiting
+ Container dingdong-prod-trial-api-1  Healthy
+ Container dingdong-prod-trial-worker-1  Starting
+ Container dingdong-prod-trial-api-1  Healthy
+ Container dingdong-prod-trial-beat-1  Starting
+ Container dingdong-prod-trial-api-1  Healthy
+ Container dingdong-prod-trial-web-1  Starting
+ Container dingdong-prod-trial-worker-1  Started
+ Container dingdong-prod-trial-beat-1  Started
+ Container dingdong-prod-trial-web-1  Started
+
+Application container release state
+/dingdong-prod-trial-api-1|dingdong-backend:0.3.28|running|healthy|2026-10-02T08:31:26.750002415Z
+/dingdong-prod-trial-worker-1|dingdong-backend:0.3.28|running|no-healthcheck|2026-10-02T08:31:38.417883587Z
+/dingdong-prod-trial-beat-1|dingdong-backend:0.3.28|running|no-healthcheck|2026-10-02T08:31:38.435014765Z
+/dingdong-prod-trial-web-1|dingdong-web:0.3.28|running|no-healthcheck|2026-10-02T08:31:38.42938859Z
