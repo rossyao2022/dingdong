@@ -1,0 +1,9 @@
+{
+  "version": "0.3.29",
+  "source_commit": "92147391e4c78e372bc98388fe1ec14d3fd9144a",
+  "sha256": "eead06dd4b80f37aecb27d045e1edbd2193b60a153d90930d9dbc80d206f9c03",
+  "committed_runtime_files": 479,
+  "commander_files_excluded": true,
+  "local_auth_checks": "backend40/frontend149/static/document gates",
+  "production_functional_tests": "user_manual_acceptance"
+}

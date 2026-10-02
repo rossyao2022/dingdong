@@ -1,0 +1,7 @@
+Public version: HTTP 200 / 0.3.29 (existing self-signed IP certificate via curl -k)
+Production APP_VERSION=0.3.29; four affected backend hashes match source 9214739
+core.0018 applied; API running/healthy; worker/beat/web running (no independent healthcheck)
+DB/Redis/Commander identities/start times preserved
+No production login, SMS, supplier call or browser functional test
+Public api.js?v=0.3.29: HTTP 200, no-store, SHA256 15c7c3a34504b95b4470b57613db7d0ba9d2294c15cc6e60d0d711bd06c19fd2
+Public app.js?v=0.3.29: HTTP 200, no-store, SHA256 f8c91ed9195b8e70436b2287508309d46a5f64ded997e672f01b158e7ffd8c26

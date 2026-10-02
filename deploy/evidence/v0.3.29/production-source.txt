@@ -1,0 +1,5 @@
+0.3.29
+807d7461729d9783f32f60d05b4940f7e18cc33caf94521fff32f111e88e39a6  /app/dingdong_ca/core/api/accounts.py
+a701a6dffa6eb8b67bee7c75b047cc40be3c8b01aa072a2aca751f9bd1b15bc8  /app/dingdong_ca/core/api/common.py
+51ef602576ff927840e3297564066d60e9e1561181e829f4b0637dc4b5829859  /app/dingdong_ca/core/models.py
+6d98c0fcf4172b408883ffadd58a21745b533e90e6b38d8b5f2c526ec0040b7a  /app/dingdong_ca/core/migrations/0018_persistent_login_grant.py

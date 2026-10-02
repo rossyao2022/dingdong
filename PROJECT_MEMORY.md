@@ -4,7 +4,7 @@
 
 ## 当前结论与最近工作
 
-**最新本地（2026-10-02，v0.3.29待发布）：家长长期登录修复已完成。** 新授权无固定7天截止，refresh JWT/HttpOnly cookie400天滚动续期，access10分钟及DB撤销校验保持；有效旧授权成功刷新自动升级，过期/撤销/停用不复活。同源Web Locks串行刷新/登录/退出，无锁浏览器仅页内队列；迟到401不跨身份重发。迁移0018仅允许LoginGrant.expires_at为空，清理保留活跃NULL；回滚旧版须先停新四应用，再填NULL为未来400天保留撤销。后端40、前端149/语法与静态/Django/迁移检查通过，未做浏览器或生产功能测试，用户本人手测。当前生产仍0.3.28；沿用户直接上线授权准备发布，不改R2/CDN/env/家庭数据。见[本地修复与发布方案](deploy/PERSISTENT_LOGIN_20261002_V0329.md)。下方为历史快照。
+**最新上线（2026-10-02，17:26）：v0.3.29家长长期登录已发布。** 新授权无固定7天截止，refresh JWT/HttpOnly cookie400天滚动续期，access10分钟及DB撤销校验保持；有效旧登录刷新自动升级，过期/撤销/停用不复活。同源Web Locks串行刷新/登录/退出，无锁浏览器仅页内队列；迟到401不跨身份重发，AUTH_STATE_CHANGED取消不清新登录。0018仅允许授权截止为空，活跃NULL不被清理；回滚先停新四应用，再填NULL为未来400天保留撤销。后端40、最终前端149/语法及静态/Django/迁移检查通过；按用户直接上线和本人手测安排，无生产登录/短信/供应商/浏览器功能测试。源码9214739、479文件包，先origin分支/main后upstream ca-main正常快进；备份后离线更新四应用，API healthy/其余running，公开版本与api/app字节一致。DB/Redis/Commander容器ID/启动时间不变，不改env/R2/CDN/家庭资料，不跑init/seed。家长https://1.15.23.152/dingdong/。见[登录修复、发布证据及回滚](deploy/PERSISTENT_LOGIN_20261002_V0329.md)。下方为历史快照。
 
 **最新上线（2026-10-02，16:31）：v0.3.28界面精简已上线。** 用户明确要求直接上线、额外功能测试由本人人工完成；本轮未跑测试套件/浏览器/生产登录/短信/供应商请求。先origin发布分支/main，再upstream ca-main正常快进同步；发布源6b30b2fa0650baf4afff4ffa19b60c626c1b0741、474文件包，排除Commander，仅替换api/worker/beat/web。API healthy，其余三应用running，公开version.txt HTTP200/0.3.28；DB/Redis/Commander容器ID和启动时间不变。原配置仅供Docker消费、未读取/复制/输出或修改；无迁移/init/seed、无生产家庭写入，R2/CDN行为不改。服务器0600私密DB备份及0.3.27回滚准备保留，未执行回滚。家长https://1.15.23.152/dingdong/，运营https://1.15.23.152/ops/；用户人工功能验收待本人。见[发布记录](deploy/PRODUCTION_RELEASE_20261002_V0328.md)。下方本地/旧版本记录为当时快照。
 
