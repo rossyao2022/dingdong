@@ -1130,3 +1130,25 @@ Installed official 0.2.52 agent on 1.15.23.152 with isolated non-root Docker run
 ### Next Steps
 
 - 按审查优先级实施需另行进入功能改动阶段，本轮不宣称优化已完成
+
+
+## Session 46: 全界面文字精简与重点修复 v0.3.28
+<!-- trellis-session: v=2 fp=eeb358dba3c2a8ce -->
+
+**Date**: 2026-10-02
+**Task**: 全界面文字精简与重点修复 v0.3.28
+**Branch**: `codex/release-v0.3.27`
+
+### Summary
+
+家长全部路由与探索状态、运营37模板逐项审查；删除重复铺垫，主动作提前，完整明细按需展开，修复偏好保存后的键盘焦点。前端134单测、运营112相关测试、Chrome26合并验收及文档审计通过。隔离合成环境，不调用供应商；本地已提交，未push/部署；原脏审计JSON保留；任务归档与完整覆盖/截图证据完成。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `def354d` | [T-ui-text-focus] fix: 全界面精简文字并突出当前动作 |
+
+### Status
+
+[OK] **Completed**
